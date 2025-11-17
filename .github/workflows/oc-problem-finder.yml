@@ -18,7 +18,7 @@ permissions:
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
-  group: ${{ github.workflow }}-global
+  group: ${{ github.repository }}-global-workflow
   cancel-in-progress: false
 
 env:
@@ -28,9 +28,9 @@ jobs:
 
   opencode:
     name: opencode - main agent runner
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-slim
     timeout-minutes: 40
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    
 
     permissions:
       id-token: write

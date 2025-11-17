@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use App\Models\User;
 use Hyperf\Database\Seeders\Seeder;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 
 class UserSeeder extends Seeder

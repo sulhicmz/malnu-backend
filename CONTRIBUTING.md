@@ -2,6 +2,14 @@
 
 Terima kasih ingin berkontribusi! Berikut panduannya:
 
+## Project Structure Important Notice
+
+**⚠️ CRITICAL**: This repository contains two applications:
+1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
+2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
+
+**ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
+
 ## Cara Berkontribusi
 1. Fork repository ini
 2. Buat branch baru (`git checkout -b fitur/namafitur`)
@@ -26,6 +34,7 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 - Join Discord kami: https://discord.gg/Zy9d5rcJ
 
 ## Lingkungan Development
-- PHP 8.1+
-- Laravel 12
+- PHP 8.2+ (required for HyperVel)
+- HyperVel framework (main application)
+- Laravel 12 (legacy application in web-sch-12/)
 - MySQL 8

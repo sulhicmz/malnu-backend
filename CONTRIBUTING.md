@@ -38,3 +38,8 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 - HyperVel framework (main application)
 - Laravel 12 (legacy application in web-sch-12/)
 - MySQL 8
+
+## Security Guidelines
+- Never commit real credentials, API keys, or sensitive data to the repository
+- Use placeholder values in .env.example (e.g., your-server@your-ip instead of real server details)
+- Keep sensitive configuration in environment-specific files not tracked by Git

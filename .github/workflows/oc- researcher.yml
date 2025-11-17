@@ -34,8 +34,8 @@ jobs:
       actions: write
       deployments: write
       packages: write
-  pages: write
-  security-events: write
+      pages: write
+      security-events: write
       
     env:
       GH_TOKEN: ${{ github.token }}

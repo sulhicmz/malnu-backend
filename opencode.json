@@ -32,6 +32,7 @@
       "npm install": "allow",
       "yarn install": "allow",
       "pip install": "allow",
+      "gh *": "allow",
       "*": "allow"
     },
     "edit": "allow",

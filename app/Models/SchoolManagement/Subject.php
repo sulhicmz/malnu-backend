@@ -6,7 +6,7 @@ namespace App\Models\SchoolManagement;
 
 use App\Models\AIAssistant\AiTutorSession;
 use App\Models\ELearning\VirtualClass;
-use App\Models\Grading\Compentency;
+use App\Models\Grading\Competency;
 use App\Models\Grading\Grade;
 use App\Models\Model;
 use App\Models\OnlineExam\Exam;
@@ -48,7 +48,7 @@ class Subject extends Model
 
     public function competencies()
     {
-        return $this->hasMany(Compentency::class);
+        return $this->hasMany(Competency::class);
     }
 
     public function questions()

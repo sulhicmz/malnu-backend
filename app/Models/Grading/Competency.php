@@ -9,7 +9,7 @@ use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Subject;
 use App\Models\User;
 
-class Compentency extends Model
+class Competency extends Model
 {
     protected $primaryKey = 'id';
     protected $keyType    = 'string';

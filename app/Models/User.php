@@ -8,13 +8,13 @@ use App\Models\AIAssistant\AiTutorSession;
 use App\Models\CareerDevelopment\CareerAssessment;
 use App\Models\DigitalLibrary\BookLoan;
 use App\Models\DigitalLibrary\BookReview;
-use App\Models\ELearning\AssignMent;
+use App\Models\ELearning\Assignment;
 use App\Models\ELearning\Discussion;
 use App\Models\ELearning\DiscussionReply;
 use App\Models\ELearning\LearningMaterial;
 use App\Models\ELearning\Quiz;
 use App\Models\ELearning\VideoConference;
-use App\Models\Grading\Compentency;
+use App\Models\Grading\Competency;
 use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Logs\AuditLog;
@@ -119,7 +119,7 @@ class User extends Authenticatable
 
     public function assignmentsCreated()
     {
-        return $this->hasMany(AssignMent::class, 'created_by');
+        return $this->hasMany(Assignment::class, 'created_by');
     }
 
     public function quizzesCreated()
@@ -149,7 +149,7 @@ class User extends Authenticatable
 
     public function competenciesCreated()
     {
-        return $this->hasMany(Compentency::class, 'created_by');
+        return $this->hasMany(Competency::class, 'created_by');
     }
 
     public function reportsCreated()

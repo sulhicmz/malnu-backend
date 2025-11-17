@@ -1,0 +1,31 @@
+# CODEOWNERS File
+
+# Default owners for the entire repository
+* @sulhicmz
+
+# Backend code
+*.php @sulhicmz
+app/ @sulhicmz
+config/ @sulhicmz
+database/ @sulhicmz
+routes/ @sulhicmz
+
+# Frontend code
+frontend/ @sulhicmz
+web-sch-12/ @sulhicmz
+
+# Configuration and CI/CD
+.github/ @sulhicmz
+*.json @sulhicmz
+*.yml @sulhicmz
+*.yaml @sulhicmz
+
+# Documentation
+*.md @sulhicmz
+docs/ @sulhicmz
+
+# Security and governance
+SECURITY.md @sulhicmz
+CODEOWNERS @sulhicmz
+CONTRIBUTING.md @sulhicmz
+LICENSE @sulhicmz

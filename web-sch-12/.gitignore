@@ -21,3 +21,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Minified assets (should be built, not committed)
+/public/backend/assets/css/*.min.css
+/public/backend/assets/js/*.min.js

@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -13,24 +14,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-
-        // users
-        /*Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('name');
-            $table->string('username', 50)->unique();
-            $table->string('email', 100)->unique();
-            $table->string('password');
-            $table->string('full_name', 100);
-            $table->string('phone', 20)->nullable();
-            $table->string('avatar_url', 255)->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamp('last_login')->nullable();
-            $table->string('remember_token', 100)->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamps();
-        });*/
-
         // Roles table
         Schema::create('roles', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(DB::raw('(UUID())'));

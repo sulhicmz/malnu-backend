@@ -22,6 +22,7 @@ use App\Models\Monetization\MarketplaceProduct;
 use App\Models\Monetization\Transaction;
 use App\Models\OnlineExam\Exam;
 use App\Models\OnlineExam\QuestionBank;
+use App\Models\ParentPortal\ParentOrtu;
 use App\Models\PPDB\PpdbAnnouncement;
 use App\Models\PPDB\PpdbDocument;
 use App\Models\PPDB\PpdbTest;
@@ -49,8 +50,11 @@ class User extends Authenticatable
         'avatar_url',
         'is_active',
         'last_login_time',
+        'last_login_ip',
         'remember_token',
         'email_verified_at',
+        'slug',
+        'key_status',
     ];
 
     /**
@@ -79,7 +83,7 @@ class User extends Authenticatable
     // Relationships
     public function parent()
     {
-        return $this->hasOne(Parent::class);
+        return $this->hasOne(ParentOrtu::class);
     }
 
     public function teacher()

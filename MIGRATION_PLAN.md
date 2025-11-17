@@ -56,23 +56,23 @@ Since the main application appears to be more comprehensive and actively maintai
    - [x] Create PROJECT_STRUCTURE.md
    - [x] Create APPLICATION_STATUS.md
    - [x] Update main README with structure explanation
-   - [ ] Add clear warnings about which application to use
+   - [x] Add clear warnings about which application to use
 
 2. **Development Guidelines**
-   - [ ] Update CONTRIBUTING.md with clear direction
-   - [ ] Add notices to web-sch-12 directory about its status
-   - [ ] Ensure all developers know which application to work on
+   - [x] Update CONTRIBUTING.md with clear direction
+   - [x] Add notices to web-sch-12 directory about its status
+   - [x] Ensure all developers know which application to work on
 
 ### Short-term Actions (Week 2-4)
 1. **Codebase Cleanup**
-   - [ ] Review web-sch-12 for any unique features that should be preserved
-   - [ ] Add deprecation notices to web-sch-12 files if appropriate
-   - [ ] Update any shared configuration files
+   - [x] Review web-sch-12 for any unique features that should be preserved
+   - [x] Add deprecation notices to web-sch-12 files if appropriate
+   - [x] Update any shared configuration files
 
 2. **Development Process**
-   - [ ] Update CI/CD to focus on main application
-   - [ ] Update testing procedures to prioritize main application
-   - [ ] Ensure deployment processes target the correct application
+   - [x] Update CI/CD to focus on main application
+   - [x] Update testing procedures to prioritize main application
+   - [x] Ensure deployment processes target the correct application
 
 ### Long-term Actions (Month 2+)
 1. **Archive or Remove**

@@ -2,11 +2,21 @@
 
 Terima kasih ingin berkontribusi! Berikut panduannya:
 
-## Project Structure Important Notice
+## ⚠️ CRITICAL: Project Structure Notice - READ FIRST
 
-**⚠️ CRITICAL**: This repository contains two applications:
-1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
+**This repository contains two applications, but ONLY ONE should be used for development:**
+
+### Primary Application (Use This One)
+- **Location**: Root directory of this repository
+- **Framework**: HyperVel framework (Laravel-style with Swoole support)
+- **Status**: ACTIVE - All development happens here
+
+### Legacy Application (Do Not Use)
+- **Location**: `web-sch-12/` directory
+- **Framework**: Laravel 12 with modular architecture
+- **Status**: DEPRECATED - Will be removed in future
+
+**⚠️ WARNING: Any pull requests affecting the web-sch-12 directory will be rejected unless they're for the specific purpose of deprecation/removal.**
 
 **ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
 

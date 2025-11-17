@@ -25,6 +25,13 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 - Diskusikan fitur besar di Issues sebelum coding
 - Join Discord kami: https://discord.gg/Zy9d5rcJ
 
+## Keamanan (Security)
+- **JANGAN PERNAH** commit credentials asli ke version control
+- Gunakan placeholder untuk semua environment variables di .env.example
+- Pastikan .env ada di .gitignore
+- Ganti semua placeholder dengan nilai asli di environment lokal
+- Review perubahan untuk memastikan tidak ada credentials yang ter-expose
+
 ## Lingkungan Development
 - PHP 8.1+
 - Laravel 12

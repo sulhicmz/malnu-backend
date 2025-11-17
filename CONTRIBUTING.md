@@ -2,6 +2,22 @@
 
 Terima kasih ingin berkontribusi! Berikut panduannya:
 
+## ⚠️ CRITICAL: Dual Application Structure - READ FIRST
+
+**This repository contains TWO separate applications. DEVELOPERS: All contributions must be made to the correct application.**
+
+### Primary Application (This is where you MUST contribute)
+- **Location**: Root directory (this directory)
+- **Framework**: HyperVel (Laravel-style with Swoole support)
+- **Status**: **ACTIVE - Primary development target**
+- **All contributions, features, and bug fixes should happen here**
+
+### Legacy Application (DO NOT contribute here)
+- **Location**: `web-sch-12/` directory
+- **Framework**: Laravel 12 with modular architecture
+- **Status**: **DEPRECATED - Do not contribute here**
+- **No new development should occur in this directory**
+
 ## Project Structure Important Notice
 
 **⚠️ CRITICAL**: This repository contains two applications:

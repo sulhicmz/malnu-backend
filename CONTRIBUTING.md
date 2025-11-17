@@ -1,14 +1,23 @@
-# Panduan Kontribusi Hyper Web School
+# ⚠️ Panduan Kontribusi - CRITICAL APPLICATION NOTICE ⚠️
+
+**READ BEFORE CONTRIBUTING:** This repository contains TWO applications. 
+**ALWAYS contribute to the PRIMARY application in the root directory. NEVER contribute to the `web-sch-12/` directory.**
+
+---
+
+## Panduan Kontribusi Hyper Web School
 
 Terima kasih ingin berkontribusi! Berikut panduannya:
 
-## Project Structure Important Notice
+## Project Structure Important Notice - CRITICAL
 
-**⚠️ CRITICAL**: This repository contains two applications:
-1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
+**⚠️ CRITICAL DEPRECATION NOTICE**: This repository contains two applications:
+1. **Main Application** (root directory) - **ACTIVE & PRIMARY**: HyperVel framework (Laravel-style with Swoole support)
+2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED & INACTIVE**: Laravel 12 with modular architecture
 
-**ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
+**⚠️ CRITICAL: ALL development MUST happen in the main application (root directory).**
+**❌ NEVER contribute to the web-sch-12 directory - contributions there will be rejected.**
+**The web-sch-12 directory is maintained only for legacy purposes and will be removed.**
 
 ## Cara Berkontribusi
 1. Fork repository ini

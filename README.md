@@ -1,24 +1,31 @@
-# malnu-backend
+# ⚠️ malnu-backend - School Management System
 
-Backend for Malnu Kananga - School Management System
+## ⚠️ CRITICAL NOTICE: Dual Application Structure ⚠️
+
+**READ THIS FIRST:** This repository contains TWO separate applications. 
+**ALWAYS use the PRIMARY application in the root directory. NEVER develop in the `web-sch-12/` directory.**
+
+---
 
 ## Project Structure
 
 This repository contains two applications due to historical development:
 
-1. **Main Application** (root directory) - **PRIMARY**: HyperVel framework (Laravel-style with Swoole support)
+1. **Main Application** (root directory) - **PRIMARY & ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
    - High-performance application with coroutine support
    - Comprehensive school management features
    - Current focus for all development efforts
+   - ✅ **USE THIS FOR ALL DEVELOPMENT**
 
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
+2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED & INACTIVE**: Laravel 12 with modular architecture
    - Older implementation with fewer features
-   - Under evaluation for deprecation
-   - No new development should occur here
+   - **NO LONGER MAINTAINED**
+   - ❌ **DO NOT DEVELOP HERE**
+   - Will be removed in future versions
 
 ## Current Status
 
-**⚠️ IMPORTANT**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be deprecated in the future.
+**⚠️ IMPORTANT**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is deprecated and maintained only for legacy purposes. **Any development in the `web-sch-12` directory will be ignored.**
 
 ## Framework Information
 

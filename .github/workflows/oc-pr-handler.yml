@@ -2,20 +2,16 @@ name: oc - pr handler
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 9,15,21 * * *'
   workflow_dispatch:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
-  id-token: write
   contents: write
   pull-requests: write
   issues: write
-  actions: write
-  deployments: write
-  packages: write
-  pages: write
-  security-events: write
+  actions: read
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
@@ -336,5 +332,5 @@ jobs:
             Your run is considered successful only if all the steps above are followed and the pull request or branch is left in a high-quality, healthy state aligned with GitHub best practices, and merge is performed automatically when a PR has clearly satisfied all merge criteria.
           PROMPT
           )" \
-            --model iflowcn/glm-4.6 \
+            --model iflowcn/qwen3-coder-plus \
             --share false \

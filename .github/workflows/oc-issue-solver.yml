@@ -6,15 +6,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: write
   pull-requests: write
   issues: write
-  actions: write
-  deployments: write
-  packages: write
-  pages: write
-  security-events: write
+  actions: read
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:
@@ -258,5 +253,5 @@ jobs:
             Your run is considered successful only if all the steps above are followed and the repository is left in a clean, consistent state with a high-quality pull request ready for human review.
           PROMPT
           )" \
-            --model iflowcn/glm-4.6 \
+            --model iflowcn/qwen3-coder-plus \
             --share false \

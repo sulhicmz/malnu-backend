@@ -6,15 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+  contents: read
   issues: write
-  actions: write
-  deployments: write
-  packages: write
-  pages: write
-  security-events: write
+  pull-requests: read
 
 # global lock: only 1 instance of this workflow running across events
 concurrency:

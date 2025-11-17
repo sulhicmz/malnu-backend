@@ -1,0 +1,11 @@
+{
+    "name": "AiLearning",
+    "alias": "ailearning",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AiLearning\\app\\Providers\\AiLearningServiceProvider"
+    ],
+    "files": []
+}

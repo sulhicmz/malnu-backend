@@ -1,0 +1,11 @@
+{
+    "name": "UjianOnline",
+    "alias": "ujianonline",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\UjianOnline\\app\\Providers\\UjianOnlineServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/manajemensekolah",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\ManajemenSekolah\\": "app/",
+            "Modules\\ManajemenSekolah\\Database\\Factories\\": "database/factories/",
+            "Modules\\ManajemenSekolah\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\ManajemenSekolah\\Tests\\": "tests/"
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "name": "ERaport",
+    "alias": "eraport",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ERaport\\app\\Providers\\ERaportServiceProvider"
+    ],
+    "files": []
+}

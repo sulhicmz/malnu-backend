@@ -1,0 +1,11 @@
+{
+    "name": "PortalOrangTua",
+    "alias": "portalorangtua",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PortalOrangTua\\app\\Providers\\PortalOrangTuaServiceProvider"
+    ],
+    "files": []
+}

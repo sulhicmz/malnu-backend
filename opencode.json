@@ -61,10 +61,10 @@
           "git status": "allow",
           "git log": "allow",
           "git diff": "allow",
-          "git add": "ask",
-          "git commit": "ask",
-          "git push": "ask",
-          "*": "ask"
+          "git add": "allow",
+          "git commit": "allow",
+          "git push": "allow",
+          "*": "allow"
         }
       }
     },
@@ -110,7 +110,7 @@
           "php artisan *": "allow",
           "phpstan": "allow",
           "php-cs-fixer": "allow",
-          "*": "ask"
+          "*": "allow"
         }
       }
     },
@@ -134,7 +134,7 @@
           "php artisan migrate*": "allow",
           "php artisan db:*": "allow",
           "composer test": "allow",
-          "*": "ask"
+          "*": "allow"
         }
       }
     },
@@ -158,7 +158,7 @@
           "composer test": "allow",
           "php artisan test": "allow",
           "phpunit": "allow",
-          "*": "ask"
+          "*": "allow"
         }
       }
     },
@@ -203,7 +203,7 @@
           "composer analyse": "allow",
           "php artisan start": "allow",
           "composer test": "allow",
-          "*": "ask"
+          "*": "allow"
         }
       }
     }

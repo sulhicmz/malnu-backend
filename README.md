@@ -1,6 +1,10 @@
-# malnu-backend
+# ⚠️ malnu-backend - Dual Application Repository ⚠️
+
+## ⚠️ CRITICAL WARNING: This repository contains TWO applications - READ BEFORE CONTINUING ⚠️
 
 Backend for Malnu Kananga - School Management System
+
+**⚠️ IMPORTANT: This repository contains two separate applications. BEFORE you contribute, read the section below to understand which application to work on.**
 
 ## Project Structure
 
@@ -14,11 +18,14 @@ This repository contains two applications due to historical development:
 2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
    - Older implementation with fewer features
    - Under evaluation for deprecation
-   - No new development should occur here
+   - **NO new development should occur here**
+   - **Contains deprecation notices - see web-sch-12/README.md**
 
 ## Current Status
 
-**⚠️ IMPORTANT**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be deprecated in the future.
+**⚠️ CRITICAL**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be deprecated in the future.
+
+**⚠️ DEVELOPER NOTICE**: If you are planning to contribute to this project, make sure you are working on the correct application (the main one in the root directory). The legacy application in `web-sch-12/` has been marked with deprecation notices and should not be modified.
 
 ## Framework Information
 

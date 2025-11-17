@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * DEPRECATED APPLICATION WARNING
+ * 
+ * This application (web-sch-12/) is DEPRECATED and no longer maintained.
+ * All development should occur in the main application located in the repository root.
+ * This legacy application will be removed in future versions.
+ */
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 

@@ -6,7 +6,7 @@ namespace App\Models\SchoolManagement;
 
 use App\Models\CareerDevelopment\CareerAssessment;
 use App\Models\CareerDevelopment\CounselingSession;
-use App\Models\Grading\Compentency;
+use App\Models\Grading\Competency;
 use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Grading\StudentPortfolio;
@@ -62,7 +62,7 @@ class Student extends Model
 
     public function competencies()
     {
-        return $this->hasMany(Compentency::class);
+        return $this->hasMany(Competency::class);
     }
 
     public function reports()

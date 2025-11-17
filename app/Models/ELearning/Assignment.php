@@ -7,7 +7,7 @@ namespace App\Models\ELearning;
 use App\Models\Model;
 use App\Models\User;
 
-class AssignMent extends Model
+class Assignment extends Model
 {
     protected $primaryKey = 'id';
     protected $keyType    = 'string';

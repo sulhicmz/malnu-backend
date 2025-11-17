@@ -4,7 +4,7 @@ declare (strict_types = 1);
 
 namespace App\Models\Grading;
 
-use App\Models\ELearning\AssignMent;
+use App\Models\ELearning\Assignment;
 use App\Models\ELearning\Quiz;
 use App\Models\Model;
 use App\Models\OnlineExam\Exam;
@@ -58,7 +58,7 @@ class Grade extends Model
 
     public function assignment()
     {
-        return $this->belongsTo(AssignMent::class);
+        return $this->belongsTo(Assignment::class);
     }
 
     public function quiz()

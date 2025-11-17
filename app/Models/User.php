@@ -50,8 +50,11 @@ class User extends Authenticatable
         'avatar_url',
         'is_active',
         'last_login_time',
+        'last_login_ip',
         'remember_token',
         'email_verified_at',
+        'slug',
+        'key_status',
     ];
 
     /**

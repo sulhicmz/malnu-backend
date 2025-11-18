@@ -52,7 +52,24 @@ class Student extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Parent::class);
+        return $this->belongsTo(ParentOrtu::class);
+    }
+    
+    // Helper method to get virtual classes through the student's class
+    public function getVirtualClassesAttribute()
+    {
+        if ($this->class) {
+            return $this->class->virtualClasses;
+        }
+        return collect([]);
+    }
+    
+    public function virtualClasses()
+    {
+        if ($this->class) {
+            return $this->class->virtualClasses();
+        }
+        return collect([]);
     }
 
     public function grades()

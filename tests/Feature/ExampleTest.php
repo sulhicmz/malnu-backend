@@ -14,7 +14,7 @@ class ExampleTest extends TestCase
 {
     public function testApiRootReturnsSuccessfulResponse()
     {
-        $response = $this->get('/');
+        $response = $this->get('/api/');
         
         $response->assertStatus(200)
                  ->assertJson([
@@ -25,7 +25,7 @@ class ExampleTest extends TestCase
 
     public function testApiRootWithUserParameter()
     {
-        $response = $this->get('/?user=TestUser');
+        $response = $this->get('/api/?user=TestUser');
         
         $response->assertStatus(200)
                  ->assertJson([

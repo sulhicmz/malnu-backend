@@ -10,7 +10,7 @@ class IndexControllerTest extends TestCase
 {
     public function testIndexReturnsCorrectResponse()
     {
-        $response = $this->get('/');
+        $response = $this->get('/api/');
 
         $response->assertStatus(200)
                  ->assertJson([
@@ -21,7 +21,7 @@ class IndexControllerTest extends TestCase
 
     public function testIndexWithCustomUserParameter()
     {
-        $response = $this->get('/?user=TestUser');
+        $response = $this->get('/api/?user=TestUser');
 
         $response->assertStatus(200)
                  ->assertJson([
@@ -32,8 +32,8 @@ class IndexControllerTest extends TestCase
 
     public function testIndexWithPostMethod()
     {
-        $response = $this->post('/');
-
+        $response = $this->post('/api/');
+        
         $response->assertStatus(200)
                  ->assertJson([
                      'method' => 'POST',
@@ -46,7 +46,7 @@ class IndexControllerTest extends TestCase
         $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
         
         foreach ($methods as $method) {
-            $response = $this->$method('/');
+            $response = $this->$method('/api/');
             
             $response->assertStatus(200)
                      ->assertJson([

@@ -14,9 +14,38 @@ class ApiTest extends TestCase
 
     public function testApiRootEndpointExists()
     {
-        $response = $this->get('/');
+        $response = $this->get('/api/');
 
         $response->assertStatus(200);
+    }
+
+    public function testApiHealthCheck()
+    {
+        $response = $this->get('/api/');
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'method',
+                     'message'
+                 ]);
+    }
+
+    public function testApiAcceptsJsonRequests()
+    {
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get('/api/');
+        
+        $response->assertStatus(200)
+                 ->assertHeader('Content-Type', 'application/json');
+    }
+
+    public function testApiReturnsCorrectHeaders()
+    {
+        $response = $this->get('/api/');
+
+        $response->assertStatus(200);
+        $this->assertNotNull($response->headers->get('content-type'));
     }
 
     public function testApiHealthCheck()

@@ -12,9 +12,25 @@ use Tests\TestCase;
  */
 class ExampleTest extends TestCase
 {
-    public function testTheApplicationReturnsSuccessfulResponse()
+    public function testApiRootReturnsSuccessfulResponse()
     {
-        $this->get('/')
-            ->assertSuccessful();
+        $response = $this->get('/');
+        
+        $response->assertStatus(200)
+                 ->assertJson([
+                     'method' => 'GET',
+                     'message' => 'Hello Hypervel.',
+                 ]);
+    }
+
+    public function testApiRootWithUserParameter()
+    {
+        $response = $this->get('/?user=TestUser');
+        
+        $response->assertStatus(200)
+                 ->assertJson([
+                     'method' => 'GET',
+                     'message' => 'Hello TestUser.',
+                 ]);
     }
 }

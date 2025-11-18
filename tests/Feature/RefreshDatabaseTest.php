@@ -18,11 +18,22 @@ class RefreshDatabaseTest extends TestCase
 
     public function testCreateUser()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
+            'email' => $user->email,
         ]);
+    }
+
+    public function testUserAttributes()
+    {
+        $user = User::factory()->create();
+
+        $this->assertNotNull($user->id);
+        $this->assertIsString($user->id);
+        $this->assertNotEmpty($user->email);
+        $this->assertNotEmpty($user->name);
     }
 
     public function testZeroUserAfterRefresh()

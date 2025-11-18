@@ -10,6 +10,10 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 
 **ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
 
+## Development Guidelines
+
+**IMPORTANT**: All contributions must be made to the main application in the root directory. Any pull requests targeting the `web-sch-12` directory will be redirected to focus on the main application instead.
+
 ## Cara Berkontribusi
 1. Fork repository ini
 2. Buat branch baru (`git checkout -b fitur/namafitur`)

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * DEPRECATION NOTICE
+ * 
+ * This application (in the web-sch-12 directory) is DEPRECATED.
+ * All development should occur in the main application at the root directory.
+ * This will be removed in a future release.
+ */
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

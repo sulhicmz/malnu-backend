@@ -2,23 +2,25 @@
 
 Backend for Malnu Kananga - School Management System
 
-## Project Structure
+## ⚠️ CRITICAL: Project Structure Warning
 
-This repository contains two applications due to historical development:
+**This repository contains TWO separate applications. DEVELOPERS: Please read carefully.**
 
-1. **Main Application** (root directory) - **PRIMARY**: HyperVel framework (Laravel-style with Swoole support)
-   - High-performance application with coroutine support
-   - Comprehensive school management features
-   - Current focus for all development efforts
+### Primary Application (ACTIVE - Use This One)
+- **Location**: Root directory of this repository
+- **Framework**: HyperVel (Laravel-style with Swoole support)
+- **Status**: Actively maintained and developed
+- **All new development should happen here**
 
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
-   - Older implementation with fewer features
-   - Under evaluation for deprecation
-   - No new development should occur here
+### Legacy Application (DEPRECATED - Do Not Use)
+- **Location**: `web-sch-12/` directory
+- **Framework**: Laravel 12 with modular architecture
+- **Status**: Deprecated, will be removed in future
+- **No new development should occur here**
 
 ## Current Status
 
-**⚠️ IMPORTANT**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be deprecated in the future.
+**⚠️ IMPORTANT**: All development efforts must focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be completely removed in the future.
 
 ## Framework Information
 
@@ -28,14 +30,15 @@ This repository contains two applications due to historical development:
 - High-performance with native coroutine support
 - Modern PHP architecture (PHP 8.2+)
 
-### Legacy Application (Laravel)
+### Legacy Application (Laravel) - DEPRECATED
 - Standard Laravel 12 application
 - Modular architecture using nwidart/laravel-modules
 - Traditional synchronous processing
+- **Will be removed - Do not develop here**
 
 ## Getting Started
 
-For development, please focus on the main application:
+For development, please focus ONLY on the main application:
 
 1. Install dependencies: `composer install`
 2. Set up environment: `cp .env.example .env` and configure

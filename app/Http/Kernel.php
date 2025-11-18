@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected array $middleware = [
+        \App\Http\Middleware\SecurityHeaders::class,
         // \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
     ];
@@ -27,6 +28,7 @@ class Kernel extends HttpKernel
      */
     protected array $middlewareGroups = [
         'web' => [
+            \App\Http\Middleware\SecurityHeaders::class,
             // \Hypervel\Router\Middleware\SubstituteBindings::class,
             // \Hypervel\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             // \Hypervel\Session\Middleware\StartSession::class,
@@ -35,6 +37,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\SecurityHeaders::class,
             // 'throttle:60,1,api',
             // \Hypervel\Router\Middleware\SubstituteBindings::class,
         ],

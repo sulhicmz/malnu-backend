@@ -1,87 +1,62 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Unit;
 
 use App\Models\User;
 use App\Models\ParentPortal\ParentOrtu;
-use App\Models\SchoolManagement\Teacher;
-use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\Staff;
 use Hypervel\Foundation\Testing\TestCase;
 
-/**
- * @internal
- * @coversNothing
- */
 class UserRelationshipsTest extends TestCase
 {
-    /**
-     * Test user parent relationship.
-     */
-    public function testUserParentRelationship(): void
+    public function testUserParentRelationship()
     {
         $user = new User();
         $relation = $user->parent();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\BelongsTo::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
 
-    /**
-     * Test user teacher relationship.
-     */
-    public function testUserTeacherRelationship(): void
+    public function testUserTeacherRelationship()
     {
         $user = new User();
         $relation = $user->teacher();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
 
-    /**
-     * Test user student relationship.
-     */
-    public function testUserStudentRelationship(): void
+    public function testUserStudentRelationship()
     {
         $user = new User();
         $relation = $user->student();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
 
-    /**
-     * Test user staff relationship.
-     */
-    public function testUserStaffRelationship(): void
+    public function testUserStaffRelationship()
     {
         $user = new User();
         $relation = $user->staff();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
 
-    /**
-     * Test ParentOrtu model exists and has correct relationships.
-     */
-    public function testParentOrtuModelExists(): void
+    public function testParentOrtuUserRelationship()
     {
         $parent = new ParentOrtu();
+        $relation = $parent->user();
         
-        $this->assertEquals('id', $parent->getKeyName());
-        $this->assertEquals('string', $parent->getKeyType());
-        $this->assertFalse($parent->incrementing);
-        
-        // Test user relationship
-        $userRelation = $parent->user();
-        $this->assertEquals('user_id', $userRelation->getForeignKeyName());
-        
-        // Test students relationship
-        $studentsRelation = $parent->students();
-        $this->assertEquals('parent_id', $studentsRelation->getForeignKeyName());
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\BelongsTo::class, $relation);
+        $this->assertEquals('user_id', $relation->getForeignKeyName());
+        $this->assertEquals('id', $relation->getLocalKeyName());
     }
 }

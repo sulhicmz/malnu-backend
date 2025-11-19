@@ -42,6 +42,27 @@ For development, please focus on the main application:
 3. Run migrations: `php artisan migrate`
 4. Start the server: `php artisan start`
 
+## Performance & Caching
+
+This application implements Redis-based caching for improved performance:
+
+- **Redis Configuration**: Redis is configured as the default cache and session driver
+- **Query Caching**: Frequently accessed data is cached with TTL
+- **Eager Loading**: N+1 query issues are prevented using eager loading
+- **Database Indexes**: Optimized indexes on frequently queried columns
+- **Performance Monitoring**: Query execution time logging for slow queries (>100ms)
+
+### Cache Implementation
+- User data is cached using the UserService
+- Database indexes added to users, students, teachers, grades, and other frequently queried tables
+- Cache TTL set to 1 hour (3600 seconds) for most data
+- Cache invalidation strategies implemented
+
+### API Endpoints with Caching
+- `GET /api/users` - Get all users with cached results
+- `GET /api/users/{id}` - Get specific user with caching
+- `GET /api/users/role/{role}` - Get users by role with caching
+
 ## Documentation
 
 - [Project Structure Details](PROJECT_STRUCTURE.md)

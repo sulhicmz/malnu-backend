@@ -90,12 +90,13 @@ This repository contains two separate applications that serve different purposes
 ### Phase 1: Assessment (Current)
 - [x] Document current structure
 - [x] Identify primary application
-- [ ] Determine if any features from web-sch-12 need to be migrated
+- [x] Determine if any features from web-sch-12 need to be migrated
 
 ### Phase 2: Documentation
-- [ ] Update all documentation to reflect primary application
-- [ ] Create migration guide if needed
-- [ ] Update README files
+- [x] Update all documentation to reflect primary application
+- [x] Create migration guide if needed
+- [x] Update README files
+- [x] Add deprecation notices to legacy application
 
 ### Phase 3: Consolidation (Future)
 - [ ] Migrate any unique features from web-sch-12 if needed

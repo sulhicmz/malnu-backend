@@ -2,13 +2,23 @@
 
 Terima kasih ingin berkontribusi! Berikut panduannya:
 
+## ⚠️ CRITICAL: Dual Application Repository Warning ⚠️
+
+**⚠️ ATTENTION: This repository contains TWO separate applications. Before contributing, you MUST understand which one to work on:**
+
 ## Project Structure Important Notice
 
 **⚠️ CRITICAL**: This repository contains two applications:
 1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
 2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
 
-**ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
+**⚠️ CRITICAL: ALL development must happen in the main application (root directory).**
+
+**⚠️ CRITICAL: The web-sch-12 directory is DEPRECATED and should NOT be modified. It contains deprecation notices in its README.md and other files.**
+
+**⚠️ CRITICAL: Pull requests targeting the legacy application will be rejected.**
+
+The web-sch-12 directory is maintained only for legacy purposes and will be removed in a future version.
 
 ## Cara Berkontribusi
 1. Fork repository ini

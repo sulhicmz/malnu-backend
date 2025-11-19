@@ -34,6 +34,8 @@ class DbQueryExecutedListener implements ListenerInterface
     {
         if ($event instanceof QueryExecuted) {
             $sql = $event->sql;
+            $time = $event->time;
+            
             if (! Arr::isAssoc($event->bindings)) {
                 $position = 0;
                 foreach ($event->bindings as $value) {
@@ -47,7 +49,12 @@ class DbQueryExecutedListener implements ListenerInterface
                 }
             }
 
-            $this->logger->info(sprintf('[%s] %s', $event->time, $sql));
+            // Log slow queries (queries taking more than 100ms)
+            if ($time > 100) {
+                $this->logger->warning(sprintf('Slow query detected [%s ms]: %s', $time, $sql));
+            } else {
+                $this->logger->info(sprintf('[%s ms] %s', $time, $sql));
+            }
         }
     }
 }

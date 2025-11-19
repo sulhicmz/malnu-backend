@@ -1,0 +1,70 @@
+# Code Owners
+
+This file defines who owns which parts of the repository. Code owners are automatically requested for review when pull requests are opened.
+
+## Repository Owners
+
+* @maskom-team
+
+## Core Application
+
+All files in the main application (root directory) are owned by the core team:
+
+```
+* @maskom-team
+```
+
+## Legacy Application
+
+The legacy `web-sch-12/` directory is deprecated and changes should be minimal:
+
+```
+/web-sch-12/ @maskom-team
+```
+
+## Configuration and Infrastructure
+
+Critical configuration and infrastructure files:
+
+```
+/.github/ @maskom-team
+/composer.json @maskom-team
+/frontend/package.json @maskom-team
+/.env.example @maskom-team
+/docker-compose.yml @maskom-team
+```
+
+## Security and Compliance
+
+Security-related files and documentation:
+
+```
+/SECURITY.md @maskom-team
+/CONTRIBUTING.md @maskom-team
+/LICENSE @maskom-team
+```
+
+## Documentation
+
+Project documentation:
+
+```
+/README.md @maskom-team
+/docs/ @maskom-team
+*.md @maskom-team
+```
+
+## Review Requirements
+
+- **All PRs** require approval from at least one code owner
+- **Security-related changes** require approval from core team
+- **Breaking changes** require approval from core team
+- **Database migrations** require approval from core team
+
+## Emergency Changes
+
+For critical security fixes, the core team can bypass normal review processes and merge directly to the main branch.
+
+## Questions
+
+If you're unsure who should review your changes, tag `@maskom-team` and we will help route your PR to the right reviewers.

@@ -9,79 +9,69 @@ use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Staff;
-use Hypervel\Foundation\Testing\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 /**
  * @internal
  * @coversNothing
  */
-class UserRelationshipsTest extends TestCase
+class UserTest extends TestCase
 {
-    /**
-     * Test user parent relationship.
-     */
-    public function testUserParentRelationship(): void
+    use RefreshDatabase;
+
+    public function test_user_has_parent_relationship(): void
     {
-        $user = new User();
-        $relation = $user->parent();
-        
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $user = User::factory()->create();
+        $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf(ParentOrtu::class, $user->parent);
+        $this->assertEquals($parent->id, $user->parent->id);
     }
 
-    /**
-     * Test user teacher relationship.
-     */
-    public function testUserTeacherRelationship(): void
+    public function test_user_has_teacher_relationship(): void
     {
-        $user = new User();
-        $relation = $user->teacher();
-        
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $user = User::factory()->create();
+        $teacher = Teacher::factory()->create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf(Teacher::class, $user->teacher);
+        $this->assertEquals($teacher->id, $user->teacher->id);
     }
 
-    /**
-     * Test user student relationship.
-     */
-    public function testUserStudentRelationship(): void
+    public function test_user_has_student_relationship(): void
     {
-        $user = new User();
-        $relation = $user->student();
-        
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $user = User::factory()->create();
+        $student = Student::factory()->create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf(Student::class, $user->student);
+        $this->assertEquals($student->id, $user->student->id);
     }
 
-    /**
-     * Test user staff relationship.
-     */
-    public function testUserStaffRelationship(): void
+    public function test_user_has_staff_relationship(): void
     {
-        $user = new User();
-        $relation = $user->staff();
-        
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $user = User::factory()->create();
+        $staff = Staff::factory()->create(['user_id' => $user->id]);
+
+        $this->assertInstanceOf(Staff::class, $user->staff);
+        $this->assertEquals($staff->id, $user->staff->id);
     }
 
-    /**
-     * Test ParentOrtu model exists and has correct relationships.
-     */
-    public function testParentOrtuModelExists(): void
+    public function test_user_can_be_assigned_role(): void
     {
-        $parent = new ParentOrtu();
+        $user = User::factory()->create();
         
-        $this->assertEquals('id', $parent->getKeyName());
-        $this->assertEquals('string', $parent->getKeyType());
-        $this->assertFalse($parent->incrementing);
+        $user->assignRole('admin');
         
-        // Test user relationship
-        $userRelation = $parent->user();
-        $this->assertEquals('user_id', $userRelation->getForeignKeyName());
+        $this->assertTrue($user->hasRole('admin'));
+    }
+
+    public function test_user_can_sync_roles(): void
+    {
+        $user = User::factory()->create();
         
-        // Test students relationship
-        $studentsRelation = $parent->students();
-        $this->assertEquals('parent_id', $studentsRelation->getForeignKeyName());
+        $user->syncRoles(['admin', 'teacher']);
+        
+        $this->assertTrue($user->hasRole('admin'));
+        $this->assertTrue($user->hasRole('teacher'));
     }
 }

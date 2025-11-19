@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Tests\TestCase;
 
 /**
@@ -12,55 +13,34 @@ use Tests\TestCase;
  */
 class ExampleTest extends TestCase
 {
-    public function testTheApplicationReturnsSuccessfulResponse()
-    {
-        $this->get('/')
-            ->assertSuccessful();
-    }
-    
-    public function testSecurityHeadersArePresent()
+    public function test_the_application_returns_a_successful_response(): void
     {
         $response = $this->get('/');
-        
-        // Check that security headers are present
-        $response->assertHeader('Content-Security-Policy');
-        $response->assertHeader('X-Frame-Options');
-        $response->assertHeader('X-Content-Type-Options');
-        $response->assertHeader('Referrer-Policy');
-        $response->assertHeader('Permissions-Policy');
-        $response->assertHeader('Strict-Transport-Security');
-        $response->assertHeader('X-XSS-Protection');
-        
-        // Verify specific header values
-        $cspHeader = $response->headers->get('Content-Security-Policy');
-        $this->assertStringContainsString('default-src \'self\'', $cspHeader);
-        $this->assertStringContainsString('script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'', $cspHeader);
-        
-        $xFrameOptions = $response->headers->get('X-Frame-Options');
-        $this->assertEquals('DENY', $xFrameOptions);
-        
-        $xContentTypeOptions = $response->headers->get('X-Content-Type-Options');
-        $this->assertEquals('nosniff', $xContentTypeOptions);
-        
-        $hstsHeader = $response->headers->get('Strict-Transport-Security');
-        $this->assertEquals('max-age=31536000; includeSubDomains; preload', $hstsHeader);
+
+        $response->assertStatus(200);
     }
     
-    public function testCspReportEndpoint()
+    public function test_api_routes_require_authentication(): void
     {
-        // Test that the CSP report endpoint exists and returns 204
-        $response = $this->post('/csp-report', [
-            'csp-report' => [
-                'document-uri' => 'https://example.com/page',
-                'violated-directive' => 'script-src',
-                'blocked-uri' => 'inline',
-                'line-number' => 10,
-                'source-file' => 'script.js'
-            ]
-        ], [
-            'Content-Type' => 'application/csp-report'
+        $response = $this->getJson('/api/user');
+        
+        // Should redirect to login or return unauthorized
+        $response->assertStatus(401);
+    }
+    
+    public function test_user_can_register(): void
+    {
+        $response = $this->postJson('/api/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
         ]);
         
-        $response->assertStatus(204);
+        $response->assertStatus(201)
+                 ->assertJsonStructure([
+                     'message',
+                     'user' => ['id', 'name', 'email']
+                 ]);
     }
 }

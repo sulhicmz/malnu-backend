@@ -4,7 +4,8 @@ declare(strict_types = 1);
 
 namespace Tests\Feature;
 
-use Hypervel\Foundation\Testing\TestCase;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
 
 /**
  * @internal
@@ -17,9 +18,10 @@ class DatabaseSchemaTest extends TestCase
      */
     public function testDatabaseMigrationsRun(): void
     {
-        // This test will verify that all migrations can run without errors
-        // In a real environment, you would use RefreshDatabase trait
-        $this->assertTrue(true, 'Database schema is properly structured');
+        // Verify that migrations have been run by checking if core tables exist
+        $this->assertTrue(Schema::hasTable('users'));
+        $this->assertTrue(Schema::hasTable('roles'));
+        $this->assertTrue(Schema::hasTable('permissions'));
     }
 
     /**
@@ -43,7 +45,10 @@ class DatabaseSchemaTest extends TestCase
         ];
 
         foreach ($requiredTables as $table) {
-            $this->assertTrue(true, "Table {$table} should exist in database schema");
+            $this->assertTrue(
+                Schema::hasTable($table), 
+                "Table {$table} should exist in database schema"
+            );
         }
     }
 }

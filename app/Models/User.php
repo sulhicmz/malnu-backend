@@ -58,6 +58,38 @@ class User extends Authenticatable
     ];
 
     /**
+     * Scope a query to only include active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope a query to filter by email domain.
+     */
+    public function scopeByEmailDomain($query, string $domain)
+    {
+        return $query->where('email', 'like', "%@{$domain}");
+    }
+
+    /**
+     * Scope a query to order by name.
+     */
+    public function scopeOrderByName($query)
+    {
+        return $query->orderBy('name');
+    }
+
+    /**
+     * Scope a query to order by creation date (newest first).
+     */
+    public function scopeLatest($query)
+    {
+        return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Assign a role to the user.
      */
     public function assignRole(string $roleName): void
@@ -99,6 +131,20 @@ class User extends Authenticatable
     public function staff()
     {
         return $this->hasOne(Staff::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')
+            ->using(ModelHasRole::class)
+            ->withPivot(['created_at', 'updated_at']);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'model_has_permissions', 'model_id', 'permission_id')
+            ->using(ModelHasPermission::class)
+            ->withPivot(['created_at', 'updated_at']);
     }
 
     public function ppdbDocumentsVerified()

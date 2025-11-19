@@ -48,3 +48,33 @@ For development, please focus on the main application:
 - [Application Status and Purpose](APPLICATION_STATUS.md)
 - [Migration and Consolidation Plan](MIGRATION_PLAN.md)
 - [Contribution Guidelines](CONTRIBUTING.md)
+
+## Performance Optimization
+
+This application implements comprehensive performance optimization strategies:
+
+### Redis Caching
+- Configured Redis as the default cache driver
+- Implemented repository-level caching for frequently accessed data
+- Cache invalidation strategies for data consistency
+- Cache hit ratio monitoring
+
+### Database Optimization
+- Added database indexes for frequently queried columns
+- Eager loading implementation to prevent N+1 queries
+- Query performance tracking and monitoring
+- Slow query detection and logging
+
+### API Endpoints
+- `/api/users` - Cached user listing with eager loading
+- `/api/users/{id}` - Cached individual user retrieval
+- `/api/performance/report` - Performance metrics dashboard
+- `/api/performance/cache` - Cache statistics
+- `/api/performance/query` - Query performance metrics
+- `/api/performance/reset` - Reset performance statistics
+
+### Performance Targets
+- Response Time: <200ms for API endpoints
+- Database Queries: <100ms average execution time
+- Cache Hit Ratio: >80%
+- Support for 1000+ concurrent users

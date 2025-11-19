@@ -30,11 +30,14 @@ use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use Hypervel\Foundation\Auth\User as Authenticatable;
+use App\Traits\Cacheable;
 use App\Traits\UsesUuid;
 
 class User extends Authenticatable
 {
-    use UsesUuid;
+    use UsesUuid, Cacheable;
+
+    public const CACHE_TTL_MINUTES = 60; // 1 hour
 
     protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
     protected string $keyType = 'string';
@@ -204,5 +207,61 @@ class User extends Authenticatable
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    /**
+     * Get all users with caching
+     */
+    public static function getAllCached()
+    {
+        return static::getCached('all_users', static::CACHE_TTL_MINUTES, function () {
+            return static::all();
+        });
+    }
+
+    /**
+     * Get user by email with caching
+     */
+    public static function getByEmailCached(string $email)
+    {
+        return static::getCached("email_{$email}", static::CACHE_TTL_MINUTES, function () use ($email) {
+            return static::where('email', $email)->first();
+        });
+    }
+
+    /**
+     * Get user by username with caching
+     */
+    public static function getByUsernameCached(string $username)
+    {
+        return static::getCached("username_{$username}", static::CACHE_TTL_MINUTES, function () use ($username) {
+            return static::where('username', $username)->first();
+        });
+    }
+
+    /**
+     * Clear user cache when saving
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            $model->clearRelatedCache();
+        });
+
+        static::deleted(function ($model) {
+            $model->clearRelatedCache();
+        });
+    }
+
+    /**
+     * Clear related cache entries
+     */
+    public function clearRelatedCache()
+    {
+        static::forgetCached('all_users');
+        static::forgetCached("email_{$this->email}");
+        static::forgetCached("username_{$this->username}");
     }
 }

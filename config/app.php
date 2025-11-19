@@ -164,6 +164,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\CacheServiceProvider::class,
+        App\Providers\QueryLogServiceProvider::class,
     ])->toArray(),
 
     'aliases' => [

@@ -13,9 +13,14 @@ use App\Models\Grading\StudentPortfolio;
 use App\Models\Model;
 use App\Models\OnlineExam\ExamResult;
 use App\Models\User;
+use App\Traits\Cacheable;
 
 class Student extends Model
 {
+    use Cacheable;
+
+    public const CACHE_TTL_MINUTES = 60; // 1 hour
+
     protected $primaryKey = 'id';
     protected $keyType    = 'string';
     public $incrementing  = false;
@@ -88,5 +93,63 @@ class Student extends Model
     public function counselingSessions()
     {
         return $this->hasMany(CounselingSession::class);
+    }
+
+    /**
+     * Get all students with caching
+     */
+    public static function getAllCached()
+    {
+        return static::getCached('all_students', static::CACHE_TTL_MINUTES, function () {
+            return static::all();
+        });
+    }
+
+    /**
+     * Get student by user_id with caching
+     */
+    public static function getByUserIdCached(string $userId)
+    {
+        return static::getCached("user_id_{$userId}", static::CACHE_TTL_MINUTES, function () use ($userId) {
+            return static::where('user_id', $userId)->first();
+        });
+    }
+
+    /**
+     * Get students by class_id with caching
+     */
+    public static function getByClassIdCached(string $classId)
+    {
+        return static::getCached("class_id_{$classId}", static::CACHE_TTL_MINUTES, function () use ($classId) {
+            return static::where('class_id', $classId)->get();
+        });
+    }
+
+    /**
+     * Clear student cache when saving
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            $model->clearRelatedCache();
+        });
+
+        static::deleted(function ($model) {
+            $model->clearRelatedCache();
+        });
+    }
+
+    /**
+     * Clear related cache entries
+     */
+    public function clearRelatedCache()
+    {
+        static::forgetCached('all_students');
+        static::forgetCached("user_id_{$this->user_id}");
+        if ($this->class_id) {
+            static::forgetCached("class_id_{$this->class_id}");
+        }
     }
 }

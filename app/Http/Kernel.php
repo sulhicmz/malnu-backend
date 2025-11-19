@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // 'throttle:60,1,api',
+            'throttle:60,1',
             // \Hypervel\Router\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -53,6 +53,8 @@ class Kernel extends HttpKernel
         'throttle' => \Hypervel\Router\Middleware\ThrottleRequests::class,
         'bindings' => \Hypervel\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
+        'api.rate.limit' => \App\Http\Middleware\ApiRateLimit::class,
+        'api.version' => \App\Http\Middleware\ApiVersion::class,
     ];
 
     /**

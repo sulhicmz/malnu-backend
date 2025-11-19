@@ -52,7 +52,7 @@ class Student extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Parent::class);
+        return $this->belongsTo(ParentOrtu::class);
     }
 
     public function grades()

@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected array $middleware = [
+        \App\Http\Middleware\SecurityHeaders::class,
         // \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
     ];
@@ -53,6 +54,7 @@ class Kernel extends HttpKernel
         'throttle' => \Hypervel\Router\Middleware\ThrottleRequests::class,
         'bindings' => \Hypervel\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
+        'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
     ];
 
     /**

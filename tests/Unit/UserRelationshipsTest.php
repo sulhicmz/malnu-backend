@@ -9,7 +9,9 @@ use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Staff;
+use Database\Factories\UserFactory;
 use Hypervel\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\RefreshDatabase;
 
 /**
  * @internal
@@ -17,16 +19,18 @@ use Hypervel\Foundation\Testing\TestCase;
  */
 class UserRelationshipsTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * Test user parent relationship.
      */
     public function testUserParentRelationship(): void
     {
-        $user = new User();
-        $relation = $user->parent();
+        $user = UserFactory::new()->create();
+        $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
         
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $this->assertInstanceOf(ParentOrtu::class, $user->parent);
+        $this->assertEquals($user->id, $user->parent->user_id);
     }
 
     /**
@@ -34,11 +38,11 @@ class UserRelationshipsTest extends TestCase
      */
     public function testUserTeacherRelationship(): void
     {
-        $user = new User();
-        $relation = $user->teacher();
+        $user = UserFactory::new()->create();
+        $teacher = Teacher::factory()->create(['user_id' => $user->id]);
         
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $this->assertInstanceOf(Teacher::class, $user->teacher);
+        $this->assertEquals($user->id, $user->teacher->user_id);
     }
 
     /**
@@ -46,11 +50,11 @@ class UserRelationshipsTest extends TestCase
      */
     public function testUserStudentRelationship(): void
     {
-        $user = new User();
-        $relation = $user->student();
+        $user = UserFactory::new()->create();
+        $student = Student::factory()->create(['user_id' => $user->id]);
         
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $this->assertInstanceOf(Student::class, $user->student);
+        $this->assertEquals($user->id, $user->student->user_id);
     }
 
     /**
@@ -58,11 +62,11 @@ class UserRelationshipsTest extends TestCase
      */
     public function testUserStaffRelationship(): void
     {
-        $user = new User();
-        $relation = $user->staff();
+        $user = UserFactory::new()->create();
+        $staff = Staff::factory()->create(['user_id' => $user->id]);
         
-        $this->assertEquals('user_id', $relation->getForeignKeyName());
-        $this->assertEquals('id', $relation->getLocalKeyName());
+        $this->assertInstanceOf(Staff::class, $user->staff);
+        $this->assertEquals($user->id, $user->staff->user_id);
     }
 
     /**
@@ -83,5 +87,18 @@ class UserRelationshipsTest extends TestCase
         // Test students relationship
         $studentsRelation = $parent->students();
         $this->assertEquals('parent_id', $studentsRelation->getForeignKeyName());
+    }
+    
+    /**
+     * Test relationship methods return correct relation types.
+     */
+    public function testUserRelationshipMethodsReturnCorrectTypes(): void
+    {
+        $user = new User();
+        
+        $this->assertInstanceOf(\Hypervel\Database\Eloquent\Relations\HasOne::class, $user->parent());
+        $this->assertInstanceOf(\Hypervel\Database\Eloquent\Relations\HasOne::class, $user->teacher());
+        $this->assertInstanceOf(\Hypervel\Database\Eloquent\Relations\HasOne::class, $user->student());
+        $this->assertInstanceOf(\Hypervel\Database\Eloquent\Relations\HasOne::class, $user->staff());
     }
 }

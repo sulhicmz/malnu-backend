@@ -15,30 +15,33 @@ class Kernel extends HttpKernel
      *
      * @var array<int, class-string|string>
      */
-    protected array $middleware = [
-        // \App\Http\Middleware\TrimStrings::class,
-        // \App\Http\Middleware\ConvertEmptyStringsToNull::class
-    ];
+     protected array $middleware = [
+         \App\Http\Middleware\SecurityHeaders::class,
+         // \App\Http\Middleware\TrimStrings::class,
+         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
+     ];
 
     /**
      * The application's route middleware groups.
      *
      * @var array<string, array<int, class-string|string>>
      */
-    protected array $middlewareGroups = [
-        'web' => [
-            // \Hypervel\Router\Middleware\SubstituteBindings::class,
-            // \Hypervel\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            // \Hypervel\Session\Middleware\StartSession::class,
-            // \Hypervel\View\Middleware\ShareErrorsFromSession::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
-        ],
+     protected array $middlewareGroups = [
+         'web' => [
+             \App\Http\Middleware\SecurityHeaders::class,
+             // \Hypervel\Router\Middleware\SubstituteBindings::class,
+             // \Hypervel\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+             // \Hypervel\Session\Middleware\StartSession::class,
+             // \Hypervel\View\Middleware\ShareErrorsFromSession::class,
+             // \App\Http\Middleware\VerifyCsrfToken::class,
+         ],
 
-        'api' => [
-            // 'throttle:60,1,api',
-            // \Hypervel\Router\Middleware\SubstituteBindings::class,
-        ],
-    ];
+         'api' => [
+             \App\Http\Middleware\SecurityHeaders::class,
+             // 'throttle:60,1,api',
+             // \Hypervel\Router\Middleware\SubstituteBindings::class,
+         ],
+     ];
 
     /**
      * The application's middleware aliases.

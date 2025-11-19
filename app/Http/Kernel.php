@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // 'throttle:60,1,api',
+            'throttle:60,1', // 60 requests per minute
             // \Hypervel\Router\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -51,6 +51,7 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'can' => \Hypervel\Auth\Middleware\Authorize::class,
         'throttle' => \Hypervel\Router\Middleware\ThrottleRequests::class,
+        'mobile.throttle' => \App\Http\Middleware\MobileApiRateLimiter::class,
         'bindings' => \Hypervel\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
     ];

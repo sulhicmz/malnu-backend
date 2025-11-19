@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Utils\PerformanceMonitor;
 use Hyperf\Collection\Arr;
 use Hyperf\Database\Events\QueryExecuted;
 use Hyperf\Event\Contract\ListenerInterface;
@@ -47,7 +48,19 @@ class DbQueryExecutedListener implements ListenerInterface
                 }
             }
 
-            $this->logger->info(sprintf('[%s] %s', $event->time, $sql));
+            // Log to performance monitor
+            PerformanceMonitor::logQuery($sql, $event->time / 1000, $event->bindings); // Convert microseconds to seconds
+
+            // Log slow queries (queries taking more than 100ms)
+            if (($event->time / 1000) > 0.1) { // 100ms threshold
+                $this->logger->warning(sprintf(
+                    '[SLOW QUERY - %s ms] %s',
+                    number_format($event->time, 2),
+                    $sql
+                ));
+            } else {
+                $this->logger->info(sprintf('[%s ms] %s', number_format($event->time, 2), $sql));
+            }
         }
     }
 }

@@ -48,3 +48,13 @@ For development, please focus on the main application:
 - [Application Status and Purpose](APPLICATION_STATUS.md)
 - [Migration and Consolidation Plan](MIGRATION_PLAN.md)
 - [Contribution Guidelines](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+
+## Security
+
+For security-related concerns or to report vulnerabilities, please see our [Security Policy](SECURITY.md).
+
+## Code of Conduct
+
+This project follows a [Code of Conduct](CODE_OF_CONDUCT.md). Please read and follow it in all interactions with the project.

@@ -82,9 +82,9 @@ The web-sch-12 directory should be evaluated for one of the following actions:
 - [ ] Review web-sch-12 for any unique features that should be migrated
 
 ### Short-term:
-- [ ] Update all documentation to reflect the primary application
-- [ ] Ensure all team members are aware of the primary application
-- [ ] Plan for potential deprecation of web-sch-12 directory
+ - [x] Update all documentation to reflect the primary application
+ - [x] Ensure all team members are aware of the primary application
+ - [x] Plan for potential deprecation of web-sch-12 directory
 
 ### Long-term:
 - [ ] Archive or remove web-sch-12 if not needed

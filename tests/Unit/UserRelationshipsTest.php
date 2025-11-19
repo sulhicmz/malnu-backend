@@ -9,7 +9,9 @@ use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Staff;
-use Hypervel\Foundation\Testing\TestCase;
+use App\Models\Role;
+use App\Models\Permission;
+use Tests\TestCase;
 
 /**
  * @internal
@@ -25,6 +27,7 @@ class UserRelationshipsTest extends TestCase
         $user = new User();
         $relation = $user->parent();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -37,6 +40,7 @@ class UserRelationshipsTest extends TestCase
         $user = new User();
         $relation = $user->teacher();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -49,6 +53,7 @@ class UserRelationshipsTest extends TestCase
         $user = new User();
         $relation = $user->student();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -61,8 +66,38 @@ class UserRelationshipsTest extends TestCase
         $user = new User();
         $relation = $user->staff();
         
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasOne::class, $relation);
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
+    }
+
+    /**
+     * Test user role assignment functionality.
+     */
+    public function testUserCanAssignRole(): void
+    {
+        $user = User::factory()->create();
+        $role = Role::factory()->create(['name' => 'admin']);
+        
+        $user->assignRole('admin');
+        
+        $this->assertTrue($user->roles()->where('name', 'admin')->exists());
+    }
+
+    /**
+     * Test user role sync functionality.
+     */
+    public function testUserCanSyncRoles(): void
+    {
+        $user = User::factory()->create();
+        $role1 = Role::factory()->create(['name' => 'admin']);
+        $role2 = Role::factory()->create(['name' => 'teacher']);
+        
+        $user->syncRoles(['admin', 'teacher']);
+        
+        $this->assertTrue($user->roles()->where('name', 'admin')->exists());
+        $this->assertTrue($user->roles()->where('name', 'teacher')->exists());
+        $this->assertEquals(2, $user->roles()->count());
     }
 
     /**
@@ -78,10 +113,12 @@ class UserRelationshipsTest extends TestCase
         
         // Test user relationship
         $userRelation = $parent->user();
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\BelongsTo::class, $userRelation);
         $this->assertEquals('user_id', $userRelation->getForeignKeyName());
         
         // Test students relationship
         $studentsRelation = $parent->students();
+        $this->assertInstanceOf(\Hyperf\Database\Model\Relations\HasMany::class, $studentsRelation);
         $this->assertEquals('parent_id', $studentsRelation->getForeignKeyName());
     }
 }

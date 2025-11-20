@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_DRIVER', 'array'),
+    'default' => env('CACHE_DRIVER', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -48,6 +48,7 @@ return [
             'driver' => 'redis',
             'connection' => 'default',
             'lock_connection' => 'default',
+            'ttl' => 3600, // Default TTL for cache items
         ],
 
         'swoole' => [

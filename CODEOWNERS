@@ -1,0 +1,63 @@
+# This file specifies the default reviewers and code owners for various parts of the repository
+# GitHub CODEOWNERS documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Root directory - Main application owners
+* @sulhicmz @malnu-maintainers
+
+# Security-related files
+SECURITY.md @sulhicmz @security-team
+CODE_OF_CONDUCT.md @sulhicmz @community-moderators
+.codeowners @sulhicmz @maintainers
+
+# Main application structure
+app/ @sulhicmz @backend-team
+config/ @sulhicmz @backend-team
+routes/ @sulhicmz @backend-team
+database/ @sulhicmz @database-team
+resources/ @sulhicmz @frontend-team
+
+# API-specific routes and controllers
+app/Http/Controllers/Api/ @api-team
+routes/api.php @api-team
+
+# Database migrations and seeds
+database/migrations/ @database-team
+database/seeders/ @database-team
+
+# Core models
+app/Models/ @backend-team
+
+# Security-sensitive files
+.env @sulhicmz
+.env.example @sulhicmz
+config/app.php @sulhicmz
+config/database.php @sulhicmz @database-team
+config/auth.php @sulhicmz @auth-team
+
+# Composer dependencies
+composer.json @sulhicmz @backend-team
+composer.lock @sulhicmz @backend-team
+
+# Testing files
+tests/ @testing-team
+phpunit.xml @testing-team
+
+# Documentation
+README.md @sulhicmz @documentation-team
+CONTRIBUTING.md @sulhicmz @documentation-team
+LICENSE @sulhicmz
+docs/ @documentation-team
+
+# Legacy application (web-sch-12)
+web-sch-12/ @legacy-team
+
+# CI/CD configuration
+.github/workflows/ @sulhicmz @devops-team
+.gitignore @sulhicmz
+Dockerfile @devops-team
+docker-compose.yml @devops-team
+
+# Frontend files
+frontend/ @frontend-team
+package.json @frontend-team
+package-lock.json @frontend-team

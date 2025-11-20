@@ -1,0 +1,54 @@
+# Code owners for the Malnu Kananga School Management System
+
+# Root directory - main maintainers
+* @sulhicmz @maintainers
+
+# Core application files
+/app @sulhicmz @backend-team
+/app/Http/Controllers @sulhicmz @api-team
+/app/Models @sulhicmz @database-team
+/app/Services @sulhicmz @backend-team
+
+# Configuration files
+/config @sulhicmz @devops-team
+/config/*.php @sulhicmz @devops-team
+
+# Database related files
+/database @sulhicmz @database-team
+/database/migrations @sulhicmz @database-team
+/database/seeders @sulhicmz @database-team
+
+# Frontend files
+/frontend @frontend-team
+/frontend/src/components @frontend-team
+/frontend/src/pages @frontend-team
+
+# Routes
+/routes @sulhicmz @api-team
+/routes/api.php @sulhicmz @api-team
+/routes/web.php @sulhicmz @api-team
+
+# Security sensitive files
+*.env @sulhicmz @devops-team
+.env* @sulhicmz @devops-team
+/config/app.php @sulhicmz @devops-team
+/config/database.php @sulhicmz @database-team
+/config/auth.php @sulhicmz @security-team
+
+# Testing files
+/tests @sulhicmz @qa-team
+/tests/Feature @sulhicmz @qa-team
+/tests/Unit @sulhicmz @qa-team
+
+# Documentation
+*.md @sulhicmz @documentation-team
+/docs @sulhicmz @documentation-team
+
+# CI/CD and infrastructure
+.github/workflows @sulhicmz @devops-team
+.docker* @sulhicmz @devops-team
+Dockerfile @sulhicmz @devops-team
+
+# Composer and dependencies
+composer.json @sulhicmz @devops-team
+composer.lock @sulhicmz @devops-team

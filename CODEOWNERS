@@ -1,0 +1,46 @@
+# This file specifies the code owners for different parts of the repository
+# For more information, see: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Repository-wide code owners
+* @sulhicmz
+
+# Security-related files
+SECURITY.md @sulhicmz
+CODE_OF_CONDUCT.md @sulhicmz
+
+# Core application directories
+app/ @sulhicmz
+config/ @sulhicmz
+database/ @sulhicmz
+routes/ @sulhicmz
+
+# API routes specifically
+routes/api.php @sulhicmz
+
+# Models and database migrations
+app/Models/ @sulhicmz
+database/migrations/ @sulhicmz
+database/seeders/ @sulhicmz
+
+# Controllers
+app/Http/Controllers/ @sulhicmz
+
+# Services
+app/Services/ @sulhicmz
+
+# Configuration files
+config/*.php @sulhicmz
+
+# Main application files
+composer.json @sulhicmz
+composer.lock @sulhicmz
+
+# Environment and deployment
+.env.example @sulhicmz
+Dockerfile* @sulhicmz
+docker-compose.yml @sulhicmz
+
+# Documentation
+README.md @sulhicmz
+CONTRIBUTING.md @sulhicmz
+LICENSE @sulhicmz

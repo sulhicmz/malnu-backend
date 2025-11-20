@@ -1,0 +1,46 @@
+# Code owners for the Malnu Kananga - School Management System
+# This file defines who should be automatically requested for review
+# when files matching the patterns are modified in pull requests.
+
+# Security and configuration files
+*.md @maintainers
+SECURITY.md @security-team @maintainers
+CODE_OF_CONDUCT.md @maintainers
+CONTRIBUTING.md @maintainers
+
+# Main application directories
+app/ @backend-team @maintainers
+app/Models/ @backend-team @maintainers
+app/Controllers/ @backend-team @maintainers
+app/Services/ @backend-team @maintainers
+app/Providers/ @backend-team @maintainers
+
+# Configuration files
+config/ @maintainers
+config/*.php @maintainers
+
+# Database related files
+database/migrations/ @backend-team @maintainers
+database/seeders/ @backend-team @maintainers
+database/factories/ @backend-team @maintainers
+
+# Routes
+routes/*.php @backend-team @maintainers
+
+# Tests
+tests/ @testing-team @maintainers
+
+# Environment and dependency files
+.env.example @maintainers
+composer.json @maintainers
+composer.lock @maintainers
+package.json @maintainers
+package-lock.json @maintainers
+
+# GitHub workflow files
+.github/workflows/ @maintainers
+.github/ISSUE_TEMPLATE/ @maintainers
+
+# Root files
+README.md @maintainers
+LICENSE @maintainers

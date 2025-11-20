@@ -48,3 +48,31 @@ For development, please focus on the main application:
 - [Application Status and Purpose](APPLICATION_STATUS.md)
 - [Migration and Consolidation Plan](MIGRATION_PLAN.md)
 - [Contribution Guidelines](CONTRIBUTING.md)
+
+## Performance Optimization
+
+This application implements several performance optimization strategies:
+
+### Caching
+- **Redis Integration**: Full Redis caching implementation for improved performance
+- **Query Caching**: Frequently accessed database queries are cached
+- **Service Layer Caching**: Computed results and expensive operations are cached
+- **Cache Invalidation**: Proper cache invalidation strategies implemented
+
+### Database Optimization
+- **Index Strategy**: Added indexes to frequently queried columns
+- **Query Analysis**: Optimized queries using eager loading to prevent N+1 problems
+- **Connection Pooling**: Database connection pooling implemented
+- **Query Optimization**: Use of query scopes and optimized relationship loading
+
+### Available Commands
+- `php artisan performance:monitor` - Show performance statistics
+- `php artisan performance:monitor clear-cache` - Clear application cache
+- `php artisan performance:monitor optimize` - Run performance optimizations
+
+### API Endpoints for Performance
+- `GET /api/users` - Get all users with caching
+- `GET /api/users/{id}` - Get specific user with caching
+- `GET /api/users/with-roles` - Get users with roles (optimized to prevent N+1)
+- `GET /api/users/paginated-with-relationships` - Paginated users with relationships
+- `POST /api/users/clear-cache` - Clear user-related caches

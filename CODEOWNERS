@@ -1,0 +1,58 @@
+# Code owners for the Malnu Kananga School Management System
+# This file defines who should be automatically requested for review when changes are made to specific files or directories.
+
+# Root level - main maintainers for overall project
+/ @malnu-kananga/maintainers
+
+# Core application files
+/app/ @malnu-kananga/core-devs
+/app/Console/ @malnu-kananga/core-devs
+/app/Events/ @malnu-kananga/core-devs
+/app/Exceptions/ @malnu-kananga/core-devs
+/app/Http/ @malnu-kananga/backend-devs
+/app/Http/Controllers/ @malnu-kananga/backend-devs
+/app/Middleware/ @malnu-kananga/backend-devs
+/app/Models/ @malnu-kananga/backend-devs
+/app/Providers/ @malnu-kananga/core-devs
+/app/Services/ @malnu-kananga/backend-devs
+/app/Traits/ @malnu-kananga/core-devs
+
+# Configuration files
+/config/ @malnu-kananga/core-devs
+
+# Database related files
+/database/ @malnu-kananga/database-admins
+/database/migrations/ @malnu-kananga/database-admins
+/database/seeders/ @malnu-kananga/database-admins
+
+# Frontend files
+/frontend/ @malnu-kananga/frontend-devs
+/frontend/src/ @malnu-kananga/frontend-devs
+/frontend/src/components/ @malnu-kananga/frontend-devs
+/frontend/src/pages/ @malnu-kananga/frontend-devs
+
+# Routes
+/routes/ @malnu-kananga/backend-devs
+
+# Tests
+/tests/ @malnu-kananga/testing-team
+
+# Security sensitive files
+composer.json @malnu-kananga/core-devs
+composer.lock @malnu-kananga/core-devs
+package.json @malnu-kananga/core-devs
+package-lock.json @malnu-kananga/core-devs
+.env.example @malnu-kananga/core-devs
+.php-cs-fixer.php @malnu-kananga/core-devs
+phpstan.neon @malnu-kananga/core-devs
+
+# Documentation
+*.md @malnu-kananga/documentation-team
+README.md @malnu-kananga/core-devs
+CONTRIBUTING.md @malnu-kananga/core-devs
+SECURITY.md @malnu-kananga/security-team
+CODE_OF_CONDUCT.md @malnu-kananga/core-devs
+
+# CI/CD and automation
+.github/workflows/ @malnu-kananga/devops-team
+artisan @malnu-kananga/core-devs

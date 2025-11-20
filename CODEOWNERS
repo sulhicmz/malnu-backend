@@ -1,0 +1,102 @@
+# Code Owners
+
+This file defines ownership rules for the malnu-backend repository. Code owners are automatically requested for review when pull requests are opened for files they own.
+
+## Global Owners
+
+These users have ownership over the entire repository:
+
+* @sulhicmz
+
+## Core Application
+
+### Main Application (Root Directory)
+* `/app/` @sulhicmz
+* `/config/` @sulhicmz
+* `/routes/` @sulhicmz
+* `/database/` @sulhicmz
+
+### Frontend Application
+* `/frontend/` @sulhicmz
+
+## Security-Sensitive Files
+
+These files contain security configurations and require careful review:
+
+* `/config/auth.php` @sulhicmz
+* `/config/jwt.php` @sulhicmz
+* `/config/security.php` @sulhicmz
+* `/app/Http/Middleware/Auth/` @sulhicmz
+* `/app/Http/Controllers/Auth/` @sulhicmz
+* `.env.example` @sulhicmz
+
+## Infrastructure and DevOps
+
+### CI/CD and Workflows
+* `/.github/workflows/` @sulhicmz
+
+### Docker and Deployment
+* `/docker-compose.yml` @sulhicmz
+* `Dockerfile` @sulhicmz
+* `Envoy.blade.php` @sulhicmz
+
+## Documentation
+
+* `/docs/` @sulhicmz
+* `*.md` @sulhicmz
+* `CONTRIBUTING.md` @sulhicmz
+* `README.md` @sulhicmz
+
+## Testing
+
+* `/tests/` @sulhicmz
+* `phpunit.xml.dist` @sulhicmz
+* `phpstan.neon` @sulhicmz
+
+## Legacy Application (Deprecated)
+
+* `/web-sch-12/` @sulhicmz
+
+**Note:** The web-sch-12 directory contains legacy code that is deprecated. Changes to this directory should be minimal and focused on critical security fixes only.
+
+## File-Specific Rules
+
+### Configuration Files
+* `composer.json` @sulhicmz
+* `package.json` @sulhicmz
+* `.php-cs-fixer.php` @sulhicmz
+
+### Public Assets
+* `/public/` @sulhicmz
+
+## Review Requirements
+
+### High-Risk Changes
+The following types of changes require approval from @sulhicmz:
+
+1. **Security Changes**: Any modifications to authentication, authorization, or security configurations
+2. **Database Schema**: Changes to migrations or database structure
+3. **API Changes**: Modifications to API endpoints or request/response formats
+4. **Dependencies**: Updates to major dependencies or introduction of new dependencies
+5. **Infrastructure**: Changes to CI/CD, deployment, or Docker configurations
+
+### Standard Changes
+Most other changes can proceed with standard review processes.
+
+## Emergency Changes
+
+For critical security fixes or emergency production issues:
+1. Create a pull request with the "emergency" label
+2. Notify @sulhicmz directly
+3. Merge may be expedited after appropriate review
+
+## Questions
+
+If you have questions about code ownership or review requirements:
+- Contact @sulhicmz
+- Create an issue in the repository
+- Refer to the [Contributing Guidelines](CONTRIBUTING.md)
+
+---
+
+*This file follows GitHub's CODEOWNERS syntax. For more information, see [About CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners).*

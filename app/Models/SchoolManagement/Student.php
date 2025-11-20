@@ -12,6 +12,7 @@ use App\Models\Grading\Report;
 use App\Models\Grading\StudentPortfolio;
 use App\Models\Model;
 use App\Models\OnlineExam\ExamResult;
+use App\Models\ParentPortal\ParentOrtu;
 use App\Models\User;
 
 class Student extends Model
@@ -52,7 +53,7 @@ class Student extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Parent::class);
+        return $this->belongsTo(ParentOrtu::class);
     }
 
     public function grades()

@@ -29,7 +29,7 @@ use App\Models\PPDB\PpdbTest;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
-use Hypervel\Foundation\Auth\User as Authenticatable;
+use Hyperf\Foundation\Auth\User as Authenticatable;
 use App\Traits\UsesUuid;
 
 class User extends Authenticatable

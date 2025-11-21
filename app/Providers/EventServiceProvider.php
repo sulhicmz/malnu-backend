@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Hypervel\Foundation\Support\Providers\EventServiceProvider as BaseServiceProvider;
+use Hyperf\Foundation\Support\Providers\EventServiceProvider as BaseServiceProvider;
 
 class EventServiceProvider extends BaseServiceProvider
 {

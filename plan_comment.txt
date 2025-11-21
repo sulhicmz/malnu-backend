@@ -1,0 +1,24 @@
+Issue #136: CRITICAL: Fix HyperVel framework import errors and type definitions
+
+After analyzing the codebase, I found the following:
+
+## Current State Analysis:
+1. **Application foundation**: Uses  in bootstrap/app.php - CORRECT
+2. **Models**: Base Model.php was changed to use  - APPEARS CORRECT 
+3. **Config files**: Use  consistently - CORRECT
+4. **Migrations**: Mixed pattern - some use Hyperf classes with Hypervel facades
+5. **Seeders**: Use  - APPEARS CORRECT
+
+## Issue Analysis:
+The main inconsistency is in the migration files where there's a mixed pattern:
+- Core classes (Migration, Blueprint, DbConnection):  
+- Facades: 
+
+## Plan:
+1. Keep models using  (already consistent)
+2. Keep config files using  (already correct)
+3. Keep application foundation using  (already correct)
+4. For migrations: Standardize on the working mixed pattern
+5. For seeders: Keep using 
+
+The issue description says to fix 'Incorrect Import Paths: Using Hypervel\ instead of Hyperf\ for many classes', but based on my testing, changing database migration classes causes errors, suggesting the Hypervel framework provides its own database classes.

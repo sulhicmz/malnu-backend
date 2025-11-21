@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Hyperf\HttpServer\Contract\RequestInterface as Request;
+use Hyperf\HttpServer\Contract\ResponseInterface as Response;
 
 class SecurityHeaders
 {

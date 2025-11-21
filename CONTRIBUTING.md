@@ -40,6 +40,39 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 - MySQL 8
 
 ## Security Guidelines
-- Never commit real credentials, API keys, or sensitive data to the repository
-- Use placeholder values in .env.example (e.g., your-server@your-ip instead of real server details)
-- Keep sensitive configuration in environment-specific files not tracked by Git
+
+### 🚨 Critical Security Rules
+
+- **NEVER** commit real credentials, API keys, passwords, or tokens
+- **ALWAYS** use placeholder values in `.env.example` (e.g., `your-server@your-ip`)
+- **KEEP** sensitive configuration in environment-specific files
+- **USE** environment variables for all runtime secrets
+- **VALIDATE** all user inputs and sanitize outputs
+- **FOLLOW** secure coding practices (OWASP guidelines)
+
+### Security Best Practices
+
+1. **Input Validation**: Always validate and sanitize user inputs
+2. **Database Security**: Use parameterized queries, avoid raw SQL
+3. **Authentication**: Implement proper authentication and authorization
+4. **Dependencies**: Keep dependencies updated and scan for vulnerabilities
+5. **Error Handling**: Don't expose sensitive information in error messages
+
+### Reporting Security Issues
+
+If you discover a security vulnerability:
+- **DO NOT** open a public issue
+- **DO** follow our [Security Policy](SECURITY.md)
+- **DO** report via private GitHub advisory or email
+- **WILL** receive credit for responsible disclosure
+
+### Code Review Security
+
+During code reviews, pay attention to:
+- Hard-coded secrets or credentials
+- Insecure data handling
+- Missing input validation
+- Improper error handling
+- Outdated dependencies
+
+For detailed security information, see our [Security Policy](SECURITY.md).

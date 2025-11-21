@@ -1,0 +1,53 @@
+# CODEOWNERS
+
+# This file controls who is automatically requested for review
+# when pull requests change specific files or directories.
+
+# Global owners - will be requested for review on any PR
+* @sulhicmz
+
+# Security files - require security team review
+SECURITY.md @sulhicmz
+.github/workflows/ @sulhicmz
+.env.example @sulhicmz
+composer.json @sulhicmz
+package.json @sulhicmz
+
+# Critical configuration files
+config/ @sulhicmz
+app/Console/Kernel.php @sulhicmz
+
+# Database and migrations
+database/migrations/ @sulhicmz
+database/seeders/ @sulhicmz
+
+# Authentication and authorization
+app/Http/Middleware/Auth/ @sulhicmz
+app/Models/User.php @sulhicmz
+
+# API routes and controllers
+routes/api.php @sulhicmz
+app/Http/Controllers/Api/ @sulhicmz
+
+# Frontend build configuration
+frontend/ @sulhicmz
+vite.config.ts @sulhicmz
+
+# Documentation
+README.md @sulhicmz
+CONTRIBUTING.md @sulhicmz
+docs/ @sulhicmz
+
+# Legacy application (deprecated - minimal review)
+web-sch-12/ @sulhicmz
+
+# Tests
+tests/ @sulhicmz
+
+# CI/CD and deployment
+.github/ @sulhicmz
+docker-compose.yml @sulhicmz
+Envoy.blade.php @sulhicmz
+
+# Emergency override - can be used for urgent security fixes
+# This line should be used sparingly and only for critical situations

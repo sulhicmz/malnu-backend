@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -14,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // Audit Logs
-        Schema::create('audit_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('user_id')->nullable();
+         Schema::create('audit_logs', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('user_id')->nullable();
             $table->string('action', 50);
             $table->string('table_name', 50);
             $table->uuid('record_id')->nullable();
@@ -29,9 +30,9 @@ return new class extends Migration
         });
 
         // System Settings
-        Schema::create('system_settings', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('setting_key', 100)->unique();
+         Schema::create('system_settings', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->string('setting_key', 100)->unique();
             $table->text('setting_value');
             $table->text('description')->nullable();
             $table->boolean('is_public')->default(false);

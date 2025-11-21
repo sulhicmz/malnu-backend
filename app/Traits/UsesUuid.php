@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use Hypervel\Support\Str; // fixed str bukan hyperf
+use Hyperf\Support\Str; // fixed str bukan hyperf
 
 trait UsesUuid
 {

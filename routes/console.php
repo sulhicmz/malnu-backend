@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Hypervel\Support\Facades\Artisan;
-use Hypervel\Support\Facades\Schedule;
+use Hyperf\Support\Facades\Artisan;
+use Hyperf\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------

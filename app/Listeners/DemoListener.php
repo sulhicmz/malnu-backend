@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use Hypervel\Support\Facades\Log;
+use Hyperf\Support\Facades\Log;
 
 class DemoListener
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Hypervel\Foundation\Support\Providers\RouteServiceProvider as BaseServiceProvider;
-use Hypervel\Support\Facades\Route;
+use Hyperf\Foundation\Support\Providers\RouteServiceProvider as BaseServiceProvider;
+use Hyperf\Support\Facades\Route;
 
 class RouteServiceProvider extends BaseServiceProvider
 {

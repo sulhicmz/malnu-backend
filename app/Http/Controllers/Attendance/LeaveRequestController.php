@@ -17,29 +17,28 @@ class LeaveRequestController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        // Optimize query with eager loading to prevent N+1 issues
         $query = LeaveRequest::with(['staff', 'leaveType', 'approvedBy']);
 
-        // Filter by staff ID if provided
-        if ($request->has('staff_id')) {
+        // Apply filters efficiently
+        if ($request->filled('staff_id')) {
             $query->where('staff_id', $request->staff_id);
         }
 
-        // Filter by status if provided
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by leave type if provided
-        if ($request->has('leave_type_id')) {
+        if ($request->filled('leave_type_id')) {
             $query->where('leave_type_id', $request->leave_type_id);
         }
 
-        // Filter by date range if provided
-        if ($request->has('start_date') && $request->has('end_date')) {
+        if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('start_date', [$request->start_date, $request->end_date])
                   ->orWhereBetween('end_date', [$request->start_date, $request->end_date]);
         }
 
+        // Optimize pagination query
         $leaveRequests = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return response()->json([

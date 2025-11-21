@@ -10,7 +10,7 @@ return [
     |
     | The driver you are using to encode, decode and sign your
     | JWT token, all the drivers must implement:
-    | Hypervel\JWT\Contracts\ProviderContract::class
+     | Hyperf\JWT\Contracts\ProviderContract::class
     |
     */
 
@@ -103,7 +103,7 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 120),
+    'ttl' => env('JWT_TTL', 30), // 30 minutes for better security
 
     /*
     |--------------------------------------------------------------------------
@@ -122,7 +122,7 @@ return [
     |
     */
 
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+    'refresh_ttl' => env('JWT_REFRESH_TTL', 43200), // 30 days for refresh tokens
 
     /*
     |--------------------------------------------------------------------------
@@ -133,7 +133,7 @@ return [
     |
     */
 
-    'algo' => env('JWT_ALGO', Hypervel\JWT\Providers\Provider::ALGO_HS256),
+    'algo' => env('JWT_ALGO', Hyperf\JWT\Providers\Provider::ALGO_HS256),
 
     /*
     |--------------------------------------------------------------------------
@@ -144,10 +144,10 @@ return [
     |
     */
     'validations' => [
-        \Hypervel\JWT\Validations\RequiredClaims::class,
-        \Hypervel\JWT\Validations\ExpiredClaim::class,
-        // \Hypervel\JWT\Validations\IssuedAtClaim::class,
-        // \Hypervel\JWT\Validations\NotBeforeCliam::class,
+        \Hyperf\JWT\Validations\RequiredClaims::class,
+        \Hyperf\JWT\Validations\ExpiredClaim::class,
+        // \Hyperf\JWT\Validations\IssuedAtClaim::class,
+        // \Hyperf\JWT\Validations\NotBeforeClaim::class,
     ],
 
     /*
@@ -162,12 +162,12 @@ return [
     */
 
     'required_claims' => [
-        // 'iss',
+        'iss',
         'iat',
-        // 'exp',
-        // 'nbf',
+        'exp',
+        'nbf',
         'sub',
-        // 'jti',
+        'jti',
     ],
 
     /*
@@ -215,7 +215,7 @@ return [
     |
     */
 
-    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
+    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
     /*
     | -------------------------------------------------------------------------
@@ -230,7 +230,7 @@ return [
     |
     */
 
-    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 30), // 30 seconds grace period
 
     /*
     | -------------------------------------------------------------------------
@@ -241,7 +241,7 @@ return [
     |
     */
 
-    'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 20160),
+    'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 43200), // 30 days
 
     /*
     |--------------------------------------------------------------------------
@@ -262,7 +262,7 @@ return [
         |
         */
 
-        'jwt' => Hypervel\JWT\Providers\Lcobucci::class,
+        'jwt' => Hyperf\JWT\Providers\Lcobucci::class,
 
         /*
         |--------------------------------------------------------------------------
@@ -273,6 +273,6 @@ return [
         |
         */
 
-        'storage' => Hypervel\JWT\Storage\TaggedCache::class,
+        'storage' => Hyperf\JWT\Storage\TaggedCache::class,
     ],
 ];

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Hypervel\Support\ServiceProvider;
+use Hyperf\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

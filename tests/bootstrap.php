@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hypervel\Foundation\Testing\TestScanHandler;
+use Hyperf\Foundation\Testing\TestScanHandler;
 
 ini_set('display_errors', 'on');
 ini_set('display_startup_errors', 'on');
@@ -31,7 +31,7 @@ define('BASE_PATH', $dir);
 
 require BASE_PATH . '/vendor/autoload.php';
 
-Hypervel\Foundation\ClassLoader::init(null, null, new TestScanHandler());
+Hyperf\Foundation\ClassLoader::init(null, null, new TestScanHandler());
 
 $app = require BASE_PATH . '/bootstrap/app.php';
 

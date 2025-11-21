@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use Hypervel\Console\Scheduling\Schedule;
-use Hypervel\Foundation\Console\Kernel as ConsoleKernel;
+use Hyperf\Console\Scheduling\Schedule;
+use Hyperf\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {

@@ -6,7 +6,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
-use Hypervel\Support\Facades\Route;
+use Hyperf\Support\Facades\Route;
 
 Route::any('/', [IndexController::class, 'index']);
 

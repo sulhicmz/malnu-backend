@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use Hypervel\Foundation\Http\FormRequest;
+use Hyperf\Foundation\Http\FormRequest;
 
 class DemoRequest extends FormRequest
 {

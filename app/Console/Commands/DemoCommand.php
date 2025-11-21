@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hypervel\Console\Command;
+use Hyperf\Console\Command;
 
 class DemoCommand extends Command
 {
@@ -14,6 +14,6 @@ class DemoCommand extends Command
 
     public function handle()
     {
-        $this->info('Hello ' . ($this->option('name') ?: 'Hypervel'));
+        $this->info('Hello ' . ($this->option('name') ?: 'Hyperf'));
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hypervel\Support\Str;
+use Hyperf\Support\Str;
 
 return [
     /*
@@ -43,7 +43,7 @@ return [
     |
     | This option allows you to easily specify that all of your session data
     | should be encrypted before it's stored. All encryption is performed
-    | automatically by Hypervel and you may use the session like normal.
+    | automatically by Hyperf and you may use the session like normal.
     |
     */
 

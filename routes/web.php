@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\admin\HomeController;
-use Hypervel\Support\Facades\Route;
+use Hyperf\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'indexView']);
 
@@ -17,7 +17,7 @@ Route::post('/csp-report', function () {
         $reportData = json_decode($cspReport, true);
         if ($reportData && isset($reportData['csp-report'])) {
             // Log the violation details
-            \Hypervel\Support\Facades\Log::warning('CSP Violation', $reportData['csp-report']);
+            \Hyperf\Support\Facades\Log::warning('CSP Violation', $reportData['csp-report']);
         }
     }
     

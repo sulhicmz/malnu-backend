@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -19,9 +20,9 @@ return new class extends Migration
         });*/
 
         // Question Bank
-        Schema::create('question_bank', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('subject_id');
+         Schema::create('question_bank', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('subject_id');
             $table->string('question_type', 50);
             $table->string('difficulty_level', 20)->nullable();
             $table->text('question_text');
@@ -35,9 +36,9 @@ return new class extends Migration
         });
 
         // Exams
-        Schema::create('exams', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('name', 100);
+         Schema::create('exams', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->string('name', 100);
             $table->string('exam_type', 20);
             $table->uuid('subject_id')->nullable();
             $table->uuid('class_id')->nullable();
@@ -55,9 +56,9 @@ return new class extends Migration
         });
 
         // Exam Questions
-        Schema::create('exam_questions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('exam_id');
+         Schema::create('exam_questions', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('exam_id');
             $table->uuid('question_id');
             $table->decimal('points', 5, 2);
             $table->integer('question_order');
@@ -67,9 +68,9 @@ return new class extends Migration
         });
 
         // Exam Results
-        Schema::create('exam_results', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('exam_id');
+         Schema::create('exam_results', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('exam_id');
             $table->uuid('student_id');
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
@@ -82,9 +83,9 @@ return new class extends Migration
         });
 
         // Exam Answers
-        Schema::create('exam_answers', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('exam_result_id');
+         Schema::create('exam_answers', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('exam_result_id');
             $table->uuid('question_id');
             $table->text('answer')->nullable();
             $table->boolean('is_correct')->nullable();

@@ -5,6 +5,8 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -19,9 +21,9 @@ return new class extends Migration
         });*/
 
         // PPDB Registrations
-        Schema::create('ppdb_registrations', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('registration_number', 20)->unique();
+         Schema::create('ppdb_registrations', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->string('registration_number', 20)->unique();
             $table->string('full_name', 100);
             $table->date('birth_date');
             $table->string('birth_place', 50);
@@ -38,9 +40,9 @@ return new class extends Migration
         });
 
         // PPDB Documents
-        Schema::create('ppdb_documents', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('registration_id');
+         Schema::create('ppdb_documents', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('registration_id');
             $table->string('document_type', 50);
             $table->string('file_url', 255);
             $table->string('verification_status', 20)->default('pending');
@@ -54,9 +56,9 @@ return new class extends Migration
         });
 
         // PPDB Tests
-        Schema::create('ppdb_tests', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('registration_id');
+         Schema::create('ppdb_tests', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('registration_id');
             $table->string('test_type', 50);
             $table->decimal('score', 5, 2)->nullable();
             $table->timestamp('test_date')->nullable();
@@ -68,9 +70,9 @@ return new class extends Migration
         });
 
         // PPDB Announcements
-        Schema::create('ppdb_announcements', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('registration_id');
+         Schema::create('ppdb_announcements', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('registration_id');
             $table->string('announcement_type', 50);
             $table->text('content');
             $table->uuid('published_by')->nullable();

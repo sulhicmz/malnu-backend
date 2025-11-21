@@ -2,34 +2,33 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class SecurityHeaders
+class SecurityHeaders implements MiddlewareInterface
 {
-    public function handle(Request $request, Closure $next)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $response = $next($request);
+        $response = $handler->handle($request);
         
         // Only add security headers if they're enabled in config
-        if (config('security.enabled', true) && $response instanceof Response) {
-            $this->addSecurityHeaders($response);
+        if (config('security.enabled', true)) {
+            $response = $this->addSecurityHeaders($response);
         }
         
         return $response;
     }
     
-    private function addSecurityHeaders($response)
+    private function addSecurityHeaders(ResponseInterface $response): ResponseInterface
     {
-        $environment = app()->environment();
-        
         // Content Security Policy
         if (config('security.csp.enabled', true)) {
             $csp = $this->buildCspHeader();
             
             $headerName = config('security.csp.report_only') ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy';
-            $response->headers->set($headerName, $csp);
+            $response = $response->withHeader($headerName, $csp);
         }
         
         // HTTP Strict Transport Security
@@ -46,26 +45,28 @@ class SecurityHeaders
                 $hstsDirectives[] = 'preload';
             }
             
-            $response->headers->set('Strict-Transport-Security', implode('; ', $hstsDirectives));
+            $response = $response->withHeader('Strict-Transport-Security', implode('; ', $hstsDirectives));
         }
         
         // X-Frame-Options to prevent clickjacking
-        $response->headers->set('X-Frame-Options', config('security.x_frame_options', 'DENY'));
+        $response = $response->withHeader('X-Frame-Options', config('security.x_frame_options', 'DENY'));
         
         // X-Content-Type-Options to prevent MIME type sniffing
-        $response->headers->set('X-Content-Type-Options', config('security.x_content_type_options', 'nosniff'));
+        $response = $response->withHeader('X-Content-Type-Options', config('security.x_content_type_options', 'nosniff'));
         
         // Referrer-Policy to control referrer information
-        $response->headers->set('Referrer-Policy', config('security.referrer_policy', 'strict-origin-when-cross-origin'));
+        $response = $response->withHeader('Referrer-Policy', config('security.referrer_policy', 'strict-origin-when-cross-origin'));
         
         // Permissions-Policy to control browser features
-        $response->headers->set('Permissions-Policy', config('security.permissions_policy', 'geolocation=(), microphone=(), camera=()'));
+        $response = $response->withHeader('Permissions-Policy', config('security.permissions_policy', 'geolocation=(), microphone=(), camera=()'));
         
         // X-XSS-Protection (for older browsers that don't support CSP)
-        $response->headers->set('X-XSS-Protection', config('security.x_xss_protection', '1; mode=block'));
+        $response = $response->withHeader('X-XSS-Protection', config('security.x_xss_protection', '1; mode=block'));
+        
+        return $response;
     }
     
-    private function buildCspHeader()
+    private function buildCspHeader(): string
     {
         $policies = config('security.csp.policies', []);
         $csp = '';

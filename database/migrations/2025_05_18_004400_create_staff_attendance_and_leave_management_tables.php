@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -14,9 +15,9 @@ return new class extends Migration
     public function up(): void
     {
         // Leave Types table
-        Schema::create('leave_types', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('name', 100); // e.g., 'Sick Leave', 'Casual Leave', 'Annual Leave'
+         Schema::create('leave_types', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->string('name', 100); // e.g., 'Sick Leave', 'Casual Leave', 'Annual Leave'
             $table->string('code', 20)->unique(); // e.g., 'SL', 'CL', 'AL'
             $table->text('description')->nullable();
             $table->integer('max_days_per_year')->nullable(); // Maximum allowed days per year
@@ -29,9 +30,9 @@ return new class extends Migration
         });
 
         // Staff Attendance table
-        Schema::create('staff_attendances', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('staff_id'); // Links to either teachers or staff table
+         Schema::create('staff_attendances', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('staff_id'); // Links to either teachers or staff table
             $table->date('attendance_date');
             $table->time('check_in_time')->nullable();
             $table->time('check_out_time')->nullable();
@@ -46,9 +47,9 @@ return new class extends Migration
         });
 
         // Leave Requests table
-        Schema::create('leave_requests', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('staff_id'); // Links to either teachers or staff table
+         Schema::create('leave_requests', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('staff_id'); // Links to either teachers or staff table
             $table->uuid('leave_type_id');
             $table->date('start_date');
             $table->date('end_date');
@@ -69,9 +70,9 @@ return new class extends Migration
         });
 
         // Leave Balances table
-        Schema::create('leave_balances', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('staff_id'); // Links to either teachers or staff table
+         Schema::create('leave_balances', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('staff_id'); // Links to either teachers or staff table
             $table->uuid('leave_type_id');
             $table->integer('current_balance'); // Current available days
             $table->integer('used_days')->default(0); // Days already used
@@ -86,9 +87,9 @@ return new class extends Migration
         });
 
         // Substitute Teachers table
-        Schema::create('substitute_teachers', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('teacher_id'); // Links to teachers table
+         Schema::create('substitute_teachers', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('teacher_id'); // Links to teachers table
             $table->boolean('is_active')->default(true);
             $table->json('available_subjects')->nullable(); // JSON array of subjects they can teach
             $table->json('available_classes')->nullable(); // JSON array of classes they can handle
@@ -100,9 +101,9 @@ return new class extends Migration
         });
 
         // Substitute Assignments table
-        Schema::create('substitute_assignments', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('leave_request_id'); // The leave request being covered
+         Schema::create('substitute_assignments', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('leave_request_id'); // The leave request being covered
             $table->uuid('substitute_teacher_id'); // The substitute assigned
             $table->uuid('class_subject_id')->nullable(); // Specific class/subject being covered
             $table->date('assignment_date');

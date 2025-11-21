@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -15,9 +16,9 @@ return new class extends Migration
     {
 
         // Marketplace Products
-        Schema::create('marketplace_products', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->string('name', 200);
+         Schema::create('marketplace_products', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->string('name', 200);
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->string('category', 50);
@@ -30,9 +31,9 @@ return new class extends Migration
         });
 
         // Transactions
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('user_id');
+         Schema::create('transactions', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('user_id');
             $table->string('transaction_type', 50);
             $table->decimal('amount', 10, 2);
             $table->string('payment_method', 50);
@@ -44,9 +45,9 @@ return new class extends Migration
         });
 
         // Transaction Items
-        Schema::create('transaction_items', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('transaction_id');
+         Schema::create('transaction_items', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('transaction_id');
             $table->uuid('product_id')->nullable();
             $table->string('item_type', 50);
             $table->string('description', 200);

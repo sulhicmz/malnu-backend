@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -18,9 +19,9 @@ return new class extends Migration
             $table->datetimes();
         });*/
         // Virtual Classes
-        Schema::create('virtual_classes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('class_id')->nullable();
+         Schema::create('virtual_classes', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('class_id')->nullable();
             $table->uuid('subject_id')->nullable();
             $table->uuid('teacher_id')->nullable();
             $table->string('name', 100);
@@ -36,9 +37,9 @@ return new class extends Migration
         });
 
         // Learning Materials
-        Schema::create('learning_materials', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('virtual_class_id');
+         Schema::create('learning_materials', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('content')->nullable();
             $table->string('file_url', 255)->nullable();
@@ -52,9 +53,9 @@ return new class extends Migration
         });
 
         // Assignments
-        Schema::create('assignments', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('virtual_class_id');
+         Schema::create('assignments', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
             $table->timestamp('due_date');
@@ -67,9 +68,9 @@ return new class extends Migration
         });
 
         // Quizzes
-        Schema::create('quizzes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('virtual_class_id');
+         Schema::create('quizzes', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
             $table->integer('time_limit_minutes')->nullable();
@@ -82,9 +83,9 @@ return new class extends Migration
         });
 
         // Discussions
-        Schema::create('discussions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('virtual_class_id');
+         Schema::create('discussions', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('content');
             $table->boolean('is_pinned')->default(false);
@@ -95,9 +96,9 @@ return new class extends Migration
         });
 
         // Discussion Replies
-        Schema::create('discussion_replies', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('discussion_id');
+         Schema::create('discussion_replies', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('discussion_id');
             $table->text('content');
             $table->uuid('created_by')->nullable();
             $table->datetimes();
@@ -106,9 +107,9 @@ return new class extends Migration
         });
 
         // Video Conferences
-        Schema::create('video_conferences', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('virtual_class_id');
+         Schema::create('video_conferences', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
             $table->timestamp('start_time');

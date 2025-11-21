@@ -5,6 +5,7 @@ declare (strict_types = 1);
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hypervel\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
 
 return new class extends Migration
 {
@@ -19,9 +20,9 @@ return new class extends Migration
         });*/
 
         // Grades
-        Schema::create('grades', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('student_id');
+         Schema::create('grades', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('student_id');
             $table->uuid('subject_id');
             $table->uuid('class_id');
             $table->decimal('grade', 5, 2);
@@ -41,9 +42,9 @@ return new class extends Migration
         });
 
         // Competencies
-        Schema::create('competencies', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('student_id');
+         Schema::create('competencies', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('student_id');
             $table->uuid('subject_id');
             $table->string('competency_code', 20);
             $table->string('competency_name', 100);
@@ -58,9 +59,9 @@ return new class extends Migration
         });
 
         // Reports
-        Schema::create('reports', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('student_id');
+         Schema::create('reports', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('student_id');
             $table->uuid('class_id');
             $table->smallInteger('semester');
             $table->string('academic_year', 9);
@@ -78,9 +79,9 @@ return new class extends Migration
         });
 
         // Student Portfolios
-        Schema::create('student_portfolios', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
-            $table->uuid('student_id');
+         Schema::create('student_portfolios', function (Blueprint $table) {
+             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+             $table->uuid('student_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
             $table->string('file_url', 255)->nullable();

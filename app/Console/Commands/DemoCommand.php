@@ -14,6 +14,6 @@ class DemoCommand extends Command
 
     public function handle()
     {
-        $this->info('Hello ' . ($this->option('name') ?: 'Hypervel'));
+        $this->info('Hello ' . ($this->option('name') ?: 'Hyperf'));
     }
 }

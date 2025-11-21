@@ -8,7 +8,7 @@ return [
     | Default Queue Connection Name
     |--------------------------------------------------------------------------
     |
-    | Hypervel's queue supports a variety of backends via a single, unified
+     | Hyperf's queue supports a variety of backends via a single, unified
     | API, giving you convenient access to each backend using identical
     | syntax for each. The default queue connection is defined below.
     |
@@ -32,9 +32,9 @@ return [
     | Queue Connections
     |--------------------------------------------------------------------------
     |
-    | Here you may configure the connection options for every queue backend
-    | used by your application. An example configuration is provided for
-    | each backend supported by Hypervel. You're also free to add more.
+     | Here you may configure the connection options for every queue backend
+     | used by your application. An example configuration is provided for
+     | each backend supported by Hyperf. You're also free to add more.
     |
     | Drivers: "sync", "defer", "database", "beanstalkd", "sqs", "redis", "null"
     |
@@ -121,9 +121,9 @@ return [
     | Failed Queue Jobs
     |--------------------------------------------------------------------------
     |
-    | These options configure the behavior of failed queue job logging so you
-    | can control how and where failed jobs are stored. Hypervel ships with
-    | support for storing failed jobs in a simple file or in a database.
+     | These options configure the behavior of failed queue job logging so you
+     | can control how and where failed jobs are stored. Hyperf ships with
+     | support for storing failed jobs in a simple file or in a database.
     |
     | Supported drivers: "database-uuids", "dynamodb", "file", "null"
     |

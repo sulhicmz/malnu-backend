@@ -41,9 +41,9 @@ return [
     | Session Encryption
     |--------------------------------------------------------------------------
     |
-    | This option allows you to easily specify that all of your session data
-    | should be encrypted before it's stored. All encryption is performed
-    | automatically by Hypervel and you may use the session like normal.
+     | This option allows you to easily specify that all of your session data
+     | should be encrypted before it's stored. All encryption is performed
+     | automatically by Hyperf and you may use the session like normal.
     |
     */
 

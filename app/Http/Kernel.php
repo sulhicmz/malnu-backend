@@ -36,7 +36,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // 'throttle:60,1,api',
+            'throttle:60,1', // 60 requests per minute
             // \Hypervel\Router\Middleware\SubstituteBindings::class,
         ],
     ];

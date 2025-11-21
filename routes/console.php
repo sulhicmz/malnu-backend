@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Hypervel\Support\Facades\Artisan;
-use Hypervel\Support\Facades\Schedule;
+use Hyperf\Support\Facades\Artisan;
+use Hyperf\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ use Hypervel\Support\Facades\Schedule;
 */
 
 Artisan::command('hello', function () {
-    $this->comment('Hypervel is awesome!');
+    $this->comment('Hyperf is awesome!');
 })->purpose('This is a demo closure command.');
 
 // Schedule::command('hello')->everyFiveSeconds();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hypervel\Support\ServiceProvider;
+use Hyperf\Support\ServiceProvider;
 use Psr\Log\LogLevel;
 
 return [
@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Hypervel'),
+    'name' => env('APP_NAME', 'Hyperf'),
 
     /*
     |--------------------------------------------------------------------------
@@ -167,41 +167,41 @@ return [
     ])->toArray(),
 
     'aliases' => [
-        'App' => Hypervel\Support\Facades\App::class,
-        'Artisan' => Hypervel\Support\Facades\Artisan::class,
-        'Auth' => Hypervel\Support\Facades\Auth::class,
-        'Blade' => Hypervel\Support\Facades\Blade::class,
-        'Broadcast' => Hypervel\Support\Facades\Broadcast::class,
-        'Bus' => Hypervel\Support\Facades\Bus::class,
-        'Cache' => Hypervel\Support\Facades\Cache::class,
-        'Config' => Hypervel\Support\Facades\Config::class,
-        'Cookie' => Hypervel\Support\Facades\Cookie::class,
-        'Crypt' => Hypervel\Support\Facades\Crypt::class,
-        'Date' => Hypervel\Support\Facades\Date::class,
-        'DB' => Hypervel\Support\Facades\DB::class,
-        'Environment' => Hypervel\Support\Facades\Environment::class,
-        'Event' => Hypervel\Support\Facades\Event::class,
-        'File' => Hypervel\Support\Facades\File::class,
-        'Gate' => Hypervel\Support\Facades\Gate::class,
-        'Hash' => Hypervel\Support\Facades\Hash::class,
-        'Http' => Hypervel\Support\Facades\Http::class,
-        'JWT' => Hypervel\Support\Facades\JWT::class,
-        'Lang' => Hypervel\Support\Facades\Lang::class,
-        'Log' => Hypervel\Support\Facades\Log::class,
-        'Mail' => Hypervel\Support\Facades\Mail::class,
-        'Notification' => Hypervel\Support\Facades\Notification::class,
-        'Process' => Hypervel\Support\Facades\Process::class,
-        'Queue' => Hypervel\Support\Facades\Queue::class,
-        'RateLimiter' => Hypervel\Support\Facades\RateLimiter::class,
-        'Redis' => Hypervel\Support\Facades\Redis::class,
-        'Request' => Hypervel\Support\Facades\Request::class,
-        'Response' => Hypervel\Support\Facades\Response::class,
-        'Route' => Hypervel\Support\Facades\Route::class,
-        'Schedule' => Hypervel\Support\Facades\Schedule::class,
-        'Session' => Hypervel\Support\Facades\Session::class,
-        'Storage' => Hypervel\Support\Facades\Storage::class,
-        'URL' => Hypervel\Support\Facades\URL::class,
-        'Validator' => Hypervel\Support\Facades\Validator::class,
-        'View' => Hypervel\Support\Facades\View::class,
+        'App' => Hyperf\Support\Facades\App::class,
+        'Artisan' => Hyperf\Support\Facades\Artisan::class,
+        'Auth' => Hyperf\Support\Facades\Auth::class,
+        'Blade' => Hyperf\Support\Facades\Blade::class,
+        'Broadcast' => Hyperf\Support\Facades\Broadcast::class,
+        'Bus' => Hyperf\Support\Facades\Bus::class,
+        'Cache' => Hyperf\Support\Facades\Cache::class,
+        'Config' => Hyperf\Support\Facades\Config::class,
+        'Cookie' => Hyperf\Support\Facades\Cookie::class,
+        'Crypt' => Hyperf\Support\Facades\Crypt::class,
+        'Date' => Hyperf\Support\Facades\Date::class,
+        'DB' => Hyperf\Support\Facades\DB::class,
+        'Environment' => Hyperf\Support\Facades\Environment::class,
+        'Event' => Hyperf\Support\Facades\Event::class,
+        'File' => Hyperf\Support\Facades\File::class,
+        'Gate' => Hyperf\Support\Facades\Gate::class,
+        'Hash' => Hyperf\Support\Facades\Hash::class,
+        'Http' => Hyperf\Support\Facades\Http::class,
+        'JWT' => Hyperf\Support\Facades\JWT::class,
+        'Lang' => Hyperf\Support\Facades\Lang::class,
+        'Log' => Hyperf\Support\Facades\Log::class,
+        'Mail' => Hyperf\Support\Facades\Mail::class,
+        'Notification' => Hyperf\Support\Facades\Notification::class,
+        'Process' => Hyperf\Support\Facades\Process::class,
+        'Queue' => Hyperf\Support\Facades\Queue::class,
+        'RateLimiter' => Hyperf\Support\Facades\RateLimiter::class,
+        'Redis' => Hyperf\Support\Facades\Redis::class,
+        'Request' => Hyperf\Support\Facades\Request::class,
+        'Response' => Hyperf\Support\Facades\Response::class,
+        'Route' => Hyperf\Support\Facades\Route::class,
+        'Schedule' => Hyperf\Support\Facades\Schedule::class,
+        'Session' => Hyperf\Support\Facades\Session::class,
+        'Storage' => Hyperf\Support\Facades\Storage::class,
+        'URL' => Hyperf\Support\Facades\URL::class,
+        'Validator' => Hyperf\Support\Facades\Validator::class,
+        'View' => Hyperf\Support\Facades\View::class,
     ],
 ];

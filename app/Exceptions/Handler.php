@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
-use Hypervel\Foundation\Exceptions\Handler as ExceptionHandler;
-use Hypervel\Http\Request;
+use Hyperf\Foundation\Exceptions\Handler as ExceptionHandler;
+use Hyperf\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler

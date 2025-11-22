@@ -1,0 +1,22 @@
+I'm working on this issue to fix the missing DB imports in database migration files.
+
+## Plan
+I'll be adding the missing DB facade import use Hyperf\Support\Facades\DB; to all migration files that use DB::raw('(UUID())') without the proper import.
+
+## Files to Update
+Based on my analysis, these 12 migration files need the DB import:
+1. 2023_08_03_000000_create_users_table.php
+2. 2025_05_18_002108_create_core_table.php
+3. 2025_05_18_002538_create_school_management_table.php
+4. 2025_05_18_002835_create_ppdb_table.php
+5. 2025_05_18_003049_create_elearning_table.php
+6. 2025_05_18_003306_create_grading_table.php
+7. 2025_05_18_003453_create_online_exam_table.php
+8. 2025_05_18_003638_create_digital_library_table.php
+9. 2025_05_18_003823_create_premium_feature_table.php
+10. 2025_05_18_004014_create_monetization_table.php
+11. 2025_05_18_004202_create_system_table.php
+12. 2025_05_18_004400_create_staff_attendance_and_leave_management_tables.php
+
+## Implementation
+I'll add use Hyperf\Support\Facades\DB; after the existing use statements in each file.

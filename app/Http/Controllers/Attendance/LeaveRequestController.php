@@ -2,262 +2,280 @@
 
 namespace App\Http\Controllers\Attendance;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
-class LeaveRequestController extends Controller
+class LeaveRequestController extends BaseController
 {
     /**
      * Display a listing of the leave requests.
      */
-    public function index(Request $request): JsonResponse
+    public function index()
     {
-        $query = LeaveRequest::with(['staff', 'leaveType', 'approvedBy']);
+        try {
+            $query = LeaveRequest::with(['staff', 'leaveType', 'approvedBy']);
 
-        // Filter by staff ID if provided
-        if ($request->has('staff_id')) {
-            $query->where('staff_id', $request->staff_id);
+            // Filter by staff ID if provided
+            if ($this->request->has('staff_id')) {
+                $query->where('staff_id', $this->request->input('staff_id'));
+            }
+
+            // Filter by status if provided
+            if ($this->request->has('status')) {
+                $query->where('status', $this->request->input('status'));
+            }
+
+            // Filter by leave type if provided
+            if ($this->request->has('leave_type_id')) {
+                $query->where('leave_type_id', $this->request->input('leave_type_id'));
+            }
+
+            // Filter by date range if provided
+            if ($this->request->has('start_date') && $this->request->has('end_date')) {
+                $query->whereBetween('start_date', [$this->request->input('start_date'), $this->request->input('end_date')])
+                      ->orWhereBetween('end_date', [$this->request->input('start_date'), $this->request->input('end_date')]);
+            }
+
+            $leaveRequests = $query->orderBy('created_at', 'desc')->paginate(15);
+
+            return $this->successResponse($leaveRequests);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave requests');
         }
-
-        // Filter by status if provided
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by leave type if provided
-        if ($request->has('leave_type_id')) {
-            $query->where('leave_type_id', $request->leave_type_id);
-        }
-
-        // Filter by date range if provided
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                  ->orWhereBetween('end_date', [$request->start_date, $request->end_date]);
-        }
-
-        $leaveRequests = $query->orderBy('created_at', 'desc')->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $leaveRequests
-        ]);
     }
 
     /**
      * Store a newly created leave request.
      */
-    public function store(Request $request): JsonResponse
+    public function store()
     {
-        $request->validate([
-            'staff_id' => 'required|exists:staff,id',
-            'leave_type_id' => 'required|exists:leave_types,id',
-            'start_date' => 'required|date|before_or_equal:end_date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'required|string|max:500',
-            'comments' => 'nullable|string',
-        ]);
-
-        // Calculate total days
-        $startDate = new \DateTime($request->start_date);
-        $endDate = new \DateTime($request->end_date);
-        $totalDays = $startDate->diff($endDate)->days + 1; // +1 to include both start and end date
-
-        // Check if staff has sufficient leave balance
-        $leaveType = LeaveType::find($request->leave_type_id);
-        if ($leaveType && $leaveType->requires_approval) {
-            $leaveBalance = LeaveBalance::where('staff_id', $request->staff_id)
-                ->where('leave_type_id', $request->leave_type_id)
-                ->where('year', date('Y'))
-                ->first();
-
-            if ($leaveBalance && $leaveBalance->current_balance < $totalDays) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Insufficient leave balance for this request'
-                ], 400);
+        try {
+            $input = $this->request->all();
+            
+            // Validate required fields
+            $requiredFields = ['staff_id', 'leave_type_id', 'start_date', 'end_date', 'reason'];
+            $errors = [];
+            foreach ($requiredFields as $field) {
+                if (!isset($input[$field]) || empty($input[$field])) {
+                    $errors[$field] = ["The {$field} field is required"];
+                }
             }
+            
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            // Validate data types and formats
+            if (!is_numeric($input['staff_id'])) {
+                $errors['staff_id'] = ["Invalid staff_id"];
+            }
+            
+            if (!is_numeric($input['leave_type_id'])) {
+                $errors['leave_type_id'] = ["Invalid leave_type_id"];
+            }
+            
+            if (!strtotime($input['start_date'])) {
+                $errors['start_date'] = ["Invalid date format"];
+            }
+            
+            if (!strtotime($input['end_date'])) {
+                $errors['end_date'] = ["Invalid date format"];
+            }
+            
+            if (strtotime($input['start_date']) > strtotime($input['end_date'])) {
+                $errors['start_date'] = ["Start date must be before or equal to end date"];
+            }
+
+            if (isset($input['reason']) && strlen($input['reason']) > 500) {
+                $errors['reason'] = ["Reason must not exceed 500 characters"];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            // Calculate total days
+            $startDate = new \DateTime($input['start_date']);
+            $endDate = new \DateTime($input['end_date']);
+            $totalDays = $startDate->diff($endDate)->days + 1; // +1 to include both start and end date
+
+            // Check if staff has sufficient leave balance
+            $leaveType = LeaveType::find($input['leave_type_id']);
+            if ($leaveType && $leaveType->requires_approval) {
+                $leaveBalance = LeaveBalance::where('staff_id', $input['staff_id'])
+                    ->where('leave_type_id', $input['leave_type_id'])
+                    ->where('year', date('Y'))
+                    ->first();
+
+                if ($leaveBalance && $leaveBalance->current_balance < $totalDays) {
+                    return $this->errorResponse('Insufficient leave balance for this request', 'INSUFFICIENT_BALANCE');
+                }
+            }
+
+            $leaveRequest = LeaveRequest::create(array_merge(
+                $input,
+                ['total_days' => $totalDays, 'status' => 'pending']
+            ));
+
+            return $this->successResponse($leaveRequest, 'Leave request submitted successfully', 201);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to create leave request');
         }
-
-        $leaveRequest = LeaveRequest::create(array_merge(
-            $request->all(),
-            ['total_days' => $totalDays, 'status' => 'pending']
-        ));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request submitted successfully',
-            'data' => $leaveRequest
-        ], 201);
     }
 
     /**
      * Display the specified leave request.
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id)
     {
-        $leaveRequest = LeaveRequest::with(['staff', 'leaveType', 'approvedBy', 'substituteAssignments'])->find($id);
+        try {
+            $leaveRequest = LeaveRequest::with(['staff', 'leaveType', 'approvedBy', 'substituteAssignments'])->find($id);
 
-        if (!$leaveRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request not found'
-            ], 404);
+            if (!$leaveRequest) {
+                return $this->notFoundResponse('Leave request not found');
+            }
+
+            return $this->successResponse($leaveRequest);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave request');
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $leaveRequest
-        ]);
     }
 
     /**
      * Update the specified leave request.
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(string $id)
     {
-        $leaveRequest = LeaveRequest::find($id);
+        try {
+            $leaveRequest = LeaveRequest::find($id);
 
-        if (!$leaveRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request not found'
-            ], 404);
+            if (!$leaveRequest) {
+                return $this->notFoundResponse('Leave request not found');
+            }
+
+            // Only allow updates to comments and status if not approved/rejected yet
+            if ($leaveRequest->status !== 'pending') {
+                return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
+            }
+
+            $input = $this->request->all();
+            
+            // Validate comments if provided
+            $errors = [];
+            if (isset($input['comments']) && !is_string($input['comments'])) {
+                $errors['comments'] = ["Comments must be a string"];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            $leaveRequest->update($input); // Only update provided fields
+
+            return $this->successResponse($leaveRequest, 'Leave request updated successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to update leave request');
         }
-
-        // Only allow updates to comments and status if not approved/rejected yet
-        if ($leaveRequest->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot update leave request that is already processed'
-            ], 400);
-        }
-
-        $request->validate([
-            'comments' => 'nullable|string',
-        ]);
-
-        $leaveRequest->update($request->only(['comments']));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request updated successfully',
-            'data' => $leaveRequest
-        ]);
     }
 
     /**
      * Remove the specified leave request.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id)
     {
-        $leaveRequest = LeaveRequest::find($id);
+        try {
+            $leaveRequest = LeaveRequest::find($id);
 
-        if (!$leaveRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request not found'
-            ], 404);
+            if (!$leaveRequest) {
+                return $this->notFoundResponse('Leave request not found');
+            }
+
+            // Only allow deletion if status is pending
+            if ($leaveRequest->status !== 'pending') {
+                return $this->errorResponse('Cannot delete leave request that is already processed', 'DELETE_ERROR');
+            }
+
+            $leaveRequest->delete();
+
+            return $this->successResponse(null, 'Leave request deleted successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to delete leave request');
         }
-
-        // Only allow deletion if status is pending
-        if ($leaveRequest->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete leave request that is already processed'
-            ], 400);
-        }
-
-        $leaveRequest->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request deleted successfully'
-        ]);
     }
 
     /**
      * Approve a leave request.
      */
-    public function approve(Request $request, string $id): JsonResponse
+    public function approve(string $id)
     {
-        $leaveRequest = LeaveRequest::find($id);
+        try {
+            $leaveRequest = LeaveRequest::find($id);
 
-        if (!$leaveRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request not found'
-            ], 404);
+            if (!$leaveRequest) {
+                return $this->notFoundResponse('Leave request not found');
+            }
+
+            if ($leaveRequest->status !== 'pending') {
+                return $this->errorResponse('Leave request is not in pending status', 'APPROVAL_ERROR');
+            }
+
+            $input = $this->request->all();
+            
+            $leaveRequest->update([
+                'status' => 'approved',
+                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_at' => date('Y-m-d H:i:s'),
+                'approval_comments' => $input['approval_comments'] ?? null
+            ]);
+
+            // Update leave balance if applicable
+            $leaveBalance = LeaveBalance::where('staff_id', $leaveRequest->staff_id)
+                ->where('leave_type_id', $leaveRequest->leave_type_id)
+                ->where('year', date('Y'))
+                ->first();
+
+            if ($leaveBalance) {
+                $leaveBalance->decrement('current_balance', $leaveRequest->total_days);
+                $leaveBalance->increment('used_days', $leaveRequest->total_days);
+            }
+
+            return $this->successResponse($leaveRequest, 'Leave request approved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to approve leave request');
         }
-
-        if ($leaveRequest->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request is not in pending status'
-            ], 400);
-        }
-
-        $leaveRequest->update([
-            'status' => 'approved',
-            'approved_by' => $request->user()->id ?? null, // Assuming user authentication
-            'approved_at' => now(),
-            'approval_comments' => $request->approval_comments
-        ]);
-
-        // Update leave balance if applicable
-        $leaveBalance = LeaveBalance::where('staff_id', $leaveRequest->staff_id)
-            ->where('leave_type_id', $leaveRequest->leave_type_id)
-            ->where('year', date('Y'))
-            ->first();
-
-        if ($leaveBalance) {
-            $leaveBalance->decrement('current_balance', $leaveRequest->total_days);
-            $leaveBalance->increment('used_days', $leaveRequest->total_days);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request approved successfully',
-            'data' => $leaveRequest
-        ]);
     }
 
     /**
      * Reject a leave request.
      */
-    public function reject(Request $request, string $id): JsonResponse
+    public function reject(string $id)
     {
-        $leaveRequest = LeaveRequest::find($id);
+        try {
+            $leaveRequest = LeaveRequest::find($id);
 
-        if (!$leaveRequest) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request not found'
-            ], 404);
+            if (!$leaveRequest) {
+                return $this->notFoundResponse('Leave request not found');
+            }
+
+            if ($leaveRequest->status !== 'pending') {
+                return $this->errorResponse('Leave request is not in pending status', 'REJECTION_ERROR');
+            }
+
+            $input = $this->request->all();
+            
+            $leaveRequest->update([
+                'status' => 'rejected',
+                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_at' => date('Y-m-d H:i:s'),
+                'approval_comments' => $input['approval_comments'] ?? null
+            ]);
+
+            return $this->successResponse($leaveRequest, 'Leave request rejected successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to reject leave request');
         }
-
-        if ($leaveRequest->status !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave request is not in pending status'
-            ], 400);
-        }
-
-        $leaveRequest->update([
-            'status' => 'rejected',
-            'approved_by' => $request->user()->id ?? null, // Assuming user authentication
-            'approved_at' => now(),
-            'approval_comments' => $request->approval_comments
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave request rejected successfully',
-            'data' => $leaveRequest
-        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\JsonResponse;
 use Throwable;
 
 class ApiErrorHandlingMiddleware
@@ -30,10 +31,7 @@ class ApiErrorHandlingMiddleware
             ];
 
             // Return JSON response with 500 status for server errors
-            http_response_code(500);
-            header('Content-Type: application/json');
-            echo json_encode($errorResponse);
-            exit;
+            return new JsonResponse($errorResponse, 500);
         }
     }
 }

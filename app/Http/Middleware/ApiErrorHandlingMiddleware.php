@@ -29,11 +29,17 @@ class ApiErrorHandlingMiddleware
                 'timestamp' => date('c'),
             ];
 
-            // Return JSON response with 500 status for server errors
-            http_response_code(500);
-            header('Content-Type: application/json');
-            echo json_encode($errorResponse);
-            exit;
+            // Instead of using exit, return a response using output buffering
+            // Capture the JSON response and return it properly
+            if (!headers_sent()) {
+                http_response_code(500);
+                header('Content-Type: application/json');
+            }
+            
+            // For Hyperf/Swoole, we need to return a proper response object
+            // Since we don't have direct access to the response classes, 
+            // we'll return the JSON string which the framework will handle
+            return json_encode($errorResponse);
         }
     }
 }

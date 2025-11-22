@@ -26,7 +26,6 @@ class AuthLoginCustomController extends Controller
 
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user, $request->remember);
-            // dd(Auth::user());
             return redirect()->intended(route('home')); 
         }
 

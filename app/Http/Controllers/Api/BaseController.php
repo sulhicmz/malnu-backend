@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -28,8 +28,6 @@ class BaseController extends AbstractController
             unset($response['data']);
         }
 
-        // This will be implemented by the actual HyperVel framework
-        // The concrete implementation will handle the response formatting
         return $this->buildJsonResponse($response, $statusCode);
     }
 
@@ -59,7 +57,7 @@ class BaseController extends AbstractController
             unset($response['error']['details']);
         }
 
-        // Log the error - this will be implemented by the actual framework
+        // Log the error
         $this->logError([
             'message' => $message,
             'error_code' => $errorCode,
@@ -131,7 +129,7 @@ class BaseController extends AbstractController
     }
 
     /**
-     * Build JSON response - to be implemented by concrete controllers
+     * Build JSON response
      *
      * @param array $data
      * @param int $statusCode
@@ -139,20 +137,33 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
-     * Log error - to be implemented by concrete controllers
+     * Log error with structured format
      *
      * @param array $context
      * @return void
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Generate correlation ID for tracking
+        $correlationId = $this->request->header('X-Correlation-ID') ?? uniqid('api_', true);
+        
+        // Create structured log entry
+        $logEntry = [
+            'correlation_id' => $correlationId,
+            'error_message' => $context['message'] ?? 'Unknown error',
+            'error_code' => $context['error_code'] ?? 'GENERAL_ERROR',
+            'status_code' => $context['status_code'] ?? 500,
+            'details' => $context['details'] ?? null,
+            'uri' => $this->request->getUri()->getPath() ?? 'unknown',
+            'method' => $this->request->getMethod() ?? 'unknown',
+            'timestamp' => date('c'),
+        ];
+        
+        // Log to standard error log with structured format
+        error_log('[API_ERROR] ' . json_encode($logEntry));
     }
 }

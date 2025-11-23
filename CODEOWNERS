@@ -1,0 +1,45 @@
+# This file specifies code owners for different parts of the repository
+# Each line follows the format: path pattern owner(s)
+
+# Root level files
+* @malnu-backend/maintainers
+
+# Core application structure
+app/ @malnu-backend/core-team
+app/Models/ @malnu-backend/database-team
+app/Controllers/ @malnu-backend/backend-team
+app/Services/ @malnu-backend/backend-team
+app/Http/Middleware/ @malnu-backend/security-team
+
+# Configuration files
+config/ @malnu-backend/core-team
+config/app.php @malnu-backend/core-team
+config/database.php @malnu-backend/database-team
+config/security.php @malnu-backend/security-team
+
+# Database related
+database/ @malnu-backend/database-team
+database/migrations/ @malnu-backend/database-team
+database/seeders/ @malnu-backend/database-team
+
+# Routes
+routes/ @malnu-backend/backend-team
+
+# Frontend
+frontend/ @malnu-backend/frontend-team
+frontend/src/ @malnu-backend/frontend-team
+
+# Tests
+tests/ @malnu-backend/testing-team
+
+# Security sensitive files
+SECURITY.md @malnu-backend/security-team
+CODE_OF_CONDUCT.md @malnu-backend/maintainers
+composer.json @malnu-backend/core-team
+composer.lock @malnu-backend/core-team
+.env.example @malnu-backend/security-team
+
+# Documentation
+docs/ @malnu-backend/documentation-team
+README.md @malnu-backend/maintainers
+CONTRIBUTING.md @malnu-backend/maintainers

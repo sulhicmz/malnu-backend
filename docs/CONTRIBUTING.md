@@ -4,11 +4,21 @@ Terima kasih ingin berkontribusi! Berikut panduannya:
 
 ## Project Structure Important Notice
 
-**⚠️ CRITICAL**: This repository contains two applications:
-1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
+**⚠️ CRITICAL DEPRECATION NOTICE ⚠️**: This repository contains two applications:
 
-**ALL development should happen in the main application (root directory).** The web-sch-12 directory is maintained only for legacy purposes and will be deprecated.
+1. **Main Application** (root directory) - **ACTIVE**: HyperVel framework (Laravel-style with Swoole support)
+   - **Primary focus for all development**
+   - High-performance with Swoole coroutine support
+   - Comprehensive school management features
+   - All new features should be implemented here
+
+2. **Legacy Application** (`web-sch-12/` directory) - **FULLY DEPRECATED**: Laravel 12 with modular architecture
+   - **NO NEW DEVELOPMENT** should occur in this application
+   - **WILL BE REMOVED** in the next major release
+   - Contains modules: ERaport, LaporanAnalitik, ManajemenSekolah, SistemMonetisasi
+   - Only maintained for reference purposes
+
+**CRITICAL**: All development efforts must be focused on the main application in the root directory. The `web-sch-12` directory is fully deprecated and will be completely removed. Any work done in the legacy application will be lost when it's removed.
 
 ## Cara Berkontribusi
 1. Fork repository ini

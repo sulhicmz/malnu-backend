@@ -13,12 +13,34 @@ This repository contains two applications due to historical development:
 
 2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
    - Older implementation with fewer features
-   - Under evaluation for deprecation
-   - No new development should occur here
+   - **FULLY DEPRECATED** - No new development should occur here
+   - **WILL BE REMOVED** in the next major release
+   - Contains modules: ERaport, LaporanAnalitik, ManajemenSekolah, SistemMonetisasi
 
 ## Current Status
 
-**⚠️ IMPORTANT**: All development efforts should focus on the main application in the root directory. The `web-sch-12` directory is maintained only for legacy purposes and will be deprecated in the future.
+**⚠️ CRITICAL DEPRECATION NOTICE ⚠️**: 
+
+**The dual application structure is being deprecated. ALL development efforts must focus on the main HyperVel application in the root directory. The `web-sch-12` directory will be completely removed in the next major release.**
+
+- **No new features** should be added to the web-sch-12 application
+- **No new development** should occur in the legacy application
+- **All future work** should be done in the main HyperVel application
+- **Migration plan** is in progress to consolidate functionality
+
+## Migration Strategy
+
+A phased migration approach is being implemented:
+1. **Phase 1**: Identify unique features in web-sch-12 that need migration
+2. **Phase 2**: Implement equivalent functionality in main application
+3. **Phase 3**: Remove web-sch-12 directory completely
+
+## Immediate Actions Required
+
+- Review any dependencies on the web-sch-12 application
+- Plan migration of any unique functionality to the main application
+- Update any integrations to use main application endpoints
+- Update developer documentation and onboarding materials
 
 ## Framework Information
 

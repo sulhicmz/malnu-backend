@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Throwable;
+use Illuminate\Http\JsonResponse;
 
 class ApiErrorHandlingMiddleware
 {

@@ -6,9 +6,17 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
+use App\Http\Controllers\Auth\JwtAuthController;
 use Hyperf\Support\Facades\Route;
 
 Route::any('/', [IndexController::class, 'index']);
+
+// Authentication Routes
+Route::post('/auth/login', [JwtAuthController::class, 'login']);
+Route::post('/auth/register', [JwtAuthController::class, 'register']);
+Route::post('/auth/logout', [JwtAuthController::class, 'logout'])->middleware(\App\Http\Middleware\LoginThrottleMiddleware::class);
+Route::post('/auth/refresh', [JwtAuthController::class, 'refresh'])->middleware(\App\Http\Middleware\LoginThrottleMiddleware::class);
+Route::get('/auth/me', [JwtAuthController::class, 'me']);
 
 // Attendance and Leave Management Routes
 Route::prefix('attendance')->group(function () {

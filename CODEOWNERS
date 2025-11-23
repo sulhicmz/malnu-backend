@@ -1,0 +1,44 @@
+# CODEOWNERS
+
+# This file controls who is automatically requested for review
+# when pull requests are opened. Learn more:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - will be requested for review on all PRs
+* @gugun-g
+
+# Security-sensitive files
+SECURITY.md @gugun-g
+*.env.example @gugun-g
+config/ @gugun-g
+
+# Core application files
+app/ @gugun-g
+bootstrap/ @gugun-g
+config/ @gugun-g
+
+# Frontend assets
+frontend/ @gugun-g
+public/ @gugun-g
+resources/ @gugun-g
+
+# Database and migrations
+database/ @gugun-g
+
+# Testing and CI
+tests/ @gugun-g
+.github/workflows/ @gugun-g
+
+# Dependencies
+composer.json @gugun-g
+composer.lock @gugun-g
+frontend/package.json @gugun-g
+frontend/package-lock.json @gugun-g
+
+# Documentation
+README.md @gugun-g
+CONTRIBUTING.md @gugun-g
+LICENSE @gugun-g
+
+# Legacy web-sch-12 module structure
+web-sch-12/ @gugun-g

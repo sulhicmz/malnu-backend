@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\Contract\StdoutLoggerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Http\Message\ResponseInterface;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -12,7 +15,7 @@ class BaseController extends AbstractController
      * @param mixed $data
      * @param string $message
      * @param int $statusCode
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function successResponse($data = null, string $message = 'Operation successful', int $statusCode = 200)
     {
@@ -40,7 +43,7 @@ class BaseController extends AbstractController
      * @param string|null $errorCode
      * @param array|null $details
      * @param int $statusCode
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function errorResponse(string $message, string $errorCode = null, array $details = null, int $statusCode = 400)
     {
@@ -74,7 +77,7 @@ class BaseController extends AbstractController
      * Validation error response format
      *
      * @param array $errors
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function validationErrorResponse(array $errors)
     {
@@ -90,7 +93,7 @@ class BaseController extends AbstractController
      * Not found error response
      *
      * @param string $message
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function notFoundResponse(string $message = 'Resource not found')
     {
@@ -101,7 +104,7 @@ class BaseController extends AbstractController
      * Unauthorized error response
      *
      * @param string $message
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function unauthorizedResponse(string $message = 'Unauthorized')
     {
@@ -112,7 +115,7 @@ class BaseController extends AbstractController
      * Forbidden error response
      *
      * @param string $message
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function forbiddenResponse(string $message = 'Forbidden')
     {
@@ -123,7 +126,7 @@ class BaseController extends AbstractController
      * Server error response
      *
      * @param string $message
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function serverErrorResponse(string $message = 'Internal server error')
     {
@@ -135,13 +138,11 @@ class BaseController extends AbstractController
      *
      * @param array $data
      * @param int $statusCode
-     * @return mixed
+     * @return ResponseInterface
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
@@ -152,7 +153,54 @@ class BaseController extends AbstractController
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Extract error details for logging
+        $message = $context['message'] ?? 'API Error';
+        $errorCode = $context['error_code'] ?? 'GENERAL_ERROR';
+        $details = $context['details'] ?? null;
+        $statusCode = $context['status_code'] ?? 500;
+        
+        // Create a structured log entry with context
+        $logContext = [
+            'error_code' => $errorCode,
+            'status_code' => $statusCode,
+            'details' => $details,
+            'request_id' => $this->getRequestId(), // Add correlation ID if available
+            'timestamp' => date('c')
+        ];
+        
+        // For now, use the response logger - in a real implementation, 
+        // we would inject a proper logger service
+        $logMessage = sprintf(
+            '[API_ERROR] %s - Code: %s, Status: %d, Context: %s',
+            $message,
+            $errorCode,
+            $statusCode,
+            json_encode($logContext)
+        );
+        
+        // Use error_log as fallback but with structured format
+        error_log($logMessage);
+        
+        // In a complete implementation, we would use a proper logger service
+        // $this->logger->error($message, $logContext);
+    }
+    
+    /**
+     * Get request ID for correlation tracking
+     *
+     * @return string|null
+     */
+    private function getRequestId(): ?string
+    {
+        // Try to get request ID from header or generate one if not available
+        try {
+            $requestId = $this->request->getHeaderLine('X-Request-ID');
+            if (empty($requestId)) {
+                $requestId = uniqid('req_', true);
+            }
+            return $requestId;
+        } catch (\Throwable $e) {
+            return uniqid('req_', true);
+        }
     }
 }

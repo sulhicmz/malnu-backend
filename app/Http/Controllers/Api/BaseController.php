@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Contract\StdoutLoggerInterface;
+use Hyperf\Support\Arr;
+use Psr\Log\LogLevel;
+use Hyperf\Di\Annotation\Inject;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -139,9 +145,8 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        // Use the response instance from the parent Controller
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
@@ -152,7 +157,16 @@ class BaseController extends AbstractController
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Use the Log facade for structured error logging
+        \Hyperf\Support\Facades\Log::error('API Error', [
+            'message' => $context['message'] ?? 'API Error',
+            'error_code' => $context['error_code'] ?? 'GENERAL_ERROR',
+            'status_code' => $context['status_code'] ?? 500,
+            'details' => $context['details'] ?? null,
+            'timestamp' => date('c'),
+            'request_uri' => $this->request->getUri()->getPath() ?? null,
+            'request_method' => $this->request->getMethod() ?? null,
+            'user_agent' => $this->request->getHeaderLine('User-Agent') ?? null,
+        ]);
     }
 }

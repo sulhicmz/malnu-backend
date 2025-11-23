@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\Support\Facades\Log;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -131,7 +132,7 @@ class BaseController extends AbstractController
     }
 
     /**
-     * Build JSON response - to be implemented by concrete controllers
+     * Build JSON response with proper formatting and HTTP status
      *
      * @param array $data
      * @param int $statusCode
@@ -139,20 +140,44 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
-     * Log error - to be implemented by concrete controllers
+     * Log error with structured logging
      *
      * @param array $context
      * @return void
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Extract error details
+        $message = $context['message'] ?? 'API Error';
+        $errorCode = $context['error_code'] ?? 'GENERAL_ERROR';
+        $details = $context['details'] ?? null;
+        $statusCode = $context['status_code'] ?? 500;
+        
+        // Create structured log entry
+        $logContext = [
+            'error_code' => $errorCode,
+            'status_code' => $statusCode,
+            'details' => $details,
+            'timestamp' => date('c'),
+            'request_uri' => $this->request->getUri()->getPath() ?? 'unknown',
+            'method' => $this->request->getMethod() ?? 'unknown',
+        ];
+        
+        // Log with appropriate log level based on status code
+        switch (true) {
+            case $statusCode >= 500:
+                \Hyperf\Support\Facades\Log::error($message, $logContext);
+                break;
+            case $statusCode >= 400:
+                \Hyperf\Support\Facades\Log::warning($message, $logContext);
+                break;
+            default:
+                \Hyperf\Support\Facades\Log::info($message, $logContext);
+                break;
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\Support\Facades\Log;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -139,9 +140,8 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        // Use Hyperf's response interface to create proper JSON response
+        return $this->response()->json($data)->withStatus($statusCode);
     }
 
     /**
@@ -152,7 +152,38 @@ class BaseController extends AbstractController
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Generate or retrieve correlation ID for tracking requests
+        $correlationId = $this->getCorrelationId();
+        
+        // Add request context information
+        $context['correlation_id'] = $correlationId;
+        $context['uri'] = $this->request->getUri()->getPath() ?? 'unknown';
+        $context['method'] = $this->request->getMethod() ?? 'unknown';
+        $context['timestamp'] = date('c');
+        
+        // Use structured error logging with context
+        error_log(json_encode([
+            'level' => 'error',
+            'message' => 'API Error',
+            'context' => $context
+        ]));
+    }
+    
+    /**
+     * Get or generate correlation ID for request tracking
+     *
+     * @return string
+     */
+    private function getCorrelationId(): string
+    {
+        // Try to get correlation ID from request header
+        $correlationId = $this->request->getHeaderLine('X-Correlation-ID');
+        
+        // If not provided, generate a unique ID
+        if (empty($correlationId)) {
+            $correlationId = uniqid('corr_', true);
+        }
+        
+        return $correlationId;
     }
 }

@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -130,29 +135,95 @@ class BaseController extends AbstractController
         return $this->errorResponse($message, 'SERVER_ERROR', null, 500);
     }
 
-    /**
-     * Build JSON response - to be implemented by concrete controllers
+/**
+     * Build standardized JSON response
      *
      * @param array $data
      * @param int $statusCode
-     * @return mixed
+     * @return \Hyperf\HttpServer\Contract\ResponseInterface
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        // Use the response helper from parent Controller
+        $response = $this->response->json($data)->withStatus($statusCode);
+        
+        // Add security headers
+        $response = $response->withHeader('Content-Type', 'application/json');
+        $response = $response->withHeader('X-Content-Type-Options', 'nosniff');
+        $response = $response->withHeader('X-Frame-Options', 'DENY');
+        $response = $response->withHeader('X-XSS-Protection', '1; mode=block');
+        $response = $response->withHeader('X-Permitted-Cross-Domain-Policies', 'none');
+        $response = $response->withHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        return $response;
     }
 
     /**
-     * Log error - to be implemented by concrete controllers
+     * Log error with structured logging
      *
      * @param array $context
      * @return void
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Extract error details
+        $message = $context['message'] ?? 'API Error';
+        $errorCode = $context['error_code'] ?? 'GENERAL_ERROR';
+        $details = $context['details'] ?? null;
+        $statusCode = $context['status_code'] ?? 500;
+        
+        // Create structured log context
+        $logContext = [
+            'error_code' => $errorCode,
+            'status_code' => $statusCode,
+            'details' => $details,
+            'timestamp' => date('c'),
+            'request_id' => $this->getRequestId(),
+        ];
+        
+        // Add request information if available
+        try {
+            $logContext['url'] = $this->request->fullUrl();
+            $logContext['method'] = $this->request->getMethod();
+            $logContext['user_agent'] = $this->request->getHeaderLine('User-Agent');
+        } catch (\Throwable $e) {
+            // If request is not available, continue without request info
+        }
+        
+        // Log error with appropriate level based on status code
+        switch (true) {
+            case $statusCode >= 500:
+                \Hyperf\Support\Facades\Log::error($message, $logContext);
+                break;
+            case $statusCode >= 400:
+                \Hyperf\Support\Facades\Log::warning($message, $logContext);
+                break;
+            default:
+                \Hyperf\Support\Facades\Log::info($message, $logContext);
+                break;
+        }
+    }
+    
+    /**
+     * Generate or get request ID for correlation
+     *
+     * @return string
+     */
+    private function getRequestId(): string
+    {
+        // Try to get request ID from header, otherwise generate one
+        try {
+            $headerValue = $this->request->getHeaderLine('X-Request-ID');
+            $requestId = !empty($headerValue) ? $headerValue : '';
+            
+            if (empty($requestId)) {
+                $requestId = uniqid('req_', true);
+            }
+            
+            return $requestId;
+        } catch (\Throwable $e) {
+            // If request is not available, generate a new ID
+            return uniqid('req_', true);
+        }
     }
 }

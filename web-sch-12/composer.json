@@ -1,13 +1,16 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "laravel/laravel-deprecated",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "[DEPRECATED] The skeleton application for the Laravel framework. This application is deprecated and should not be used for new development.",
     "keywords": [
         "laravel",
-        "framework"
+        "deprecated",
+        "legacy",
+        "do-not-use"
     ],
     "license": "MIT",
+    "abandoned": true,
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",

@@ -32,12 +32,13 @@
 
 ## Secondary Application: Laravel (web-sch-12 Directory)
 
-### Status: **PASSIVE - Under Evaluation for Deprecation**
+### Status: **FULLY DEPRECATED - WILL BE REMOVED**
 
 ### Purpose:
-- Appears to be an alternative or legacy implementation
+- Legacy alternative implementation
 - Modular Laravel architecture using nwidart/laravel-modules
 - Contains subset of features compared to main application
+- **NO LONGER MAINTAINED OR SUPPORTED**
 
 ### Technology Stack:
 - Laravel 12
@@ -46,47 +47,53 @@
 - Traditional synchronous processing
 
 ### Features:
-- Basic user management and authentication
-- Some school-related modules (AiLearning, Career, etc.)
+- ERaport (Report Management)
+- LaporanAnalitik (Analytical Reporting)
+- ManajemenSekolah (School Management)
+- SistemMonetisasi (Monetization System)
 - Limited compared to main application
 
 ### Development Status:
-- Not actively developed
-- Under evaluation for deprecation
-- May contain unique features that could be migrated
+- **NOT ACTIVELY DEVELOPED**
+- **FULLY DEPRECATED**
+- **WILL BE REMOVED in the next major release**
+- **NO NEW FEATURES OR BUG FIXES**
 
 ## Decision and Recommendation
 
 ### Primary Application for Development: **HyperVel (Main Directory)**
 
-All development efforts should focus on the main HyperVel application for the following reasons:
+All development efforts must focus on the main HyperVel application for the following reasons:
 
 1. **Performance**: HyperVel with Swoole provides superior performance
 2. **Completeness**: Main application has more comprehensive features
-3. **Activity**: More recent development activity in the main application
+3. **Activity**: Only actively maintained application
 4. **Architecture**: Modern coroutine-based architecture for scalability
+5. **Future**: Only application that will continue to exist
 
 ### Future of web-sch-12 Directory:
 
-The web-sch-12 directory should be evaluated for one of the following actions:
+The web-sch-12 directory will be **COMPLETELY REMOVED** in the next major release:
 
-1. **Archive**: If no unique features exist that aren't in the main application
-2. **Migrate**: If there are unique features that should be incorporated into the main application
-3. **Document**: If it serves a specific purpose that needs to be preserved
+1. **Archive**: Currently archived with deprecation notices
+2. **Migration**: Any critical features should be migrated to main application (if needed)
+3. **Removal**: Directory will be deleted entirely from repository
 
 ## Action Items
 
 ### Immediate:
 - [x] Document the status of each application
 - [x] Clarify which application is primary for development
-- [ ] Review web-sch-12 for any unique features that should be migrated
+- [x] Add comprehensive deprecation notices to web-sch-12
+- [x] Update all documentation to reflect deprecation
 
 ### Short-term:
-- [ ] Update all documentation to reflect the primary application
-- [ ] Ensure all team members are aware of the primary application
-- [ ] Plan for potential deprecation of web-sch-12 directory
+- [x] Update all documentation to reflect the primary application
+- [x] Ensure all team members are aware of the primary application
+- [x] Complete deprecation of web-sch-12 directory
+- [x] Add clear warnings about development restrictions
 
 ### Long-term:
-- [ ] Archive or remove web-sch-12 if not needed
-- [ ] Consolidate any remaining functionality into the main application
-- [ ] Update deployment and CI/CD processes to focus on the primary application
+- [ ] Remove web-sch-12 directory completely
+- [ ] Ensure no dependencies exist on deprecated application
+- [ ] Update deployment and CI/CD processes to focus solely on the primary application

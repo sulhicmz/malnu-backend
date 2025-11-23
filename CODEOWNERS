@@ -1,0 +1,50 @@
+# Code owners for the Malnu Kananga School Management System
+
+# Main application owners
+* @malnu-dev-team
+
+# Core application structure
+app/ @malnu-dev-team @backend-maintainers
+app/Models/ @data-architects @backend-maintainers
+app/Controllers/ @backend-maintainers
+app/Services/ @backend-maintainers
+app/Providers/ @system-architects
+
+# Database related files
+database/ @data-architects @backend-maintainers
+database/migrations/ @data-architects
+database/seeders/ @data-architects
+
+# Configuration files
+config/ @system-architects @backend-maintainers
+config/app.php @system-architects
+config/database.php @data-architects
+
+# Routes
+routes/ @backend-maintainers
+routes/api.php @api-maintainers
+routes/web.php @web-maintainers
+
+# Frontend
+frontend/ @frontend-team
+frontend/src/components/ @frontend-team
+frontend/src/pages/ @frontend-team
+
+# Tests
+tests/ @qa-team @backend-maintainers
+
+# Security-sensitive files
+SECURITY.md @security-team
+CODE_OF_CONDUCT.md @community-moderators
+CODEOWNERS @system-architects
+composer.json @backend-maintainers
+composer.lock @backend-maintainers
+
+# Environment and deployment
+.env.example @system-architects
+Dockerfile @devops-team
+docker-compose.yml @devops-team
+
+# Documentation
+*.md @technical-writers @community-moderators
+docs/ @technical-writers

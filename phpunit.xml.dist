@@ -16,6 +16,16 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">app</directory>
+        </include>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+            <html outputDirectory="build/coverage" lowUpperBound="50" highLowerBound="90"/>
+            <text outputFile="build/coverage.txt" showUncoveredFiles="false"/>
+        </report>
+    </coverage>
     <source>
         <include>
             <directory suffix=".php">app</directory>

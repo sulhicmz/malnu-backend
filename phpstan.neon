@@ -8,4 +8,12 @@ parameters:
     - config
   reportUnmatchedIgnoredErrors: false
   excludePaths:
+    - */database/migrations/*
+    - */storage/*
+    - */vendor/*
   ignoreErrors:
+    # Ignore errors related to magic methods in Hyperf/Laravel framework
+    - '#Call to an undefined method.*__call#'
+    - '#Call to an undefined method.*__get#'
+    - '#Call to an undefined method.*__set#'
+    - '#Call to an undefined method.*__callStatic#'

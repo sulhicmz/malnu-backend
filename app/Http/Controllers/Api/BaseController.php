@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -139,9 +139,8 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        // Use the response object from the parent Controller class
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
@@ -152,7 +151,51 @@ class BaseController extends AbstractController
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Get current request to add context
+        $request = $this->request;
+        $uri = $request ? $request->getUri()->getPath() : 'unknown';
+        $method = $request ? $request->getMethod() : 'unknown';
+        
+        // Generate correlation ID for tracking
+        $correlationId = uniqid('req_', true);
+        
+        // Add request context and correlation ID to log context
+        $logContext = array_merge($context, [
+            'correlation_id' => $correlationId,
+            'uri' => $uri,
+            'method' => $method,
+            'timestamp' => date('c')
+        ]);
+        
+        // Determine log level based on status code
+        $statusCode = $context['status_code'] ?? 500;
+        $logLevel = $this->getLogLevelFromStatusCode($statusCode);
+        
+        // For now, use the standard PHP error_log function with JSON formatting
+        // In a real Hyperf application, this would use the proper DI container
+        error_log(sprintf(
+            '[%s] API Error - %s %s - %s - Context: %s',
+            strtoupper($logLevel),
+            $method,
+            $uri,
+            $context['message'] ?? 'Unknown error',
+            json_encode($logContext)
+        ));
+    }
+    
+    /**
+     * Determine log level based on HTTP status code
+     *
+     * @param int $statusCode
+     * @return string
+     */
+    private function getLogLevelFromStatusCode(int $statusCode): string
+    {
+        if ($statusCode >= 500) {
+            return 'error';
+        } elseif ($statusCode >= 400) {
+            return 'warning';
+        }
+        return 'info';
     }
 }

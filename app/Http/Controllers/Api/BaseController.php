@@ -2,10 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Container\ContainerInterface;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
+    protected LoggerInterface $logger;
+
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container
+    ) {
+        parent::__construct($request, $response);
+        $this->logger = $container->get(LoggerInterface::class);
+    }
+
     /**
      * Standard success response format
      *
@@ -28,8 +43,6 @@ class BaseController extends AbstractController
             unset($response['data']);
         }
 
-        // This will be implemented by the actual HyperVel framework
-        // The concrete implementation will handle the response formatting
         return $this->buildJsonResponse($response, $statusCode);
     }
 
@@ -59,12 +72,16 @@ class BaseController extends AbstractController
             unset($response['error']['details']);
         }
 
-        // Log the error - this will be implemented by the actual framework
+        // Log the error with context
         $this->logError([
             'message' => $message,
             'error_code' => $errorCode,
             'details' => $details,
             'status_code' => $statusCode,
+            'request_uri' => $this->request->getUri()->getPath(),
+            'request_method' => $this->request->getMethod(),
+            'user_agent' => $this->request->getHeaderLine('User-Agent'),
+            'ip_address' => $this->request->getHeaderLine('X-Real-IP') ?: $this->request->getServerParams()['remote_addr'] ?? null,
         ]);
 
         return $this->buildJsonResponse($response, $statusCode);
@@ -131,7 +148,7 @@ class BaseController extends AbstractController
     }
 
     /**
-     * Build JSON response - to be implemented by concrete controllers
+     * Build JSON response with proper structure and status code
      *
      * @param array $data
      * @param int $statusCode
@@ -139,20 +156,48 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        return $this->response->json($data)->withStatus($statusCode);
     }
 
     /**
-     * Log error - to be implemented by concrete controllers
+     * Log error with structured context information
      *
      * @param array $context
      * @return void
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        $level = $this->getLogLevel($context['status_code'] ?? 500);
+        
+        $this->logger->log(
+            $level,
+            $context['message'] ?? 'API Error occurred',
+            [
+                'error_code' => $context['error_code'] ?? null,
+                'details' => $context['details'] ?? null,
+                'status_code' => $context['status_code'] ?? 500,
+                'request_uri' => $context['request_uri'] ?? null,
+                'request_method' => $context['request_method'] ?? null,
+                'user_agent' => $context['user_agent'] ?? null,
+                'ip_address' => $context['ip_address'] ?? null,
+                'timestamp' => date('c'),
+            ]
+        );
+    }
+    
+    /**
+     * Determine log level based on HTTP status code
+     *
+     * @param int $statusCode
+     * @return string
+     */
+    private function getLogLevel(int $statusCode): string
+    {
+        if ($statusCode >= 500) {
+            return 'error';
+        } elseif ($statusCode >= 400) {
+            return 'warning';
+        }
+        return 'info';
     }
 }

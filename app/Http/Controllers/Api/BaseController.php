@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Controller;
+use Hyperf\Support\Facades\Log;
 
-class BaseController extends AbstractController
+class BaseController extends Controller
 {
     /**
      * Standard success response format
@@ -131,7 +132,7 @@ class BaseController extends AbstractController
     }
 
     /**
-     * Build JSON response - to be implemented by concrete controllers
+     * Build JSON response with standardized structure
      *
      * @param array $data
      * @param int $statusCode
@@ -139,20 +140,43 @@ class BaseController extends AbstractController
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        // For now, return the data array which will be handled by the framework
-        return ['data' => $data, 'status' => $statusCode];
+        // Add correlation ID for request tracking
+        $correlationId = $this->request->getHeaderLine('X-Correlation-ID') ?: uniqid('corr_', true);
+        
+        // Add correlation ID to response headers for client tracking
+        $response = $this->response->json($data)->withStatus($statusCode);
+        $response = $response->withHeader('X-Correlation-ID', $correlationId);
+        
+        return $response;
     }
 
-    /**
-     * Log error - to be implemented by concrete controllers
+/**
+     * Log error with structured context and correlation ID
      *
      * @param array $context
      * @return void
      */
     protected function logError(array $context): void
     {
-        // This is a placeholder that will be implemented by the actual HyperVel framework
-        error_log('API Error: ' . json_encode($context));
+        // Get correlation ID from request or generate one for logging
+        $correlationId = $this->request->getHeaderLine('X-Correlation-ID') ?: uniqid('corr_', true);
+        
+        // Add correlation ID to context for better error tracking
+        $context['correlation_id'] = $correlationId;
+        $context['timestamp'] = date('c');
+        $context['uri'] = $this->request->getUri()->getPath() ?? '';
+        $context['method'] = $this->request->getMethod() ?? '';
+        
+        // Log with appropriate log level based on status code
+        $statusCode = $context['status_code'] ?? 500;
+        $message = $context['message'] ?? 'API Error';
+        
+        if ($statusCode >= 500) {
+            Log::error($message, $context);
+        } elseif ($statusCode >= 400) {
+            Log::warning($message, $context);
+        } else {
+            Log::info($message, $context);
+        }
     }
 }

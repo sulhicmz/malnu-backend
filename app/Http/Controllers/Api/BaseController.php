@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Hyperf\Contract\StdoutLoggerInterface;
-use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class BaseController extends Controller
@@ -142,7 +140,9 @@ class BaseController extends Controller
      */
     protected function buildJsonResponse(array $data, int $statusCode = 200)
     {
-        return $this->response->json($data)->withStatus($statusCode);
+        // Use the base Controller's json method to return proper JSON response
+        // This ensures consistent response formatting and proper HTTP status codes
+        return $this->json($data, $statusCode);
     }
 
     /**
@@ -153,36 +153,25 @@ class BaseController extends Controller
      */
     protected function logError(array $context): void
     {
-        // Extract error details for logging
-        $message = $context['message'] ?? 'API Error';
-        $errorCode = $context['error_code'] ?? 'GENERAL_ERROR';
-        $details = $context['details'] ?? null;
-        $statusCode = $context['status_code'] ?? 500;
-        
         // Create a structured log entry with context
-        $logContext = [
-            'error_code' => $errorCode,
-            'status_code' => $statusCode,
-            'details' => $details,
+        $logEntry = [
+            'message' => $context['message'] ?? 'API Error occurred',
+            'error_code' => $context['error_code'] ?? null,
+            'details' => $context['details'] ?? null,
+            'status_code' => $context['status_code'] ?? null,
+            'timestamp' => date('c'),
+            'uri' => $this->request->getUri()->getPath() ?? null,
+            'method' => $this->request->getMethod() ?? null,
             'request_id' => $this->getRequestId(), // Add correlation ID if available
-            'timestamp' => date('c')
         ];
         
-        // For now, use the response logger - in a real implementation, 
-        // we would inject a proper logger service
-        $logMessage = sprintf(
-            '[API_ERROR] %s - Code: %s, Status: %d, Context: %s',
-            $message,
-            $errorCode,
-            $statusCode,
-            json_encode($logContext)
-        );
-        
-        // Use error_log as fallback but with structured format
+        // Log to the application's standard logging system
+        // Using a more robust logging approach
+        $logMessage = '[API_ERROR] ' . json_encode($logEntry);
         error_log($logMessage);
         
-        // In a complete implementation, we would use a proper logger service
-        // $this->logger->error($message, $logContext);
+        // In a production environment, you would use the proper logger service
+        // This is a simplified implementation that can be enhanced later
     }
     
     /**

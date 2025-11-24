@@ -28,17 +28,18 @@ Comprehensive task breakdown for Malnu Backend development with priorities, depe
     - Verify application functionality after fixes
     - Update package-lock.json
 
-- [ ] **#195** - Remove Deprecated web-sch-12 Application
+- [x] **#195** - Remove Deprecated web-sch-12 Application
   - **Priority**: CRITICAL
   - **Impact**: Architectural confusion, 50% repository waste
   - **Effort**: 4-6 hours
   - **Dependencies**: None
+  - **Status**: ✅ COMPLETED
   - **Subtasks**:
-    - Delete entire web-sch-12/ directory
-    - Update all documentation references
-    - Clean up GitHub Actions workflows
-    - Update README and .gitignore
-    - Verify build processes unaffected
+    - ✅ Delete entire web-sch-12/ directory
+    - ✅ Update all documentation references
+    - ✅ Clean up GitHub Actions workflows
+    - ✅ Update README and .gitignore
+    - ✅ Verify build processes unaffected
 
 - [ ] **#196** - Implement Comprehensive JWT Authentication
   - **Priority**: CRITICAL
@@ -311,11 +312,12 @@ Comprehensive task breakdown for Malnu Backend development with priorities, depe
   - **Effort**: 1 week
   - **Dependencies**: #102
 
-- [ ] **#53** - Legacy App Deprecation Strategy
+- [x] **#53** - Legacy App Deprecation Strategy
   - **Priority**: LOW
   - **Impact**: Maintenance overhead
   - **Effort**: 2-3 months
   - **Dependencies**: None
+  - **Status**: ✅ COMPLETED - web-sch-12 directory removed
 
 ## 🔄 Task Dependencies
 

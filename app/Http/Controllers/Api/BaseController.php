@@ -46,46 +46,46 @@ class BaseController extends Controller
         return $this->buildJsonResponse($response, $statusCode);
     }
 
-    /**
-     * Standard error response format
-     *
-     * @param string $message
-     * @param string|null $errorCode
-     * @param array|null $details
-     * @param int $statusCode
-     * @return mixed
-     */
-    protected function errorResponse(string $message, string $errorCode = null, array $details = null, int $statusCode = 400)
-    {
-        $response = [
-            'success' => false,
-            'error' => [
-                'message' => $message,
-                'code' => $errorCode ?? 'GENERAL_ERROR',
-                'details' => $details,
-            ],
-            'timestamp' => date('c'), // ISO 8601 format
-        ];
+     /**
+      * Standard error response format
+      *
+      * @param string $message
+      * @param string|null $errorCode
+      * @param array|null $details
+      * @param int $statusCode
+      * @return mixed
+      */
+     protected function errorResponse(string $message, ?string $errorCode = null, ?array $details = null, int $statusCode = 400)
+     {
+         $response = [
+             'success' => false,
+             'error' => [
+                 'message' => $message,
+                 'code' => $errorCode ?? 'GENERAL_ERROR',
+                 'details' => $details,
+             ],
+             'timestamp' => date('c'), // ISO 8601 format
+         ];
 
-        // Remove details field if null to maintain consistency
-        if (is_null($details)) {
-            unset($response['error']['details']);
-        }
+         // Remove details field if null to maintain consistency
+         if (is_null($details)) {
+             unset($response['error']['details']);
+         }
 
-        // Log the error with context
-        $this->logError([
-            'message' => $message,
-            'error_code' => $errorCode,
-            'details' => $details,
-            'status_code' => $statusCode,
-            'request_uri' => $this->request->getUri()->getPath(),
-            'request_method' => $this->request->getMethod(),
-            'user_agent' => $this->request->getHeaderLine('User-Agent'),
-            'ip_address' => $this->request->getHeaderLine('X-Real-IP') ?: $this->request->getServerParams()['remote_addr'] ?? null,
-        ]);
+         // Log the error with context
+         $this->logError([
+             'message' => $message,
+             'error_code' => $errorCode,
+             'details' => $details,
+             'status_code' => $statusCode,
+             'request_uri' => $this->request->getUri()->getPath(),
+             'request_method' => $this->request->getMethod(),
+             'user_agent' => $this->request->getHeaderLine('User-Agent'),
+             'ip_address' => $this->request->getHeaderLine('X-Real-IP') ?: $this->request->getServerParams()['remote_addr'] ?? null,
+         ]);
 
-        return $this->buildJsonResponse($response, $statusCode);
-    }
+         return $this->buildJsonResponse($response, $statusCode);
+     }
 
     /**
      * Validation error response format

@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\InputSanitizationMiddleware::class,
             // 'throttle:60,1,api',
             // \Hyperf\Router\Middleware\SubstituteBindings::class,
         ],
@@ -56,6 +57,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
+        'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
     ];
 
     /**

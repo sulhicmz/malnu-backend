@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Services\AuthService;
+use App\Traits\InputValidationTrait;
 
 class AuthController extends BaseController
 {
+    use InputValidationTrait;
+    
     private AuthService $authService;
 
     public function __construct()
@@ -22,14 +25,28 @@ class AuthController extends BaseController
         try {
             $data = $this->request->all();
             
+            // Sanitize input data
+            $data = $this->sanitizeInput($data);
+            
             // Validate required fields
             $requiredFields = ['name', 'email', 'password'];
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    return $this->validationErrorResponse([
-                        $field => ["The {$field} field is required."]
-                    ]);
-                }
+            $errors = $this->validateRequired($data, $requiredFields);
+            
+            // Additional validation
+            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
+                $errors['email'] = ['The email must be a valid email address.'];
+            }
+            
+            if (isset($data['name']) && !$this->validateStringLength($data['name'], 3)) {
+                $errors['name'] = ['The name must be at least 3 characters.'];
+            }
+            
+            if (isset($data['password']) && !$this->validateStringLength($data['password'], 6)) {
+                $errors['password'] = ['The password must be at least 6 characters.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
             }
 
             // Register user
@@ -49,14 +66,20 @@ class AuthController extends BaseController
         try {
             $data = $this->request->all();
             
+            // Sanitize input data
+            $data = $this->sanitizeInput($data);
+            
             // Validate required fields
             $requiredFields = ['email', 'password'];
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    return $this->validationErrorResponse([
-                        $field => ["The {$field} field is required."]
-                    ]);
-                }
+            $errors = $this->validateRequired($data, $requiredFields);
+            
+            // Additional validation
+            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
+                $errors['email'] = ['The email must be a valid email address.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
             }
 
             // Authenticate user
@@ -149,10 +172,19 @@ class AuthController extends BaseController
         try {
             $data = $this->request->all();
             
-            if (empty($data['email'])) {
-                return $this->validationErrorResponse([
-                    'email' => ['The email field is required.']
-                ]);
+            // Sanitize input data
+            $data = $this->sanitizeInput($data);
+            
+            // Validate required fields
+            $errors = $this->validateRequired($data, ['email']);
+            
+            // Additional validation
+            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
+                $errors['email'] = ['The email must be a valid email address.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
             }
 
             $result = $this->authService->requestPasswordReset($data['email']);
@@ -171,13 +203,20 @@ class AuthController extends BaseController
         try {
             $data = $this->request->all();
             
+            // Sanitize input data
+            $data = $this->sanitizeInput($data);
+            
+            // Validate required fields
             $requiredFields = ['token', 'password'];
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    return $this->validationErrorResponse([
-                        $field => ["The {$field} field is required."]
-                    ]);
-                }
+            $errors = $this->validateRequired($data, $requiredFields);
+            
+            // Additional validation
+            if (isset($data['password']) && !$this->validateStringLength($data['password'], 6)) {
+                $errors['password'] = ['The password must be at least 6 characters.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
             }
 
             $result = $this->authService->resetPassword($data['token'], $data['password']);
@@ -196,13 +235,20 @@ class AuthController extends BaseController
         try {
             $data = $this->request->all();
             
+            // Sanitize input data
+            $data = $this->sanitizeInput($data);
+            
+            // Validate required fields
             $requiredFields = ['current_password', 'new_password'];
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    return $this->validationErrorResponse([
-                        $field => ["The {$field} field is required."]
-                    ]);
-                }
+            $errors = $this->validateRequired($data, $requiredFields);
+            
+            // Additional validation
+            if (isset($data['new_password']) && !$this->validateStringLength($data['new_password'], 6)) {
+                $errors['new_password'] = ['The new password must be at least 6 characters.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
             }
 
             // Get user from token

@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
+use App\Http\Controllers\Api\Communication\MessagesController;
+use App\Http\Controllers\Api\Communication\AnnouncementsController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -39,5 +41,21 @@ Route::group(['middleware' => ['jwt']], function () {
         Route::apiResource('leave-requests', LeaveRequestController::class);
         Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
         Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
+    });
+});
+
+// Communication System Routes (protected)
+Route::group(['middleware' => ['jwt']], function () {
+    // Messaging Routes
+    Route::prefix('communication')->group(function () {
+        Route::get('/messages', [MessagesController::class, 'index']);
+        Route::post('/messages', [MessagesController::class, 'store']);
+        Route::get('/messages/{id}', [MessagesController::class, 'show']);
+        Route::get('/messages/threads/{threadId}', [MessagesController::class, 'getThread']);
+
+        // Announcement Routes
+        Route::get('/announcements', [AnnouncementsController::class, 'index']);
+        Route::post('/announcements', [AnnouncementsController::class, 'store']);
+        Route::get('/announcements/{id}', [AnnouncementsController::class, 'show']);
     });
 });

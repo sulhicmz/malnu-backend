@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     /*
-    |--------------------------------------------------------------------------
+     |--------------------------------------------------------------------------
      | JWT Driver
      |--------------------------------------------------------------------------
      |
@@ -12,6 +12,7 @@ return [
      | JWT token, all the drivers must implement:
      | Hyperf\JWT\Contracts\ProviderContract::class
      |
+     */
 
      'driver' => env('JWT_DRIVER', 'lcobucci'),
 
@@ -92,7 +93,7 @@ return [
      |--------------------------------------------------------------------------
      |
      | Specify the length of time (in minutes) that the token will be valid for.
-     | Defaults to 1 hour.
+     | Defaults to 2 hours for better security.
      |
      | You can also set this to null, to yield a never expiring token.
      | Some people may want this behaviour for e.g. a mobile app.
@@ -102,7 +103,7 @@ return [
      |
      */
 
-     'ttl' => env('JWT_TTL', 120),
+     'ttl' => env('JWT_TTL', 120), // 2 hours - more secure default
 
      /*
      |--------------------------------------------------------------------------
@@ -121,7 +122,7 @@ return [
      |
      */
 
-     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160), // 2 weeks
 
      /*
      |--------------------------------------------------------------------------
@@ -129,151 +130,150 @@ return [
      |--------------------------------------------------------------------------
      |
      | Specify the hashing algorithm that will be used to sign the token.
+     | HS256 is recommended for security.
      |
      */
 
-     'algo' => env('JWT_ALGO', Hyperf\JWT\Providers\Provider::ALGO_HS256),
+     'algo' => env('JWT_ALGO', 'HS256'), // Use HS256 algorithm
 
      /*
      |--------------------------------------------------------------------------
      | Validations
      |--------------------------------------------------------------------------
      |
-     | Sepcify default validations that jwt tokens.
+     | Specify default validations that jwt tokens.
      |
      */
-     'validations' => [
-         \Hyperf\JWT\Validations\RequiredClaims::class,
-         \Hyperf\JWT\Validations\ExpiredClaim::class,
-         // \Hyperf\JWT\Validations\IssuedAtClaim::class,
-         // \Hyperf\JWT\Validations\NotBeforeCliam::class,
-     ],
-
-     /*
-     |--------------------------------------------------------------------------
-     | Required Claims
-     |--------------------------------------------------------------------------
-     |
-     | Specify the required claims that must exist in any token.
-     | A TokenInvalidException will be thrown if any of these claims are not
-     | present in the payload.
-     |
-     */
-
-     'required_claims' => [
-         // 'iss',
-         'iat',
-         // 'exp',
-         // 'nbf',
-         'sub',
-         // 'jti',
-     ],
-
-     /*
-     |--------------------------------------------------------------------------
-     | Persistent Claims
-     |--------------------------------------------------------------------------
-     |
-     | Specify the claim keys to be persisted when refreshing a token.
-     | `sub` and `iat` will automatically be persisted, in
-     | addition to the these claims.
-     |
-     | Note: If a claim does not exist then it will be ignored.
-     |
-     */
-
-     'persistent_claims' => [
-         // 'foo',
-         // 'bar',
-     ],
-
-     /*
-     |--------------------------------------------------------------------------
-     | Leeway
-     |--------------------------------------------------------------------------
-     |
-     | This property gives the jwt timestamp claims some "leeway".
-     | Meaning that if you have any unavoidable slight clock skew on
-     | any of your servers then this will afford you some level of cushioning.
-     |
-     | This applies to the claims `iat`, `nbf` and `exp`.
-     |
-     | Specify in seconds - only if you know you need it.
-     |
-     */
-
-     'leeway' => env('JWT_LEEWAY', 0),
-
-     /*
-     |--------------------------------------------------------------------------
-     | Blacklist Enabled
-     |--------------------------------------------------------------------------
-     |
-     | In order to invalidate tokens, you must have the blacklist enabled.
-     | If you do not want or need this functionality, then set this to false.
-     |
-     */
-
-     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
-
-     /*
-     | -------------------------------------------------------------------------
-     | Blacklist Grace Period
-     | -------------------------------------------------------------------------
-     |
-     | When multiple concurrent requests are made with the same JWT,
-     | it is possible that some of them fail, due to token regeneration
-     | on every request.
-     |
-     | Set grace period in seconds to prevent parallel request failure.
-     |
-     */
-
-     'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
-
-     /*
-     | -------------------------------------------------------------------------
-     | Refresh time to live of blacklist
-     | -------------------------------------------------------------------------
-     |
-     | Number of minutes from issue date in which a JWT can be refreshed.
-     |
-     */
-
-     'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 20160),
-
-     /*
-     |--------------------------------------------------------------------------
-     | Providers
-     |--------------------------------------------------------------------------
-     |
-     | Specify the various providers used throughout the package.
-     |
-     */
-
-      'providers' => [
-          /*
-          |--------------------------------------------------------------------------
-          | JWT Provider
-          |--------------------------------------------------------------------------
-          |
-          | Specify the provider that is used to create and decode the tokens.
-          |
-          */
-
-          'jwt' => Hyperf\JWT\Providers\Lcobucci::class,
-
-          /*
-          |--------------------------------------------------------------------------
-          | Storage Provider
-          |--------------------------------------------------------------------------
-          |
-          | Specify the provider that is used to store tokens in the blacklist.
-          |
-          */
-
-          'storage' => Hyperf\JWT\Storage\TaggedCache::class,
+      'validations' => [
+          \Hyperf\JWT\Validations\RequiredClaims::class,
+          \Hyperf\JWT\Validations\ExpiredClaim::class,
+          \Hyperf\JWT\Validations\IssuedAtClaim::class, // Add issued at validation
       ],
-];
+
+      /*
+      |--------------------------------------------------------------------------
+      | Required Claims
+      |--------------------------------------------------------------------------
+      |
+      | Specify the required claims that must exist in any token.
+      | A TokenInvalidException will be thrown if any of these claims are not
+      | present in the payload.
+      |
+      */
+
+      'required_claims' => [
+          'iss', // Add issuer claim for security
+          'iat', // Issued at
+          'exp', // Expiration time
+          'sub', // Subject
+          'jti', // JWT ID for replay attack prevention
+      ],
+
+      /*
+      |--------------------------------------------------------------------------
+      | Persistent Claims
+      |--------------------------------------------------------------------------
+      |
+      | Specify the claim keys to be persisted when refreshing a token.
+      | `sub` and `iat` will automatically be persisted, in
+      | addition to the these claims.
+      |
+      | Note: If a claim does not exist then it will be ignored.
+      |
+      */
+
+      'persistent_claims' => [
+          // 'foo',
+          // 'bar',
+      ],
+
+      /*
+      |--------------------------------------------------------------------------
+      | Leeway
+      |--------------------------------------------------------------------------
+      |
+      | This property gives the jwt timestamp claims some "leeway".
+      | Meaning that if you have any unavoidable slight clock skew on
+      | any of your servers then this will afford you some level of cushioning.
+      |
+      | This applies to the claims `iat`, `nbf` and `exp`.
+      |
+      | Specify in seconds - only if you know you need it.
+      |
+      */
+
+      'leeway' => env('JWT_LEEWAY', 30), // 30 seconds leeway for clock skew
+
+      /*
+      |--------------------------------------------------------------------------
+      | Blacklist Enabled
+      |--------------------------------------------------------------------------
+      |
+      | In order to invalidate tokens, you must have the blacklist enabled.
+      | If you do not want or need this functionality, then set this to false.
+      |
+      */
+
+      'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true), // Enable blacklist by default
+
+      /*
+      | -------------------------------------------------------------------------
+      | Blacklist Grace Period
+      | -------------------------------------------------------------------------
+      |
+      | When multiple concurrent requests are made with the same JWT,
+      | it is possible that some of them fail, due to token regeneration
+      | on every request.
+      |
+      | Set grace period in seconds to prevent parallel request failure.
+      |
+      */
+
+      'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 30), // 30 seconds grace period
+
+      /*
+      | -------------------------------------------------------------------------
+      | Refresh time to live of blacklist
+      | -------------------------------------------------------------------------
+      |
+      | Number of minutes from issue date in which a JWT can be refreshed.
+      |
+      */
+
+      'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 20160),
+
+      /*
+      |--------------------------------------------------------------------------
+      | Providers
+      |--------------------------------------------------------------------------
+      |
+      | Specify the various providers used throughout the package.
+      |
+      */
+
+       'providers' => [
+           /*
+           |--------------------------------------------------------------------------
+           | JWT Provider
+           |--------------------------------------------------------------------------
+           |
+           | Specify the provider that is used to create and decode the tokens.
+           |
+           */
+
+           'jwt' => Hyperf\JWT\Providers\Lcobucci::class,
+
+           /*
+           |--------------------------------------------------------------------------
+           | Storage Provider
+           |--------------------------------------------------------------------------
+           |
+           | Specify the provider that is used to store tokens in the blacklist.
+           |
+           */
+
+           'storage' => Hyperf\JWT\Storage\TaggedCache::class,
+       ],
+ ];
 
 

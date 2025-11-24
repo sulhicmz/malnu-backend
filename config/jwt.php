@@ -204,17 +204,17 @@ return [
 
      'leeway' => env('JWT_LEEWAY', 0),
 
-     /*
-     |--------------------------------------------------------------------------
-     | Blacklist Enabled
-     |--------------------------------------------------------------------------
-     |
-     | In order to invalidate tokens, you must have the blacklist enabled.
-     | If you do not want or need this functionality, then set this to false.
-     |
-     */
-
-     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
+      /*
+      |--------------------------------------------------------------------------
+      | Blacklist Enabled
+      |--------------------------------------------------------------------------
+      |
+      | In order to invalidate tokens, you must have the blacklist enabled.
+      | If you do not want or need this functionality, then set this to true for security.
+      |
+      */
+ 
+      'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
      /*
      | -------------------------------------------------------------------------

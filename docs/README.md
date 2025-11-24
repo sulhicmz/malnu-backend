@@ -4,29 +4,16 @@ Backend for Malnu Kananga - School Management System
 
 ## Project Structure
 
-This repository contains two applications due to historical development:
+This repository contains a single application:
 
 1. **Main Application** (root directory) - **PRIMARY**: HyperVel framework (Laravel-style with Swoole support)
    - High-performance application with coroutine support
    - Comprehensive school management features
    - Current focus for all development efforts
 
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
-   - Older implementation with fewer features
-   - **FULLY DEPRECATED** - No new development should occur here
-   - **WILL BE REMOVED** in the next major release
-   - Contains modules: ERaport, LaporanAnalitik, ManajemenSekolah, SistemMonetisasi
-
 ## Current Status
 
-**⚠️ CRITICAL DEPRECATION NOTICE ⚠️**: 
-
-**The dual application structure is being deprecated. ALL development efforts must focus on the main HyperVel application in the root directory. The `web-sch-12` directory will be completely removed in the next major release.**
-
-- **No new features** should be added to the web-sch-12 application
-- **No new development** should occur in the legacy application
-- **All future work** should be done in the main HyperVel application
-- **Migration plan** is in progress to consolidate functionality
+The repository now contains a single application focused on the HyperVel framework. The legacy Laravel application has been completely removed to eliminate confusion and reduce maintenance overhead.
 
 ## Migration Strategy
 

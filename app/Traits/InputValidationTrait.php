@@ -80,23 +80,23 @@ trait InputValidationTrait
         return $d && $d->format($format) === $date;
     }
 
-    /**
-     * Validate string length.
-     */
-    protected function validateStringLength(string $value, int $min = null, int $max = null): bool
-    {
-        $length = strlen($value);
-        
-        if ($min !== null && $length < $min) {
-            return false;
-        }
-        
-        if ($max !== null && $length > $max) {
-            return false;
-        }
-        
-        return true;
-    }
+     /**
+      * Validate string length.
+      */
+     protected function validateStringLength(string $value, ?int $min = null, ?int $max = null): bool
+     {
+         $length = strlen($value);
+         
+         if ($min !== null && $length < $min) {
+             return false;
+         }
+         
+         if ($max !== null && $length > $max) {
+             return false;
+         }
+         
+         return true;
+     }
 
     /**
      * Validate that start date is before or equal to end date.
@@ -109,29 +109,29 @@ trait InputValidationTrait
         return $start !== false && $end !== false && $start <= $end;
     }
 
-    /**
-     * Validate file upload (basic validation).
-     */
-    protected function validateFileUpload(mixed $file, array $allowedTypes = [], int $maxSize = null): array
-    {
-        $errors = [];
-        
-        if ($file === null) {
-            $errors[] = 'File is required';
-            return $errors;
-        }
-        
-        // Basic validation for file uploads
-        if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
-            $errors[] = 'File size exceeds maximum allowed size';
-        }
-        
-        if (!empty($allowedTypes) && !in_array($file['type'] ?? '', $allowedTypes)) {
-            $errors[] = 'File type not allowed';
-        }
-        
-        return $errors;
-    }
+     /**
+      * Validate file upload (basic validation).
+      */
+     protected function validateFileUpload(mixed $file, array $allowedTypes = [], ?int $maxSize = null): array
+     {
+         $errors = [];
+         
+         if ($file === null) {
+             $errors[] = 'File is required';
+             return $errors;
+         }
+         
+         // Basic validation for file uploads
+         if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
+             $errors[] = 'File size exceeds maximum allowed size';
+         }
+         
+         if (!empty($allowedTypes) && !in_array($file['type'] ?? '', $allowedTypes)) {
+             $errors[] = 'File type not allowed';
+         }
+         
+         return $errors;
+     }
 
     /**
      * Validate array of values.

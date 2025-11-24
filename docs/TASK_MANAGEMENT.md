@@ -1,6 +1,12 @@
-# Malnu Backend Task Management
+# Repository Task Management System
 
-## 🎯 Task Overview
+## 📋 Task Overview & Management
+
+**Last Updated**: November 24, 2025  
+**Total Issues**: 82 (71 Open, 11 Closed)  
+**Total PRs**: 93 (81 Open, 10 Merged)  
+**Completion Rate**: 13% (Target: 80%)
+
 Comprehensive task breakdown for Malnu Backend development with priorities, dependencies, and actionable items.
 
 ## 📋 Task Categories
@@ -8,12 +14,62 @@ Comprehensive task breakdown for Malnu Backend development with priorities, depe
 ### 🔴 CRITICAL TASKS (Must Complete First)
 **Timeline: Week 1-2 | Block all development until complete**
 
-#### Security & Infrastructure
+#### Security & Infrastructure (UPDATED)
+- [ ] **#194** - Fix 9 Frontend Security Vulnerabilities
+  - **Priority**: CRITICAL
+  - **Impact**: Production security risks (2 high, 5 moderate, 2 low severity)
+  - **Effort**: 2-4 hours
+  - **Dependencies**: None
+  - **Action**: `cd frontend && npm audit fix`
+  - **Subtasks**:
+    - Fix cross-spawn ReDoS vulnerability (HIGH)
+    - Fix glob pattern matching vulnerability (HIGH)
+    - Update @babel/helpers, esbuild, js-yaml, nanoid (MODERATE)
+    - Verify application functionality after fixes
+    - Update package-lock.json
+
+- [ ] **#195** - Remove Deprecated web-sch-12 Application
+  - **Priority**: CRITICAL
+  - **Impact**: Architectural confusion, 50% repository waste
+  - **Effort**: 4-6 hours
+  - **Dependencies**: None
+  - **Subtasks**:
+    - Delete entire web-sch-12/ directory
+    - Update all documentation references
+    - Clean up GitHub Actions workflows
+    - Update README and .gitignore
+    - Verify build processes unaffected
+
+- [ ] **#196** - Implement Comprehensive JWT Authentication
+  - **Priority**: CRITICAL
+  - **Impact**: No functional authentication system
+  - **Effort**: 16-24 hours
+  - **Dependencies**: #194
+  - **Subtasks**:
+    - Complete JWT token generation and validation
+    - Implement refresh token mechanism
+    - Add role-based access control (RBAC)
+    - Create authentication middleware
+    - Implement password reset functionality
+    - Add comprehensive authentication tests
+
+- [ ] **#197** - Implement Automated Security Scanning
+  - **Priority**: MEDIUM (elevated due to #194)
+  - **Impact**: No automated vulnerability detection
+  - **Effort**: 12-16 hours
+  - **Dependencies**: #194
+  - **Subtasks**:
+    - Integrate npm audit in CI/CD pipeline
+    - Add automated security scanning
+    - Implement vulnerability alerting
+    - Configure GitHub Dependabot
+    - Create security monitoring dashboard
+
 - [ ] **#132** - JWT Configuration and Security Vulnerabilities
   - **Priority**: CRITICAL
   - **Impact**: Authentication system completely broken
-  - **Effort**: 1 week
-  - **Dependencies**: #101 (Database)
+  - **Effort**: 8-12 hours
+  - **Dependencies**: #196
   - **Subtasks**:
     - Generate secure JWT secret for .env.example
     - Configure token expiration and refresh
@@ -24,8 +80,8 @@ Comprehensive task breakdown for Malnu Backend development with priorities, depe
 - [ ] **#133** - Input Validation and Sanitization
   - **Priority**: CRITICAL  
   - **Impact**: Security vulnerabilities (XSS, SQL injection)
-  - **Effort**: 1 week
-  - **Dependencies**: #101 (Database)
+  - **Effort**: 16-20 hours
+  - **Dependencies**: #196
   - **Subtasks**:
     - Create FormRequest validation classes
     - Implement input sanitization middleware
@@ -36,14 +92,14 @@ Comprehensive task breakdown for Malnu Backend development with priorities, depe
 - [ ] **#134** - CI/CD Pipeline and Automated Testing
   - **Priority**: CRITICAL
   - **Impact**: No code quality guarantees
-  - **Effort**: 1 week
-  - **Dependencies**: #50 (Test suite)
+  - **Effort**: 12-16 hours
+  - **Dependencies**: #197
   - **Subtasks**:
     - Consolidate 7 workflows to 3 essential ones
     - Add automated PHPUnit testing
     - Implement code coverage reporting
     - Add PHPStan static analysis
-    - Configure Dependabot security scanning
+    - Configure security scanning integration
 
 #### Database & Models
 - [ ] **#101** - Fix Missing DB Imports in Migrations

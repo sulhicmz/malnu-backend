@@ -4,41 +4,26 @@ Backend for Malnu Kananga - School Management System
 
 ## Project Structure
 
-This repository contains two applications due to historical development:
+This repository contains a single application:
 
 1. **Main Application** (root directory) - **PRIMARY**: HyperVel framework (Laravel-style with Swoole support)
    - High-performance application with coroutine support
    - Comprehensive school management features
    - Current focus for all development efforts
 
-2. **Legacy Application** (`web-sch-12/` directory) - **DEPRECATED**: Laravel 12 with modular architecture
-   - Older implementation with fewer features
-   - **FULLY DEPRECATED** - No new development should occur here
-   - **WILL BE REMOVED** in the next major release
-   - Contains modules: ERaport, LaporanAnalitik, ManajemenSekolah, SistemMonetisasi
-
 ## Current Status
 
-**⚠️ CRITICAL DEPRECATION NOTICE ⚠️**: 
+The repository now contains a single application focused on the HyperVel framework. The legacy application has been removed to simplify the architecture and reduce maintenance overhead.
 
-**The dual application structure is being deprecated. ALL development efforts must focus on the main HyperVel application in the root directory. The `web-sch-12` directory will be completely removed in the next major release.**
+## Architecture Focus
 
-- **No new features** should be added to the web-sch-12 application
-- **No new development** should occur in the legacy application
-- **All future work** should be done in the main HyperVel application
-- **Migration plan** is in progress to consolidate functionality
-
-## Migration Strategy
-
-A phased migration approach is being implemented:
-1. **Phase 1**: Identify unique features in web-sch-12 that need migration
-2. **Phase 2**: Implement equivalent functionality in main application
-3. **Phase 3**: Remove web-sch-12 directory completely
+The project now focuses entirely on the main HyperVel application:
+1. All development efforts should be directed to the main application
+2. The legacy application has been removed for architectural clarity
 
 ## Immediate Actions Required
 
-- Review any dependencies on the web-sch-12 application
-- Plan migration of any unique functionality to the main application
+- Focus all development efforts on the main HyperVel application
 - Update any integrations to use main application endpoints
 - Update developer documentation and onboarding materials
 

@@ -10,7 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
-Route::group([], function () {
+Route::group(['middleware' => ['input.sanitization']], function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);

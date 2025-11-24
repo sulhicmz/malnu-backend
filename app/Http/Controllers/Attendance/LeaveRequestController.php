@@ -7,9 +7,12 @@ use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
+use App\Traits\InputValidationTrait;
 
 class LeaveRequestController extends BaseController
 {
+    use InputValidationTrait;
+    
     /**
      * Display a listing of the leave requests.
      */
@@ -55,41 +58,36 @@ class LeaveRequestController extends BaseController
         try {
             $input = $this->request->all();
             
+            // Sanitize input data
+            $input = $this->sanitizeInput($input);
+            
             // Validate required fields
             $requiredFields = ['staff_id', 'leave_type_id', 'start_date', 'end_date', 'reason'];
-            $errors = [];
-            foreach ($requiredFields as $field) {
-                if (!isset($input[$field]) || empty($input[$field])) {
-                    $errors[$field] = ["The {$field} field is required"];
-                }
-            }
+            $errors = $this->validateRequired($input, $requiredFields);
             
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            // Validate data types and formats
-            if (!is_numeric($input['staff_id'])) {
+            // Additional validation
+            if (isset($input['staff_id']) && !$this->validateInteger($input['staff_id'])) {
                 $errors['staff_id'] = ["Invalid staff_id"];
             }
             
-            if (!is_numeric($input['leave_type_id'])) {
+            if (isset($input['leave_type_id']) && !$this->validateInteger($input['leave_type_id'])) {
                 $errors['leave_type_id'] = ["Invalid leave_type_id"];
             }
             
-            if (!strtotime($input['start_date'])) {
+            if (isset($input['start_date']) && !$this->validateDate($input['start_date'])) {
                 $errors['start_date'] = ["Invalid date format"];
             }
             
-            if (!strtotime($input['end_date'])) {
+            if (isset($input['end_date']) && !$this->validateDate($input['end_date'])) {
                 $errors['end_date'] = ["Invalid date format"];
             }
             
-            if (strtotime($input['start_date']) > strtotime($input['end_date'])) {
+            if (isset($input['start_date']) && isset($input['end_date']) && 
+                !$this->validateDateRange($input['start_date'], $input['end_date'])) {
                 $errors['start_date'] = ["Start date must be before or equal to end date"];
             }
 
-            if (isset($input['reason']) && strlen($input['reason']) > 500) {
+            if (isset($input['reason']) && !$this->validateStringLength($input['reason'], null, 500)) {
                 $errors['reason'] = ["Reason must not exceed 500 characters"];
             }
 
@@ -163,6 +161,9 @@ class LeaveRequestController extends BaseController
 
             $input = $this->request->all();
             
+            // Sanitize input data
+            $input = $this->sanitizeInput($input);
+            
             // Validate comments if provided
             $errors = [];
             if (isset($input['comments']) && !is_string($input['comments'])) {
@@ -224,6 +225,9 @@ class LeaveRequestController extends BaseController
 
             $input = $this->request->all();
             
+            // Sanitize input data
+            $input = $this->sanitizeInput($input);
+            
             $leaveRequest->update([
                 'status' => 'approved',
                 'approved_by' => null, // Assuming user authentication is not implemented yet
@@ -265,6 +269,9 @@ class LeaveRequestController extends BaseController
             }
 
             $input = $this->request->all();
+            
+            // Sanitize input data
+            $input = $this->sanitizeInput($input);
             
             $leaveRequest->update([
                 'status' => 'rejected',

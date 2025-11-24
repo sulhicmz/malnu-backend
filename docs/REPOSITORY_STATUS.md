@@ -88,11 +88,9 @@
 ```
 malnu-backend/
 ├── app/                    # HyperVel application (PRIMARY)
-│   ├── Http/Controllers/   # Incomplete BaseController
+│   ├── Http/Controllers/   # Complete API controllers
 │   ├── Models/            # 46+ models, UUID inconsistencies
 │   └── Services/          # Minimal service layer
-├── web-sch-12/           # Laravel 12 application (DEPRECATED)
-│   └── Modules/          # Modular architecture
 ├── frontend/             # Vue.js application
 ├── docs/                 # Documentation (60% accurate)
 └── tests/                # Minimal test coverage

@@ -55,6 +55,7 @@ class Kernel extends HttpKernel
         'bindings' => \Hyperf\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
+        'jwt' => \App\Http\Middleware\JWTMiddleware::class,
     ];
 
     /**

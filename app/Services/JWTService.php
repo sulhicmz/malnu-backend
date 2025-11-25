@@ -10,7 +10,19 @@ class JWTService
 
     public function __construct()
     {
-        $this->secret = $_ENV['JWT_SECRET'] ?? 'default_secret_key_for_testing';
+        $this->secret = $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: '';
+        
+        // Validate that JWT_SECRET is not empty in non-testing environments
+        $appEnv = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'production';
+        if (empty($this->secret) && !in_array($appEnv, ['testing', 'local'])) {
+            throw new \InvalidArgumentException('JWT_SECRET environment variable is not set. Please configure it in your .env file.');
+        }
+        
+        // For testing/local environments, only use default if not set
+        if (empty($this->secret)) {
+            $this->secret = 'default_secret_key_for_testing';
+        }
+        
         $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
         $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
     }

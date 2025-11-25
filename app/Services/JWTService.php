@@ -10,25 +10,9 @@ class JWTService
 
     public function __construct()
     {
-        $jwtSecret = $_ENV['JWT_SECRET'] ?? null;
-        
-        // Validate JWT_SECRET is not empty in production environments
-        if (empty($jwtSecret) && $this->isProductionEnvironment()) {
-            throw new \Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables for production.');
-        }
-        
-        $this->secret = $jwtSecret ?: 'default_secret_key_for_testing';
+        $this->secret = $_ENV['JWT_SECRET'] ?? 'default_secret_key_for_testing';
         $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
         $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
-    }
-
-    /**
-     * Check if the application is running in production environment
-     */
-    private function isProductionEnvironment(): bool
-    {
-        $appEnv = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'local';
-        return in_array(strtolower($appEnv), ['production', 'prod']);
     }
 
     /**

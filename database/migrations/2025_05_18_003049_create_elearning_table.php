@@ -20,7 +20,7 @@ return new class extends Migration
         });*/
         // Virtual Classes
         Schema::create('virtual_classes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('class_id')->nullable();
             $table->uuid('subject_id')->nullable();
             $table->uuid('teacher_id')->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
 
         // Learning Materials
         Schema::create('learning_materials', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('content')->nullable();
@@ -54,7 +54,7 @@ return new class extends Migration
 
         // Assignments
         Schema::create('assignments', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
@@ -69,7 +69,7 @@ return new class extends Migration
 
         // Quizzes
         Schema::create('quizzes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();
@@ -84,7 +84,7 @@ return new class extends Migration
 
         // Discussions
         Schema::create('discussions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('content');
@@ -97,7 +97,7 @@ return new class extends Migration
 
         // Discussion Replies
         Schema::create('discussion_replies', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('discussion_id');
             $table->text('content');
             $table->uuid('created_by')->nullable();
@@ -108,7 +108,7 @@ return new class extends Migration
 
         // Video Conferences
         Schema::create('video_conferences', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('virtual_class_id');
             $table->string('title', 200);
             $table->text('description')->nullable();

@@ -21,7 +21,7 @@ return new class extends Migration
 
         // Grades
         Schema::create('grades', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->uuid('subject_id');
             $table->uuid('class_id');
@@ -43,7 +43,7 @@ return new class extends Migration
 
         // Competencies
         Schema::create('competencies', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->uuid('subject_id');
             $table->string('competency_code', 20);
@@ -60,7 +60,7 @@ return new class extends Migration
 
         // Reports
         Schema::create('reports', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->uuid('class_id');
             $table->smallInteger('semester');
@@ -80,7 +80,7 @@ return new class extends Migration
 
         // Student Portfolios
         Schema::create('student_portfolios', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->string('title', 200);
             $table->text('description')->nullable();

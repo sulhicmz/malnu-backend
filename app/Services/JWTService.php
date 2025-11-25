@@ -10,7 +10,15 @@ class JWTService
 
     public function __construct()
     {
-        $this->secret = $_ENV['JWT_SECRET'] ?? 'default_secret_key_for_testing';
+        // Get JWT_SECRET from environment - require it to be set
+        $secret = $_ENV['JWT_SECRET'] ?? null;
+        
+        // If JWT_SECRET is not set or is empty, throw an exception
+        if ($secret === null || $secret === '' || $secret === 'default_secret_key_for_testing') {
+            throw new \RuntimeException('JWT_SECRET is not configured properly. Please set a secure JWT_SECRET in your environment configuration.');
+        }
+        
+        $this->secret = $secret;
         $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
         $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
     }

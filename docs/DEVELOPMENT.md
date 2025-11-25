@@ -102,7 +102,7 @@ REDIS_PORT=6379
 REDIS_DB=0
 
 # Security
-JWT_SECRET=your-jwt-secret-key-here
+JWT_SECRET=  # Generate using: php -r "echo 'JWT_SECRET=' . bin2hex(random_bytes(32)) . PHP_EOL;"
 ```
 
 ### Database Configuration
@@ -182,6 +182,10 @@ Models are organized by domain:
 ### JWT Secret
 Generate a secure JWT secret:
 ```bash
+# Generate using PHP command
+php -r "echo 'JWT_SECRET=' . bin2hex(random_bytes(32)) . PHP_EOL;"
+
+# Or use the artisan command if available
 php artisan jwt:secret
 ```
 

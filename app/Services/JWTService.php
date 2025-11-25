@@ -10,9 +10,47 @@ class JWTService
 
     public function __construct()
     {
-        $this->secret = $_ENV['JWT_SECRET'] ?? 'default_secret_key_for_testing';
-        $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
-        $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
+        $jwtSecret = $this->getEnvValue('JWT_SECRET');
+        
+        if (empty($jwtSecret)) {
+            throw new \RuntimeException(
+                "JWT_SECRET is not set in environment variables. " .
+                "Please set JWT_SECRET in your .env file. " .
+                "Use a secure random string of at least 32 bytes."
+            );
+        }
+        
+        if (strlen($jwtSecret) < 32) {
+            throw new \RuntimeException(
+                "JWT_SECRET must be at least 32 characters long for security. " .
+                "Current length: " . strlen($jwtSecret)
+            );
+        }
+        
+        $this->secret = $jwtSecret;
+        $this->ttl = (int)$this->getEnvValue('JWT_TTL', 120); // in minutes
+        $this->refreshTtl = (int)$this->getEnvValue('JWT_REFRESH_TTL', 20160); // in minutes
+    }
+    
+    private function getEnvValue(string $key, $default = null)
+    {
+        // Try multiple methods to get environment value
+        $value = $_ENV[$key] ?? null;
+        if ($value !== null) {
+            return $value;
+        }
+        
+        $value = $_SERVER[$key] ?? null;
+        if ($value !== null) {
+            return $value;
+        }
+        
+        $value = getenv($key);
+        if ($value !== false) {
+            return $value;
+        }
+        
+        return $default;
     }
 
     /**

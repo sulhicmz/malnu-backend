@@ -99,24 +99,87 @@ class JwtAuthenticationTest extends TestCase
         $this->assertNull($decoded, 'Expired token should not be valid');
     }
     
-    public function test_jwt_token_refresh()
-    {
-        $jwtService = new JWTService();
-        
-        // Generate initial token
-        $payload = ['user_id' => 1, 'email' => 'test@example.com'];
-        $token = $jwtService->generateToken($payload);
-        
-        // Refresh the token
-        $refreshedToken = $jwtService->refreshToken($token);
-        
-        $this->assertIsString($refreshedToken);
-        $this->assertNotEquals($token, $refreshedToken);
-        
-        // Decode the refreshed token to verify it contains the same data
-        $decoded = $jwtService->decodeToken($refreshedToken);
+     public function test_jwt_token_refresh()
+     {
+         $jwtService = new JWTService();
+         
+         // Generate initial token
+         $payload = ['user_id' => 1, 'email' => 'test@example.com'];
+         $token = $jwtService->generateToken($payload);
+         
+         // Refresh the token
+         $refreshedToken = $jwtService->refreshToken($token);
+         
+         $this->assertIsString($refreshedToken);
+         $this->assertNotEquals($token, $refreshedToken);
+         
+         // Decode the refreshed token to verify it contains the same data
+         $decoded = $jwtService->decodeToken($refreshedToken);
         $this->assertIsArray($decoded);
         $this->assertArrayHasKey('data', $decoded);
         $this->assertEquals($payload, $decoded['data']);
+    }
+    
+    public function test_jwt_service_throws_exception_when_secret_empty_in_production()
+    {
+        // Save original environment
+        $originalEnv = $_ENV['APP_ENV'] ?? null;
+        $originalJwtSecret = $_ENV['JWT_SECRET'] ?? null;
+        
+        try {
+            // Set environment to production and JWT_SECRET to empty
+            $_ENV['APP_ENV'] = 'production';
+            $_ENV['JWT_SECRET'] = '';
+            
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage('JWT_SECRET must be configured in production environments for security');
+            
+            new JWTService();
+        } finally {
+            // Restore original environment
+            if ($originalEnv !== null) {
+                $_ENV['APP_ENV'] = $originalEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            
+            if ($originalJwtSecret !== null) {
+                $_ENV['JWT_SECRET'] = $originalJwtSecret;
+            } else {
+                unset($_ENV['JWT_SECRET']);
+            }
+        }
+    }
+    
+    public function test_jwt_service_uses_fallback_in_non_production_environment()
+    {
+        // Save original environment
+        $originalEnv = $_ENV['APP_ENV'] ?? null;
+        $originalJwtSecret = $_ENV['JWT_SECRET'] ?? null;
+        
+        try {
+            // Set environment to local and JWT_SECRET to empty
+            $_ENV['APP_ENV'] = 'local';
+            $_ENV['JWT_SECRET'] = '';
+            
+            // This should not throw an exception
+            $jwtService = new JWTService();
+            
+            // Verify that the service was created successfully
+            $this->assertInstanceOf(JWTService::class, $jwtService);
+        } finally {
+            // Restore original environment
+            if ($originalEnv !== null) {
+                $_ENV['APP_ENV'] = $originalEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            
+            if ($originalJwtSecret !== null) {
+                $_ENV['JWT_SECRET'] = $originalJwtSecret;
+            } else {
+                unset($_ENV['JWT_SECRET']);
+            }
+        }
     }
 }

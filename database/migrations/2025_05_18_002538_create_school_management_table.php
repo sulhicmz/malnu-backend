@@ -21,7 +21,7 @@ return new class extends Migration
 
         // Parents table
         Schema::create('parents', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id')->unique();
             $table->string('occupation', 100)->nullable();
             $table->text('address')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
 
         // Teachers table
         Schema::create('teachers', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id')->unique();
             $table->string('nip', 20)->unique();
             $table->string('expertise', 100)->nullable();
@@ -45,7 +45,7 @@ return new class extends Migration
 
         // Classes table
         Schema::create('classes', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 50);
             $table->string('level', 20);
             $table->uuid('homeroom_teacher_id')->nullable();
@@ -58,7 +58,7 @@ return new class extends Migration
 
         // Students table
         Schema::create('students', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id')->unique();
             $table->string('nisn', 20)->unique();
             $table->uuid('class_id')->nullable();
@@ -77,7 +77,7 @@ return new class extends Migration
 
         // Staff table
         Schema::create('staff', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id')->unique();
             $table->string('position', 100);
             $table->string('department', 100)->nullable();
@@ -90,7 +90,7 @@ return new class extends Migration
 
         // Subjects table
         Schema::create('subjects', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('code', 20)->unique();
             $table->string('name', 100);
             $table->text('description')->nullable();
@@ -101,7 +101,7 @@ return new class extends Migration
 
         // Class-Subject relationship
         Schema::create('class_subjects', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('class_id');
             $table->uuid('subject_id');
             $table->uuid('teacher_id')->nullable();
@@ -116,7 +116,7 @@ return new class extends Migration
 
         // Schedules table
         Schema::create('schedules', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('class_subject_id');
             $table->smallInteger('day_of_week');
             $table->time('start_time');
@@ -129,7 +129,7 @@ return new class extends Migration
 
         // School Inventory table
         Schema::create('school_inventory', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 100);
             $table->string('category', 50);
             $table->integer('quantity');

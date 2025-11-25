@@ -16,7 +16,7 @@ return new class extends Migration
     {
         // Roles table
         Schema::create('roles', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 255);
             $table->string('guard_name', 255);
             
@@ -27,7 +27,7 @@ return new class extends Migration
 
         // Permissions table
         Schema::create('permissions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 255);
             $table->string('guard_name', 255);
             

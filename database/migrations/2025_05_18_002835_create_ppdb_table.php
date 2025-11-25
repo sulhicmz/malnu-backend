@@ -21,7 +21,7 @@ return new class extends Migration
 
         // PPDB Registrations
         Schema::create('ppdb_registrations', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('registration_number', 20)->unique();
             $table->string('full_name', 100);
             $table->date('birth_date');
@@ -40,7 +40,7 @@ return new class extends Migration
 
         // PPDB Documents
         Schema::create('ppdb_documents', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('registration_id');
             $table->string('document_type', 50);
             $table->string('file_url', 255);
@@ -56,7 +56,7 @@ return new class extends Migration
 
         // PPDB Tests
         Schema::create('ppdb_tests', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('registration_id');
             $table->string('test_type', 50);
             $table->decimal('score', 5, 2)->nullable();
@@ -70,7 +70,7 @@ return new class extends Migration
 
         // PPDB Announcements
         Schema::create('ppdb_announcements', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('registration_id');
             $table->string('announcement_type', 50);
             $table->text('content');

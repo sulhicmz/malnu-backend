@@ -16,7 +16,7 @@ return new class extends Migration
     {
         // Audit Logs
         Schema::create('audit_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id')->nullable();
             $table->string('action', 50);
             $table->string('table_name', 50);
@@ -31,7 +31,7 @@ return new class extends Migration
 
         // System Settings
         Schema::create('system_settings', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('setting_key', 100)->unique();
             $table->text('setting_value');
             $table->text('description')->nullable();

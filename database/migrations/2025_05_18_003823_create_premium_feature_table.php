@@ -17,7 +17,7 @@ return new class extends Migration
 
         // AI Tutor Sessions
         Schema::create('ai_tutor_sessions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('user_id');
             $table->uuid('subject_id')->nullable();
             $table->string('session_topic', 200);
@@ -31,7 +31,7 @@ return new class extends Migration
 
         // Career Assessments
         Schema::create('career_assessments', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->string('assessment_type', 50);
             $table->date('assessment_date');
@@ -45,7 +45,7 @@ return new class extends Migration
 
         // Counseling Sessions
         Schema::create('counseling_sessions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('student_id');
             $table->uuid('counselor_id');
             $table->date('session_date');
@@ -60,7 +60,7 @@ return new class extends Migration
 
         // Industry Partners
         Schema::create('industry_partners', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 100);
             $table->string('industry', 50);
             $table->string('contact_person', 100)->nullable();

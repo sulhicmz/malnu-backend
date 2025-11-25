@@ -21,7 +21,7 @@ return new class extends Migration
 
         // Books
         Schema::create('books', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('isbn', 20)->nullable();
             $table->string('title', 200);
             $table->string('author', 100);
@@ -37,7 +37,7 @@ return new class extends Migration
 
         // Ebook Formats
         Schema::create('ebook_formats', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('book_id');
             $table->string('format', 10);
             $table->string('file_url', 255);
@@ -48,7 +48,7 @@ return new class extends Migration
 
         // Book Loans
         Schema::create('book_loans', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('book_id');
             $table->uuid('borrower_id');
             $table->date('loan_date');
@@ -62,7 +62,7 @@ return new class extends Migration
 
         // Book Reviews
         Schema::create('book_reviews', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->uuid('book_id');
             $table->uuid('reviewer_id');
             $table->smallInteger('rating');

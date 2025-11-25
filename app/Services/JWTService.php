@@ -10,7 +10,21 @@ class JWTService
 
     public function __construct()
     {
-        $this->secret = $_ENV['JWT_SECRET'] ?? 'default_secret_key_for_testing';
+        $jwtSecret = $_ENV['JWT_SECRET'] ?? null;
+        
+        // Ensure JWT_SECRET is set and not empty
+        if (empty($jwtSecret)) {
+            // In production, throw an exception if JWT_SECRET is not set
+            $appEnv = $_ENV['APP_ENV'] ?? 'production';
+            if ($appEnv === 'production') {
+                throw new \RuntimeException('JWT_SECRET must be configured in environment variables.');
+            }
+            // For development/testing, we can use a default, but warn about it
+            $jwtSecret = 'default_secret_key_for_testing';
+            error_log('WARNING: Using default JWT secret. This should be changed for production.');
+        }
+        
+        $this->secret = $jwtSecret;
         $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
         $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
     }
@@ -107,5 +121,13 @@ class JWTService
     private function base64UrlDecode(string $data): string
     {
         return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
+    }
+    
+    /**
+     * Get the JWT secret for testing purposes only
+     */
+    public function getSecretForTest(): string
+    {
+        return $this->secret;
     }
 }

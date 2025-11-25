@@ -9,6 +9,10 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\AcademicRecordController;
+use App\Http\Controllers\Api\SchoolManagement\EnrollmentController;
+use App\Http\Controllers\Api\SchoolManagement\StudentAnalyticsController;
+use App\Http\Controllers\Api\SchoolManagement\StudentDocumentController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -52,5 +56,33 @@ Route::group(['middleware' => ['jwt']], function () {
         
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+    });
+    
+    // Student Information System (SIS) Routes
+    Route::prefix('sis')->group(function () {
+        // Academic Records Management
+        Route::get('students/{studentId}/academic-record', [AcademicRecordController::class, 'getAcademicRecord']);
+        Route::get('students/{studentId}/transcript', [AcademicRecordController::class, 'generateTranscript']);
+        Route::get('classes/{classId}/academic-records', [AcademicRecordController::class, 'getClassAcademicRecords']);
+        Route::put('grades/{gradeId}', [AcademicRecordController::class, 'updateGrade']);
+        
+        // Enrollment Management
+        Route::get('students/{studentId}/enrollment', [EnrollmentController::class, 'getEnrollmentDetails']);
+        Route::put('students/{studentId}/enrollment-status', [EnrollmentController::class, 'updateEnrollmentStatus']);
+        Route::post('students/{studentId}/assign-class', [EnrollmentController::class, 'assignToClass']);
+        Route::get('students/academic-year/{academicYear}', [EnrollmentController::class, 'getStudentsByAcademicYear']);
+        Route::get('enrollment/stats', [EnrollmentController::class, 'getEnrollmentStats']);
+        
+        // Student Analytics
+        Route::get('students/{studentId}/analytics', [StudentAnalyticsController::class, 'getStudentPerformanceAnalytics']);
+        Route::get('classes/{classId}/analytics', [StudentAnalyticsController::class, 'getClassPerformanceAnalytics']);
+        
+        // Student Documents & Portfolios
+        Route::get('students/{studentId}/documents', [StudentDocumentController::class, 'getStudentDocuments']);
+        Route::post('students/{studentId}/documents', [StudentDocumentController::class, 'addStudentDocument']);
+        Route::put('documents/{documentId}', [StudentDocumentController::class, 'updateStudentDocument']);
+        Route::delete('documents/{documentId}', [StudentDocumentController::class, 'deleteStudentDocument']);
+        Route::get('students/{studentId}/documents/type/{type}', [StudentDocumentController::class, 'getDocumentsByType']);
+        Route::post('students/{studentId}/certificates/generate', [StudentDocumentController::class, 'generateCertificate']);
     });
 });

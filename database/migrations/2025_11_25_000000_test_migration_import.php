@@ -16,7 +16,7 @@ return new class extends Migration
     {
         // Test table to verify migration system works correctly
         Schema::create('test_migration_import', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('(UUID())'));
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name');
             $table->text('description')->nullable();
             $table->datetimes();

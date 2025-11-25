@@ -185,6 +185,8 @@ Generate a secure JWT secret:
 php artisan jwt:secret
 ```
 
+**Security Validation**: The application includes validation that ensures `JWT_SECRET` is set and not empty in production environments. If `JWT_SECRET` is empty or still using the default example value, the application will throw an exception to prevent running with insecure configuration in production.
+
 ### Security Headers
 Security headers are pre-configured in `.env.example`:
 ```env

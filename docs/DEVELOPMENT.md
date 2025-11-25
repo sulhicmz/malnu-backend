@@ -102,7 +102,7 @@ REDIS_PORT=6379
 REDIS_DB=0
 
 # Security
-JWT_SECRET=your-jwt-secret-key-here
+JWT_SECRET=fc13c20fb40f1eb359bd83dfadd4efa1d8eb028db811cb7d980ebf0223da4e55
 ```
 
 ### Database Configuration
@@ -183,6 +183,8 @@ Models are organized by domain:
 Generate a secure JWT secret:
 ```bash
 php artisan jwt:secret
+# Or manually set in .env:
+JWT_SECRET=$(php -r "echo bin2hex(random_bytes(32));")
 ```
 
 ### Security Headers

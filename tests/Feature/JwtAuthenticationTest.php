@@ -119,4 +119,61 @@ class JwtAuthenticationTest extends TestCase
         $this->assertArrayHasKey('data', $decoded);
         $this->assertEquals($payload, $decoded['data']);
     }
+    
+    public function test_jwt_service_throws_exception_when_secret_is_empty_in_production()
+    {
+        // Save original environment
+        $originalEnv = $_ENV['APP_ENV'] ?? null;
+        
+        try {
+            // Set APP_ENV to production
+            $_ENV['APP_ENV'] = 'production';
+            $_ENV['JWT_SECRET'] = '';
+            
+            // This should throw an exception
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
+            
+            new JWTService();
+        } finally {
+            // Restore original environment
+            if ($originalEnv !== null) {
+                $_ENV['APP_ENV'] = $originalEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            unset($_ENV['JWT_SECRET']);
+        }
+    }
+    
+    public function test_jwt_service_uses_default_secret_in_local_environment()
+    {
+        // Save original environment
+        $originalEnv = $_ENV['APP_ENV'] ?? null;
+        
+        try {
+            // Set APP_ENV to local
+            $_ENV['APP_ENV'] = 'local';
+            $_ENV['JWT_SECRET'] = '';
+            
+            // This should not throw an exception and should use default secret
+            $jwtService = new JWTService();
+            
+            // Test that the service works
+            $payload = ['user_id' => 1];
+            $token = $jwtService->generateToken($payload);
+            $decoded = $jwtService->decodeToken($token);
+            
+            $this->assertIsArray($decoded);
+            $this->assertEquals($payload, $decoded['data']);
+        } finally {
+            // Restore original environment
+            if ($originalEnv !== null) {
+                $_ENV['APP_ENV'] = $originalEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            unset($_ENV['JWT_SECRET']);
+        }
+    }
 }

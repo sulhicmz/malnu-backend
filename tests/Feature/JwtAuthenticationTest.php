@@ -119,4 +119,72 @@ class JwtAuthenticationTest extends TestCase
         $this->assertArrayHasKey('data', $decoded);
         $this->assertEquals($payload, $decoded['data']);
     }
+    
+    public function test_jwt_service_throws_exception_in_production_with_empty_secret()
+    {
+        // Save original environment
+        $originalAppEnv = $_ENV['APP_ENV'] ?? null;
+        $originalJwtSecret = $_ENV['JWT_SECRET'] ?? null;
+        
+        try {
+            // Set production environment and empty JWT secret
+            $_ENV['APP_ENV'] = 'production';
+            $_ENV['JWT_SECRET'] = '';
+            
+            // This should throw an exception
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage('JWT_SECRET is not configured. Please set JWT_SECRET in your environment configuration.');
+            
+            new JWTService();
+        } finally {
+            // Restore original environment
+            if ($originalAppEnv !== null) {
+                $_ENV['APP_ENV'] = $originalAppEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            
+            if ($originalJwtSecret !== null) {
+                $_ENV['JWT_SECRET'] = $originalJwtSecret;
+            } else {
+                unset($_ENV['JWT_SECRET']);
+            }
+        }
+    }
+    
+    public function test_jwt_service_uses_default_secret_in_non_production()
+    {
+        // Save original environment
+        $originalAppEnv = $_ENV['APP_ENV'] ?? null;
+        $originalJwtSecret = $_ENV['JWT_SECRET'] ?? null;
+        
+        try {
+            // Set non-production environment and empty JWT secret
+            $_ENV['APP_ENV'] = 'local';
+            $_ENV['JWT_SECRET'] = '';
+            
+            // This should not throw an exception and should use default secret
+            $jwtService = new JWTService();
+            
+            // Test that token generation still works
+            $payload = ['user_id' => 1, 'email' => 'test@example.com'];
+            $token = $jwtService->generateToken($payload);
+            
+            $this->assertIsString($token);
+            $this->assertNotEmpty($token);
+        } finally {
+            // Restore original environment
+            if ($originalAppEnv !== null) {
+                $_ENV['APP_ENV'] = $originalAppEnv;
+            } else {
+                unset($_ENV['APP_ENV']);
+            }
+            
+            if ($originalJwtSecret !== null) {
+                $_ENV['JWT_SECRET'] = $originalJwtSecret;
+            } else {
+                unset($_ENV['JWT_SECRET']);
+            }
+        }
+    }
 }

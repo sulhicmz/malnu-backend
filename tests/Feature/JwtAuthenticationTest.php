@@ -9,6 +9,8 @@ class JwtAuthenticationTest extends TestCase
 {
     public function test_jwt_token_generation_and_validation()
     {
+        // Set JWT_SECRET for testing
+        $_ENV['JWT_SECRET'] = 'test_secret_for_testing';
         $jwtService = new JWTService();
         
         // Test token generation
@@ -101,6 +103,8 @@ class JwtAuthenticationTest extends TestCase
     
     public function test_jwt_token_refresh()
     {
+        // Set JWT_SECRET for testing
+        $_ENV['JWT_SECRET'] = 'test_secret_for_testing';
         $jwtService = new JWTService();
         
         // Generate initial token

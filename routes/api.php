@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
+use App\Http\Controllers\Api\SchoolManagement\StudentController;
+use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -39,5 +41,16 @@ Route::group(['middleware' => ['jwt']], function () {
         Route::apiResource('leave-requests', LeaveRequestController::class);
         Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
         Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
+    });
+});
+
+// School Management Routes (protected)
+Route::group(['middleware' => ['jwt']], function () {
+    Route::prefix('school')->group(function () {
+        // Student Management Routes
+        Route::apiResource('students', StudentController::class);
+        
+        // Teacher Management Routes
+        Route::apiResource('teachers', TeacherController::class);
     });
 });

@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Grading\ReportController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -52,5 +53,16 @@ Route::group(['middleware' => ['jwt']], function () {
         
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+    });
+});
+
+// Grading and Reports Routes (protected)
+Route::group(['middleware' => ['jwt']], function () {
+    Route::prefix('grading')->group(function () {
+        // Report Card and Transcript Routes
+        Route::get('reports/student/{studentId}', [ReportController::class, 'getStudentReports']);
+        Route::get('reports/class/{classId}', [ReportController::class, 'getClassReports']);
+        Route::post('reports/generate-card/{studentId}', [ReportController::class, 'generateReportCard']);
+        Route::post('reports/generate-transcript/{studentId}', [ReportController::class, 'generateTranscript']);
     });
 });

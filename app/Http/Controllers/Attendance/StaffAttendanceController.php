@@ -5,38 +5,44 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\StaffAttendance;
 use App\Models\SchoolManagement\Staff;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
 
 class StaffAttendanceController extends Controller
 {
     /**
      * Display a listing of the staff attendance records.
      */
-    public function index(Request $request): JsonResponse
+    public function index(RequestInterface $request): ResponseInterface
     {
         $query = StaffAttendance::with('staff');
 
         // Filter by staff ID if provided
-        if ($request->has('staff_id')) {
-            $query->where('staff_id', $request->staff_id);
+        $staffId = $request->input('staff_id');
+        if ($staffId) {
+            $query->where('staff_id', $staffId);
         }
 
         // Filter by date range if provided
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('attendance_date', [$request->start_date, $request->end_date]);
-        } elseif ($request->has('date')) {
-            $query->whereDate('attendance_date', $request->date);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $date = $request->input('date');
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('attendance_date', [$startDate, $endDate]);
+        } elseif ($date) {
+            $query->whereDate('attendance_date', $date);
         }
 
         // Filter by status if provided
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        $status = $request->input('status');
+        if ($status) {
+            $query->where('status', $status);
         }
 
         $attendances = $query->orderBy('attendance_date', 'desc')->paginate(15);
 
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'data' => $attendances
         ]);
@@ -45,34 +51,47 @@ class StaffAttendanceController extends Controller
     /**
      * Store a newly created staff attendance record.
      */
-    public function store(Request $request): JsonResponse
+    public function store(RequestInterface $request): ResponseInterface
     {
-        $request->validate([
-            'staff_id' => 'required|exists:staff,id',
-            'attendance_date' => 'required|date',
-            'check_in_time' => 'nullable|date_format:H:i',
-            'check_out_time' => 'nullable|date_format:H:i|after:check_in_time',
-            'status' => 'required|in:present,absent,late,early_departure,on_leave',
-            'notes' => 'nullable|string',
-            'check_in_method' => 'nullable|string|max:20',
-            'check_out_method' => 'nullable|string|max:20',
-        ]);
+        $requestData = $request->all();
+        
+        // Basic validation
+        if (empty($requestData['staff_id'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Staff ID is required'
+            ], 422);
+        }
+        
+        if (empty($requestData['attendance_date'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Attendance date is required'
+            ], 422);
+        }
+        
+        if (empty($requestData['status'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Status is required'
+            ], 422);
+        }
 
         // Check if attendance record already exists for the same staff and date
-        $existingAttendance = StaffAttendance::where('staff_id', $request->staff_id)
-            ->whereDate('attendance_date', $request->attendance_date)
+        $existingAttendance = StaffAttendance::where('staff_id', $requestData['staff_id'])
+            ->whereDate('attendance_date', $requestData['attendance_date'])
             ->first();
 
         if ($existingAttendance) {
-            return response()->json([
+            return $this->response->json([
                 'success' => false,
                 'message' => 'Attendance record already exists for this staff on the given date'
             ], 400);
         }
 
-        $attendance = StaffAttendance::create($request->all());
+        $attendance = StaffAttendance::create($requestData);
 
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'message' => 'Staff attendance recorded successfully',
             'data' => $attendance
@@ -82,18 +101,18 @@ class StaffAttendanceController extends Controller
     /**
      * Display the specified staff attendance record.
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id): ResponseInterface
     {
         $attendance = StaffAttendance::with('staff')->find($id);
 
         if (!$attendance) {
-            return response()->json([
+            return $this->response->json([
                 'success' => false,
                 'message' => 'Attendance record not found'
             ], 404);
         }
 
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'data' => $attendance
         ]);
@@ -102,29 +121,22 @@ class StaffAttendanceController extends Controller
     /**
      * Update the specified staff attendance record.
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(RequestInterface $request, string $id): ResponseInterface
     {
         $attendance = StaffAttendance::find($id);
 
         if (!$attendance) {
-            return response()->json([
+            return $this->response->json([
                 'success' => false,
                 'message' => 'Attendance record not found'
             ], 404);
         }
 
-        $request->validate([
-            'check_in_time' => 'nullable|date_format:H:i',
-            'check_out_time' => 'nullable|date_format:H:i|after:check_in_time',
-            'status' => 'in:present,absent,late,early_departure,on_leave',
-            'notes' => 'nullable|string',
-            'check_in_method' => 'nullable|string|max:20',
-            'check_out_method' => 'nullable|string|max:20',
-        ]);
+        $requestData = $request->all();
+        
+        $attendance->update($requestData);
 
-        $attendance->update($request->all());
-
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'message' => 'Attendance record updated successfully',
             'data' => $attendance
@@ -134,12 +146,12 @@ class StaffAttendanceController extends Controller
     /**
      * Remove the specified staff attendance record.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id): ResponseInterface
     {
         $attendance = StaffAttendance::find($id);
 
         if (!$attendance) {
-            return response()->json([
+            return $this->response->json([
                 'success' => false,
                 'message' => 'Attendance record not found'
             ], 404);
@@ -147,7 +159,7 @@ class StaffAttendanceController extends Controller
 
         $attendance->delete();
 
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'message' => 'Attendance record deleted successfully'
         ]);
@@ -156,39 +168,63 @@ class StaffAttendanceController extends Controller
     /**
      * Mark attendance for a staff member (check-in/check-out).
      */
-    public function markAttendance(Request $request): JsonResponse
+    public function markAttendance(RequestInterface $request): ResponseInterface
     {
-        $request->validate([
-            'staff_id' => 'required|exists:staff,id',
-            'attendance_date' => 'required|date',
-            'action' => 'required|in:check_in,check_out',
-            'time' => 'required|date_format:H:i',
-        ]);
+        $requestData = $request->all();
+        
+        // Basic validation
+        if (empty($requestData['staff_id'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Staff ID is required'
+            ], 422);
+        }
+        
+        if (empty($requestData['attendance_date'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Attendance date is required'
+            ], 422);
+        }
+        
+        if (empty($requestData['action'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Action is required'
+            ], 422);
+        }
+        
+        if (empty($requestData['time'])) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Time is required'
+            ], 422);
+        }
 
         $attendance = StaffAttendance::firstOrCreate(
             [
-                'staff_id' => $request->staff_id,
-                'attendance_date' => $request->attendance_date,
+                'staff_id' => $requestData['staff_id'],
+                'attendance_date' => $requestData['attendance_date'],
             ],
             [
                 'status' => 'absent', // Default status
             ]
         );
 
-        if ($request->action === 'check_in') {
+        if ($requestData['action'] === 'check_in') {
             $attendance->update([
-                'check_in_time' => $request->time,
+                'check_in_time' => $requestData['time'],
                 'check_in_method' => 'manual',
                 'status' => 'present'
             ]);
-        } elseif ($request->action === 'check_out') {
+        } elseif ($requestData['action'] === 'check_out') {
             $attendance->update([
-                'check_out_time' => $request->time,
+                'check_out_time' => $requestData['time'],
                 'check_out_method' => 'manual'
             ]);
         }
 
-        return response()->json([
+        return $this->response->json([
             'success' => true,
             'message' => 'Attendance marked successfully',
             'data' => $attendance

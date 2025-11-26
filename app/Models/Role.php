@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Models\Model;
 use App\Models\Permission;
 use App\Models\ModelHasRole;
+use App\Models\User;
 
 class Role extends Model
 {

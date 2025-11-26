@@ -7,6 +7,7 @@ use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\User;
 use App\Traits\UsesUuid;
+use App\Models\Attendance\SubstituteAssignment;
 
 /**
  * @property string $id

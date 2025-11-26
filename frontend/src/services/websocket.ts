@@ -1,4 +1,37 @@
-import { EventEmitter } from 'events';
+// Custom EventEmitter for browser environment
+class EventEmitter {
+  private events: { [key: string]: Array<Function> } = {};
+
+  on(event: string, listener: Function): void {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event: string, ...args: any[]): void {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+
+  off(event: string, listener: Function): void {
+    if (this.events[event]) {
+      const index = this.events[event].indexOf(listener);
+      if (index > -1) {
+        this.events[event].splice(index, 1);
+      }
+    }
+  }
+
+  once(event: string, listener: Function): void {
+    const onceWrapper = (...args: any[]) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+}
 
 class WebSocketService extends EventEmitter {
   private ws: WebSocket | null = null;
@@ -6,8 +39,8 @@ class WebSocketService extends EventEmitter {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private heartbeatTimeout: NodeJS.Timeout | null = null;
+  private heartbeatInterval: number | null = null;
+  private heartbeatTimeout: number | null = null;
   private heartbeatTimeoutDuration = 5000;
 
   constructor(url: string) {

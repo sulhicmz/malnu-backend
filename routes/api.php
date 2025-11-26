@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\NotificationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -52,5 +53,19 @@ Route::group(['middleware' => ['jwt']], function () {
         
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+    });
+});
+
+// Notification Routes (protected)
+Route::group(['middleware' => ['jwt']], function () {
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::post('/send', [NotificationController::class, 'send']);
+        Route::post('/broadcast', [NotificationController::class, 'broadcast']);
+        Route::post('/template', [NotificationController::class, 'sendFromTemplate']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::get('/templates', [NotificationController::class, 'getTemplates']);
+        Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+        Route::post('/preferences', [NotificationController::class, 'updatePreferences']);
     });
 });

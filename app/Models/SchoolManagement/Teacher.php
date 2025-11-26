@@ -8,6 +8,8 @@ use App\Models\CareerDevelopment\CounselingSession;
 use App\Models\ELearning\VirtualClass;
 use App\Models\Model;
 use App\Models\User;
+use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\ClassSubject;
 
 class Teacher extends Model
 {

@@ -5,6 +5,7 @@ namespace App\Models\Attendance;
 use App\Models\Model;
 use App\Models\SchoolManagement\ClassSubject;
 use App\Traits\UsesUuid;
+use App\Models\Attendance\SubstituteTeacher;
 
 /**
  * @property string $id

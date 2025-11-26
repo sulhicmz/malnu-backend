@@ -9,6 +9,7 @@ use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Model;
 use App\Models\OnlineExam\Exam;
+use App\Models\SchoolManagement\Teacher;
 
 class ClassModel extends Model
 {

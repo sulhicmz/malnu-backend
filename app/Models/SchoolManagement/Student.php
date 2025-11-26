@@ -14,6 +14,7 @@ use App\Models\Model;
 use App\Models\OnlineExam\ExamResult;
 use App\Models\ParentPortal\ParentOrtu;
 use App\Models\User;
+use App\Models\SchoolManagement\ClassModel;
 
 class Student extends Model
 {

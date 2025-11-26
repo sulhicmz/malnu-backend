@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder
         (new UserSeeder())->run();
         (new DirectPermissionSeeder())->run();
         (new SchoolManagementSeeder())->run();
+        (new NotificationTemplateSeeder())->run();
     }
 }

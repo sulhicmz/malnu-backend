@@ -29,6 +29,7 @@ use App\Models\PPDB\PpdbTest;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
+use App\Models\Notification\UserNotificationPreference;
 use Hyperf\Foundation\Auth\User as Authenticatable;
 use App\Traits\UsesUuid;
 
@@ -204,5 +205,10 @@ class User extends Authenticatable
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function notificationPreferences()
+    {
+        return $this->hasOne(UserNotificationPreference::class);
     }
 }

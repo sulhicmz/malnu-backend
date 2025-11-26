@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Services\JWTService;
+use App\Services\TokenBlacklistService;
+
 class AuthService
 {
     private JWTService $jwtService;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Hyperf\Http\Request;
+use Hyperf\HttpServer\Contract\RequestInterface;
 
 class IndexController extends AbstractController
 {
-    public function index(Request $request): array
+    public function index(RequestInterface $request): array
     {
         $user = $request->input('user', 'Hyperf');
         $method = $request->getMethod();

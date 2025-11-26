@@ -3,10 +3,7 @@
 declare (strict_types = 1);
 
 use App\Models\User;
-use Hyperf\Database\Seeders\Seeder;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-
+use Hyperf\Database\Seeder\Seeder;
 
 class UserSeeder extends Seeder
 {
@@ -101,12 +98,12 @@ class UserSeeder extends Seeder
             'username'          => $userData['username'],
             'email'             => $userData['email'],
             'full_name'         => $userData['full_name'],
-            'email_verified_at' => now(),
-            'password'          => Hash::make($userData['password']),
+            'email_verified_at' => date('Y-m-d H:i:s'),
+            'password'          => password_hash($userData['password'], PASSWORD_DEFAULT),
             'last_login_ip'     => null,
             'last_login_time'   => null,
             'key_status'        => null,
-            'slug'              => Str::slug($userData['username']),
+            'slug'              => \Hyperf\Utils\Str::slug($userData['username']),
             'phone'             => null,
             'avatar_url'        => null,
             'is_active'         => true,

@@ -102,7 +102,7 @@ return [
      |
      */
 
-     'ttl' => env('JWT_TTL', 120),
+      'ttl' => env('JWT_TTL', 60), // Reduced from 120 minutes to 60 minutes for better security
 
      /*
      |--------------------------------------------------------------------------
@@ -121,7 +121,7 @@ return [
      |
      */
 
-     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
+      'refresh_ttl' => env('JWT_REFRESH_TTL', 10080), // Reduced from 2 weeks (20160) to 1 week (10080) for better security
 
      /*
      |--------------------------------------------------------------------------
@@ -160,14 +160,14 @@ return [
      |
      */
 
-     'required_claims' => [
-         // 'iss',
-         'iat',
-         // 'exp',
-         // 'nbf',
-         'sub',
-         // 'jti',
-     ],
+      'required_claims' => [
+          // 'iss',
+          'iat',
+          'exp', // Added exp to required claims for better security
+          // 'nbf',
+          'sub',
+          // 'jti',
+      ],
 
      /*
      |--------------------------------------------------------------------------
@@ -214,7 +214,7 @@ return [
      |
      */
 
-     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
+      'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true), // Enabled for better security
 
      /*
      | -------------------------------------------------------------------------

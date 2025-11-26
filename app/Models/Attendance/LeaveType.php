@@ -4,6 +4,8 @@ namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Traits\UsesUuid;
+use App\Models\Attendance\LeaveRequest;
+use App\Models\Attendance\LeaveBalance;
 
 /**
  * @property string $id

@@ -6,6 +6,8 @@ namespace App\Models\ELearning;
 
 use App\Models\Model;
 use App\Models\User;
+use App\Models\ELearning\VirtualClass;
+use App\Models\ELearning\DiscussionReply;
 
 class Discussion extends Model
 {

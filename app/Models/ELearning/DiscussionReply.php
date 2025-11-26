@@ -6,6 +6,7 @@ namespace App\Models\ELearning;
 
 use App\Models\Model;
 use App\Models\User;
+use App\Models\ELearning\Discussion;
 
 class DiscussionReply extends Model
 {

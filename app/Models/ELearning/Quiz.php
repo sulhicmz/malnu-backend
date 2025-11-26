@@ -7,6 +7,7 @@ namespace App\Models\ELearning;
 use App\Models\Grading\Grade;
 use App\Models\Model;
 use App\Models\User;
+use App\Models\ELearning\VirtualClass;
 
 class Quiz extends Model
 {

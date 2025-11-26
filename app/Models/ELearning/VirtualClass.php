@@ -8,6 +8,10 @@ use App\Models\Model;
 use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
+use App\Models\ELearning\LearningMaterial;
+use App\Models\ELearning\Assignment;
+use App\Models\ELearning\Discussion;
+use App\Models\ELearning\VideoConference;
 
 class VirtualClass extends Model
 {

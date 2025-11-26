@@ -11,6 +11,7 @@ use App\Models\Grading\Grade;
 use App\Models\Model;
 use App\Models\OnlineExam\Exam;
 use App\Models\OnlineExam\QuestionBank;
+use App\Models\SchoolManagement\ClassSubject;
 
 class Subject extends Model
 {

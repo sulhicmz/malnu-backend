@@ -5,6 +5,7 @@ declare (strict_types = 1);
 namespace App\Models\SchoolManagement;
 
 use App\Models\Model;
+use App\Models\SchoolManagement\ClassSubject;
 
 class Schedule extends Model
 {

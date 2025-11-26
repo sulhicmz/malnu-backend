@@ -3,6 +3,8 @@
 namespace App\Models\Attendance;
 
 use App\Models\Model;
+use App\Models\Attendance\LeaveRequest;
+use App\Models\Attendance\LeaveBalance;
 use App\Traits\UsesUuid;
 
 /**

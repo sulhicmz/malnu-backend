@@ -6,6 +6,7 @@ use App\Models\Model;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\User;
+use App\Models\Attendance\SubstituteAssignment;
 use App\Traits\UsesUuid;
 
 /**

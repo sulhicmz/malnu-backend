@@ -1,6 +1,7 @@
-import { EventEmitter } from 'events';
+type EventCallback = (data?: any) => void;
 
-class WebSocketService extends EventEmitter {
+class WebSocketService {
+  private events: { [key: string]: EventCallback[] } = {};
   private ws: WebSocket | null = null;
   private url: string;
   private reconnectAttempts = 0;
@@ -11,8 +12,36 @@ class WebSocketService extends EventEmitter {
   private heartbeatTimeoutDuration = 5000;
 
   constructor(url: string) {
-    super();
     this.url = url;
+  }
+
+  // Event emitter methods
+  on(event: string, callback: EventCallback): void {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(callback);
+  }
+
+  off(event: string, callback: EventCallback): void {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter(cb => cb !== callback);
+    }
+  }
+
+  emit(event: string, data?: any): void {
+    if (this.events[event]) {
+      this.events[event].forEach(callback => callback(data));
+    }
+  }
+
+  // Remove all listeners for an event
+  removeAllListeners(event?: string): void {
+    if (event) {
+      delete this.events[event];
+    } else {
+      this.events = {};
+    }
   }
 
   connect(): void {

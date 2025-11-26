@@ -12,6 +12,7 @@ export default tseslint.config(
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parser: tseslint.parser,
     },
     plugins: {
       'react-hooks': reactHooks,
@@ -22,7 +23,7 @@ export default tseslint.config(
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
-      ],
+      ]
     },
   }
 );

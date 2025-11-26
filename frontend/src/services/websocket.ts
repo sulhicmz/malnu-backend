@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import EventEmitter from 'eventemitter3';
 
 class WebSocketService extends EventEmitter {
   private ws: WebSocket | null = null;
@@ -6,8 +6,8 @@ class WebSocketService extends EventEmitter {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private heartbeatTimeout: NodeJS.Timeout | null = null;
+  private heartbeatInterval: number | null = null;
+  private heartbeatTimeout: number | null = null;
   private heartbeatTimeoutDuration = 5000;
 
   constructor(url: string) {

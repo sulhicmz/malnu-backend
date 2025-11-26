@@ -1,18 +1,48 @@
-import { EventEmitter } from 'events';
+interface WebSocketEventMap {
+  connected: () => void;
+  disconnected: (event: CloseEvent) => void;
+  message: (data: any) => void;
+  error: (error: any) => void; // Changed to 'any' to handle different error types
+  max_reconnect_attempts: () => void;
+}
 
-class WebSocketService extends EventEmitter {
+class WebSocketService {
+  private listeners: { [K in keyof WebSocketEventMap]?: Array<WebSocketEventMap[K]> } = {};
   private ws: WebSocket | null = null;
   private url: string;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectInterval = 5000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private heartbeatTimeout: NodeJS.Timeout | null = null;
+  private heartbeatInterval: number | null = null;
+  private heartbeatTimeout: number | null = null;
   private heartbeatTimeoutDuration = 5000;
 
   constructor(url: string) {
-    super();
     this.url = url;
+  }
+
+  on<K extends keyof WebSocketEventMap>(event: K, listener: WebSocketEventMap[K]): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    (this.listeners[event] as Array<WebSocketEventMap[K]>).push(listener);
+  }
+
+  off<K extends keyof WebSocketEventMap>(event: K, listener: WebSocketEventMap[K]): void {
+    if (!this.listeners[event]) return;
+    const index = (this.listeners[event] as Array<WebSocketEventMap[K]>).indexOf(listener);
+    if (index > -1) {
+      (this.listeners[event] as Array<WebSocketEventMap[K]>).splice(index, 1);
+    }
+  }
+
+  private emit<K extends keyof WebSocketEventMap>(event: K, ...args: Parameters<WebSocketEventMap[K]>): void {
+    const eventListeners = this.listeners[event];
+    if (eventListeners) {
+      eventListeners.forEach(listener => {
+        (listener as any)(...args);
+      });
+    }
   }
 
   connect(): void {
@@ -73,12 +103,12 @@ class WebSocketService extends EventEmitter {
   }
 
   private startHeartbeat(): void {
-    this.heartbeatInterval = setInterval(() => {
+    this.heartbeatInterval = window.setInterval(() => {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({ type: 'ping' }));
         
         // Set timeout for pong response
-        this.heartbeatTimeout = setTimeout(() => {
+        this.heartbeatTimeout = window.setTimeout(() => {
           console.warn('Heartbeat timeout, closing connection');
           this.ws?.close();
         }, this.heartbeatTimeoutDuration);

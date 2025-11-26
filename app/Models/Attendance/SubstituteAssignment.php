@@ -4,6 +4,8 @@ namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Models\SchoolManagement\ClassSubject;
+use App\Models\Attendance\SubstituteTeacher;
+use App\Models\Attendance\LeaveRequest;
 use App\Traits\UsesUuid;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\SubstituteTeacher;

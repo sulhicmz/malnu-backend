@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\BackupController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -25,6 +26,15 @@ Route::group(['middleware' => ['jwt']], function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+    
+    // Backup and disaster recovery routes
+    Route::prefix('backup')->group(function () {
+        Route::get('/', [BackupController::class, 'listBackups']);
+        Route::post('/', [BackupController::class, 'createBackup']);
+        Route::post('/restore', [BackupController::class, 'restoreBackup']);
+        Route::post('/clean', [BackupController::class, 'cleanOldBackups']);
+        Route::delete('/{filename}', [BackupController::class, 'deleteBackup']);
+    });
 });
 
 // Attendance and Leave Management Routes (protected)

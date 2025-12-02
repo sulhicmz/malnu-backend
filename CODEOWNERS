@@ -1,0 +1,58 @@
+# Code Owners for Malnu Kananga - School Management System
+
+# Repository Administrators - All files
+* @malnu-kananga/admins
+
+# Core application files
+app/ @malnu-kananga/backend-devs @malnu-kananga/admins
+app/Console/ @malnu-kananga/backend-devs
+app/Events/ @malnu-kananga/backend-devs
+app/Exceptions/ @malnu-kananga/backend-devs
+app/Http/ @malnu-kananga/backend-devs
+app/Listeners/ @malnu-kananga/backend-devs
+app/Models/ @malnu-kananga/backend-devs
+app/Providers/ @malnu-kananga/backend-devs
+app/Services/ @malnu-kananga/backend-devs
+app/Traits/ @malnu-kananga/backend-devs
+
+# Configuration files
+config/ @malnu-kananga/backend-devs @malnu-kananga/admins
+
+# Database related files
+database/ @malnu-kananga/backend-devs @malnu-kananga/database-admins
+database/migrations/ @malnu-kananga/backend-devs @malnu-kananga/database-admins
+database/seeders/ @malnu-kananga/backend-devs @malnu-kananga/database-admins
+
+# Routes
+routes/ @malnu-kananga/backend-devs
+
+# Frontend files
+frontend/ @malnu-kananga/frontend-devs
+frontend/src/ @malnu-kananga/frontend-devs
+frontend/src/components/ @malnu-kananga/frontend-devs
+frontend/src/pages/ @malnu-kananga/frontend-devs
+
+# Tests
+tests/ @malnu-kananga/backend-devs @malnu-kananga/testers
+
+# Security-sensitive files
+composer.json @malnu-kananga/backend-devs @malnu-kananga/admins
+composer.lock @malnu-kananga/backend-devs @malnu-kananga/admins
+artisan @malnu-kananga/backend-devs @malnu-kananga/admins
+
+# Configuration files
+.env.example @malnu-kananga/admins
+.env @malnu-kananga/admins
+.php-cs-fixer.php @malnu-kananga/backend-devs
+phpstan.neon @malnu-kananga/backend-devs
+
+# Documentation
+README.md @malnu-kananga/admins
+CONTRIBUTING.md @malnu-kananga/admins
+SECURITY.md @malnu-kananga/admins
+CODE_OF_CONDUCT.md @malnu-kananga/admins
+LICENSE @malnu-kananga/admins
+
+# GitHub specific files
+.github/ @malnu-kananga/admins
+.github/workflows/ @malnu-kananga/admins @malnu-kananga/devops

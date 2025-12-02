@@ -1,0 +1,52 @@
+# Code owners for the Malnu Kananga School Management System
+# This file defines who should be automatically requested for review when
+# changes are made to specific files or directories.
+
+# Core maintainers - automatically review all changes
+* @malnu-maintainers
+
+# Security-sensitive files - require security team review
+SECURITY.md @malnu-security
+CODE_OF_CONDUCT.md @malnu-maintainers
+.github/SECURITY.md @malnu-security
+config/security.php @malnu-security
+config/auth.php @malnu-security
+app/Http/Middleware/Authenticate.php @malnu-security
+app/Models/User.php @malnu-security
+
+# Database and migrations - require database team review
+database/**/* @malnu-database
+migrations/**/* @malnu-database
+seeds/**/* @malnu-database
+
+# API routes and controllers - require backend team review
+routes/api.php @malnu-backend
+app/Http/Controllers/Api/**/* @malnu-backend
+app/Http/Controllers/**/* @malnu-backend
+
+# Frontend components - require frontend team review
+frontend/**/* @malnu-frontend
+resources/js/**/* @malnu-frontend
+resources/css/**/* @malnu-frontend
+
+# Configuration files - require infrastructure team review
+config/**/* @malnu-infra
+.env* @malnu-infra
+docker-compose.yml @malnu-infra
+
+# Testing files - require testing team review
+tests/**/* @malnu-testing
+
+# Main application logic
+app/**/* @malnu-backend
+
+# Documentation
+docs/**/* @malnu-documentation
+*.md @malnu-documentation
+
+# Legacy application (web-sch-12) - separate team
+web-sch-12/**/* @malnu-legacy
+
+# Composer and dependencies
+composer.json @malnu-backend
+composer.lock @malnu-backend

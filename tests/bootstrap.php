@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-use Hyperf\Foundation\Testing\TestScanHandler;
+use Hyperf\Di\ScanHandler\PcntlScanHandler;
+use Hypervel\Foundation\ClassLoader;
 
 ini_set('display_errors', 'on');
 ini_set('display_startup_errors', 'on');
 
 error_reporting(E_ALL);
 
-! defined('SWOOLE_HOOK_FLAGS') && define('SWOOLE_HOOK_FLAGS', SWOOLE_HOOK_ALL);
+! defined('SWOOLE_HOOK_FLAGS') && define('SWOOLE_HOOK_FLAGS', defined('SWOOLE_HOOK_ALL') ? SWOOLE_HOOK_ALL : 0);
 
 $dir = __DIR__;
 $lastDir = '';
@@ -31,7 +32,7 @@ define('BASE_PATH', $dir);
 
 require BASE_PATH . '/vendor/autoload.php';
 
-Hyperf\Foundation\ClassLoader::init(null, null, new TestScanHandler());
+ClassLoader::init(null, null, new PcntlScanHandler());
 
 $app = require BASE_PATH . '/bootstrap/app.php';
 

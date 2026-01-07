@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Services\AuthService;
+use App\Contracts\AuthServiceInterface;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Container\ContainerInterface;
@@ -18,14 +18,14 @@ class JWTMiddleware implements MiddlewareInterface
     protected ContainerInterface $container;
     protected RequestInterface $request;
     protected HttpResponse $response;
-    protected AuthService $authService;
+    protected AuthServiceInterface $authService;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
         $this->request = $container->get(RequestInterface::class);
         $this->response = $container->get(HttpResponse::class);
-        $this->authService = new AuthService();
+        $this->authService = new \App\Services\AuthService();
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

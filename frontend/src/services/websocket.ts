@@ -1,4 +1,32 @@
-import { EventEmitter } from 'events';
+// Simple browser-compatible EventEmitter implementation
+type EventCallback = (...args: any[]) => void;
+
+class EventEmitter {
+  private listeners: Map<string, EventCallback[]> = new Map();
+
+  on(event: string, callback: EventCallback): void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event)!.push(callback);
+  }
+
+  emit(event: string, ...args: any[]): void {
+    if (this.listeners.has(event)) {
+      this.listeners.get(event)!.forEach(callback => callback(...args));
+    }
+  }
+
+  off(event: string, callback?: EventCallback): void {
+    if (!this.listeners.has(event)) return;
+    if (callback) {
+      const callbacks = this.listeners.get(event)!;
+      this.listeners.set(event, callbacks.filter(cb => cb !== callback));
+    } else {
+      this.listeners.delete(event);
+    }
+  }
+}
 
 class WebSocketService extends EventEmitter {
   private ws: WebSocket | null = null;

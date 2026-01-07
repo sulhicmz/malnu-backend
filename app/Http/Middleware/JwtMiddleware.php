@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
-use App\Services\AuthService;
+use App\Contracts\AuthServiceInterface;
 
 class JwtMiddleware
 {
-    private AuthService $authService;
+    private AuthServiceInterface $authService;
 
     public function __construct()
     {
-        $this->authService = new AuthService();
+        $this->authService = new \App\Services\AuthService();
     }
 
     public function handle($request, $next)

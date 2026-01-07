@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Console\Command;
+use Exception;
 use Hyperf\Contract\ConfigInterface;
+use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -33,7 +34,7 @@ class ConfigurationBackupCommand extends Command
         $cleanOld = $this->input->getOption('clean-old');
 
         // Ensure backup directory exists
-        if (!is_dir($backupPath)) {
+        if (! is_dir($backupPath)) {
             mkdir($backupPath, 0755, true);
         }
 
@@ -58,64 +59,62 @@ class ConfigurationBackupCommand extends Command
             }
 
             return 0;
-        } else {
-            $this->output->writeln('<error>Configuration backup failed</error>');
-            return 1;
         }
+        $this->output->writeln('<error>Configuration backup failed</error>');
+        return 1;
     }
 
     protected function createConfigurationBackup(string $backupPath, string $filename): bool
     {
         $this->output->write('Collecting configuration files... ');
-        
+
         // Create a temporary directory for configuration backup
         $tempDir = $backupPath . '/temp_config_' . uniqid();
         mkdir($tempDir, 0755, true);
-        
+
         try {
             // Copy .env file
-            if (file_exists(BASE_PATH . '/.env')) {
-                copy(BASE_PATH . '/.env', $tempDir . '/.env');
+            if (file_exists(base_path('.env'))) {
+                copy(base_path('.env'), $tempDir . '/.env');
             }
-            
+
             // Copy .env.example file
-            if (file_exists(BASE_PATH . '/.env.example')) {
-                copy(BASE_PATH . '/.env.example', $tempDir . '/.env.example');
+            if (file_exists(base_path('.env.example'))) {
+                copy(base_path('.env.example'), $tempDir . '/.env.example');
             }
-            
+
             // Copy config directory
-            $this->copyDirectory(BASE_PATH . '/config', $tempDir . '/config');
-            
+            $this->copyDirectory(base_path('config'), $tempDir . '/config');
+
             // Copy database migrations
-            $this->copyDirectory(BASE_PATH . '/database/migrations', $tempDir . '/database/migrations');
-            
+            $this->copyDirectory(base_path('database/migrations'), $tempDir . '/database/migrations');
+
             // Copy database seeders
-            $this->copyDirectory(BASE_PATH . '/database/seeders', $tempDir . '/database/seeders');
-            
+            $this->copyDirectory(base_path('database/seeders'), $tempDir . '/database/seeders');
+
             // Copy environment-specific files
             $this->copyEnvironmentFiles($tempDir);
-            
+
             // Create a summary of current configuration
             $this->createConfigSummary($tempDir);
-            
+
             // Create tar archive
             $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $filename) . ' -C ' . escapeshellarg($tempDir) . ' .';
-            
+
             $exitCode = 0;
             $output = [];
             exec($tarCommand, $output, $exitCode);
-            
+
             // Clean up temporary directory
             $this->removeDirectory($tempDir);
-            
+
             if ($exitCode === 0) {
                 $this->output->writeln('<info>OK</info>');
                 return true;
-            } else {
-                $this->output->writeln('<error>FAILED</error>');
-                return false;
             }
-        } catch (\Exception $e) {
+            $this->output->writeln('<error>FAILED</error>');
+            return false;
+        } catch (Exception $e) {
             // Clean up temporary directory in case of error
             $this->removeDirectory($tempDir);
             $this->output->writeln('<error>FAILED: ' . $e->getMessage() . '</error>');
@@ -125,23 +124,23 @@ class ConfigurationBackupCommand extends Command
 
     protected function copyDirectory(string $src, string $dst): void
     {
-        if (!is_dir($src)) {
+        if (! is_dir($src)) {
             return;
         }
-        
-        if (!is_dir($dst)) {
+
+        if (! is_dir($dst)) {
             mkdir($dst, 0755, true);
         }
-        
+
         $dir = opendir($src);
         while (($file = readdir($dir)) !== false) {
             if ($file == '.' || $file == '..') {
                 continue;
             }
-            
+
             $srcFile = $src . '/' . $file;
             $dstFile = $dst . '/' . $file;
-            
+
             if (is_dir($srcFile)) {
                 $this->copyDirectory($srcFile, $dstFile);
             } else {
@@ -172,12 +171,12 @@ class ConfigurationBackupCommand extends Command
             'phpstan.neon',
             'phpstan.neon.dist',
         ];
-        
+
         foreach ($envFiles as $file) {
-            $src = BASE_PATH . '/' . $file;
+            $src = base_path('/') . $file;
             if (file_exists($src)) {
                 $dstDir = dirname($tempDir . '/' . $file);
-                if (!is_dir($dstDir)) {
+                if (! is_dir($dstDir)) {
                     mkdir($dstDir, 0755, true);
                 }
                 copy($src, $tempDir . '/' . $file);
@@ -188,10 +187,10 @@ class ConfigurationBackupCommand extends Command
     protected function createConfigSummary(string $tempDir): void
     {
         $config = $this->config->all();
-        
+
         // Remove sensitive data from config
         $safeConfig = $this->sanitizeConfig($config);
-        
+
         $summary = [
             'backup_date' => date('Y-m-d H:i:s'),
             'application_name' => $config['app']['name'] ?? 'Unknown',
@@ -204,14 +203,14 @@ class ConfigurationBackupCommand extends Command
             'queue_driver' => $config['queue']['default'] ?? 'Unknown',
             'session_driver' => $config['session']['driver'] ?? 'Unknown',
         ];
-        
+
         file_put_contents($tempDir . '/config_summary.json', json_encode($summary, JSON_PRETTY_PRINT));
     }
 
     protected function sanitizeConfig(array $config): array
     {
         $sanitized = [];
-        
+
         foreach ($config as $key => $value) {
             if (is_array($value)) {
                 $sanitized[$key] = $this->sanitizeConfig($value);
@@ -224,16 +223,16 @@ class ConfigurationBackupCommand extends Command
                 }
             }
         }
-        
+
         return $sanitized;
     }
 
     protected function removeDirectory(string $dir): void
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             return;
         }
-        
+
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             $path = $dir . '/' . $file;
@@ -261,30 +260,30 @@ class ConfigurationBackupCommand extends Command
     protected function cleanOldBackups(string $backupPath): void
     {
         $this->output->writeln('<info>Cleaning old backups...</info>');
-        
+
         // Find all config backup files
         $pattern = $backupPath . '/config_backup_*.tar.gz';
         $allFiles = glob($pattern);
-        
+
         // Sort by modification time (newest first)
         usort($allFiles, function ($a, $b) {
             return filemtime($b) - filemtime($a);
         });
-        
+
         // Keep only the 5 most recent backups
         $filesToDelete = array_slice($allFiles, 5);
-        
+
         foreach ($filesToDelete as $file) {
             unlink($file);
             $this->output->writeln('<info>Deleted old backup: ' . $file . '</info>');
         }
-        
+
         $this->output->writeln('<info>Old backup cleanup completed.</info>');
     }
 
     protected function getStoragePath(string $path = ''): string
     {
-        $storagePath = BASE_PATH . '/storage';
+        $storagePath = base_path('storage');
         if ($path) {
             $storagePath .= '/' . ltrim($path, '/');
         }

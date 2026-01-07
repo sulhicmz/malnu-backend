@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Calendar;
 
+use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Middleware\JwtMiddleware;
 use App\Services\CalendarService;
 use DateTime;
 use Exception;
@@ -44,27 +44,16 @@ class CalendarController extends BaseController
     {
         $data = $this->request->all();
 
-        // Validate required fields
         if (empty($data['name'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Calendar name is required',
-            ])->withStatus(400);
+            return $this->validationErrorResponse(['name' => ['Calendar name is required']]);
         }
 
         try {
             $calendar = $this->calendarService->createCalendar($data);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar,
-                'message' => 'Calendar created successfully',
-            ]);
+            return $this->successResponse($calendar, 'Calendar created successfully', 201);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to create calendar: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::CALENDAR_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::CALENDAR_CREATION_ERROR));
         }
     }
 
@@ -78,21 +67,12 @@ class CalendarController extends BaseController
             $calendar = $this->calendarService->getCalendar($id);
 
             if (! $calendar) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar,
-            ]);
+            return $this->successResponse($calendar);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve calendar: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to retrieve calendar');
         }
     }
 
@@ -108,24 +88,14 @@ class CalendarController extends BaseController
             $result = $this->calendarService->updateCalendar($id, $data);
 
             if (! $result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
 
             $calendar = $this->calendarService->getCalendar($id);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar,
-                'message' => 'Calendar updated successfully',
-            ]);
+            return $this->successResponse($calendar, 'Calendar updated successfully');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to update calendar: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::CALENDAR_UPDATE_ERROR, null, ErrorCode::getStatusCode(ErrorCode::CALENDAR_UPDATE_ERROR));
         }
     }
 
@@ -139,21 +109,12 @@ class CalendarController extends BaseController
             $result = $this->calendarService->deleteCalendar($id);
 
             if (! $result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
 
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Calendar deleted successfully',
-            ]);
+            return $this->successResponse(null, 'Calendar deleted successfully');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to delete calendar: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::CALENDAR_DELETION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::CALENDAR_DELETION_ERROR));
         }
     }
 
@@ -165,27 +126,21 @@ class CalendarController extends BaseController
     {
         $data = $this->request->all();
 
-        // Validate required fields
         if (empty($data['calendar_id']) || empty($data['title']) || empty($data['start_date']) || empty($data['end_date'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Calendar ID, title, start date, and end date are required',
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'calendar_id' => ['Calendar ID is required'],
+                'title' => ['Title is required'],
+                'start_date' => ['Start date is required'],
+                'end_date' => ['End date is required'],
+            ]);
         }
 
         try {
             $event = $this->calendarService->createEvent($data);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $event,
-                'message' => 'Event created successfully',
-            ]);
+            return $this->successResponse($event, 'Event created successfully', 201);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to create event: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::EVENT_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::EVENT_CREATION_ERROR));
         }
     }
 
@@ -199,21 +154,12 @@ class CalendarController extends BaseController
             $event = $this->calendarService->getEvent($id);
 
             if (! $event) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $event,
-            ]);
+            return $this->successResponse($event);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve event: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to retrieve event');
         }
     }
 
@@ -229,24 +175,14 @@ class CalendarController extends BaseController
             $result = $this->calendarService->updateEvent($id, $data);
 
             if (! $result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
 
             $event = $this->calendarService->getEvent($id);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $event,
-                'message' => 'Event updated successfully',
-            ]);
+            return $this->successResponse($event, 'Event updated successfully');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to update event: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::EVENT_UPDATE_ERROR, null, ErrorCode::getStatusCode(ErrorCode::EVENT_UPDATE_ERROR));
         }
     }
 
@@ -260,21 +196,12 @@ class CalendarController extends BaseController
             $result = $this->calendarService->deleteEvent($id);
 
             if (! $result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found',
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
 
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Event deleted successfully',
-            ]);
+            return $this->successResponse(null, 'Event deleted successfully');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to delete event: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->errorResponse($e->getMessage(), ErrorCode::EVENT_DELETION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::EVENT_DELETION_ERROR));
         }
     }
 
@@ -290,10 +217,10 @@ class CalendarController extends BaseController
         $priority = $this->request->query('priority');
 
         if (empty($startDate) || empty($endDate)) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Start date and end date are required',
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'start_date' => ['Start date is required'],
+                'end_date' => ['End date is required'],
+            ]);
         }
 
         try {
@@ -310,15 +237,9 @@ class CalendarController extends BaseController
 
             $events = $this->calendarService->getEventsByDateRange($calendarId, $carbon, $endDateObj, $filters);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $events,
-            ]);
+            return $this->successResponse($events);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve events: ' . $e->getMessage(),
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to retrieve events');
         }
     }
 
@@ -328,21 +249,15 @@ class CalendarController extends BaseController
      */
     public function registerForEvent(string $eventId): ResponseInterface
     {
-        $userId = $this->request->getAttribute('user_id'); // Assuming JWT middleware sets this
+        $userId = $this->request->getAttribute('user_id');
         $data = $this->request->all();
 
         try {
             $result = $this->calendarService->registerForEvent($eventId, $userId, $data);
 
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Successfully registered for event',
-            ]);
+            return $this->successResponse(null, 'Successfully registered for event');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), ErrorCode::EVENT_REGISTRATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::EVENT_REGISTRATION_ERROR));
         }
     }
 
@@ -355,10 +270,10 @@ class CalendarController extends BaseController
         $data = $this->request->all();
 
         if (empty($data['user_id']) || empty($data['permission_type'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'User ID and permission type are required',
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'user_id' => ['User ID is required'],
+                'permission_type' => ['Permission type is required'],
+            ]);
         }
 
         try {
@@ -369,15 +284,9 @@ class CalendarController extends BaseController
 
             $result = $this->calendarService->shareCalendar($calendarId, $data['user_id'], $data['permission_type'], $expiresAt);
 
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Calendar shared successfully',
-            ]);
+            return $this->successResponse(null, 'Calendar shared successfully');
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), ErrorCode::SERVER_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SERVER_ERROR));
         }
     }
 
@@ -390,25 +299,20 @@ class CalendarController extends BaseController
         $data = $this->request->all();
 
         if (empty($data['resource_type']) || empty($data['resource_id']) || empty($data['start_time']) || empty($data['end_time'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Resource type, resource ID, start time, and end time are required',
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'resource_type' => ['Resource type is required'],
+                'resource_id' => ['Resource ID is required'],
+                'start_time' => ['Start time is required'],
+                'end_time' => ['End time is required'],
+            ]);
         }
 
         try {
             $booking = $this->calendarService->bookResource($data);
 
-            return $this->response->json([
-                'success' => true,
-                'data' => $booking,
-                'message' => 'Resource booked successfully',
-            ]);
+            return $this->successResponse($booking, 'Resource booked successfully', 201);
         } catch (Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), ErrorCode::RESOURCE_BOOKING_ERROR, null, ErrorCode::getStatusCode(ErrorCode::RESOURCE_BOOKING_ERROR));
         }
     }
 }

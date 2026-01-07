@@ -762,6 +762,123 @@ $result = $retryService->call(fn() => Student::create($data));
 
 ---
 
+### [TASK-301] API Standardization & Controller Hardening
+
+**Feature**: Integration
+**Status**: Completed
+**Agent**: 07 Integration
+**Priority**: P0
+**Estimated**: 2-3 days
+**Completed**: January 7, 2026
+
+#### Description
+
+Standardized all API controllers to use consistent error codes, response formats, and Hyperf framework imports. Applied rate limiting middleware to all API routes.
+
+#### Acceptance Criteria
+
+- [x] Fix error code inconsistencies in AuthController
+- [x] Standardize LeaveRequestController error codes
+- [x] Standardize LeaveTypeController responses
+- [x] Fix StaffAttendanceController (Laravel imports, BaseController)
+- [x] Standardize CalendarController responses
+- [x] Apply rate limiting middleware to routes
+- [x] Update documentation with controller standards
+
+#### Technical Details
+
+**Files Modified**:
+- `app/Http/Controllers/Api/AuthController.php`
+  - Added `use App\Enums\ErrorCode;` import
+  - Replaced hardcoded error strings with ErrorCode constants
+  - Fixed registration error: 'REGISTRATION_ERROR' → ErrorCode::REGISTRATION_FAILED
+  - Fixed login errors: Use ErrorCode::AUTH_INVALID_CREDENTIALS
+  - Fixed logout errors: Use ErrorCode::AUTH_TOKEN_INVALID
+  - Fixed refresh errors: Use ErrorCode::AUTH_TOKEN_EXPIRED
+  - Fixed me endpoint errors: Use ErrorCode::AUTH_NOT_AUTHENTICATED
+  - Fixed reset password errors: Use ErrorCode::SERVER_ERROR
+  - Fixed change password errors: Use ErrorCode::SERVER_ERROR
+
+- `app/Http/Controllers/Attendance/LeaveRequestController.php`
+  - Added `use App\Enums\ErrorCode;` import
+  - Replaced 'INSUFFICIENT_BALANCE' with ErrorCode::LEAVE_INSUFFICIENT_BALANCE
+  - Replaced 'UPDATE_ERROR' with ErrorCode::LEAVE_REQUEST_INVALID_STATUS
+  - Replaced 'DELETE_ERROR' with ErrorCode::LEAVE_REQUEST_INVALID_STATUS
+  - Replaced 'APPROVAL_ERROR' with ErrorCode::LEAVE_REQUEST_INVALID_STATUS
+  - Replaced 'REJECTION_ERROR' with ErrorCode::LEAVE_REQUEST_INVALID_STATUS
+
+- `app/Http/Controllers/Attendance/LeaveTypeController.php`
+  - Added `use App\Enums\ErrorCode;` import
+  - Changed to extend `App\Http\Controllers\Api\BaseController`
+  - Replaced direct `$this->response->json()` calls with BaseController methods
+  - Added try-catch blocks for all methods
+  - Added validation for store method
+  - Used ErrorCode::SUBJECT_CREATION_ERROR for creation/update failures
+
+- `app/Http/Controllers/Attendance/StaffAttendanceController.php`
+  - Replaced Laravel imports with Hyperf imports
+  - Changed from `Illuminate\Http\Request` to `Hyperf\HttpServer\Contract\RequestInterface`
+  - Changed from `Illuminate\Http\JsonResponse` to `Hyperf\HttpServer\Contract\ResponseInterface`
+  - Changed base class from `App\Http\Controllers\Controller` to `App\Http\Controllers\Api\BaseController`
+  - Added `use App\Enums\ErrorCode;` import
+  - Replaced all direct `response()->json()` calls with BaseController methods
+  - Added ErrorCode::ATTENDANCE_ALREADY_MARKED for duplicate attendance
+  - Added ErrorCode::ATTENDANCE_ERROR for general failures
+  - Added validation for all input fields
+  - Standardized status validation
+
+- `app/Http/Controllers/Calendar/CalendarController.php`
+  - Added `use App\Enums\ErrorCode;` import
+  - Replaced all direct `$this->response->json()` calls with BaseController methods
+  - Used ErrorCode::CALENDAR_CREATION_ERROR for calendar creation failures
+  - Used ErrorCode::CALENDAR_UPDATE_ERROR for calendar update failures
+  - Used ErrorCode::CALENDAR_DELETION_ERROR for calendar deletion failures
+  - Used ErrorCode::EVENT_CREATION_ERROR for event creation failures
+  - Used ErrorCode::EVENT_UPDATE_ERROR for event update failures
+  - Used ErrorCode::EVENT_DELETION_ERROR for event deletion failures
+  - Used ErrorCode::EVENT_REGISTRATION_ERROR for event registration failures
+  - Used ErrorCode::RESOURCE_BOOKING_ERROR for resource booking failures
+  - Used validationErrorResponse for validation failures
+
+- `routes/api.php`
+  - Added 'rate_limit' middleware to public auth routes
+  - Added 'rate_limit' middleware to all protected routes
+  - Protected routes now have: ['jwt', 'rate_limit']
+  - Public routes now have: ['input.sanitization', 'rate_limit']
+
+- `docs/blueprint.md`
+  - Added Controller Standardization section
+  - Added Rate Limiting standards
+  - Documented BaseController response methods
+  - Documented proper Hyperf imports usage
+
+**Controller Standards Implemented**:
+1. All controllers extend `App\Http\Controllers\Api\BaseController`
+2. All controllers use ErrorCode constants for error responses
+3. All controllers use BaseController response methods
+4. All controllers use Hyperf framework imports (not Laravel)
+5. All database operations wrapped in try-catch blocks
+6. All input validation errors use validationErrorResponse()
+
+**Rate Limiting Applied**:
+- Public auth endpoints: `Route::group(['middleware' => ['input.sanitization', 'rate_limit']])`
+- Protected endpoints: `Route::group(['middleware' => ['jwt', 'rate_limit']])`
+- Covers: Auth, Attendance, Leave Management, School Management, Calendar routes
+
+#### Benefits
+
+- **Consistency**: All controllers now follow same response format
+- **Reliability**: Rate limiting protects API from abuse and overload
+- **Maintainability**: Standardized error codes make debugging easier
+- **Framework Compliance**: All controllers use proper Hyperf imports
+- **Security**: Rate limiting prevents brute force attacks on auth endpoints
+
+#### Dependencies
+
+- TASK-300 (Integration Hardening - Resilience Patterns)
+
+---
+
 #### Description
 
 Only 3 basic controllers exist for complex system with 11 business domains. Need comprehensive RESTful API controllers for all domains.

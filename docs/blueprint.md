@@ -262,6 +262,30 @@ return $this->errorResponse(
 4. Log errors with full context
 5. Never expose sensitive information in error messages
 
+**Controller Standardization**
+All API controllers must follow these standards:
+- Extend `App\Http\Controllers\Api\BaseController`
+- Use `App\Enums\ErrorCode` for all error responses
+- Use BaseController response methods:
+  - `successResponse($data, $message, $statusCode)`
+  - `errorResponse($message, $errorCode, $details, $statusCode)`
+  - `validationErrorResponse($errors)`
+  - `notFoundResponse($message)`
+  - `unauthorizedResponse($message)`
+  - `forbiddenResponse($message)`
+  - `serverErrorResponse($message)`
+- Never use direct `$this->response->json()` calls
+- Always wrap database operations in try-catch blocks
+- Use appropriate Hyperf framework imports (not Laravel)
+- Apply proper validation for all inputs
+
+**Rate Limiting**
+All API routes must be protected with rate limiting:
+- Public routes: `Route::group(['middleware' => ['input.sanitization', 'rate_limit']])`
+- Protected routes: `Route::group(['middleware' => ['jwt', 'rate_limit']])`
+- Rate limits configured via environment variables
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
 #### Service Integration Examples
 
 **Circuit Breaker + Retry + Timeout**

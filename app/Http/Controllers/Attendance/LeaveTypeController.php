@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Attendance;
 
+use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveType;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -22,64 +24,93 @@ class LeaveTypeController extends BaseController
 
     public function index()
     {
-        $query = LeaveType::query();
+        try {
+            $query = LeaveType::query();
 
-        if ($this->request->has('is_active')) {
-            $query->where('is_active', $this->request->input('is_active'));
+            if ($this->request->has('is_active')) {
+                $query->where('is_active', $this->request->input('is_active'));
+            }
+
+            if ($this->request->has('is_paid')) {
+                $query->where('is_paid', $this->request->input('is_paid'));
+            }
+
+            $leaveTypes = $query->orderBy('name')->paginate(15);
+
+            return $this->successResponse($leaveTypes);
+        } catch (Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave types');
         }
-
-        if ($this->request->has('is_paid')) {
-            $query->where('is_paid', $this->request->input('is_paid'));
-        }
-
-        $leaveTypes = $query->orderBy('name')->paginate(15);
-
-        return $this->response->json($leaveTypes);
     }
 
     public function store()
     {
-        $data = $this->request->all();
+        try {
+            $data = $this->request->all();
 
-        $leaveType = LeaveType::create($data);
+            $errors = [];
+            if (empty($data['name'])) {
+                $errors['name'] = ['The name field is required.'];
+            }
 
-        return $this->response->json($leaveType, 201);
+            if (! empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            $leaveType = LeaveType::create($data);
+
+            return $this->successResponse($leaveType, 'Leave type created successfully', 201);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::SUBJECT_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SUBJECT_CREATION_ERROR));
+        }
     }
 
     public function show(int $id)
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $leaveType = LeaveType::find($id);
 
-        if (! $leaveType) {
-            return $this->notFoundResponse('Leave type not found');
+            if (! $leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            return $this->successResponse($leaveType);
+        } catch (Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave type');
         }
-
-        return $this->response->json($leaveType);
     }
 
     public function update(int $id)
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $leaveType = LeaveType::find($id);
 
-        if (! $leaveType) {
-            return $this->notFoundResponse('Leave type not found');
+            if (! $leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            $leaveType->update($this->request->all());
+
+            return $this->successResponse($leaveType, 'Leave type updated successfully');
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::SUBJECT_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SUBJECT_CREATION_ERROR));
         }
-
-        $leaveType->update($this->request->all());
-
-        return $this->response->json($leaveType);
     }
 
     public function destroy(int $id)
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $leaveType = LeaveType::find($id);
 
-        if (! $leaveType) {
-            return $this->notFoundResponse('Leave type not found');
+            if (! $leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            $leaveType->delete();
+
+            return $this->successResponse(null, 'Leave type deleted successfully');
+        } catch (Exception $e) {
+            return $this->serverErrorResponse('Failed to delete leave type');
         }
-
-        $leaveType->delete();
-
-        return $this->response->json(['message' => 'Leave type deleted']);
     }
 }

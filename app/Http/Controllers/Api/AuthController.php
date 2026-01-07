@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Contracts\AuthServiceInterface;
+use App\Enums\ErrorCode;
 use App\Traits\InputValidationTrait;
 use Exception;
 use Psr\Container\ContainerInterface;
@@ -61,7 +62,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, 'User registered successfully');
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'REGISTRATION_ERROR', null, 400);
+            return $this->errorResponse($e->getMessage(), ErrorCode::REGISTRATION_FAILED, null, ErrorCode::getStatusCode(ErrorCode::REGISTRATION_FAILED));
         }
     }
 
@@ -94,7 +95,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, 'Login successful');
         } catch (Exception $e) {
-            return $this->unauthorizedResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::AUTH_INVALID_CREDENTIALS, null, ErrorCode::getStatusCode(ErrorCode::AUTH_INVALID_CREDENTIALS));
         }
     }
 
@@ -117,7 +118,7 @@ class AuthController extends BaseController
 
             return $this->successResponse(null, 'Successfully logged out');
         } catch (Exception $e) {
-            return $this->serverErrorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::AUTH_TOKEN_INVALID, null, ErrorCode::getStatusCode(ErrorCode::AUTH_TOKEN_INVALID));
         }
     }
 
@@ -139,7 +140,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, 'Token refreshed successfully');
         } catch (Exception $e) {
-            return $this->unauthorizedResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::AUTH_TOKEN_EXPIRED, null, ErrorCode::getStatusCode(ErrorCode::AUTH_TOKEN_EXPIRED));
         }
     }
 
@@ -167,7 +168,7 @@ class AuthController extends BaseController
                 'user' => $user,
             ], 'User retrieved successfully');
         } catch (Exception $e) {
-            return $this->unauthorizedResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::AUTH_NOT_AUTHENTICATED, null, ErrorCode::getStatusCode(ErrorCode::AUTH_NOT_AUTHENTICATED));
         }
     }
 
@@ -198,7 +199,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, $result['message']);
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::SERVER_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SERVER_ERROR));
         }
     }
 
@@ -230,7 +231,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, $result['message']);
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::SERVER_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SERVER_ERROR));
         }
     }
 
@@ -275,7 +276,7 @@ class AuthController extends BaseController
 
             return $this->successResponse($result, $result['message']);
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage(), ErrorCode::SERVER_ERROR, null, ErrorCode::getStatusCode(ErrorCode::SERVER_ERROR));
         }
     }
 }

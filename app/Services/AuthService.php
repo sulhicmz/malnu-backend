@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-class AuthService
+use App\Contracts\AuthServiceInterface;
+use App\Contracts\JWTServiceInterface;
+use App\Contracts\TokenBlacklistServiceInterface;
+
+class AuthService implements AuthServiceInterface
 {
-    private JWTService $jwtService;
-    private TokenBlacklistService $tokenBlacklistService;
+    private JWTServiceInterface $jwtService;
+    private TokenBlacklistServiceInterface $tokenBlacklistService;
 
     public function __construct()
     {

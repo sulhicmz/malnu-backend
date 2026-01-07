@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-class JWTService
+use App\Contracts\JWTServiceInterface;
+
+class JWTService implements JWTServiceInterface
 {
     private string $secret;
     private int $ttl;

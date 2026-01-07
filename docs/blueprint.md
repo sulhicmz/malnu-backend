@@ -37,6 +37,12 @@
 
 ### Architecture Patterns
 
+#### Interface-Based Design
+- All services must implement interfaces defined in `app/Contracts/`
+- Controllers and middleware depend on interfaces, not concrete implementations
+- Enables dependency injection and testability
+- Follows Dependency Inversion Principle
+
 #### Domain Organization
 ```
 app/Models/

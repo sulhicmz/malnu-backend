@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Services\JWTService;
+use App\Contracts\JWTServiceInterface;
 
 class JwtAuthenticationTest extends TestCase
 {
     public function test_jwt_token_generation_and_validation()
     {
-        $jwtService = new JWTService();
+        $jwtService = new \App\Services\JWTService();
         
         // Test token generation
         $payload = ['user_id' => 1, 'email' => 'test@example.com'];

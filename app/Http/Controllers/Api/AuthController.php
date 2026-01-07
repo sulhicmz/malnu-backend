@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
-use App\Services\AuthService;
+use App\Contracts\AuthServiceInterface;
 use App\Traits\InputValidationTrait;
 
 class AuthController extends BaseController
 {
     use InputValidationTrait;
     
-    private AuthService $authService;
+    private AuthServiceInterface $authService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->authService = new AuthService();
+        $this->authService = new \App\Services\AuthService();
     }
 
     /**

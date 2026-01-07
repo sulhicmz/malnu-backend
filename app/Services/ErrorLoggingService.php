@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Throwable;
+
 class ErrorLoggingService
 {
     /**
-     * Log a general error with context
+     * Log a general error with context.
      */
     public function logError(string $message, array $context = [], string $level = 'error'): void
     {
@@ -17,19 +19,19 @@ class ErrorLoggingService
             'context' => $context,
             'timestamp' => date('Y-m-d H:i:s'),
         ];
-        
+
         // Write to error log file
         $this->writeToLog('error', $logEntry);
     }
 
     /**
-     * Log an exception with detailed context
+     * Log an exception with detailed context.
      */
-    public function logException(\Throwable $exception, array $requestContext = []): void
+    public function logException(Throwable $exception, array $requestContext = []): void
     {
         // Determine if we're in debug mode to include more details
         $debugMode = $this->isDebugMode();
-        
+
         $logEntry = [
             'type' => 'exception',
             'exception_class' => get_class($exception),
@@ -51,7 +53,7 @@ class ErrorLoggingService
     }
 
     /**
-     * Log a security-related event
+     * Log a security-related event.
      */
     public function logSecurityEvent(string $event, array $context = []): void
     {
@@ -66,7 +68,7 @@ class ErrorLoggingService
     }
 
     /**
-     * Log an audit trail event
+     * Log an audit trail event.
      */
     public function logAuditEvent(string $event, array $context = []): void
     {
@@ -81,7 +83,7 @@ class ErrorLoggingService
     }
 
     /**
-     * Log performance metrics
+     * Log performance metrics.
      */
     public function logPerformance(string $endpoint, float $executionTime, array $context = []): void
     {
@@ -97,28 +99,28 @@ class ErrorLoggingService
     }
 
     /**
-     * Write log entry to appropriate log file
+     * Write log entry to appropriate log file.
      */
     private function writeToLog(string $logType, array $logEntry): void
     {
         $logDir = dirname(__DIR__, 2) . '/storage/logs';
-        
+
         // Create log directory if it doesn't exist
-        if (!is_dir($logDir)) {
+        if (! is_dir($logDir)) {
             mkdir($logDir, 0755, true);
         }
 
         $logFile = $logDir . '/' . $logType . '.log';
-        
+
         // Format the log entry as JSON
         $logLine = json_encode($logEntry) . PHP_EOL;
-        
+
         // Write to log file
         file_put_contents($logFile, $logLine, FILE_APPEND | LOCK_EX);
     }
-    
+
     /**
-     * Check if the application is in debug mode
+     * Check if the application is in debug mode.
      */
     private function isDebugMode(): bool
     {

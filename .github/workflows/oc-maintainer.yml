@@ -19,7 +19,7 @@ concurrency:
 jobs:
   opencode:
     name: OC
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     permissions:
       id-token: write
@@ -296,5 +296,5 @@ jobs:
 
           PROMPT
           )" \
-            --model iflowcn/glm-4.6 \
+            --model opencode/glm-4.7-free \
             --share false

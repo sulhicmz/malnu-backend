@@ -7,6 +7,7 @@ interface StatusBadgeProps {
   label?: string;
   showIndicator?: boolean;
   size?: 'sm' | 'md';
+  role?: 'status' | 'alert' | 'none';
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({
@@ -14,49 +15,57 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   label,
   showIndicator = true,
   size = 'sm',
+  role = 'status',
 }) => {
   const statusConfig = {
     active: {
       bgClass: 'bg-green-100',
       textClass: 'text-green-800',
-      indicatorColor: 'text-green-600',
-      defaultLabel: '● Aktif',
+      indicatorBg: 'bg-green-600',
+      defaultLabel: 'Aktif',
+      ariaLabel: 'Status: Aktif',
     },
     inactive: {
       bgClass: 'bg-red-100',
       textClass: 'text-red-800',
-      indicatorColor: 'text-red-600',
-      defaultLabel: '● Non-Aktif',
+      indicatorBg: 'bg-red-600',
+      defaultLabel: 'Non-Aktif',
+      ariaLabel: 'Status: Non-Aktif',
     },
     pending: {
       bgClass: 'bg-yellow-100',
       textClass: 'text-yellow-800',
-      indicatorColor: 'text-yellow-600',
-      defaultLabel: '● Pending',
+      indicatorBg: 'bg-yellow-600',
+      defaultLabel: 'Pending',
+      ariaLabel: 'Status: Pending',
     },
     warning: {
       bgClass: 'bg-yellow-100',
       textClass: 'text-yellow-800',
-      indicatorColor: 'text-yellow-600',
-      defaultLabel: '● Peringatan',
+      indicatorBg: 'bg-yellow-600',
+      defaultLabel: 'Peringatan',
+      ariaLabel: 'Status: Peringatan',
     },
     error: {
       bgClass: 'bg-red-100',
       textClass: 'text-red-800',
-      indicatorColor: 'text-red-600',
-      defaultLabel: '● Error',
+      indicatorBg: 'bg-red-600',
+      defaultLabel: 'Error',
+      ariaLabel: 'Status: Error',
     },
     info: {
       bgClass: 'bg-blue-100',
       textClass: 'text-blue-800',
-      indicatorColor: 'text-blue-600',
-      defaultLabel: '● Info',
+      indicatorBg: 'bg-blue-600',
+      defaultLabel: 'Info',
+      ariaLabel: 'Status: Info',
     },
     success: {
       bgClass: 'bg-green-100',
       textClass: 'text-green-800',
-      indicatorColor: 'text-green-600',
-      defaultLabel: '● Berhasil',
+      indicatorBg: 'bg-green-600',
+      defaultLabel: 'Berhasil',
+      ariaLabel: 'Status: Berhasil',
     },
   };
 
@@ -65,8 +74,17 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   const sizeStyles = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
 
   return (
-    <span className={`inline-flex items-center leading-5 font-semibold rounded-full ${sizeStyles} ${config.bgClass} ${config.textClass}`}>
-      {showIndicator && <span className={`mr-1 ${config.indicatorColor}`} aria-hidden="true">●</span>}
+    <span
+      className={`inline-flex items-center leading-5 font-semibold rounded-full ${sizeStyles} ${config.bgClass} ${config.textClass}`}
+      role={role === 'none' ? undefined : role}
+      aria-label={role !== 'none' ? (label ? config.ariaLabel : config.ariaLabel) : undefined}
+    >
+      {showIndicator && (
+        <span
+          className={`mr-1.5 w-2 h-2 rounded-full ${config.indicatorBg}`}
+          aria-hidden="true"
+        />
+      )}
       {displayLabel}
     </span>
   );

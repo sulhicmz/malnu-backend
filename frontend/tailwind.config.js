@@ -89,6 +89,13 @@ export default {
         '200': '200ms',
         '300': '300ms',
       },
+      ringWidth: {
+        '3': '3px',
+        '4': '4px',
+      },
+      ringOffsetWidth: {
+        '3': '3px',
+      },
     },
   },
   plugins: [],

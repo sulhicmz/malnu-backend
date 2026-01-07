@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import { SkipLink } from './ui';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      <SkipLink />
+      
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div
@@ -62,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar toggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 bg-gray-50" tabIndex={-1}>
           <div className="container mx-auto">
             {children}
           </div>

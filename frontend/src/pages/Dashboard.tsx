@@ -1,6 +1,7 @@
 import React from 'react';
-import { Users, GraduationCap, BookOpen, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { StatCard } from '../components/ui';
 
 const Dashboard: React.FC = () => {
   // Mock data for charts
@@ -37,43 +38,43 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <StatCard 
           title="Total Siswa" 
           value="1,245" 
           change="+5.2%" 
-          isIncrease={true}
-          icon={<Users className="h-6 w-6 text-blue-500" />}
+          trend="up"
+          icon={<Users className="h-6 w-6" />}
           color="blue"
         />
         <StatCard 
           title="Total Guru" 
           value="78" 
           change="+2.1%" 
-          isIncrease={true}
-          icon={<GraduationCap className="h-6 w-6 text-purple-500" />}
+          trend="up"
+          icon={<GraduationCap className="h-6 w-6" />}
           color="purple"
         />
         <StatCard 
           title="Kelas Aktif" 
           value="42" 
           change="+0.0%" 
-          isIncrease={false}
-          icon={<BookOpen className="h-6 w-6 text-green-500" />}
+          trend="neutral"
+          icon={<BookOpen className="h-6 w-6" />}
           color="green"
         />
         <StatCard 
           title="Kehadiran" 
           value="97.3%" 
           change="-1.2%" 
-          isIncrease={false}
-          icon={<Calendar className="h-6 w-6 text-orange-500" />}
+          trend="down"
+          icon={<Calendar className="h-6 w-6" />}
           color="orange"
         />
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-white p-5 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-gray-800">Kehadiran Bulanan</h2>
@@ -125,7 +126,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Recent Activities & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         <div className="lg:col-span-2 bg-white p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aktivitas Terbaru</h2>
           <div className="space-y-4">
@@ -179,49 +180,6 @@ const Dashboard: React.FC = () => {
           <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800">
             Lihat Semua Aksi
           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface StatCardProps {
-  title: string;
-  value: string;
-  change: string;
-  isIncrease: boolean;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, icon, color }) => {
-  const colorStyles: Record<string, { bg: string }> = {
-    blue: { bg: 'bg-blue-100' },
-    purple: { bg: 'bg-purple-100' },
-    green: { bg: 'bg-green-100' },
-    orange: { bg: 'bg-orange-100' },
-    red: { bg: 'bg-red-100' },
-    yellow: { bg: 'bg-yellow-100' },
-  };
-
-  const styles = colorStyles[color] || colorStyles.blue;
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-800 my-1">{value}</h3>
-          <div className="flex items-center">
-            <span className={`text-xs ${isIncrease ? 'text-green-600' : 'text-red-600'} font-medium flex items-center`}>
-              {isIncrease ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-              {change}
-            </span>
-            <span className="text-xs text-gray-500 ml-1">vs bulan lalu</span>
-          </div>
-        </div>
-        <div className={`p-3 rounded-full ${styles.bg}`}>
-          {icon}
         </div>
       </div>
     </div>

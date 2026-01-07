@@ -13,7 +13,7 @@ declare(strict_types=1);
 |
 */
 
-$app = new Hyperf\Foundation\Application();
+$app = new Hypervel\Foundation\Application();
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +26,7 @@ $app = new Hyperf\Foundation\Application();
 */
 
 $app->define(
-    Hyperf\Foundation\Console\Contracts\Kernel::class,
+    Hypervel\Foundation\Console\Contracts\Kernel::class,
     App\Console\Kernel::class
 );
 

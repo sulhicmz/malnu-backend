@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Console\Command;
+use Hypervel\Console\Command;
 
 class RunSpecificSeeder extends Command
 {

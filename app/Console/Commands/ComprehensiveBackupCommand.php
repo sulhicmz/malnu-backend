@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Console\Command;
+use Exception;
 use Hyperf\Contract\ConfigInterface;
+use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -37,7 +38,7 @@ class ComprehensiveBackupCommand extends Command
         $skipConfig = $this->input->getOption('no-config');
 
         // Ensure backup directory exists
-        if (!is_dir($backupPath)) {
+        if (! is_dir($backupPath)) {
             mkdir($backupPath, 0755, true);
         }
 
@@ -51,11 +52,11 @@ class ComprehensiveBackupCommand extends Command
         $results = [
             'database' => false,
             'filesystem' => false,
-            'configuration' => false
+            'configuration' => false,
         ];
 
         // Backup database if not skipped
-        if (!$skipDb) {
+        if (! $skipDb) {
             $this->output->writeln('<info>Backing up database...</info>');
             $results['database'] = $this->backupDatabase($connection, $mainBackupDir);
         } else {
@@ -63,7 +64,7 @@ class ComprehensiveBackupCommand extends Command
         }
 
         // Backup file system if not skipped
-        if (!$skipFs) {
+        if (! $skipFs) {
             $this->output->writeln('<info>Backing up file system...</info>');
             $results['filesystem'] = $this->backupFileSystem($mainBackupDir);
         } else {
@@ -71,7 +72,7 @@ class ComprehensiveBackupCommand extends Command
         }
 
         // Backup configuration if not skipped
-        if (!$skipConfig) {
+        if (! $skipConfig) {
             $this->output->writeln('<info>Backing up configuration...</info>');
             $results['configuration'] = $this->backupConfiguration($mainBackupDir);
         } else {
@@ -84,41 +85,40 @@ class ComprehensiveBackupCommand extends Command
         // Create main backup archive
         $finalFilename = "full_backup_{$timestamp}.tar.gz";
         $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $finalFilename) . ' -C ' . escapeshellarg($mainBackupDir) . ' .';
-        
+
         $this->output->write('Creating main backup archive... ');
-        
+
         $exitCode = 0;
         $output = [];
         exec($tarCommand, $output, $exitCode);
 
         if ($exitCode === 0) {
             $this->output->writeln('<info>OK</info>');
-            
+
             // Clean up temporary directory
             $this->removeDirectory($mainBackupDir);
-            
+
             $this->output->writeln('<info>Full backup completed successfully: ' . $backupPath . '/' . $finalFilename . '</info>');
-            
+
             // Clean old backups if requested
             if ($cleanOld) {
                 $this->cleanOldBackups($backupPath);
             }
 
             return 0;
-        } else {
-            $this->output->writeln('<error>FAILED to create main backup archive</error>');
-            
-            // Clean up temporary directory
-            $this->removeDirectory($mainBackupDir);
-            
-            return 1;
         }
+        $this->output->writeln('<error>FAILED to create main backup archive</error>');
+
+        // Clean up temporary directory
+        $this->removeDirectory($mainBackupDir);
+
+        return 1;
     }
 
     protected function backupDatabase(string $connection, string $backupDir): bool
     {
         $databaseConfig = $this->config->get("database.connections.{$connection}", []);
-        
+
         if (empty($databaseConfig)) {
             $this->output->writeln('<error>Database connection \'' . $connection . '\' not found in configuration.</error>');
             return false;
@@ -144,10 +144,9 @@ class ComprehensiveBackupCommand extends Command
         if ($success) {
             $this->output->writeln('<info>Database backup completed: ' . $filename . '</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>Database backup failed</error>');
-            return false;
         }
+        $this->output->writeln('<error>Database backup failed</error>');
+        return false;
     }
 
     protected function backupMysql(array $config, string $backupDir, string $filename): bool
@@ -161,7 +160,7 @@ class ComprehensiveBackupCommand extends Command
         $command = sprintf(
             'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers %s > %s',
             escapeshellarg($host),
-            escapeshellarg((string)$port),
+            escapeshellarg((string) $port),
             escapeshellarg($username),
             escapeshellarg($password),
             escapeshellarg($database),
@@ -169,7 +168,7 @@ class ComprehensiveBackupCommand extends Command
         );
 
         $this->output->write('Executing mysqldump... ');
-        
+
         $exitCode = 0;
         $output = [];
         exec($command, $output, $exitCode);
@@ -177,59 +176,57 @@ class ComprehensiveBackupCommand extends Command
         if ($exitCode === 0) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function backupSqlite(array $config, string $backupDir, string $filename): bool
     {
         $databasePath = $config['database'];
 
-        if (!file_exists($databasePath)) {
+        if (! file_exists($databasePath)) {
             $this->output->writeln('<error>SQLite database file does not exist: ' . $databasePath . '</error>');
             return false;
         }
 
         $this->output->write('Copying SQLite database... ');
-        
+
         $success = copy($databasePath, "{$backupDir}/{$filename}");
 
         if ($success) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function backupFileSystem(string $backupDir): bool
     {
         $fsBackupDir = $backupDir . '/filesystem';
         mkdir($fsBackupDir, 0755, true);
-        
+
         $includePaths = ['app', 'config', 'database', 'resources', 'tests'];
         $excludePaths = ['node_modules', 'vendor', '.git', '.idea', '.vscode', 'storage/logs', 'storage/framework/cache'];
-        
+
         $tarCommand = 'tar -czf ' . escapeshellarg($fsBackupDir . '/filesystem_backup.tar.gz') . ' ';
-        
+
         // Add exclude patterns
         foreach ($excludePaths as $excludePath) {
             $tarCommand .= '--exclude=' . escapeshellarg($excludePath) . ' ';
         }
-        
+
         // Add include paths
         foreach ($includePaths as $includePath) {
-            $fullPath = BASE_PATH . '/' . $includePath;
+            $fullPath = base_path('/') . $includePath;
             if (is_dir($fullPath) || file_exists($fullPath)) {
                 $tarCommand .= escapeshellarg($includePath) . ' ';
             }
         }
-        
+
         $this->output->write('Creating file system backup... ');
-        
+
         $exitCode = 0;
         $output = [];
         exec($tarCommand, $output, $exitCode);
@@ -237,46 +234,45 @@ class ComprehensiveBackupCommand extends Command
         if ($exitCode === 0) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function backupConfiguration(string $backupDir): bool
     {
         $configBackupDir = $backupDir . '/config';
         mkdir($configBackupDir, 0755, true);
-        
+
         try {
             // Copy .env file
-            if (file_exists(BASE_PATH . '/.env')) {
-                copy(BASE_PATH . '/.env', $configBackupDir . '/.env');
+            if (file_exists(base_path('.env'))) {
+                copy(base_path('.env'), $configBackupDir . '/.env');
             }
-            
+
             // Copy .env.example file
-            if (file_exists(BASE_PATH . '/.env.example')) {
-                copy(BASE_PATH . '/.env.example', $configBackupDir . '/.env.example');
+            if (file_exists(base_path('.env.example'))) {
+                copy(base_path('.env.example'), $configBackupDir . '/.env.example');
             }
-            
+
             // Copy config directory
-            $this->copyDirectory(BASE_PATH . '/config', $configBackupDir . '/config');
-            
+            $this->copyDirectory(base_path('config'), $configBackupDir . '/config');
+
             // Copy database migrations
-            $this->copyDirectory(BASE_PATH . '/database/migrations', $configBackupDir . '/database/migrations');
-            
+            $this->copyDirectory(base_path('database/migrations'), $configBackupDir . '/database/migrations');
+
             // Copy database seeders
-            $this->copyDirectory(BASE_PATH . '/database/seeders', $configBackupDir . '/database/seeders');
-            
+            $this->copyDirectory(base_path('database/seeders'), $configBackupDir . '/database/seeders');
+
             // Copy environment-specific files
             $this->copyEnvironmentFiles($configBackupDir);
-            
+
             // Create a summary of current configuration
             $this->createConfigSummary($configBackupDir);
-            
+
             $this->output->writeln('<info>Configuration backup completed</info>');
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->output->writeln('<error>Configuration backup failed: ' . $e->getMessage() . '</error>');
             return false;
         }
@@ -284,23 +280,23 @@ class ComprehensiveBackupCommand extends Command
 
     protected function copyDirectory(string $src, string $dst): void
     {
-        if (!is_dir($src)) {
+        if (! is_dir($src)) {
             return;
         }
-        
-        if (!is_dir($dst)) {
+
+        if (! is_dir($dst)) {
             mkdir($dst, 0755, true);
         }
-        
+
         $dir = opendir($src);
         while (($file = readdir($dir)) !== false) {
             if ($file == '.' || $file == '..') {
                 continue;
             }
-            
+
             $srcFile = $src . '/' . $file;
             $dstFile = $dst . '/' . $file;
-            
+
             if (is_dir($srcFile)) {
                 $this->copyDirectory($srcFile, $dstFile);
             } else {
@@ -331,12 +327,12 @@ class ComprehensiveBackupCommand extends Command
             'phpstan.neon',
             'phpstan.neon.dist',
         ];
-        
+
         foreach ($envFiles as $file) {
-            $src = BASE_PATH . '/' . $file;
+            $src = base_path('/') . $file;
             if (file_exists($src)) {
                 $dstDir = dirname($configBackupDir . '/' . $file);
-                if (!is_dir($dstDir)) {
+                if (! is_dir($dstDir)) {
                     mkdir($dstDir, 0755, true);
                 }
                 copy($src, $configBackupDir . '/' . $file);
@@ -347,10 +343,10 @@ class ComprehensiveBackupCommand extends Command
     protected function createConfigSummary(string $configBackupDir): void
     {
         $config = $this->config->all();
-        
+
         // Remove sensitive data from config
         $safeConfig = $this->sanitizeConfig($config);
-        
+
         $summary = [
             'backup_date' => date('Y-m-d H:i:s'),
             'application_name' => $config['app']['name'] ?? 'Unknown',
@@ -363,14 +359,14 @@ class ComprehensiveBackupCommand extends Command
             'queue_driver' => $config['queue']['default'] ?? 'Unknown',
             'session_driver' => $config['session']['driver'] ?? 'Unknown',
         ];
-        
+
         file_put_contents($configBackupDir . '/config_summary.json', json_encode($summary, JSON_PRETTY_PRINT));
     }
 
     protected function sanitizeConfig(array $config): array
     {
         $sanitized = [];
-        
+
         foreach ($config as $key => $value) {
             if (is_array($value)) {
                 $sanitized[$key] = $this->sanitizeConfig($value);
@@ -383,7 +379,7 @@ class ComprehensiveBackupCommand extends Command
                 }
             }
         }
-        
+
         return $sanitized;
     }
 
@@ -395,12 +391,12 @@ class ComprehensiveBackupCommand extends Command
             'timestamp' => $timestamp,
             'results' => $results,
             'components' => [
-                'database' => !$results['database'] ? 'failed' : 'completed',
-                'filesystem' => !$results['filesystem'] ? 'failed' : 'completed',
-                'configuration' => !$results['configuration'] ? 'failed' : 'completed'
-            ]
+                'database' => ! $results['database'] ? 'failed' : 'completed',
+                'filesystem' => ! $results['filesystem'] ? 'failed' : 'completed',
+                'configuration' => ! $results['configuration'] ? 'failed' : 'completed',
+            ],
         ];
-        
+
         file_put_contents($backupDir . '/backup_summary.json', json_encode($summary, JSON_PRETTY_PRINT));
     }
 
@@ -408,16 +404,16 @@ class ComprehensiveBackupCommand extends Command
     {
         $timestamp = date('Y-m-d-H-i-s');
         $extension = $driver === 'mysql' ? 'sql' : 'db';
-        
+
         return "db_backup_{$connection}_{$timestamp}.{$extension}";
     }
 
     protected function removeDirectory(string $dir): void
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             return;
         }
-        
+
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             $path = $dir . '/' . $file;
@@ -433,30 +429,30 @@ class ComprehensiveBackupCommand extends Command
     protected function cleanOldBackups(string $backupPath): void
     {
         $this->output->writeln('<info>Cleaning old backups...</info>');
-        
+
         // Find all full backup files
         $pattern = $backupPath . '/full_backup_*.tar.gz';
         $allFiles = glob($pattern);
-        
+
         // Sort by modification time (newest first)
         usort($allFiles, function ($a, $b) {
             return filemtime($b) - filemtime($a);
         });
-        
+
         // Keep only the 5 most recent backups
         $filesToDelete = array_slice($allFiles, 5);
-        
+
         foreach ($filesToDelete as $file) {
             unlink($file);
             $this->output->writeln('<info>Deleted old backup: ' . $file . '</info>');
         }
-        
+
         $this->output->writeln('<info>Old backup cleanup completed.</info>');
     }
 
     protected function getStoragePath(string $path = ''): string
     {
-        $storagePath = BASE_PATH . '/storage';
+        $storagePath = base_path('storage');
         if ($path) {
             $storagePath .= '/' . ltrim($path, '/');
         }

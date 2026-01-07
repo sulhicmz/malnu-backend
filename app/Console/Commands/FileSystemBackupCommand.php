@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Console\Command;
+use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -80,7 +80,7 @@ class FileSystemBackupCommand extends Command
         
         // Add include paths
         foreach ($includePaths as $includePath) {
-            $fullPath = BASE_PATH . '/' . $includePath;
+            $fullPath = base_path('/') .$includePath;
             if (is_dir($fullPath) || file_exists($fullPath)) {
                 $tarCommand .= escapeshellarg($includePath) . ' ';
             }
@@ -139,7 +139,7 @@ class FileSystemBackupCommand extends Command
 
     protected function getStoragePath(string $path = ''): string
     {
-        $storagePath = BASE_PATH . '/storage';
+        $storagePath = base_path('storage');
         if ($path) {
             $storagePath .= '/' . ltrim($path, '/');
         }

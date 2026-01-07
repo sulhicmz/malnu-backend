@@ -8,4 +8,16 @@ parameters:
     - config
   reportUnmatchedIgnoredErrors: false
   excludePaths:
+    - vendor
+    - runtime
   ignoreErrors:
+
+includes:
+  # Include security-focused rules
+  - vendor/phpstan/phpstan-security-extension/src/rules.neon
+
+rules:
+  # Security rules from phpstan-security-extension
+  - SleekDB\Sendbox\SecurityRules\DisallowExecOnUserInput
+  - SleekDB\Sendbox\SecurityRules\ValidateJsonInJsonDecode
+

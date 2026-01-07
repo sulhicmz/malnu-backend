@@ -20,3 +20,9 @@ Envoy.blade.php
 /.phpunit.cache
 .phpactor.json
 .phpunit.result.cache
+# Security scanning artifacts
+phpstan-results/
+phpstan.neon.bak
+composer-audit.txt
+npm-audit.txt
+.trufflehog/

@@ -342,45 +342,20 @@ class ComprehensiveBackupCommand extends Command
 
     protected function createConfigSummary(string $configBackupDir): void
     {
-        $config = $this->config->all();
-
-        // Remove sensitive data from config
-        $safeConfig = $this->sanitizeConfig($config);
-
         $summary = [
             'backup_date' => date('Y-m-d H:i:s'),
-            'application_name' => $config['app']['name'] ?? 'Unknown',
-            'environment' => $config['app']['env'] ?? 'Unknown',
-            'debug_mode' => $config['app']['debug'] ?? false,
-            'timezone' => $config['app']['timezone'] ?? 'Unknown',
-            'locale' => $config['app']['locale'] ?? 'Unknown',
-            'database_default' => $config['database']['default'] ?? 'Unknown',
-            'cache_driver' => $config['cache']['default'] ?? 'Unknown',
-            'queue_driver' => $config['queue']['default'] ?? 'Unknown',
-            'session_driver' => $config['session']['driver'] ?? 'Unknown',
+            'application_name' => $this->config->get('app.name', 'Unknown'),
+            'environment' => $this->config->get('app.env', 'Unknown'),
+            'debug_mode' => $this->config->get('app.debug', false),
+            'timezone' => $this->config->get('app.timezone', 'Unknown'),
+            'locale' => $this->config->get('app.locale', 'Unknown'),
+            'database_default' => $this->config->get('database.default', 'Unknown'),
+            'cache_driver' => $this->config->get('cache.default', 'Unknown'),
+            'queue_driver' => $this->config->get('queue.default', 'Unknown'),
+            'session_driver' => $this->config->get('session.driver', 'Unknown'),
         ];
 
         file_put_contents($configBackupDir . '/config_summary.json', json_encode($summary, JSON_PRETTY_PRINT));
-    }
-
-    protected function sanitizeConfig(array $config): array
-    {
-        $sanitized = [];
-
-        foreach ($config as $key => $value) {
-            if (is_array($value)) {
-                $sanitized[$key] = $this->sanitizeConfig($value);
-            } else {
-                // Skip sensitive keys
-                if (in_array(strtolower($key), ['key', 'password', 'secret', 'token', 'app_key', 'jwt_secret', 'db_password', 'redis_password'])) {
-                    $sanitized[$key] = '***HIDDEN***';
-                } else {
-                    $sanitized[$key] = $value;
-                }
-            }
-        }
-
-        return $sanitized;
     }
 
     protected function createBackupSummary(string $backupDir, array $results, string $timestamp): void

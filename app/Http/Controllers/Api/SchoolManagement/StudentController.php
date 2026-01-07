@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\SchoolManagement;
 use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
+use App\Services\CacheService;
 use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -14,12 +15,15 @@ use Psr\Container\ContainerInterface;
 
 class StudentController extends BaseController
 {
+    private CacheService $cacheService;
+
     public function __construct(
         RequestInterface $request,
         ResponseInterface $response,
         ContainerInterface $container
     ) {
         parent::__construct($request, $response, $container);
+        $this->cacheService = $container->get(CacheService::class);
     }
 
     /**
@@ -28,7 +32,7 @@ class StudentController extends BaseController
     public function index()
     {
         try {
-            $cacheService = new \App\Services\CacheService();
+            $cacheService = $this->cacheService;
 
             $params = [
                 'class_id' => $this->request->query('class_id'),
@@ -73,7 +77,7 @@ class StudentController extends BaseController
     public function store()
     {
         try {
-            $cacheService = new \App\Services\CacheService();
+            $cacheService = $this->cacheService;
 
             $data = $this->request->all();
 
@@ -124,7 +128,7 @@ class StudentController extends BaseController
     public function show(string $id)
     {
         try {
-            $cacheService = new \App\Services\CacheService();
+            $cacheService = $this->cacheService;
             $cacheKey = $cacheService->getPrefix() . ":student:{$id}";
 
             $student = $cacheService->remember($cacheKey, function () use ($id) {
@@ -147,7 +151,7 @@ class StudentController extends BaseController
     public function update(string $id)
     {
         try {
-            $cacheService = new \App\Services\CacheService();
+            $cacheService = $this->cacheService;
 
             $student = Student::find($id);
 
@@ -188,7 +192,7 @@ class StudentController extends BaseController
     public function destroy(string $id)
     {
         try {
-            $cacheService = new \App\Services\CacheService();
+            $cacheService = $this->cacheService;
 
             $student = Student::find($id);
 

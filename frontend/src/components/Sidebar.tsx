@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, School, Users, BookOpen, AlignCenterVertical as Certificate, PenTool, Library, Bot, Briefcase, UserCheck, ShoppingCart, BarChart, Settings, User } from 'lucide-react';
+import { LayoutDashboard, School, Users, BookOpen, Bot, Settings, User } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -27,6 +27,13 @@ const Sidebar: React.FC = () => {
     }));
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent, menu: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleMenu(menu);
+    }
+  };
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
@@ -46,10 +53,13 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('dashboard')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'dashboard')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.dashboard}
+              aria-controls="dashboard-menu"
             >
               <div className="flex items-center">
-                <LayoutDashboard className="h-5 w-5 text-gray-500" />
+                <LayoutDashboard className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Dashboard</span>
               </div>
               <svg
@@ -60,14 +70,16 @@ const Sidebar: React.FC = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.dashboard && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="dashboard-menu" className="mt-1 pl-8 space-y-1">
                 <Link
                   to="/"
+                  aria-current={isActive('/') ? 'page' : undefined}
                   className={`${isActive('/') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700`}
                 >
                   Overview Sekolah
@@ -92,10 +104,13 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('school')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'school')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.school}
+              aria-controls="school-menu"
             >
               <div className="flex items-center">
-                <School className="h-5 w-5 text-gray-500" />
+                <School className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Manajemen Sekolah</span>
               </div>
               <svg
@@ -106,15 +121,17 @@ const Sidebar: React.FC = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.school && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="school-menu" className="mt-1 pl-8 space-y-1">
                 <Link
                   to="/school/students"
-                  className={`${isActive('/school/students') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700`}
+                  aria-current={isActive('/school/students') ? 'page' : undefined}
+                  className={`${isActive('/school/students') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10`}
                 >
                   Data Siswa
                 </Link>
@@ -156,10 +173,13 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('ppdb')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'ppdb')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.ppdb}
+              aria-controls="ppdb-menu"
             >
               <div className="flex items-center">
-                <Users className="h-5 w-5 text-gray-500" />
+                <Users className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">PPDB Online</span>
                 <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">New</span>
               </div>
@@ -171,15 +191,16 @@ const Sidebar: React.FC = () => {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.ppdb && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="ppdb-menu" className="mt-1 pl-8 space-y-1">
                 <Link
                   to="/ppdb/registration"
-                  className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700"
+                  className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
                 >
                   Form Pendaftaran
                 </Link>
@@ -215,19 +236,22 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('elearning')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'elearning')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.elearning}
+              aria-controls="elearning-menu"
             >
               <div className="flex items-center">
-                <BookOpen className="h-5 w-5 text-gray-500" />
+                <BookOpen className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">E-Learning</span>
               </div>
-              <svg className={`${openMenus.elearning ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className={`${openMenus.elearning ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.elearning && (
-              <div className="mt-1 pl-8 space-y-1">
-                <Link to="/elearning/classes" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Kelas Virtual</Link>
+              <div id="elearning-menu" className="mt-1 pl-8 space-y-1">
+                <Link to="/elearning/classes" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10">Kelas Virtual</Link>
                 <Link to="/elearning/materials" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Materi Pembelajaran</Link>
                 <Link to="/elearning/assignments" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Tugas & Quiz</Link>
                 <Link to="/elearning/discussions" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Diskusi Online</Link>
@@ -246,20 +270,23 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('ai')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'ai')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.ai}
+              aria-controls="ai-menu"
             >
               <div className="flex items-center">
-                <Bot className="h-5 w-5 text-gray-500" />
+                <Bot className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">AI Learning Assistant</span>
                 <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">PRO</span>
               </div>
-              <svg className={`${openMenus.ai ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className={`${openMenus.ai ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.ai && (
-              <div className="mt-1 pl-8 space-y-1">
-                <Link to="/ai/tutor" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Tutor Virtual</Link>
+              <div id="ai-menu" className="mt-1 pl-8 space-y-1">
+                <Link to="/ai/tutor" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10">Tutor Virtual</Link>
                 <Link to="/ai/content" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Pembuatan Materi Otomatis</Link>
                 <Link to="/ai/assessment" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Penilaian Esai AI</Link>
                 <Link to="/ai/recommendations" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Rekomendasi Pembelajaran</Link>
@@ -271,19 +298,22 @@ const Sidebar: React.FC = () => {
           <div>
             <button
               onClick={() => toggleMenu('admin')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              onKeyDown={(e) => handleKeyDown(e, 'admin')}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10"
+              aria-expanded={openMenus.admin}
+              aria-controls="admin-menu"
             >
               <div className="flex items-center">
-                <Settings className="h-5 w-5 text-gray-500" />
+                <Settings className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Administrasi</span>
               </div>
-              <svg className={`${openMenus.admin ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className={`${openMenus.admin ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.admin && (
-              <div className="mt-1 pl-8 space-y-1">
-                <Link to="/admin/settings" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Pengaturan Sistem</Link>
+              <div id="admin-menu" className="mt-1 pl-8 space-y-1">
+                <Link to="/admin/settings" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:z-10">Pengaturan Sistem</Link>
                 <Link to="/admin/users" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Manajemen User</Link>
                 <Link to="/admin/landing" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Template Landing Page</Link>
                 <Link to="/admin/api" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Integrasi API</Link>

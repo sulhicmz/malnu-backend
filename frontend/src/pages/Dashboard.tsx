@@ -129,17 +129,27 @@ const Dashboard: React.FC = () => {
         <div className="lg:col-span-2 bg-white p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aktivitas Terbaru</h2>
           <div className="space-y-4">
-            {activities.map((activity, index) => (
-              <div key={index} className="flex items-start">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-${activity.color}-100`}>
-                  {activity.icon}
-                </div>
+            {activities.map((activity, index) => {
+              const colorStyles: Record<string, { bg: string }> = {
+                blue: { bg: 'bg-blue-100' },
+                purple: { bg: 'bg-purple-100' },
+                green: { bg: 'bg-green-100' },
+                orange: { bg: 'bg-orange-100' },
+              };
+              const styles = colorStyles[activity.color] || colorStyles.blue;
+
+              return (
+                <div key={index} className="flex items-start">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${styles.bg}`}>
+                    {activity.icon}
+                  </div>
                 <div>
                   <p className="text-sm font-medium text-gray-800">{activity.title}</p>
                   <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800">
             Lihat Semua Aktivitas
@@ -185,6 +195,17 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, icon, color }) => {
+  const colorStyles: Record<string, { bg: string }> = {
+    blue: { bg: 'bg-blue-100' },
+    purple: { bg: 'bg-purple-100' },
+    green: { bg: 'bg-green-100' },
+    orange: { bg: 'bg-orange-100' },
+    red: { bg: 'bg-red-100' },
+    yellow: { bg: 'bg-yellow-100' },
+  };
+
+  const styles = colorStyles[color] || colorStyles.blue;
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-start">
@@ -199,7 +220,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, i
             <span className="text-xs text-gray-500 ml-1">vs bulan lalu</span>
           </div>
         </div>
-        <div className={`p-3 rounded-full bg-${color}-100`}>
+        <div className={`p-3 rounded-full ${styles.bg}`}>
           {icon}
         </div>
       </div>

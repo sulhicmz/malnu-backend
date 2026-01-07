@@ -50,7 +50,24 @@ Route::group(['middleware' => ['jwt']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
         Route::apiResource('students', StudentController::class);
-        
+
+        // SIS - Academic Records
+        Route::get('students/{id}/gpa', [StudentController::class, 'calculateGpa']);
+        Route::get('students/{id}/transcript', [StudentController::class, 'generateTranscript']);
+        Route::get('students/{id}/progress', [StudentController::class, 'getStudentProgress']);
+
+        // SIS - Enrollment Management
+        Route::put('students/{id}/enrollment-status', [StudentController::class, 'updateEnrollmentStatus']);
+        Route::put('students/{id}/class-assignment', [StudentController::class, 'assignToClass']);
+        Route::get('students/{id}/enrollment-history', [StudentController::class, 'getEnrollmentHistory']);
+        Route::get('enrollment/stats', [StudentController::class, 'getEnrollmentStats']);
+        Route::get('classes/{classId}/enrollment', [StudentController::class, 'getClassEnrollment']);
+
+        // SIS - Performance Analytics
+        Route::get('students/{id}/performance', [StudentController::class, 'getStudentPerformance']);
+        Route::get('classes/{classId}/performance', [StudentController::class, 'getClassPerformance']);
+        Route::get('students/{id}/comparative-analysis', [StudentController::class, 'getComparativeAnalysis']);
+
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
     });

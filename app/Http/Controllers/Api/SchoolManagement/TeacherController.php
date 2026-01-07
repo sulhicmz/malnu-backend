@@ -1,21 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
 
+use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Teacher;
+use App\Services\CacheService;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
 class TeacherController extends BaseController
 {
+    private CacheService $cacheService;
+
     public function __construct(
         RequestInterface $request,
         ResponseInterface $response,
         ContainerInterface $container
     ) {
         parent::__construct($request, $response, $container);
+        $this->cacheService = $container->get(CacheService::class);
     }
 
     /**
@@ -24,43 +32,46 @@ class TeacherController extends BaseController
     public function index()
     {
         try {
-            $query = Teacher::with(['subject', 'class']);
+            $cacheService = $this->cacheService;
 
-            // Get query parameters
-            $subjectId = $this->request->query('subject_id');
-            $classId = $this->request->query('class_id');
-            $status = $this->request->query('status');
-            $search = $this->request->query('search');
-            $page = (int) $this->request->query('page', 1);
-            $limit = (int) $this->request->query('limit', 15);
+            $params = [
+                'subject_id' => $this->request->query('subject_id'),
+                'class_id' => $this->request->query('class_id'),
+                'status' => $this->request->query('status'),
+                'search' => $this->request->query('search'),
+                'page' => (int) $this->request->query('page', 1),
+                'limit' => (int) $this->request->query('limit', 15),
+            ];
 
-            // Filter by subject if provided
-            if ($subjectId) {
-                $query->where('subject_id', $subjectId);
-            }
+            $cacheKey = $cacheService->generateKey('teachers:list', $params);
 
-            // Filter by class if provided
-            if ($classId) {
-                $query->where('class_id', $classId);
-            }
+            $teachers = $cacheService->remember($cacheKey, function () use ($params) {
+                $query = Teacher::with(['subject', 'class']);
 
-            // Filter by status if provided
-            if ($status) {
-                $query->where('status', $status);
-            }
+                if ($params['subject_id']) {
+                    $query->where('subject_id', $params['subject_id']);
+                }
 
-            // Search by name or NIP if provided
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('nip', 'like', "%{$search}%");
-                });
-            }
+                if ($params['class_id']) {
+                    $query->where('class_id', $params['class_id']);
+                }
 
-            $teachers = $query->orderBy('name', 'asc')->paginate($limit, ['*'], 'page', $page);
+                if ($params['status']) {
+                    $query->where('status', $params['status']);
+                }
+
+                if ($params['search']) {
+                    $query->where(function ($q) use ($params) {
+                        $q->where('name', 'like', "%{$params['search']}%")
+                            ->orWhere('nip', 'like', "%{$params['search']}%");
+                    });
+                }
+
+                return $query->orderBy('name', 'asc')->paginate($params['limit'], ['*'], 'page', $params['page']);
+            }, 300);
 
             return $this->successResponse($teachers, 'Teachers retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -71,20 +82,19 @@ class TeacherController extends BaseController
     public function store()
     {
         try {
+            $cacheService = $this->cacheService;
             $data = $this->request->all();
 
-            // Validate required fields
             $requiredFields = ['name', 'nip', 'subject_id', 'join_date'];
             $errors = [];
-            
+
             foreach ($requiredFields as $field) {
                 if (empty($data[$field])) {
                     $errors[$field] = ["The {$field} field is required."];
                 }
             }
 
-            // Additional validation
-            if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            if (isset($data['email']) && ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = ['The email must be a valid email address.'];
             }
 
@@ -102,15 +112,17 @@ class TeacherController extends BaseController
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $teacher = Teacher::create($data);
 
+            $cacheService->forget($cacheService->getPrefix() . ':teachers:list');
+
             return $this->successResponse($teacher, 'Teacher created successfully', 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'TEACHER_CREATION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::TEACHER_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::TEACHER_CREATION_ERROR));
         }
     }
 
@@ -120,14 +132,19 @@ class TeacherController extends BaseController
     public function show(string $id)
     {
         try {
-            $teacher = Teacher::with(['subject', 'class'])->find($id);
+            $cacheService = $this->cacheService;
+            $cacheKey = $cacheService->getPrefix() . ":teacher:{$id}";
 
-            if (!$teacher) {
+            $teacher = $cacheService->remember($cacheKey, function () use ($id) {
+                return Teacher::with(['subject', 'class'])->find($id);
+            }, 600);
+
+            if (! $teacher) {
                 return $this->notFoundResponse('Teacher not found');
             }
 
             return $this->successResponse($teacher, 'Teacher retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -138,15 +155,16 @@ class TeacherController extends BaseController
     public function update(string $id)
     {
         try {
+            $cacheService = $this->cacheService;
+
             $teacher = Teacher::find($id);
 
-            if (!$teacher) {
+            if (! $teacher) {
                 return $this->notFoundResponse('Teacher not found');
             }
 
             $data = $this->request->all();
 
-            // Validate unique fields if they are being updated
             if (isset($data['nip']) && $data['nip'] !== $teacher->nip) {
                 $existingTeacher = Teacher::where('nip', $data['nip'])->first();
                 if ($existingTeacher) {
@@ -163,9 +181,12 @@ class TeacherController extends BaseController
 
             $teacher->update($data);
 
+            $cacheService->forget($cacheService->getPrefix() . ":teacher:{$id}");
+            $cacheService->forget($cacheService->getPrefix() . ':teachers:list');
+
             return $this->successResponse($teacher, 'Teacher updated successfully');
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'TEACHER_UPDATE_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::TEACHER_UPDATE_ERROR, null, ErrorCode::getStatusCode(ErrorCode::TEACHER_UPDATE_ERROR));
         }
     }
 
@@ -175,17 +196,22 @@ class TeacherController extends BaseController
     public function destroy(string $id)
     {
         try {
+            $cacheService = $this->cacheService;
+
             $teacher = Teacher::find($id);
 
-            if (!$teacher) {
+            if (! $teacher) {
                 return $this->notFoundResponse('Teacher not found');
             }
 
             $teacher->delete();
 
+            $cacheService->forget($cacheService->getPrefix() . ":teacher:{$id}");
+            $cacheService->forget($cacheService->getPrefix() . ':teachers:list');
+
             return $this->successResponse(null, 'Teacher deleted successfully');
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'TEACHER_DELETION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::TEACHER_DELETION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::TEACHER_DELETION_ERROR));
         }
     }
 }

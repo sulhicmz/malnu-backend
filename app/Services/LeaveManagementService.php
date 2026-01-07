@@ -1,42 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
-use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
+use Psr\Container\ContainerInterface;
 
 class LeaveManagementService
 {
+    private CacheService $cacheService;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->cacheService = $container->get(CacheService::class);
+    }
+
     /**
      * Calculate leave balance for a staff member and leave type for the current year.
      */
     public function calculateLeaveBalance(string $staffId, string $leaveTypeId): array
     {
         $currentYear = date('Y');
-        
-        // Get or create leave balance record
-        $leaveBalance = LeaveBalance::firstOrCreate(
-            [
-                'staff_id' => $staffId,
-                'leave_type_id' => $leaveTypeId,
-                'year' => $currentYear
-            ],
-            [
-                'current_balance' => 0,
-                'used_days' => 0,
-                'allocated_days' => 0,
-                'carry_forward_days' => 0
-            ]
-        );
 
-        return [
-            'current_balance' => $leaveBalance->current_balance,
-            'used_days' => $leaveBalance->used_days,
-            'allocated_days' => $leaveBalance->allocated_days,
-            'carry_forward_days' => $leaveBalance->carry_forward_days
-        ];
+        $cacheKey = $this->cacheService->generateKey('leave_balance', [
+            'staff_id' => $staffId,
+            'leave_type_id' => $leaveTypeId,
+            'year' => $currentYear,
+        ]);
+
+        return $this->cacheService->remember($cacheKey, function () use ($staffId, $leaveTypeId, $currentYear) {
+            $leaveBalance = LeaveBalance::firstOrCreate(
+                [
+                    'staff_id' => $staffId,
+                    'leave_type_id' => $leaveTypeId,
+                    'year' => $currentYear,
+                ],
+                [
+                    'current_balance' => 0,
+                    'used_days' => 0,
+                    'allocated_days' => 0,
+                    'carry_forward_days' => 0,
+                ]
+            );
+
+            return [
+                'current_balance' => $leaveBalance->current_balance,
+                'used_days' => $leaveBalance->used_days,
+                'allocated_days' => $leaveBalance->allocated_days,
+                'carry_forward_days' => $leaveBalance->carry_forward_days,
+            ];
+        }, 3600);
     }
 
     /**
@@ -44,23 +61,31 @@ class LeaveManagementService
      */
     public function updateLeaveBalanceOnApproval(LeaveRequest $leaveRequest): bool
     {
+        $currentYear = date('Y');
+        $cacheKey = $this->cacheService->generateKey('leave_balance', [
+            'staff_id' => $leaveRequest->staff_id,
+            'leave_type_id' => $leaveRequest->leave_type_id,
+            'year' => $currentYear,
+        ]);
+
         $leaveBalance = LeaveBalance::firstOrCreate(
             [
                 'staff_id' => $leaveRequest->staff_id,
                 'leave_type_id' => $leaveRequest->leave_type_id,
-                'year' => date('Y')
+                'year' => $currentYear,
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
-        // Update the balance
         $leaveBalance->decrement('current_balance', $leaveRequest->total_days);
         $leaveBalance->increment('used_days', $leaveRequest->total_days);
+
+        $this->cacheService->forget($cacheKey);
 
         return true;
     }
@@ -71,46 +96,52 @@ class LeaveManagementService
     public function validateLeaveBalance(string $staffId, string $leaveTypeId, int $requestedDays): bool
     {
         $leaveType = LeaveType::find($leaveTypeId);
-        
-        // If the leave type doesn't require approval or doesn't have balance tracking, skip validation
-        if (!$leaveType || !$leaveType->requires_approval) {
+
+        if (! $leaveType || ! $leaveType->requires_approval) {
             return true;
         }
 
         $currentBalance = $this->calculateLeaveBalance($staffId, $leaveTypeId);
-        
+
         return $currentBalance['current_balance'] >= $requestedDays;
     }
 
     /**
      * Allocate annual leave for a staff member.
      */
-    public function allocateAnnualLeave(string $staffId, string $leaveTypeId, int $days, int $year = null): bool
+    public function allocateAnnualLeave(string $staffId, string $leaveTypeId, int $days, ?int $year = null): bool
     {
         $year = $year ?: date('Y');
-        
+
+        $cacheKey = $this->cacheService->generateKey('leave_balance', [
+            'staff_id' => $staffId,
+            'leave_type_id' => $leaveTypeId,
+            'year' => $year,
+        ]);
+
         $leaveBalance = LeaveBalance::firstOrCreate(
             [
                 'staff_id' => $staffId,
                 'leave_type_id' => $leaveTypeId,
-                'year' => $year
+                'year' => $year,
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
-        // Calculate new balance
         $newAllocatedDays = $leaveBalance->allocated_days + $days;
         $newCurrentBalance = $leaveBalance->current_balance + $days;
-        
+
         $leaveBalance->update([
             'allocated_days' => $newAllocatedDays,
-            'current_balance' => $newCurrentBalance
+            'current_balance' => $newCurrentBalance,
         ]);
+
+        $this->cacheService->forget($cacheKey);
 
         return true;
     }
@@ -121,29 +152,37 @@ class LeaveManagementService
     public function processLeaveCancellation(LeaveRequest $leaveRequest): bool
     {
         if ($leaveRequest->status !== 'approved') {
-            return false; // Can only cancel approved leave
+            return false;
         }
 
-        // Update the leave request status
+        $currentYear = date('Y');
+
+        $cacheKey = $this->cacheService->generateKey('leave_balance', [
+            'staff_id' => $leaveRequest->staff_id,
+            'leave_type_id' => $leaveRequest->leave_type_id,
+            'year' => $currentYear,
+        ]);
+
         $leaveRequest->update(['status' => 'cancelled']);
 
-        // Restore the leave balance
         $leaveBalance = LeaveBalance::firstOrCreate(
             [
                 'staff_id' => $leaveRequest->staff_id,
                 'leave_type_id' => $leaveRequest->leave_type_id,
-                'year' => date('Y')
+                'year' => $currentYear,
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
         $leaveBalance->increment('current_balance', $leaveRequest->total_days);
         $leaveBalance->decrement('used_days', $leaveRequest->total_days);
+
+        $this->cacheService->forget($cacheKey);
 
         return true;
     }

@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
+use App\Models\User;
 
 class AuthService implements AuthServiceInterface
 {
@@ -24,25 +25,19 @@ class AuthService implements AuthServiceInterface
      */
     public function register(array $data): array
     {
-        // Check if user already exists (simplified approach)
-        // In a real implementation, this would use proper Eloquent queries
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['email'] === $data['email']) {
-                throw new \Exception('User with this email already exists');
-            }
+        $existingUser = User::where('email', $data['email'])->first();
+        if ($existingUser) {
+            throw new \Exception('User with this email already exists');
         }
 
-        // Create new user (simplified approach)
-        $user = [
-            'id' => uniqid(),
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-        ];
+            'is_active' => true,
+        ]);
 
-        // In a real implementation, this would save to database
-        return ['user' => $user];
+        return ['user' => $user->toArray()];
     }
 
     /**
@@ -214,12 +209,10 @@ class AuthService implements AuthServiceInterface
     }
 
     /**
-     * Get all users (simplified approach for now)
+     * Get all users from database
      */
     private function getAllUsers(): array
     {
-        // This is a simplified approach - in a real implementation, 
-        // this would query the database
-        return [];
+        return User::all()->toArray();
     }
 }

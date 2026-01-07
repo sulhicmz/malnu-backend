@@ -1,0 +1,2019 @@
+openapi: 3.0.0
+info:
+  title: Malnu Backend API
+  version: 1.0.0
+  description: |
+    Comprehensive school management system API built on HyperVel framework.
+
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+
+    ## Rate Limiting
+    API requests are rate limited. Check response headers for rate limit information.
+
+  contact:
+    name: API Support
+    email: support@malnu.edu
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:9501/api
+    description: Local development server
+  - url: https://api.malnu.edu/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization endpoints
+  - name: Attendance
+    description: Staff attendance and leave management
+  - name: Students
+    description: Student management endpoints
+  - name: Teachers
+    description: Teacher management endpoints
+  - name: Calendar
+    description: Calendar and event management
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with the provided credentials
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 3
+                  description: User's full name
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  minLength: 6
+                  description: User's password (minimum 6 characters)
+                  example: securepassword123
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  id: 1
+                  name: John Doe
+                  email: john.doe@example.com
+                message: User registered successfully
+                timestamp: 2024-01-01T00:00:00+00:00
+        '400':
+          description: Validation error or registration failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and returns a JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  description: User's password
+                  example: securepassword123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    id: 1
+                    name: John Doe
+                    email: john.doe@example.com
+                message: Login successful
+                timestamp: 2024-01-01T00:00:00+00:00
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidates the current JWT token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: Successfully logged out
+                timestamp: 2024-01-01T00:00:00+00:00
+        '401':
+          description: Unauthorized - token not provided or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Refreshes an expired JWT token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                message: Token refreshed successfully
+                timestamp: 2024-01-01T00:00:00+00:00
+        '401':
+          description: Unauthorized - token not provided or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      description: Retrieves the authenticated user's information
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  user:
+                    id: 1
+                    name: John Doe
+                    email: john.doe@example.com
+                message: User retrieved successfully
+                timestamp: 2024-01-01T00:00:00+00:00
+        '401':
+          description: Unauthorized - token not provided or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/password/forgot:
+    post:
+      tags:
+        - Authentication
+      summary: Request password reset
+      description: Sends a password reset link to the user's email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: john.doe@example.com
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or email not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/password/reset:
+    post:
+      tags:
+        - Authentication
+      summary: Reset password with token
+      description: Resets the user's password using a reset token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  description: Password reset token from email
+                  example: abc123def456
+                password:
+                  type: string
+                  minLength: 6
+                  description: New password (minimum 6 characters)
+                  example: newsecurepassword123
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/password/change:
+    post:
+      tags:
+        - Authentication
+      summary: Change password
+      description: Changes the authenticated user's password
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+              properties:
+                current_password:
+                  type: string
+                  description: Current password
+                  example: oldpassword123
+                new_password:
+                  type: string
+                  minLength: 6
+                  description: New password (minimum 6 characters)
+                  example: newpassword123
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or incorrect current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - token not provided or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/staff-attendances:
+    get:
+      tags:
+        - Attendance
+      summary: List staff attendances
+      description: Retrieves a paginated list of staff attendance records
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Staff attendances retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Attendance
+      summary: Create staff attendance
+      description: Creates a new staff attendance record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                staff_id:
+                  type: integer
+                  description: Staff member ID
+                date:
+                  type: string
+                  format: date
+                  description: Attendance date (YYYY-MM-DD)
+                status:
+                  type: string
+                  enum: [present, absent, late, leave]
+                  description: Attendance status
+                check_in_time:
+                  type: string
+                  format: time
+                  description: Check-in time (HH:MM:SS)
+                check_out_time:
+                  type: string
+                  format: time
+                  description: Check-out time (HH:MM:SS)
+      responses:
+        '201':
+          description: Staff attendance created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/staff-attendances/{id}:
+    get:
+      tags:
+        - Attendance
+      summary: Get staff attendance
+      description: Retrieves a specific staff attendance record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Attendance record ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff attendance retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Attendance record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Attendance
+      summary: Update staff attendance
+      description: Updates a staff attendance record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Attendance record ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [present, absent, late, leave]
+                check_in_time:
+                  type: string
+                  format: time
+                check_out_time:
+                  type: string
+                  format: time
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Staff attendance updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Attendance record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Attendance
+      summary: Delete staff attendance
+      description: Deletes a staff attendance record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Attendance record ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff attendance deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Attendance record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/staff-attendances/mark-attendance:
+    post:
+      tags:
+        - Attendance
+      summary: Mark attendance for multiple staff
+      description: Marks attendance for multiple staff members at once
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - attendances
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Attendance date (YYYY-MM-DD)
+                  example: 2024-01-01
+                attendances:
+                  type: array
+                  description: Array of attendance records
+                  items:
+                    type: object
+                    properties:
+                      staff_id:
+                        type: integer
+                      status:
+                        type: string
+                        enum: [present, absent, late, leave]
+                      check_in_time:
+                        type: string
+                        format: time
+                      check_out_time:
+                        type: string
+                        format: time
+      responses:
+        '200':
+          description: Attendance marked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-types:
+    get:
+      tags:
+        - Attendance
+      summary: List leave types
+      description: Retrieves a list of leave types
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Leave types retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Attendance
+      summary: Create leave type
+      description: Creates a new leave type
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - days_allowed
+              properties:
+                name:
+                  type: string
+                  description: Leave type name
+                  example: Annual Leave
+                description:
+                  type: string
+                  description: Leave type description
+                days_allowed:
+                  type: integer
+                  description: Maximum days allowed per year
+                  example: 12
+                requires_approval:
+                  type: boolean
+                  description: Whether approval is required
+                  default: true
+      responses:
+        '201':
+          description: Leave type created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-types/{id}:
+    get:
+      tags:
+        - Attendance
+      summary: Get leave type
+      description: Retrieves a specific leave type
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave type ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave type retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Leave type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Attendance
+      summary: Update leave type
+      description: Updates a leave type
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave type ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                days_allowed:
+                  type: integer
+                requires_approval:
+                  type: boolean
+      responses:
+        '200':
+          description: Leave type updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Leave type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Attendance
+      summary: Delete leave type
+      description: Deletes a leave type
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave type ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave type deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Leave type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-requests:
+    get:
+      tags:
+        - Attendance
+      summary: List leave requests
+      description: Retrieves a paginated list of leave requests with optional filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 15
+        - name: staff_id
+          in: query
+          description: Filter by staff ID
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: leave_type_id
+          in: query
+          description: Filter by leave type ID
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          description: Filter by start date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: Filter by end date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Leave requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Attendance
+      summary: Create leave request
+      description: Creates a new leave request
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - staff_id
+                - leave_type_id
+                - start_date
+                - end_date
+                - reason
+              properties:
+                staff_id:
+                  type: integer
+                  description: Staff member ID
+                leave_type_id:
+                  type: integer
+                  description: Leave type ID
+                start_date:
+                  type: string
+                  format: date
+                  description: Leave start date (YYYY-MM-DD)
+                end_date:
+                  type: string
+                  format: date
+                  description: Leave end date (YYYY-MM-DD)
+                reason:
+                  type: string
+                  maxLength: 500
+                  description: Reason for leave
+                comments:
+                  type: string
+                  description: Additional comments
+      responses:
+        '201':
+          description: Leave request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-requests/{id}:
+    get:
+      tags:
+        - Attendance
+      summary: Get leave request
+      description: Retrieves a specific leave request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave request ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave request retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Leave request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Attendance
+      summary: Update leave request
+      description: Updates a leave request (only pending requests)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave request ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comments:
+                  type: string
+                  description: Additional comments
+      responses:
+        '200':
+          description: Leave request updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Cannot update processed request or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Leave request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Attendance
+      summary: Delete leave request
+      description: Deletes a leave request (only pending requests)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave request ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leave request deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Cannot delete processed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Leave request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-requests/{id}/approve:
+    post:
+      tags:
+        - Attendance
+      summary: Approve leave request
+      description: Approves a pending leave request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave request ID
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approval_comments:
+                  type: string
+                  description: Approval comments
+      responses:
+        '200':
+          description: Leave request approved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Leave request is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Leave request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attendance/leave-requests/{id}/reject:
+    post:
+      tags:
+        - Attendance
+      summary: Reject leave request
+      description: Rejects a pending leave request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Leave request ID
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approval_comments:
+                  type: string
+                  description: Rejection reason
+      responses:
+        '200':
+          description: Leave request rejected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Leave request is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Leave request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /school/students:
+    get:
+      tags:
+        - Students
+      summary: List students
+      description: Retrieves a paginated list of students with optional filters
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 15
+        - name: class_id
+          in: query
+          description: Filter by class ID
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search by name or NISN
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Students
+      summary: Create student
+      description: Creates a new student record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - nisn
+                - class_id
+                - enrollment_year
+                - status
+              properties:
+                name:
+                  type: string
+                  description: Student's full name
+                  example: John Doe
+                nisn:
+                  type: string
+                  description: Student's National Student ID
+                  example: 1234567890
+                email:
+                  type: string
+                  format: email
+                  description: Student's email address
+                class_id:
+                  type: integer
+                  description: Class ID
+                enrollment_year:
+                  type: integer
+                  description: Year of enrollment
+                  example: 2024
+                status:
+                  type: string
+                  enum: [active, inactive, graduated, transferred]
+                  description: Student status
+                  example: active
+      responses:
+        '201':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or duplicate NISN/email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /school/students/{id}:
+    get:
+      tags:
+        - Students
+      summary: Get student
+      description: Retrieves a specific student record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Students
+      summary: Update student
+      description: Updates a student record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                class_id:
+                  type: integer
+                status:
+                  type: string
+                  enum: [active, inactive, graduated, transferred]
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error or duplicate NISN/email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Students
+      summary: Delete student
+      description: Deletes a student record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Student ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /school/teachers:
+    get:
+      tags:
+        - Teachers
+      summary: List teachers
+      description: Retrieves a list of teachers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Teachers
+      summary: Create teacher
+      description: Creates a new teacher record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Teacher's full name
+                email:
+                  type: string
+                  format: email
+                  description: Teacher's email address
+                subject_specialization:
+                  type: string
+                  description: Subject specialization
+                phone:
+                  type: string
+                  description: Phone number
+      responses:
+        '201':
+          description: Teacher created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /school/teachers/{id}:
+    get:
+      tags:
+        - Teachers
+      summary: Get teacher
+      description: Retrieves a specific teacher record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Teacher ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Teacher retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Teacher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Teachers
+      summary: Update teacher
+      description: Updates a teacher record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Teacher ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                subject_specialization:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: Teacher updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Teacher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Teachers
+      summary: Delete teacher
+      description: Deletes a teacher record
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Teacher ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Teacher deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Teacher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/calendars:
+    post:
+      tags:
+        - Calendar
+      summary: Create calendar
+      description: Creates a new calendar
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Calendar name
+                  example: School Events
+                description:
+                  type: string
+                  description: Calendar description
+                color:
+                  type: string
+                  description: Calendar color code
+                  example: #FF5733
+      responses:
+        '201':
+          description: Calendar created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/calendars/{id}:
+    get:
+      tags:
+        - Calendar
+      summary: Get calendar
+      description: Retrieves a specific calendar
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Calendar ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Calendar retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Calendar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Calendar
+      summary: Update calendar
+      description: Updates a calendar
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Calendar ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                color:
+                  type: string
+      responses:
+        '200':
+          description: Calendar updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Calendar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Calendar
+      summary: Delete calendar
+      description: Deletes a calendar
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Calendar ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Calendar deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Calendar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/events:
+    post:
+      tags:
+        - Calendar
+      summary: Create event
+      description: Creates a new calendar event
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - calendar_id
+                - title
+                - start_date
+                - end_date
+              properties:
+                calendar_id:
+                  type: integer
+                  description: Calendar ID
+                title:
+                  type: string
+                  description: Event title
+                  example: Parent-Teacher Conference
+                description:
+                  type: string
+                  description: Event description
+                start_date:
+                  type: string
+                  format: date-time
+                  description: Event start date and time
+                end_date:
+                  type: string
+                  format: date-time
+                  description: Event end date and time
+                location:
+                  type: string
+                  description: Event location
+                category:
+                  type: string
+                  description: Event category
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  description: Event priority
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/events/{id}:
+    get:
+      tags:
+        - Calendar
+      summary: Get event
+      description: Retrieves a specific event
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Event retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Calendar
+      summary: Update event
+      description: Updates an event
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
+                location:
+                  type: string
+                category:
+                  type: string
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+      responses:
+        '200':
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Calendar
+      summary: Delete event
+      description: Deletes an event
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Event deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/calendars/{calendarId}/events:
+    get:
+      tags:
+        - Calendar
+      summary: Get events by date range
+      description: Retrieves events for a calendar within a date range
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: calendarId
+          in: path
+          required: true
+          description: Calendar ID
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          required: true
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+        - name: priority
+          in: query
+          description: Filter by priority
+          schema:
+            type: string
+            enum: [low, medium, high]
+      responses:
+        '200':
+          description: Events retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Missing required parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/events/{eventId}/register:
+    post:
+      tags:
+        - Calendar
+      summary: Register for event
+      description: Registers the authenticated user for an event
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  description: Registration notes
+      responses:
+        '200':
+          description: Successfully registered for event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Registration failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/calendars/{calendarId}/share:
+    post:
+      tags:
+        - Calendar
+      summary: Share calendar
+      description: Shares a calendar with another user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: calendarId
+          in: path
+          required: true
+          description: Calendar ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - permission_type
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID to share with
+                permission_type:
+                  type: string
+                  enum: [read, write, admin]
+                  description: Permission level
+                expires_at:
+                  type: string
+                  format: date-time
+                  description: Optional expiration date
+      responses:
+        '200':
+          description: Calendar shared successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calendar/resources/book:
+    post:
+      tags:
+        - Calendar
+      summary: Book a resource
+      description: Books a resource (classroom, equipment, etc.)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resource_type
+                - resource_id
+                - start_time
+                - end_time
+              properties:
+                resource_type:
+                  type: string
+                  description: Type of resource (classroom, equipment, etc.)
+                resource_id:
+                  type: integer
+                  description: Resource ID
+                start_time:
+                  type: string
+                  format: date-time
+                  description: Booking start time
+                end_time:
+                  type: string
+                  format: date-time
+                  description: Booking end time
+                notes:
+                  type: string
+                  description: Booking notes
+      responses:
+        '200':
+          description: Resource booked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid parameters or resource unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: Response data (omitted if null)
+        message:
+          type: string
+          example: Operation successful
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: An error occurred
+            code:
+              type: string
+              example: GENERAL_ERROR
+            details:
+              type: object
+              description: Additional error details (present for validation errors)
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+
+    ValidationError:
+      type: object
+      description: Validation error details
+      properties:
+        field_name:
+          type: array
+          items:
+            type: string
+          example: ["The field_name field is required."]

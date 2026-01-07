@@ -53,7 +53,20 @@ For development, please focus on the main application:
 
 ## Documentation
 
+### Project Documentation
 - [Project Structure Details](PROJECT_STRUCTURE.md)
 - [Application Status and Purpose](APPLICATION_STATUS.md)
 - [Migration and Consolidation Plan](MIGRATION_PLAN.md)
 - [Contribution Guidelines](CONTRIBUTING.md)
+
+### API Documentation
+- [Interactive API Documentation](/api-docs.html) - Swagger UI with try-it-out functionality
+- [OpenAPI Specification](api/openapi.yaml) - Complete API specification in YAML format
+- [Developer Guide](api/developer-guide.md) - Comprehensive guide for API integration
+- [API Overview](API.md) - Basic API information and endpoints
+
+### Additional Resources
+- [Architecture Documentation](ARCHITECTURE.md)
+- [Database Schema](DATABASE_SCHEMA.md)
+- [Development Guide](DEVELOPMENT.md)
+- [Roadmap](ROADMAP.md)

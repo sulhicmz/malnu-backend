@@ -21,7 +21,7 @@ concurrency:
 jobs:
   opencode:
     name: opencode - pr handler
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     
 
@@ -332,5 +332,5 @@ jobs:
             Your run is considered successful only if all the steps above are followed and the pull request or branch is left in a high-quality, healthy state aligned with GitHub best practices, and merge is performed automatically when a PR has clearly satisfied all merge criteria.
           PROMPT
           )" \
-            --model iflowcn/qwen3-coder-plus \
+            --model opencode/glm-4.7-free \
             --share false \

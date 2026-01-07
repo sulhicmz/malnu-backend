@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\HealthManagementController;
 use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
@@ -53,6 +54,43 @@ Route::group(['middleware' => ['jwt']], function () {
         
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+    });
+});
+
+// Health Management Routes (protected)
+Route::group(['middleware' => ['jwt']], function () {
+    Route::prefix('health')->group(function () {
+        // Health Records
+        Route::get('students/{studentId}/health-record', [HealthManagementController::class, 'getHealthRecord']);
+        Route::post('health-records', [HealthManagementController::class, 'createHealthRecord']);
+
+        // Medications
+        Route::get('students/{studentId}/medications', [HealthManagementController::class, 'getMedications']);
+        Route::post('medications', [HealthManagementController::class, 'createMedication']);
+        Route::put('medications/{id}', [HealthManagementController::class, 'updateMedication']);
+        Route::delete('medications/{id}', [HealthManagementController::class, 'deleteMedication']);
+
+        // Immunizations
+        Route::get('students/{studentId}/immunizations', [HealthManagementController::class, 'getImmunizations']);
+        Route::get('students/{studentId}/immunization-compliance', [HealthManagementController::class, 'getImmunizationCompliance']);
+        Route::post('immunizations', [HealthManagementController::class, 'createImmunization']);
+
+        // Allergies
+        Route::get('students/{studentId}/allergies', [HealthManagementController::class, 'getAllergies']);
+        Route::get('students/{studentId}/severe-allergies-alert', [HealthManagementController::class, 'getSevereAllergiesAlert']);
+        Route::post('allergies', [HealthManagementController::class, 'createAllergy']);
+
+        // Emergency Contacts
+        Route::get('students/{studentId}/emergency-contacts', [HealthManagementController::class, 'getEmergencyContacts']);
+        Route::post('emergency-contacts', [HealthManagementController::class, 'createEmergencyContact']);
+
+        // Medical Incidents
+        Route::get('medical-incidents', [HealthManagementController::class, 'getMedicalIncidents']);
+        Route::post('medical-incidents', [HealthManagementController::class, 'createMedicalIncident']);
+
+        // Reports and Analytics
+        Route::get('students/{studentId}/health-report', [HealthManagementController::class, 'getHealthReport']);
+        Route::get('health-summary', [HealthManagementController::class, 'getHealthSummary']);
     });
 });
 

@@ -345,6 +345,118 @@ Frontend has 9 security vulnerabilities (2 high, 5 moderate, 2 low severity) ide
 **Priority**: P1
 **Estimated**: 4 weeks
 
+---
+
+### [TASK-300] Integration Hardening - Resilience Patterns
+
+**Feature**: Integration
+**Status**: Completed
+**Agent**: 07 Integration
+**Priority**: P0
+**Estimated**: 3-5 days
+**Completed**: January 7, 2026
+
+#### Description
+
+Implemented comprehensive resilience patterns to protect the API from failures and ensure reliable operation under adverse conditions.
+
+#### Acceptance Criteria
+
+- [x] Implement Rate Limiting middleware to protect API endpoints from overload
+- [x] Add timeout configuration for all database and external service calls
+- [x] Implement Circuit Breaker pattern for external service failures
+- [x] Standardize error response codes across all controllers
+- [x] Create centralized error code constants for consistency
+- [x] Add retry mechanism with exponential backoff for transient failures
+- [x] Implement fallback mechanisms for degraded functionality
+- [x] Update documentation with integration patterns
+
+#### Technical Details
+
+**Files Created**:
+- `app/Enums/ErrorCode.php` - Centralized error codes with HTTP status mapping
+- `app/Http/Middleware/RateLimitMiddleware.php` - API rate limiting with Redis
+- `app/Services/CircuitBreaker.php` - Circuit breaker pattern implementation
+- `app/Services/RetryService.php` - Retry with exponential backoff
+- `app/Services/TimeoutService.php` - Timeout protection for operations
+
+**Files Modified**:
+- `app/Http/Controllers/Api/BaseController.php` - Updated to use ErrorCode enum
+- `app/Http/Controllers/Api/SchoolManagement/StudentController.php` - Standardized error codes
+- `.env.example` - Added rate limiting and timeout configuration
+- `config/database.php` - Timeout settings already configured
+- `docs/blueprint.md` - Added integration standards section
+
+**Configuration**:
+- Rate limiting: 60 requests per 60 seconds (configurable)
+- Auth rate limiting: 5 requests per 60 seconds (recommended)
+- Database timeout: 10 seconds
+- External service timeout: 30 seconds (configurable)
+- Circuit breaker: 5 failures, 60s recovery timeout
+- Retry: 3 attempts with exponential backoff
+
+**Resilience Patterns Implemented**:
+1. Rate Limiting - Prevents API abuse and overload
+2. Timeouts - Prevents hung operations
+3. Retries - Handles transient failures automatically
+4. Circuit Breaker - Prevents cascading failures
+5. Fallbacks - Graceful degradation when services fail
+6. Standardized Errors - Consistent API responses
+7. Caching - Reduces load on backend services
+
+**Error Codes Structure**:
+- 1xxx: General errors (VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)
+- 2xxx: Authentication errors (AUTH_INVALID_CREDENTIALS, AUTH_TOKEN_EXPIRED)
+- 3xxx: Registration errors (REGISTRATION_FAILED, REGISTRATION_EMAIL_EXISTS)
+- 4xxx: Student errors (STUDENT_NOT_FOUND, STUDENT_CREATION_ERROR)
+- 5xxx: Teacher errors (TEACHER_NOT_FOUND, TEACHER_CREATION_ERROR)
+- 8xxx: Attendance errors (ATTENDANCE_ERROR, LEAVE_REQUEST_NOT_FOUND)
+- 9xxx: Calendar errors (EVENT_NOT_FOUND, CALENDAR_CREATION_ERROR)
+- 11xxx: File upload errors (FILE_UPLOAD_ERROR, FILE_UPLOAD_INVALID_TYPE)
+- 14xxx: External service errors (EXTERNAL_SERVICE_TIMEOUT, EXTERNAL_SERVICE_ERROR)
+- 18xxx: Rate limiting errors (RATE_LIMIT_EXCEEDED)
+
+#### Benefits
+
+- **Reliability**: External service failures don't cascade to users
+- **Performance**: Timeouts prevent hung operations
+- **Scalability**: Rate limiting protects resources from abuse
+- **Resilience**: Automatic retries handle transient failures
+- **User Experience**: Fallbacks provide degraded but functional service
+- **Maintainability**: Centralized error codes ensure consistency
+- **Monitoring**: Standardized headers for rate limits and status
+
+#### Usage Examples
+
+**Apply Rate Limiting to Routes**:
+```php
+Route::group(['middleware' => ['jwt', 'rate_limit']], function () {
+    Route::apiResource('students', StudentController::class);
+});
+```
+
+**Use Circuit Breaker**:
+```php
+$circuitBreaker = new CircuitBreaker('payment_service');
+$result = $circuitBreaker->call(
+    fn() => $paymentService->process($data),
+    fallback: fn() => ['status' => 'service_unavailable']
+);
+```
+
+**Use Retry Service**:
+```php
+$retryService = new RetryService(maxAttempts: 3);
+$result = $retryService->call(fn() => Student::create($data));
+```
+
+#### Dependencies
+
+- Redis (for circuit breaker state and rate limiting)
+- CacheService (for all resilience patterns)
+
+---
+
 #### Description
 
 Only 3 basic controllers exist for complex system with 11 business domains. Need comprehensive RESTful API controllers for all domains.

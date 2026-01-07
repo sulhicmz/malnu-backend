@@ -155,7 +155,148 @@ tests/
 └── Database/             # Migration and schema tests
 ```
 
-### Quality Gates
+#### Integration Standards
+
+#### Resilience Patterns
+
+The application implements the following resilience patterns to ensure reliability and availability:
+
+**Rate Limiting**
+- Protects API endpoints from overload and abuse
+- Middleware: `App\Http\Middleware\RateLimitMiddleware`
+- Configuration: `RATE_LIMIT_MAX_ATTEMPTS`, `RATE_LIMIT_DECAY_SECONDS`
+- Different limits for different endpoint types (auth endpoints stricter)
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
+**Timeouts**
+- All external service calls must have timeouts configured
+- Database timeout: 10 seconds (config/database.php)
+- External service timeout: 30 seconds (configurable)
+- Circuit breaker timeout: 60 seconds
+- Prevents cascading failures from hung operations
+
+**Retries with Exponential Backoff**
+- Service: `App\Services\RetryService`
+- Automatic retry for transient failures
+- Exponential backoff: base_delay * (2^(attempt-1))
+- Jitter added to prevent thundering herd
+- Max 3 attempts by default
+- Retryable exceptions: RuntimeException, PDOException, network errors
+
+**Circuit Breaker**
+- Service: `App\Services\CircuitBreaker`
+- States: CLOSED, OPEN, HALF_OPEN
+- Failure threshold: 5 consecutive failures
+- Recovery timeout: 60 seconds
+- Success threshold: 2 consecutive successes in HALF_OPEN
+- Prevents calling failing services repeatedly
+- Supports fallback functions for degraded functionality
+
+**Fallback Mechanisms**
+- Graceful degradation when services fail
+- Fallback functions for all external service calls
+- Cached responses for GET endpoints (CacheResponse middleware)
+- Default responses for non-critical features
+- User-friendly error messages
+
+#### Error Response Standardization
+
+**Error Codes**
+- Centralized in `App\Enums\ErrorCode`
+- Standardized codes: `STUDENT_NOT_FOUND`, `AUTH_TOKEN_EXPIRED`, etc.
+- Grouped by domain: 1xxx (General), 2xxx (Auth), 3xxx (Registration), etc.
+- Automatic HTTP status code mapping via `ErrorCode::getStatusCode()`
+
+**Error Response Format**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Human-readable error message",
+    "code": "ERROR_CODE_CONSTANT",
+    "details": { "field": ["Error message"] }
+  },
+  "timestamp": "2026-01-07T12:00:00+00:00"
+}
+```
+
+**Using Error Codes**
+```php
+use App\Enums\ErrorCode;
+
+return $this->errorResponse(
+    $message,
+    ErrorCode::STUDENT_NOT_FOUND,
+    $details,
+    ErrorCode::getStatusCode(ErrorCode::STUDENT_NOT_FOUND)
+);
+```
+
+#### Integration Best Practices
+
+**External API Calls**
+1. Always use `RetryService` for network calls
+2. Wrap with `CircuitBreaker` for external services
+3. Provide fallback functions for critical operations
+4. Log failures with context (service, attempt count, exception)
+5. Set reasonable timeouts (never infinite)
+
+**Database Operations**
+1. Use `RetryService` for transaction conflicts
+2. Configure connection timeouts in database config
+3. Use proper indexes to prevent slow queries
+4. Leverage caching for frequently accessed data
+5. Monitor query performance
+
+**Cache Management**
+1. Use `CacheService` for all cache operations
+2. Set appropriate TTLs (short for volatile, long for static)
+3. Implement cache invalidation on data changes
+4. Use cache warming for high-traffic endpoints
+5. Monitor cache hit rates
+
+**Error Handling**
+1. Use centralized `ErrorCode` constants
+2. Provide meaningful error messages
+3. Include relevant details for debugging
+4. Log errors with full context
+5. Never expose sensitive information in error messages
+
+#### Service Integration Examples
+
+**Circuit Breaker + Retry + Timeout**
+```php
+$circuitBreaker = new CircuitBreaker('external_api');
+$retryService = new RetryService();
+$timeoutService = new TimeoutService();
+
+$result = $circuitBreaker->call(
+    fn() => $retryService->call(
+        fn() => $timeoutService->call(
+            fn() => $this->makeApiCall(),
+            timeoutMs: 5000
+        )
+    ),
+    fallback: fn() => ['data' => 'cached_response']
+);
+```
+
+**Database Operation with Retry**
+```php
+$retryService = new RetryService();
+
+$student = $retryService->call(fn() => Student::create($data));
+```
+
+**Cached API Response**
+```php
+$cacheService = new CacheService();
+$key = $cacheService->generateKey('students:list', $params);
+
+$students = $cacheService->remember($key, fn() => Student::paginate(), 300);
+```
+
+## Quality Gates
 
 #### Pre-commit
 - PHPStan static analysis (level 5)

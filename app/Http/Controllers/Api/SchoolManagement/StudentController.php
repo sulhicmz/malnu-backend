@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
 
+use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -24,37 +28,41 @@ class StudentController extends BaseController
     public function index()
     {
         try {
-            $query = Student::with(['class']);
+            $cacheService = new \App\Services\CacheService();
 
-            // Get query parameters
-            $classId = $this->request->query('class_id');
-            $status = $this->request->query('status');
-            $search = $this->request->query('search');
-            $page = (int) $this->request->query('page', 1);
-            $limit = (int) $this->request->query('limit', 15);
+            $params = [
+                'class_id' => $this->request->query('class_id'),
+                'status' => $this->request->query('status'),
+                'search' => $this->request->query('search'),
+                'page' => (int) $this->request->query('page', 1),
+                'limit' => (int) $this->request->query('limit', 15),
+            ];
 
-            // Filter by class if provided
-            if ($classId) {
-                $query->where('class_id', $classId);
-            }
+            $cacheKey = $cacheService->generateKey('students:list', $params);
 
-            // Filter by status if provided
-            if ($status) {
-                $query->where('status', $status);
-            }
+            $students = $cacheService->remember($cacheKey, function () use ($params) {
+                $query = Student::with(['class']);
 
-            // Search by name or NISN if provided
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('nisn', 'like', "%{$search}%");
-                });
-            }
+                if ($params['class_id']) {
+                    $query->where('class_id', $params['class_id']);
+                }
 
-            $students = $query->orderBy('name', 'asc')->paginate($limit, ['*'], 'page', $page);
+                if ($params['status']) {
+                    $query->where('status', $params['status']);
+                }
+
+                if ($params['search']) {
+                    $query->where(function ($q) use ($params) {
+                        $q->where('name', 'like', "%{$params['search']}%")
+                            ->orWhere('nisn', 'like', "%{$params['search']}%");
+                    });
+                }
+
+                return $query->orderBy('name', 'asc')->paginate($params['limit'], ['*'], 'page', $params['page']);
+            }, 300);
 
             return $this->successResponse($students, 'Students retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -65,20 +73,20 @@ class StudentController extends BaseController
     public function store()
     {
         try {
+            $cacheService = new \App\Services\CacheService();
+
             $data = $this->request->all();
 
-            // Validate required fields
             $requiredFields = ['name', 'nisn', 'class_id', 'enrollment_year', 'status'];
             $errors = [];
-            
+
             foreach ($requiredFields as $field) {
                 if (empty($data[$field])) {
                     $errors[$field] = ["The {$field} field is required."];
                 }
             }
 
-            // Additional validation
-            if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            if (isset($data['email']) && ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $errors['email'] = ['The email must be a valid email address.'];
             }
 
@@ -96,15 +104,17 @@ class StudentController extends BaseController
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $student = Student::create($data);
 
+            $cacheService->forget($cacheService->getPrefix() . ':students:list');
+
             return $this->successResponse($student, 'Student created successfully', 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_CREATION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::STUDENT_CREATION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::STUDENT_CREATION_ERROR));
         }
     }
 
@@ -114,14 +124,19 @@ class StudentController extends BaseController
     public function show(string $id)
     {
         try {
-            $student = Student::with(['class'])->find($id);
+            $cacheService = new \App\Services\CacheService();
+            $cacheKey = $cacheService->getPrefix() . ":student:{$id}";
 
-            if (!$student) {
+            $student = $cacheService->remember($cacheKey, function () use ($id) {
+                return Student::with(['class'])->find($id);
+            }, 600);
+
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
             return $this->successResponse($student, 'Student retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -132,15 +147,16 @@ class StudentController extends BaseController
     public function update(string $id)
     {
         try {
+            $cacheService = new \App\Services\CacheService();
+
             $student = Student::find($id);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
             $data = $this->request->all();
 
-            // Validate unique fields if they are being updated
             if (isset($data['nisn']) && $data['nisn'] !== $student->nisn) {
                 $existingStudent = Student::where('nisn', $data['nisn'])->first();
                 if ($existingStudent) {
@@ -157,9 +173,12 @@ class StudentController extends BaseController
 
             $student->update($data);
 
+            $cacheService->forget($cacheService->getPrefix() . ":student:{$id}");
+            $cacheService->forget($cacheService->getPrefix() . ':students:list');
+
             return $this->successResponse($student, 'Student updated successfully');
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_UPDATE_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::STUDENT_UPDATE_ERROR, null, ErrorCode::getStatusCode(ErrorCode::STUDENT_UPDATE_ERROR));
         }
     }
 
@@ -169,17 +188,22 @@ class StudentController extends BaseController
     public function destroy(string $id)
     {
         try {
+            $cacheService = new \App\Services\CacheService();
+
             $student = Student::find($id);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
             $student->delete();
 
+            $cacheService->forget($cacheService->getPrefix() . ":student:{$id}");
+            $cacheService->forget($cacheService->getPrefix() . ':students:list');
+
             return $this->successResponse(null, 'Student deleted successfully');
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_DELETION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), ErrorCode::STUDENT_DELETION_ERROR, null, ErrorCode::getStatusCode(ErrorCode::STUDENT_DELETION_ERROR));
         }
     }
 }

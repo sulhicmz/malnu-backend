@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Hyperf\Cache\SwooleStore;
-use Hyperf\Support\Str;
+use Hypervel\Cache\SwooleStore;
+use Hypervel\Support\Str;
 
 return [
     /*
@@ -54,7 +54,7 @@ return [
             'driver' => 'swoole',
             'table' => 'default',
             'memory_limit_buffer' => 0.05,
-            'eviction_policy' => SwooleStore::EVICTION_POLICY_LRU,
+            'eviction_policy' => Hypervel\Cache\SwooleStore::EVICTION_POLICY_LRU,
             'eviction_proportion' => 0.05,
             'eviction_interval' => 10000, // milliseconds
         ],
@@ -89,5 +89,5 @@ return [
     |
     */
 
-    'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'hypervel'), '_') . '_cache'),
+    'prefix' => env('CACHE_PREFIX', Hypervel\Support\Str::slug(env('APP_NAME', 'hypervel'), '_') . '_cache'),
 ];

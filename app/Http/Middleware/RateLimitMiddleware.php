@@ -31,7 +31,7 @@ class RateLimitMiddleware implements MiddlewareInterface
     {
         $this->container = $container;
         $this->cache = new CacheService();
-        $this->response = $container->get(ResponseInterface::class);
+        $this->response = $container->get(Hypervel\HttpServer\Contract\ResponseInterface::class);
 
         $this->maxAttempts = (int) env('RATE_LIMIT_MAX_ATTEMPTS', 60);
         $this->decaySeconds = (int) env('RATE_LIMIT_DECAY_SECONDS', 60);

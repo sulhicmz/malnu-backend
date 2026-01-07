@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Hyperf\Foundation\Http\Middleware\ConvertEmptyStringsToNull as Middleware;
+use Hypervel\Foundation\Http\Middleware\use Hyperf\Foundation\Http\Middleware\ConvertEmptyStringsToNull as Middleware;
 
 class ConvertEmptyStringsToNull extends Middleware
 {

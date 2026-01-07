@@ -10,7 +10,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\IndexController;
-use Hyperf\Support\Facades\Route;
+use Hypervel\Support\Facades\Route;
 
 // Public routes (no authentication required)
 Route::group(['middleware' => ['input.sanitization', 'rate_limit']], function () {

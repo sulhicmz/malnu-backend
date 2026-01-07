@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hyperf\Support\Str;
+use Hypervel\Support\Str;
 
 return [
     /*
@@ -82,7 +82,7 @@ return [
 
     'redis' => [
         'options' => [
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'hypervel'), '_') . '_database_'),
+            'prefix' => env('REDIS_PREFIX', Hypervel\Support\Str::slug(env('APP_NAME', 'hypervel'), '_') . '_database_'),
         ],
 
         'default' => [

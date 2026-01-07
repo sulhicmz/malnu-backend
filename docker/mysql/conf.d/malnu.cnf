@@ -11,14 +11,13 @@ thread_cache_size=50
 
 # InnoDB Settings
 innodb_buffer_pool_size=512M
-innodb_log_file_size=128M
+innodb_redo_log_capacity=268435456
 innodb_log_buffer_size=16M
 innodb_flush_log_at_trx_commit=2
 innodb_file_per_table=1
 
-# Query Cache (disabled in MySQL 8.0, use query_cache_type=0)
-query_cache_type=0
-query_cache_size=0
+# Query Cache removed in MySQL 8.0
+# No replacement needed - query cache deprecated
 
 # Logging
 general_log=0
@@ -28,7 +27,7 @@ long_query_time=2
 
 # Binary Logging
 binlog_format=ROW
-expire_logs_days=7
+binlog_expire_logs_seconds=604800
 
 # SSL
 require_secure_transport=0

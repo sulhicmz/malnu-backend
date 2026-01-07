@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use Hyperf\Support\Str; // fixed str bukan hyperf
+use Hypervel\Support\Str; // fixed str bukan hyperf
 
 trait UsesUuid
 {
@@ -14,7 +14,7 @@ trait UsesUuid
     public function initializeUsesUuid(): void
     {
         if (empty($this->{$this->getKeyName()})) {
-            $this->{$this->getKeyName()} = (string) Str::uuid();
+            $this->{$this->getKeyName()} = (string) Hypervel\Support\Str::uuid();
         }
     }
 

@@ -17,8 +17,8 @@ require BASE_PATH . '/vendor/autoload.php';
 
 // Self-called anonymous function that creates its own scope and keep the global namespace clean.
 (function () {
-    Hyperf\Foundation\ClassLoader::init();
-    /** @var Hyperf\Foundation\Contracts\Application $container */
+    Hypervel\Foundation\ClassLoader::init();
+    /** @var Hypervel\Foundation\Contracts\Application $container */
     $container = require BASE_PATH . '/bootstrap/app.php';
 
     $application = $container->get(Hyperf\Contract\ApplicationInterface::class);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use Hyperf\Contract\ConfigInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,13 +17,10 @@ class SecurityHeaders implements MiddlewareInterface
 
     protected ConfigInterface $config;
 
-    protected HttpResponse $response;
-
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
         $this->config = $container->get(ConfigInterface::class);
-        $this->response = $container->get(HttpResponse::class);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

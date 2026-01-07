@@ -19,7 +19,7 @@ concurrency:
 jobs:
   opencode:
     name: OC
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     permissions:
       id-token: write
@@ -253,5 +253,5 @@ jobs:
             Your run is considered successful only if all the steps above are followed and the repository is left in a clean, consistent state with a high-quality pull request ready for human review.
           PROMPT
           )" \
-            --model iflowcn/qwen3-coder-plus \
+            --model opencode/glm-4.7-free \
             --share false \

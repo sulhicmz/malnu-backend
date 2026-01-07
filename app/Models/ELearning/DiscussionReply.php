@@ -10,9 +10,6 @@ use App\Models\ELearning\Discussion;
 
 class DiscussionReply extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'discussion_id',

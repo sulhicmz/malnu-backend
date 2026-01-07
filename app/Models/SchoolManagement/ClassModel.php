@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
@@ -9,17 +9,9 @@ use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Model;
 use App\Models\OnlineExam\Exam;
-use App\Models\SchoolManagement\Teacher;
-use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\ClassSubject;
 
 class ClassModel extends Model
 {
-
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
-
     protected $fillable = [
         'name',
         'level',

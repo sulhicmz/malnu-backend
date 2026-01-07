@@ -9,9 +9,6 @@ use App\Models\User;
 
 class BookLoan extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'book_id',

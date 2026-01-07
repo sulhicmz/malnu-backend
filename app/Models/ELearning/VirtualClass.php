@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\ELearning;
 
@@ -8,17 +8,9 @@ use App\Models\Model;
 use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
-use App\Models\ELearning\LearningMaterial;
-use App\Models\ELearning\Assignment;
-use App\Models\ELearning\Discussion;
-use App\Models\ELearning\VideoConference;
 
 class VirtualClass extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
-
     protected $fillable = [
         'class_id',
         'subject_id',
@@ -32,15 +24,15 @@ class VirtualClass extends Model
     ];
 
     protected $casts = [
-        'is_active'  => 'boolean',
+        'is_active' => 'boolean',
         'start_date' => 'date',
-        'end_date'   => 'date',
+        'end_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     // Relationships
-    public function class ()
+    public function class()
     {
         return $this->belongsTo(ClassModel::class);
     }

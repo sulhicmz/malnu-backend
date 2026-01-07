@@ -64,6 +64,38 @@ app/Models/
 4. **Middleware**: Request/response processing
 5. **Requests**: Validation classes
 
+#### Model Standardization
+
+All models must inherit from `App\Models\Model` which provides:
+- **Primary Key**: UUID string (`id`)
+- **Key Type**: String (not incrementing)
+- **Incrementing**: False (UUID-based)
+
+**Best Practices**:
+- Never manually set `$primaryKey`, `$keyType`, or `$incrementing` in individual models
+- Use `UsesUuid` trait for automatic UUID generation during `create()`
+- All models automatically inherit UUID configuration from base Model
+- Migrations use `DB::raw('(UUID())')` for default UUID values
+
+**Example**:
+```php
+// Correct - inherits UUID config
+class User extends Authenticatable
+{
+    use UsesUuid;
+
+    protected array $fillable = [...];
+}
+
+// Incorrect - redundant configuration
+class User extends Authenticatable
+{
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+}
+```
+
 ### Security Standards
 
 #### Authentication

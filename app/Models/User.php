@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -29,16 +29,12 @@ use App\Models\PPDB\PpdbTest;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
-use Hyperf\Foundation\Auth\User as Authenticatable;
 use App\Traits\UsesUuid;
+use Hyperf\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
     use UsesUuid;
-
-    protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
-    protected string $keyType = 'string';
-    public bool $incrementing = false;
 
     protected array $fillable = [
         'name',

@@ -14,9 +14,6 @@ class ParentOrtu extends Model
      * The attributes that are mass assignable.
      */
 
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'user_id',

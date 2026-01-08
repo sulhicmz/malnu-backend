@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\RetryServiceInterface;
 use Exception;
 use PDOException;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-class RetryService
+class RetryService implements RetryServiceInterface
 {
     private LoggerInterface $logger;
 

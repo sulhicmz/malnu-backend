@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\LeaveManagementServiceInterface;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\SchoolManagement\Staff;
 use Psr\Container\ContainerInterface;
 
-class LeaveManagementService
+class LeaveManagementService implements LeaveManagementServiceInterface
 {
     private CacheService $cacheService;
 

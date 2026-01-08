@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-class FileTypeDetector
+use App\Contracts\FileTypeDetectorInterface;
+
+class FileTypeDetector implements FileTypeDetectorInterface
 {
     private static array $mimeTypes = [
         'jpg' => 'image/jpeg',

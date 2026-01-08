@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\BackupServiceInterface;
+
 /**
  * Backup Service
  * Provides a centralized service for backup operations and management
  */
-class BackupService
+class BackupService implements BackupServiceInterface
 {
     /**
      * Create a backup based on the specified type

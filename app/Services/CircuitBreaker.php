@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\CircuitBreakerInterface;
 use App\Enums\ErrorCode;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
-class CircuitBreaker
+class CircuitBreaker implements CircuitBreakerInterface
 {
     public const STATE_CLOSED = 'closed';
 

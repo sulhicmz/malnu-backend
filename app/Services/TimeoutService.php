@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\TimeoutServiceInterface;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
-class TimeoutService
+class TimeoutService implements TimeoutServiceInterface
 {
     private LoggerInterface $logger;
 

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\CacheServiceInterface;
 use Closure;
 use Hypervel\Cache\Contracts\Repository;
 use Psr\Container\ContainerInterface;
 
-class CacheService
+class CacheService implements CacheServiceInterface
 {
     private string $prefix = 'hypervel_cache:';
 

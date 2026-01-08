@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Calendar;
 
+use App\Contracts\CalendarServiceInterface;
 use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
-use App\Services\CalendarService;
 use DateTime;
 use Exception;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -24,13 +24,13 @@ use Psr\Http\Message\ResponseInterface;
  */
 class CalendarController extends BaseController
 {
-    private CalendarService $calendarService;
+    private CalendarServiceInterface $calendarService;
 
     public function __construct(
         ContainerInterface $container,
         \Hyperf\HttpServer\Contract\RequestInterface $request,
         \Hyperf\HttpServer\Contract\ResponseInterface $response,
-        CalendarService $calendarService
+        CalendarServiceInterface $calendarService
     ) {
         parent::__construct($request, $response, $container);
         $this->calendarService = $calendarService;

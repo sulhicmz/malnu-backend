@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\SchoolManagement;
 
+use App\Contracts\CacheServiceInterface;
 use App\Enums\ErrorCode;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
-use App\Services\CacheService;
 use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -15,7 +15,7 @@ use Psr\Container\ContainerInterface;
 
 class StudentController extends BaseController
 {
-    private CacheService $cacheService;
+    private CacheServiceInterface $cacheService;
 
     public function __construct(
         RequestInterface $request,
@@ -23,7 +23,7 @@ class StudentController extends BaseController
         ContainerInterface $container
     ) {
         parent::__construct($request, $response, $container);
-        $this->cacheService = $container->get(CacheService::class);
+        $this->cacheService = $container->get(CacheServiceInterface::class);
     }
 
     /**

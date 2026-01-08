@@ -13,7 +13,7 @@ use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
-Route::group(['middleware' => ['input.sanitization']], function () {
+Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);
@@ -21,7 +21,7 @@ Route::group(['middleware' => ['input.sanitization']], function () {
 });
 
 // Protected routes (JWT authentication required)
-Route::group(['middleware' => ['jwt']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -29,7 +29,7 @@ Route::group(['middleware' => ['jwt']], function () {
 });
 
 // Attendance and Leave Management Routes (protected)
-Route::group(['middleware' => ['jwt']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::any('/', [IndexController::class, 'index']);
 
     Route::prefix('attendance')->group(function () {
@@ -46,7 +46,7 @@ Route::group(['middleware' => ['jwt']], function () {
 });
 
 // School Management Routes (protected)
-Route::group(['middleware' => ['jwt']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
         Route::apiResource('students', StudentController::class);
@@ -57,7 +57,7 @@ Route::group(['middleware' => ['jwt']], function () {
 });
 
 // Calendar and Event Management Routes (protected)
-Route::group(['middleware' => ['jwt']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
         // Calendar Management
         Route::post('calendars', [CalendarController::class, 'createCalendar']);

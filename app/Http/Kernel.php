@@ -58,6 +58,7 @@ class Kernel extends HttpKernel
         'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
+        'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
     ];
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\Grading\ReportController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -64,21 +65,48 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
         Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar']);
         Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar']);
-        
+
         // Event Management
         Route::post('events', [CalendarController::class, 'createEvent']);
         Route::get('events/{id}', [CalendarController::class, 'getEvent']);
         Route::put('events/{id}', [CalendarController::class, 'updateEvent']);
         Route::delete('events/{id}', [CalendarController::class, 'deleteEvent']);
         Route::get('calendars/{calendarId}/events', [CalendarController::class, 'getEventsByDateRange']);
-        
+
         // Event Registration
         Route::post('events/{eventId}/register', [CalendarController::class, 'registerForEvent']);
-        
+
         // Calendar Sharing
         Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
-        
+
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Report Generation Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('reports')->group(function () {
+        // Report Generation
+        Route::post('report-cards', [ReportController::class, 'generateReportCard']);
+        Route::post('transcripts', [ReportController::class, 'generateTranscript']);
+        Route::post('progress-reports', [ReportController::class, 'generateProgressReport']);
+        Route::post('class-reports', [ReportController::class, 'generateClassReports']);
+
+        // Report Retrieval
+        Route::get('students/{studentId}/reports', [ReportController::class, 'getStudentReports']);
+        Route::get('classes/{classId}/reports', [ReportController::class, 'getClassReports']);
+        Route::get('reports/{id}', [ReportController::class, 'getReport']);
+        Route::post('reports/{id}/publish', [ReportController::class, 'publishReport']);
+
+        // Template Management
+        Route::get('templates', [ReportController::class, 'getTemplates']);
+        Route::post('templates', [ReportController::class, 'createTemplate']);
+        Route::put('templates/{id}', [ReportController::class, 'updateTemplate']);
+        Route::delete('templates/{id}', [ReportController::class, 'deleteTemplate']);
+
+        // Signature Management
+        Route::get('signatures', [ReportController::class, 'getSignatures']);
+        Route::post('signatures', [ReportController::class, 'createSignature']);
     });
 });

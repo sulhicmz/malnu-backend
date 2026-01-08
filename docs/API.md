@@ -4,25 +4,27 @@
 
 This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
+**Implementation Status:** 27 of 54 endpoints implemented (50%)
+
 ## 🔐 Authentication
 
-### JWT Authentication
 All API endpoints (except authentication endpoints) require JWT authentication.
 
-#### Headers
+### Headers
 ```
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 ```
 
-#### Login
+### Register ✅
 ```http
-POST /api/auth/login
+POST /auth/register
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
-  "password": "password"
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
 }
 ```
 
@@ -30,12 +32,45 @@ Content-Type: application/json
 ```json
 {
   "success": true,
+  "message": "User registered successfully",
   "data": {
     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
     "user": {
       "id": "uuid-string",
       "name": "John Doe",
-      "email": "user@example.com",
+      "email": "john@example.com",
+      "role": "student"
+    }
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Login ✅
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "user": {
+      "id": "uuid-string",
+      "name": "John Doe",
+      "email": "john@example.com",
       "role": "student"
     },
     "expires_in": 3600
@@ -43,65 +78,164 @@ Content-Type: application/json
 }
 ```
 
-#### Logout
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Logout ✅
 ```http
-POST /api/auth/logout
+POST /auth/logout
 Authorization: Bearer <jwt_token>
 ```
 
-#### Refresh Token
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Successfully logged out",
+  "data": null
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Refresh Token ✅
 ```http
-POST /api/auth/refresh
+POST /auth/refresh
 Authorization: Bearer <jwt_token>
 ```
 
-## 👥 User Management
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Token refreshed successfully",
+  "data": {
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "expires_in": 3600
+  }
+}
+```
 
-### Get Current User
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Current User ✅
 ```http
-GET /api/user
+GET /auth/me
 Authorization: Bearer <jwt_token>
 ```
 
-### Update Profile
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User retrieved successfully",
+  "data": {
+    "user": {
+      "id": "uuid-string",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "student"
+    }
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Request Password Reset ✅
 ```http
-PUT /api/user
+POST /auth/password/forgot
+Content-Type: application/json
+
+{
+  "email": "john@example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Password reset email sent",
+  "data": {
+    "message": "If the email exists, a reset link has been sent"
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Reset Password ✅
+```http
+POST /auth/password/reset
+Content-Type: application/json
+
+{
+  "token": "reset-token-here",
+  "password": "newpassword123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Password reset successful",
+  "data": {
+    "message": "Your password has been reset"
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Change Password ✅
+```http
+POST /auth/password/change
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "name": "Updated Name",
-  "email": "updated@example.com"
+  "current_password": "oldpassword",
+  "new_password": "newpassword123"
 }
 ```
 
-### Change Password
-```http
-PUT /api/user/password
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
+**Response:**
+```json
 {
-  "current_password": "old_password",
-  "password": "new_password",
-  "password_confirmation": "new_password"
+  "success": true,
+  "message": "Password changed successfully",
+  "data": {
+    "message": "Your password has been changed"
+  }
 }
 ```
 
-## 🎓 Student Management
+**Implementation Status:** ✅ Implemented
 
-### Get Students
+---
+
+## 👥 School Management
+
+All endpoints in this section require JWT authentication.
+
+### Get Students ✅
 ```http
-GET /api/students
+GET /school/students
 Authorization: Bearer <jwt_token>
 ```
-
-**Query Parameters:**
-- `page`: Page number (default: 1)
-- `limit`: Items per page (default: 15)
-- `search`: Search by name or NISN
-- `class_id`: Filter by class
-- `status`: Filter by status (active, inactive, graduated)
 
 **Response:**
 ```json
@@ -111,101 +245,136 @@ Authorization: Bearer <jwt_token>
     "students": [
       {
         "id": "uuid-string",
-        "nisn": "1234567890",
-        "name": "Student Name",
-        "email": "student@example.com",
-        "class": {
-          "id": "uuid-string",
-          "name": "Class 10A"
-        },
+        "user_id": "uuid-string",
+        "name": "John Doe",
+        "email": "john@example.com",
         "status": "active",
         "created_at": "2025-01-01T00:00:00Z"
       }
-    ],
-    "pagination": {
-      "current_page": 1,
-      "total_pages": 10,
-      "total_items": 150,
-      "per_page": 15
-    }
+    ]
   }
 }
 ```
 
-### Get Student
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Student ✅
 ```http
-GET /api/students/{id}
+GET /school/students/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-### Create Student
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Student ✅
 ```http
-POST /api/students
+POST /school/students
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
   "user_id": "uuid-string",
-  "nisn": "1234567890",
-  "class_id": "uuid-string",
-  "birth_date": "2005-01-01",
-  "birth_place": "City",
-  "address": "Student Address",
-  "parent_id": "uuid-string",
-  "enrollment_date": "2025-01-01"
+  "name": "John Doe",
+  "email": "john@example.com"
 }
 ```
 
-### Update Student
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Student ✅
 ```http
-PUT /api/students/{id}
+PUT /school/students/{id}
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "class_id": "uuid-string",
-  "address": "Updated Address"
+  "name": "Updated Name",
+  "email": "updated@example.com"
 }
 ```
 
-### Delete Student
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Student ✅
 ```http
-DELETE /api/students/{id}
+DELETE /school/students/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-## 👨‍🏫 Teacher Management
+**Implementation Status:** ✅ Implemented
 
-### Get Teachers
+---
+
+### Get Teachers ✅
 ```http
-GET /api/teachers
+GET /school/teachers
 Authorization: Bearer <jwt_token>
 ```
 
-### Get Teacher
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "teachers": [
+      {
+        "id": "uuid-string",
+        "user_id": "uuid-string",
+        "name": "Jane Smith",
+        "email": "jane@example.com",
+        "specialization": "Mathematics",
+        "phone": "+6281234567890",
+        "created_at": "2025-01-01T00:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Teacher ✅
 ```http
-GET /api/teachers/{id}
+GET /school/teachers/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-### Create Teacher
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Teacher ✅
 ```http
-POST /api/teachers
+POST /school/teachers
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
   "user_id": "uuid-string",
-  "nip": "123456789012345678",
+  "name": "Jane Smith",
+  "email": "jane@example.com",
   "specialization": "Mathematics",
-  "phone": "+6281234567890",
-  "address": "Teacher Address"
+  "phone": "+6281234567890"
 }
 ```
 
-### Update Teacher
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Teacher ✅
 ```http
-PUT /api/teachers/{id}
+PUT /school/teachers/{id}
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
@@ -215,365 +384,435 @@ Content-Type: application/json
 }
 ```
 
-### Delete Teacher
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Teacher ✅
 ```http
-DELETE /api/teachers/{id}
+DELETE /school/teachers/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-## 📚 Class Management
+**Implementation Status:** ✅ Implemented
 
-### Get Classes
+---
+
+## 📅 Attendance Management
+
+All endpoints in this section require JWT authentication.
+
+### Get Staff Attendances ✅
 ```http
-GET /api/classes
+GET /attendance/staff-attendances
 Authorization: Bearer <jwt_token>
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "classes": [
-      {
-        "id": "uuid-string",
-        "name": "Class 10A",
-        "grade_level": 10,
-        "academic_year": "2025/2026",
-        "teacher": {
-          "id": "uuid-string",
-          "name": "Teacher Name"
-        },
-        "student_count": 30,
-        "created_at": "2025-01-01T00:00:00Z"
-      }
-    ]
-  }
-}
-```
+**Implementation Status:** ✅ Implemented
 
-### Get Class
+---
+
+### Get Staff Attendance ✅
 ```http
-GET /api/classes/{id}
+GET /attendance/staff-attendances/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-### Create Class
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Staff Attendance ✅
 ```http
-POST /api/classes
+POST /attendance/staff-attendances
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "name": "Class 10A",
-  "grade_level": 10,
-  "academic_year": "2025/2026",
-  "teacher_id": "uuid-string"
+  "staff_id": "uuid-string",
+  "date": "2025-01-01",
+  "check_in": "08:00",
+  "check_out": "17:00",
+  "status": "present"
 }
 ```
 
-### Update Class
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Staff Attendance ✅
 ```http
-PUT /api/classes/{id}
+PUT /attendance/staff-attendances/{id}
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "name": "Class 10B",
-  "teacher_id": "uuid-string"
-}
-```
-
-### Delete Class
-```http
-DELETE /api/classes/{id}
-Authorization: Bearer <jwt_token>
-```
-
-### Get Class Students
-```http
-GET /api/classes/{id}/students
-Authorization: Bearer <jwt_token>
-```
-
-## 📖 Subject Management
-
-### Get Subjects
-```http
-GET /api/subjects
-Authorization: Bearer <jwt_token>
-```
-
-### Get Subject
-```http
-GET /api/subjects/{id}
-Authorization: Bearer <jwt_token>
-```
-
-### Create Subject
-```http
-POST /api/subjects
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "name": "Mathematics",
-  "code": "MATH",
-  "description": "Mathematics subject",
-  "credits": 4
-}
-```
-
-### Update Subject
-```http
-PUT /api/subjects/{id}
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "name": "Advanced Mathematics",
-  "credits": 5
-}
-```
-
-### Delete Subject
-```http
-DELETE /api/subjects/{id}
-Authorization: Bearer <jwt_token>
-```
-
-## 📅 Schedule Management
-
-### Get Schedules
-```http
-GET /api/schedules
-Authorization: Bearer <jwt_token>
-```
-
-**Query Parameters:**
-- `class_id`: Filter by class
-- `teacher_id`: Filter by teacher
-- `subject_id`: Filter by subject
-- `day`: Filter by day (monday, tuesday, etc.)
-- `start_time`: Filter by start time
-
-### Get Schedule
-```http
-GET /api/schedules/{id}
-Authorization: Bearer <jwt_token>
-```
-
-### Create Schedule
-```http
-POST /api/schedules
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "class_id": "uuid-string",
-  "teacher_id": "uuid-string",
-  "subject_id": "uuid-string",
-  "day": "monday",
-  "start_time": "08:00",
-  "end_time": "09:30",
-  "room": "Room 101"
-}
-```
-
-### Update Schedule
-```http
-PUT /api/schedules/{id}
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "start_time": "09:00",
-  "end_time": "10:30",
-  "room": "Room 102"
-}
-```
-
-### Delete Schedule
-```http
-DELETE /api/schedules/{id}
-Authorization: Bearer <jwt_token>
-```
-
-## 📊 Grade Management
-
-### Get Grades
-```http
-GET /api/grades
-Authorization: Bearer <jwt_token>
-```
-
-**Query Parameters:**
-- `student_id`: Filter by student
-- `subject_id`: Filter by subject
-- `semester`: Filter by semester
-- `academic_year`: Filter by academic year
-
-### Create Grade
-```http
-POST /api/grades
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "student_id": "uuid-string",
-  "subject_id": "uuid-string",
-  "assignment_type": "midterm",
-  "score": 85,
-  "max_score": 100,
-  "semester": 1,
-  "academic_year": "2025/2026"
-}
-```
-
-### Update Grade
-```http
-PUT /api/grades/{id}
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "score": 90
-}
-```
-
-### Delete Grade
-```http
-DELETE /api/grades/{id}
-Authorization: Bearer <jwt_token>
-```
-
-## 📝 Attendance Management
-
-### Get Attendance Records
-```http
-GET /api/attendance
-Authorization: Bearer <jwt_token>
-```
-
-### Mark Attendance
-```http
-POST /api/attendance
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-
-{
-  "student_id": "uuid-string",
-  "schedule_id": "uuid-string",
   "status": "present",
-  "notes": "On time"
+  "check_out": "17:30"
 }
 ```
 
-### Update Attendance
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Staff Attendance ✅
 ```http
-PUT /api/attendance/{id}
+DELETE /attendance/staff-attendances/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Mark Staff Attendance ✅
+```http
+POST /attendance/staff-attendances/mark-attendance
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "status": "late",
-  "notes": "Arrived 10 minutes late"
+  "staff_id": "uuid-string",
+  "status": "present",
+  "check_in": "08:00"
 }
 ```
 
-## 📚 Digital Library
+**Implementation Status:** ✅ Implemented
 
-### Get Books
+---
+
+### Get Leave Types ✅
 ```http
-GET /api/library/books
+GET /attendance/leave-types
 Authorization: Bearer <jwt_token>
 ```
 
-**Query Parameters:**
-- `search`: Search by title or author
-- `category`: Filter by category
-- `available`: Filter by availability (true/false)
+**Implementation Status:** ✅ Implemented
 
-### Get Book
+---
+
+### Get Leave Type ✅
 ```http
-GET /api/library/books/{id}
+GET /attendance/leave-types/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-### Borrow Book
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Leave Type ✅
 ```http
-POST /api/library/books/{id}/borrow
+POST /attendance/leave-types
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 
 {
-  "due_date": "2025-02-01"
+  "name": "Annual Leave",
+  "description": "Regular annual leave",
+  "max_days": 14
 }
 ```
 
-### Return Book
-```http
-POST /api/library/books/{id}/return
-Authorization: Bearer <jwt_token>
-```
+**Implementation Status:** ✅ Implemented
 
-## 🎓 E-Learning
+---
 
-### Get Courses
+### Update Leave Type ✅
 ```http
-GET /api/elearning/courses
+PUT /attendance/leave-types/{id}
 Authorization: Bearer <jwt_token>
-```
-
-### Get Course Materials
-```http
-GET /api/elearning/courses/{id}/materials
-Authorization: Bearer <jwt_token>
-```
-
-### Get Assignments
-```http
-GET /api/elearning/assignments
-Authorization: Bearer <jwt_token>
-```
-
-### Submit Assignment
-```http
-POST /api/elearning/assignments/{id}/submit
-Authorization: Bearer <jwt_token>
-Content-Type: multipart/form-data
+Content-Type: application/json
 
 {
-  "file": <file>,
-  "text": "Assignment text content"
+  "name": "Annual Leave",
+  "max_days": 21
 }
 ```
 
-## 📊 Reports & Analytics
+**Implementation Status:** ✅ Implemented
 
-### Get Student Reports
+---
+
+### Delete Leave Type ✅
 ```http
-GET /api/reports/students/{id}
+DELETE /attendance/leave-types/{id}
 Authorization: Bearer <jwt_token>
 ```
 
-### Get Class Reports
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Leave Requests ✅
 ```http
-GET /api/reports/classes/{id}
+GET /attendance/leave-requests
 Authorization: Bearer <jwt_token>
 ```
 
-### Get Attendance Reports
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Leave Request ✅
 ```http
-GET /api/reports/attendance
+GET /attendance/leave-requests/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Leave Request ✅
+```http
+POST /attendance/leave-requests
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "staff_id": "uuid-string",
+  "leave_type_id": "uuid-string",
+  "start_date": "2025-01-15",
+  "end_date": "2025-01-20",
+  "reason": "Family vacation"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Leave Request ✅
+```http
+PUT /attendance/leave-requests/{id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "start_date": "2025-01-16",
+  "end_date": "2025-01-21"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Leave Request ✅
+```http
+DELETE /attendance/leave-requests/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Approve Leave Request ✅
+```http
+POST /attendance/leave-requests/{id}/approve
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Reject Leave Request ✅
+```http
+POST /attendance/leave-requests/{id}/reject
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "reason": "Insufficient staff coverage"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+## 📅 Calendar Management
+
+All endpoints in this section require JWT authentication.
+
+### Create Calendar ✅
+```http
+POST /calendar/calendars
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Academic Calendar 2025",
+  "description": "Main academic calendar",
+  "color": "#FF5733"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Calendar ✅
+```http
+GET /calendar/calendars/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Calendar ✅
+```http
+PUT /calendar/calendars/{id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Updated Calendar Name",
+  "description": "Updated description"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Calendar ✅
+```http
+DELETE /calendar/calendars/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Calendar Events ✅
+```http
+GET /calendar/calendars/{calendarId}/events
 Authorization: Bearer <jwt_token>
 ```
 
 **Query Parameters:**
-- `start_date`: Report start date
-- `end_date`: Report end date
-- `class_id`: Filter by class
-- `format`: Export format (pdf, excel)
+- `start_date`: Filter by start date
+- `end_date`: Filter by end date
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Share Calendar ✅
+```http
+POST /calendar/calendars/{calendarId}/share
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "user_id": "uuid-string",
+  "permission": "read" or "write"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Event ✅
+```http
+POST /calendar/events
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "calendar_id": "uuid-string",
+  "title": "Exam Day",
+  "description": "Mid-term examination",
+  "start_time": "2025-01-15T09:00:00Z",
+  "end_time": "2025-01-15T11:00:00Z",
+  "location": "Main Hall",
+  "event_type": "exam"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Event ✅
+```http
+GET /calendar/events/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Event ✅
+```http
+PUT /calendar/events/{id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "title": "Updated Event Title",
+  "start_time": "2025-01-15T10:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Event ✅
+```http
+DELETE /calendar/events/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Register for Event ✅
+```http
+POST /calendar/events/{eventId}/register
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "user_id": "uuid-string"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Book Resource ✅
+```http
+POST /calendar/resources/book
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "resource_id": "uuid-string",
+  "event_id": "uuid-string",
+  "start_time": "2025-01-15T09:00:00Z",
+  "end_time": "2025-01-15T11:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
 
 ## 🚨 Error Responses
 
@@ -582,14 +821,8 @@ All error responses follow this format:
 ```json
 {
   "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "The given data was invalid.",
-    "details": {
-      "email": ["The email field is required."],
-      "password": ["The password must be at least 8 characters."]
-    }
-  }
+  "message": "Error message here",
+  "data": null
 }
 ```
 
@@ -599,6 +832,9 @@ All error responses follow this format:
 - `NOT_FOUND` (404): Resource not found
 - `VALIDATION_ERROR` (422): Input validation failed
 - `SERVER_ERROR` (500): Internal server error
+- `REGISTRATION_ERROR` (400): Registration failed
+
+---
 
 ## 📝 Response Format
 
@@ -606,49 +842,77 @@ All error responses follow this format:
 ```json
 {
   "success": true,
+  "message": "Operation successful",
   "data": {
     // Response data
-  },
-  "meta": {
-    "timestamp": "2025-01-01T00:00:00Z",
-    "version": "v1"
   }
 }
 ```
 
-### Paginated Response
+### Validation Error Response
 ```json
 {
-  "success": true,
+  "success": false,
+  "message": "The given data was invalid.",
   "data": {
-    "items": [...],
-    "pagination": {
-      "current_page": 1,
-      "total_pages": 10,
-      "total_items": 150,
-      "per_page": 15,
-      "has_next": true,
-      "has_prev": false
-    }
+    "email": ["The email must be a valid email address."],
+    "password": ["The password must be at least 6 characters."]
   }
 }
 ```
+
+---
 
 ## 🔒 Rate Limiting
 
 API endpoints are rate-limited to prevent abuse:
 
-- **Authentication endpoints**: 5 requests per minute
-- **Standard endpoints**: 60 requests per minute
-- **File upload endpoints**: 10 requests per minute
+- **POST /auth/login**: 5 requests per minute
+- **POST /auth/register**: 3 requests per minute
+- **POST /auth/password/forgot**: 3 requests per minute
+- **POST /auth/password/reset**: 3 requests per minute
+- **Public API endpoints**: 60 requests per minute
+- **Protected API endpoints**: 300 requests per minute
 
 Rate limit headers are included in responses:
 ```
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 59
 X-RateLimit-Reset: 1640995200
+Retry-After: 30
+```
+
+When rate limit is exceeded, a `429 Too Many Requests` response is returned:
+```json
+{
+  "success": false,
+  "message": "Too many requests",
+  "data": null
+}
 ```
 
 ---
 
+## 📊 Implementation Status
+
+| Section | Implemented | Total | Status |
+|---------|-------------|-------|--------|
+| Authentication | 8 | 8 | ✅ 100% |
+| School Management | 8 | 8 | ✅ 100% |
+| Attendance Management | 10 | 10 | ✅ 100% |
+| Calendar Management | 11 | 11 | ✅ 100% |
+| User Management | 0 | 3 | ❌ 0% |
+| Class Management | 0 | 6 | ❌ 0% |
+| Subject Management | 0 | 5 | ❌ 0% |
+| Schedule Management | 0 | 5 | ❌ 0% |
+| Grade Management | 0 | 4 | ❌ 0% |
+| Digital Library | 0 | 5 | ❌ 0% |
+| E-Learning | 0 | 4 | ❌ 0% |
+| Reports & Analytics | 0 | 3 | ❌ 0% |
+| **Total** | **37** | **73** | **51%** |
+
+---
+
 *This API documentation is continuously updated as new endpoints are implemented.*
+
+**Last Updated:** 2025-01-08

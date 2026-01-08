@@ -230,6 +230,79 @@ tests/
  */
 ```
 
+## Frontend UI/UX Standards
+
+### Accessibility Requirements
+- **WCAG 2.1 AA Compliance**: All interfaces must meet WCAG 2.1 Level AA
+- **Keyboard Navigation**: All interactive elements must be keyboard accessible
+- **Screen Reader Support**: Proper ARIA labels and semantic HTML for screen readers
+- **Focus Management**: Visible focus indicators and logical focus flow
+- **Color Contrast**: Minimum 4.5:1 for text, 3:1 for larger text
+
+### Frontend Framework & Stack
+- **Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with design tokens
+- **Icons**: Lucide React
+- **Charts**: Recharts
+
+### Component Standards
+- **Semantic HTML**: Use appropriate HTML elements (nav, main, article, button)
+- **ARIA Attributes**: Enhance (not replace) semantic HTML with ARIA
+- **TypeScript**: All components must have proper TypeScript interfaces
+- **Responsive Design**: Mobile-first approach with breakpoints
+- **Loading States**: All async actions must show loading indicators
+- **Error Handling**: User-friendly error messages with proper announcements
+
+### Accessibility Best Practices
+
+#### Forms
+- All form fields must have associated labels (visible or sr-only)
+- Provide inline validation with aria-invalid and aria-describedby
+- Error messages must be announced via aria-live regions
+- Focus management on form submission errors
+
+#### Navigation
+- Skip-to-content link for keyboard users
+- Proper heading hierarchy (h1, h2, h3...)
+- Breadcrumbs for navigation hierarchy
+- Current page indication with aria-current="page"
+
+#### Tables
+- Proper table caption for context
+- Scope attributes on headers
+- Responsive table handling for mobile
+- Keyboard navigation for sorting/filtering
+
+#### Images & Media
+- Meaningful alt text for all images
+- Decorative images marked with aria-hidden="true"
+- Controls for auto-playing media
+- Captions for video content
+
+### Design Tokens (Tailwind)
+- **Primary Colors**: Blue (#3b82f6) for primary actions
+- **Success Colors**: Green (#22c55e) for positive states
+- **Warning Colors**: Orange (#f59e0b) for warnings
+- **Danger Colors**: Red (#ef4444) for destructive actions
+- **Spacing**: Consistent 0.25rem (4px) scale
+- **Typography**: System fonts with clear hierarchy
+- **Border Radius**: Consistent rounded-md (6px) for most elements
+
+### Component Library
+- **Button**: Reusable with variants (primary, secondary, success, warning, danger)
+- **Card**: Container component with header, title, content, footer
+- **Form**: Input, Select, Checkbox with validation states
+- **Feedback**: Loading spinners, error alerts, success toasts
+- **Navigation**: Breadcrumb, Pagination, Tabs components
+
+### Performance Standards
+- **Lighthouse Score**: 90+ for Performance, Accessibility, Best Practices
+- **Bundle Size**: Optimize code splitting and lazy loading
+- **Image Optimization**: WebP format with lazy loading
+- **Animation**: GPU-accelerated transforms only
+- **Render Performance**: Avoid unnecessary re-renders
+
 ## Update Frequency
 
 - **Blueprint**: Reviewed quarterly, updated as needed

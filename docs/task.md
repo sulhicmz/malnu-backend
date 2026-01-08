@@ -566,6 +566,117 @@ Models not standardized for UUID primary keys. Inconsistent implementation acros
 
 ---
 
+### [TASK-300] API Standardization and Error Response Hardening
+
+**Feature**: Integration Enhancement
+**Status**: Completed
+**Agent**: 07 Integration
+**Priority**: P1
+**Estimated**: 2 days
+**Completed**: January 8, 2026
+
+#### Description
+
+API responses were inconsistent across controllers, using non-standardized error codes, lacking proper error classification, and missing API versioning. Error handling middleware used basic logging without proper exception classification.
+
+#### Acceptance Criteria
+
+- [x] Define standardized error code taxonomy (AUTH_, VAL_, RES_, SRV_, RTL_)
+- [x] Create `config/error-codes.php` with all error code definitions
+- [x] Implement API versioning with `/api/v1/` prefix
+- [x] Update `routes/api.php` with versioned routes
+- [x] Enhance `ApiErrorHandlingMiddleware` with proper logging and error classification
+- [x] Update `BaseController` response methods to use standardized error codes
+- [x] Update all controllers to use standardized error codes
+- [x] Create comprehensive `docs/API_ERROR_CODES.md` documentation
+- [x] Add integration tests for error responses
+- [x] Update `docs/blueprint.md` with API integration patterns
+
+#### Technical Details
+
+**Files Created**:
+- `config/error-codes.php` - Standardized error code definitions
+- `docs/API_ERROR_CODES.md` - Complete error code documentation
+- `tests/Integration/ApiErrorResponseTest.php` - Integration tests for error responses
+
+**Files Modified**:
+- `routes/api.php` - Added `/api/v1/` prefix to all routes
+- `app/Http/Controllers/Api/BaseController.php` - Updated response methods with standardized error codes
+- `app/Http/Controllers/Api/AuthController.php` - Updated to use standardized error codes
+- `app/Http/Controllers/Api/SchoolManagement/StudentController.php` - Updated error codes
+- `app/Http/Controllers/Api/SchoolManagement/TeacherController.php` - Updated error codes
+- `app/Http/Controllers/Attendance/LeaveRequestController.php` - Updated error codes
+- `app/Http/Middleware/ApiErrorHandlingMiddleware.php` - Enhanced with proper logging and classification
+- `docs/blueprint.md` - Added API integration patterns documentation
+
+#### Completed Work
+
+1. **Error Code Taxonomy**: Created comprehensive error code system with 5 categories
+   - AUTH (Authentication/Authorization): 10 error codes
+   - VAL (Validation): 8 error codes
+   - RES (Resource): 7 error codes
+   - SRV (Server): 5 error codes
+   - RTL (Rate Limiting): 1 error code
+
+2. **API Versioning**: Implemented `/api/v1/` prefix for all routes
+   - Backward compatibility maintained
+   - Clear separation for future versions
+   - Follows blueprint requirements
+
+3. **Middleware Enhancement**: Improved `ApiErrorHandlingMiddleware` with:
+   - Exception classification (validation, authentication, authorization, not_found, database, timeout, server)
+   - Proper logging with structured context (IP, user agent, URI, method)
+   - Automatic error code mapping based on exception type
+   - User-friendly error messages vs detailed technical logs
+   - Configurable detail inclusion based on error type
+
+4. **Standardized Responses**: Updated all controllers to use consistent error codes
+   - All error codes sourced from configuration
+   - Fallback codes for safety
+   - Proper HTTP status code mapping
+
+5. **Documentation**: Created comprehensive `docs/API_ERROR_CODES.md` with:
+   - Complete error code reference table
+   - HTTP status code mappings
+   - Standard response format examples
+   - Usage guidelines
+   - Procedure for adding new error codes
+
+6. **Testing**: Added integration tests covering:
+   - All response method variations
+   - Error code validation
+   - Response format verification
+   - Timestamp format validation
+   - Configuration integration
+
+#### Benefits
+
+- **Consistency**: All API responses follow the same structure and error codes
+- **Maintainability**: Error codes defined in one location, easily updatable
+- **Documentation**: Clear reference for frontend developers
+- **Debugging**: Detailed server-side logging with context
+- **User Experience**: User-friendly error messages for clients
+- **Future-Proof**: Versioned API structure for evolution without breaking changes
+
+#### API Endpoints Affected
+
+All API endpoints now use `/api/v1/` prefix:
+- `/api/v1/auth/*` - Authentication endpoints
+- `/api/v1/attendance/*` - Attendance management
+- `/api/v1/school/*` - School management
+- `/api/v1/calendar/*` - Calendar and events
+
+#### Migration Guide for Consumers
+
+1. Update all API calls to include `/api/v1/` prefix
+2. Update error handling to use new error code format (e.g., `VAL_001` instead of `VALIDATION_ERROR`)
+3. Review `docs/API_ERROR_CODES.md` for complete error code reference
+4. Error response format is unchanged (success, error/message/code/details/timestamp structure)
+
+**Dependencies**: None (independent task)
+
+---
+
 ## Completed Tasks
 
 ### [ARCH-001] Implement Interface-Based Design for Authentication Services
@@ -631,7 +742,7 @@ Created interface contracts for all authentication-related services to follow De
 | Security | 04 Security | TASK-284, TASK-221, TASK-14 |
 | Performance | 05 Performance | - |
 | Database | 06 Data Architect | TASK-283, TASK-222, TASK-103 |
-| APIs | 07 Integration | TASK-102 |
+| APIs | 07 Integration | TASK-102, TASK-300 (Completed) |
 | UI/UX | 08 UI/UX | - |
 | CI/CD | 09 DevOps | TASK-225 |
 | Docs | 10 Tech Writer | - |

@@ -1,18 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
-use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
 use App\Traits\InputValidationTrait;
+use DateTime;
+use Exception;
 
 class LeaveRequestController extends BaseController
 {
     use InputValidationTrait;
-    
+
     /**
      * Display a listing of the leave requests.
      */
@@ -39,13 +43,13 @@ class LeaveRequestController extends BaseController
             // Filter by date range if provided
             if ($this->request->has('start_date') && $this->request->has('end_date')) {
                 $query->whereBetween('start_date', [$this->request->input('start_date'), $this->request->input('end_date')])
-                      ->orWhereBetween('end_date', [$this->request->input('start_date'), $this->request->input('end_date')]);
+                    ->orWhereBetween('end_date', [$this->request->input('start_date'), $this->request->input('end_date')]);
             }
 
             $leaveRequests = $query->orderBy('created_at', 'desc')->paginate(15);
 
             return $this->successResponse($leaveRequests);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to retrieve leave requests');
         }
     }
@@ -57,47 +61,47 @@ class LeaveRequestController extends BaseController
     {
         try {
             $input = $this->request->all();
-            
+
             // Sanitize input data
             $input = $this->sanitizeInput($input);
-            
+
             // Validate required fields
             $requiredFields = ['staff_id', 'leave_type_id', 'start_date', 'end_date', 'reason'];
             $errors = $this->validateRequired($input, $requiredFields);
-            
+
             // Additional validation
-            if (isset($input['staff_id']) && !$this->validateInteger($input['staff_id'])) {
-                $errors['staff_id'] = ["Invalid staff_id"];
-            }
-            
-            if (isset($input['leave_type_id']) && !$this->validateInteger($input['leave_type_id'])) {
-                $errors['leave_type_id'] = ["Invalid leave_type_id"];
-            }
-            
-            if (isset($input['start_date']) && !$this->validateDate($input['start_date'])) {
-                $errors['start_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['end_date']) && !$this->validateDate($input['end_date'])) {
-                $errors['end_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['start_date']) && isset($input['end_date']) && 
-                !$this->validateDateRange($input['start_date'], $input['end_date'])) {
-                $errors['start_date'] = ["Start date must be before or equal to end date"];
+            if (isset($input['staff_id']) && ! $this->validateInteger($input['staff_id'])) {
+                $errors['staff_id'] = ['Invalid staff_id'];
             }
 
-            if (isset($input['reason']) && !$this->validateStringLength($input['reason'], null, 500)) {
-                $errors['reason'] = ["Reason must not exceed 500 characters"];
+            if (isset($input['leave_type_id']) && ! $this->validateInteger($input['leave_type_id'])) {
+                $errors['leave_type_id'] = ['Invalid leave_type_id'];
             }
 
-            if (!empty($errors)) {
+            if (isset($input['start_date']) && ! $this->validateDate($input['start_date'])) {
+                $errors['start_date'] = ['Invalid date format'];
+            }
+
+            if (isset($input['end_date']) && ! $this->validateDate($input['end_date'])) {
+                $errors['end_date'] = ['Invalid date format'];
+            }
+
+            if (isset($input['start_date'], $input['end_date'])
+                && ! $this->validateDateRange($input['start_date'], $input['end_date'])) {
+                $errors['start_date'] = ['Start date must be before or equal to end date'];
+            }
+
+            if (isset($input['reason']) && ! $this->validateStringLength($input['reason'], null, 500)) {
+                $errors['reason'] = ['Reason must not exceed 500 characters'];
+            }
+
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             // Calculate total days
-            $startDate = new \DateTime($input['start_date']);
-            $endDate = new \DateTime($input['end_date']);
+            $startDate = new DateTime($input['start_date']);
+            $endDate = new DateTime($input['end_date']);
             $totalDays = $startDate->diff($endDate)->days + 1; // +1 to include both start and end date
 
             // Check if staff has sufficient leave balance
@@ -109,7 +113,7 @@ class LeaveRequestController extends BaseController
                     ->first();
 
                 if ($leaveBalance && $leaveBalance->current_balance < $totalDays) {
-                    return $this->errorResponse('Insufficient leave balance for this request', 'INSUFFICIENT_BALANCE');
+                    return $this->errorResponse('Insufficient leave balance for this request', config('error-codes.error_codes.RESOURCE.INSUFFICIENT_BALANCE', 'RES_006'));
                 }
             }
 
@@ -119,7 +123,7 @@ class LeaveRequestController extends BaseController
             ));
 
             return $this->successResponse($leaveRequest, 'Leave request submitted successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to create leave request');
         }
     }
@@ -132,12 +136,12 @@ class LeaveRequestController extends BaseController
         try {
             $leaveRequest = LeaveRequest::with(['staff', 'leaveType', 'approvedBy', 'substituteAssignments'])->find($id);
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return $this->notFoundResponse('Leave request not found');
             }
 
             return $this->successResponse($leaveRequest);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to retrieve leave request');
         }
     }
@@ -150,34 +154,34 @@ class LeaveRequestController extends BaseController
         try {
             $leaveRequest = LeaveRequest::find($id);
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return $this->notFoundResponse('Leave request not found');
             }
 
             // Only allow updates to comments and status if not approved/rejected yet
             if ($leaveRequest->status !== 'pending') {
-                return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
+                return $this->errorResponse('Cannot update leave request that is already processed', config('error-codes.error_codes.RESOURCE.UPDATE_FAILED', 'RES_003'));
             }
 
             $input = $this->request->all();
-            
+
             // Sanitize input data
             $input = $this->sanitizeInput($input);
-            
+
             // Validate comments if provided
             $errors = [];
-            if (isset($input['comments']) && !is_string($input['comments'])) {
-                $errors['comments'] = ["Comments must be a string"];
+            if (isset($input['comments']) && ! is_string($input['comments'])) {
+                $errors['comments'] = ['Comments must be a string'];
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $leaveRequest->update($input); // Only update provided fields
 
             return $this->successResponse($leaveRequest, 'Leave request updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to update leave request');
         }
     }
@@ -190,19 +194,19 @@ class LeaveRequestController extends BaseController
         try {
             $leaveRequest = LeaveRequest::find($id);
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return $this->notFoundResponse('Leave request not found');
             }
 
             // Only allow deletion if status is pending
             if ($leaveRequest->status !== 'pending') {
-                return $this->errorResponse('Cannot delete leave request that is already processed', 'DELETE_ERROR');
+                return $this->errorResponse('Cannot delete leave request that is already processed', config('error-codes.error_codes.RESOURCE.DELETION_FAILED', 'RES_004'));
             }
 
             $leaveRequest->delete();
 
             return $this->successResponse(null, 'Leave request deleted successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to delete leave request');
         }
     }
@@ -215,24 +219,24 @@ class LeaveRequestController extends BaseController
         try {
             $leaveRequest = LeaveRequest::find($id);
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return $this->notFoundResponse('Leave request not found');
             }
 
             if ($leaveRequest->status !== 'pending') {
-                return $this->errorResponse('Leave request is not in pending status', 'APPROVAL_ERROR');
+                return $this->errorResponse('Leave request is not in pending status', config('error-codes.error_codes.RESOURCE.ALREADY_PROCESSED', 'RES_007'));
             }
 
             $input = $this->request->all();
-            
+
             // Sanitize input data
             $input = $this->sanitizeInput($input);
-            
+
             $leaveRequest->update([
                 'status' => 'approved',
                 'approved_by' => null, // Assuming user authentication is not implemented yet
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null
+                'approval_comments' => $input['approval_comments'] ?? null,
             ]);
 
             // Update leave balance if applicable
@@ -247,7 +251,7 @@ class LeaveRequestController extends BaseController
             }
 
             return $this->successResponse($leaveRequest, 'Leave request approved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to approve leave request');
         }
     }
@@ -260,28 +264,28 @@ class LeaveRequestController extends BaseController
         try {
             $leaveRequest = LeaveRequest::find($id);
 
-            if (!$leaveRequest) {
+            if (! $leaveRequest) {
                 return $this->notFoundResponse('Leave request not found');
             }
 
             if ($leaveRequest->status !== 'pending') {
-                return $this->errorResponse('Leave request is not in pending status', 'REJECTION_ERROR');
+                return $this->errorResponse('Leave request is not in pending status', config('error-codes.error_codes.RESOURCE.ALREADY_PROCESSED', 'RES_007'));
             }
 
             $input = $this->request->all();
-            
+
             // Sanitize input data
             $input = $this->sanitizeInput($input);
-            
+
             $leaveRequest->update([
                 'status' => 'rejected',
                 'approved_by' => null, // Assuming user authentication is not implemented yet
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null
+                'approval_comments' => $input['approval_comments'] ?? null,
             ]);
 
             return $this->successResponse($leaveRequest, 'Leave request rejected successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to reject leave request');
         }
     }

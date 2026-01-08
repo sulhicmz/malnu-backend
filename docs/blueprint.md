@@ -33,7 +33,18 @@
 - **Versioning**: `/api/v1/` prefix
 - **Response**: Standardized JSON format
 - **Status Codes**: HTTP standard codes
-- **Errors**: Consistent error response structure
+- **Errors**: Consistent error response structure with standardized codes (see `docs/API_ERROR_CODES.md`)
+
+#### Error Code Standards
+- **Format**: `[CATEGORY]_[SERIAL_NUMBER]` (e.g., AUTH_001, VAL_001, RES_001, SRV_001)
+- **Categories**:
+  - `AUTH`: Authentication and authorization errors
+  - `VAL`: Input validation errors
+  - `RES`: Resource-related errors
+  - `SRV`: Server and infrastructure errors
+  - `RTL`: Rate limiting errors
+- **Configuration**: All error codes defined in `config/error-codes.php`
+- **Documentation**: See `docs/API_ERROR_CODES.md` for complete reference
 
 ### Architecture Patterns
 
@@ -63,6 +74,22 @@ app/Models/
 3. **Controllers**: Request handling and response formatting
 4. **Middleware**: Request/response processing
 5. **Requests**: Validation classes
+
+#### API Integration Patterns
+- **Controller Inheritance**: All API controllers must extend `BaseController`
+- **Response Methods**: Use standardized response methods:
+  - `successResponse($data, $message, $statusCode)` - Success responses
+  - `errorResponse($message, $errorCode, $details, $statusCode)` - Generic errors
+  - `validationErrorResponse($errors)` - Validation errors (422)
+  - `notFoundResponse($message)` - 404 errors
+  - `unauthorizedResponse($message)` - 401 errors
+  - `forbiddenResponse($message)` - 403 errors
+  - `serverErrorResponse($message)` - 500 errors
+- **Error Handling**: Global `ApiErrorHandlingMiddleware` catches and classifies exceptions
+- **Logging**: All errors logged with context (IP, user agent, URI, method)
+- **Rate Limiting**: Redis-based rate limiting with proper headers
+- **Input Sanitization**: All inputs sanitized via `InputSanitizationMiddleware`
+- **Error Classification**: Exception types mapped to appropriate error codes and types
 
 ### Security Standards
 

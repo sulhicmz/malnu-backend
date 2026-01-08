@@ -106,7 +106,7 @@ class StudentController extends BaseController
 
             return $this->successResponse($student, 'Student created successfully', 201);
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_CREATION_ERROR', null, 400);
+            return $this->errorResponse($e->getMessage(), config('error-codes.error_codes.RESOURCE.CREATION_FAILED', 'RES_002'), null, 400);
         }
     }
 
@@ -161,7 +161,7 @@ class StudentController extends BaseController
 
             return $this->successResponse($student, 'Student updated successfully');
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_UPDATE_ERROR', null, 400);
+            return $this->errorResponse($e->getMessage(), config('error-codes.error_codes.RESOURCE.UPDATE_FAILED', 'RES_003'), null, 400);
         }
     }
 
@@ -181,7 +181,7 @@ class StudentController extends BaseController
 
             return $this->successResponse(null, 'Student deleted successfully');
         } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage(), 'STUDENT_DELETION_ERROR', null, 400);
+            return $this->errorResponse($e->getMessage(), config('error-codes.error_codes.RESOURCE.DELETION_FAILED', 'RES_004'), null, 400);
         }
     }
 }

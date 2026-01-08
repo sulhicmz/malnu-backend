@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Monitoring\HealthController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -81,4 +82,12 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
     });
+});
+
+// Monitoring and Health Check Routes (public)
+Route::group(['middleware' => ['input.sanitization']], function () {
+    Route::get('/health', [HealthController::class, 'index']);
+    Route::get('/health/detailed', [HealthController::class, 'detailed']);
+    Route::get('/monitoring/metrics', [HealthController::class, 'metrics']);
+    Route::get('/monitoring/errors', [HealthController::class, 'errors']);
 });

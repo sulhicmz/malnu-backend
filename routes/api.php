@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Hostel\HostelController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -80,5 +81,37 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Hostel Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('hostel')->group(function () {
+        // Hostel Management
+        Route::post('hostels', [HostelController::class, 'createHostel']);
+        Route::get('hostels/{id}', [HostelController::class, 'getHostel']);
+        Route::put('hostels/{id}', [HostelController::class, 'updateHostel']);
+        Route::delete('hostels/{id}', [HostelController::class, 'deleteHostel']);
+        
+        // Room Management
+        Route::post('rooms', [HostelController::class, 'createRoom']);
+        
+        // Room Assignment
+        Route::post('assignments', [HostelController::class, 'assignStudentToRoom']);
+        Route::post('assignments/{assignmentId}/checkout', [HostelController::class, 'checkoutStudent']);
+        
+        // Maintenance Requests
+        Route::post('maintenance-requests', [HostelController::class, 'createMaintenanceRequest']);
+        
+        // Visitors
+        Route::post('visitors', [HostelController::class, 'createVisitor']);
+        
+        // Attendance
+        Route::post('attendance/checkin', [HostelController::class, 'checkInStudent']);
+        
+        // Reports and Analytics
+        Route::get('hostels/{hostelId}/occupancy', [HostelController::class, 'getHostelOccupancy']);
+        Route::get('students/{studentId}/boarding-info', [HostelController::class, 'getStudentBoardingInfo']);
+        Route::get('hostels/{hostelId}/available-rooms', [HostelController::class, 'getAvailableRooms']);
     });
 });

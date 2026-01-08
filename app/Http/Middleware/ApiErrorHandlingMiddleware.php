@@ -1,25 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\JsonResponse;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-class ApiErrorHandlingMiddleware
+class ApiErrorHandlingMiddleware implements MiddlewareInterface
 {
-    public function process($request, Closure $next)
+    protected ContainerInterface $container;
+    protected ResponseInterface $response;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+        $this->response = $container->get(ResponseInterface::class);
+    }
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): PsrResponseInterface
     {
         try {
-            $response = $next($request);
-            
-            // If the response is already in the correct format, return it
-            return $response;
+            return $handler->handle($request);
         } catch (Throwable $throwable) {
-            // Log the error
             error_log('API Error: ' . $throwable->getMessage());
-            
-            // Create standardized error response
+
             $errorResponse = [
                 'success' => false,
                 'error' => [
@@ -30,8 +40,7 @@ class ApiErrorHandlingMiddleware
                 'timestamp' => date('c'),
             ];
 
-            // Return JSON response with 500 status for server errors
-            return new JsonResponse($errorResponse, 500);
+            return $this->response->json($errorResponse)->withStatus(500);
         }
     }
 }

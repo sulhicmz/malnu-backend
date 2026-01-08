@@ -36,7 +36,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \App\Http\Middleware\RateLimitingMiddleware::class,
             \App\Http\Middleware\InputSanitizationMiddleware::class,
+            \App\Http\Middleware\CacheResponseMiddleware::class,
             // 'throttle:60,1,api',
             // \Hyperf\Router\Middleware\SubstituteBindings::class,
         ],
@@ -59,6 +61,7 @@ class Kernel extends HttpKernel
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
+        'cache.response' => \App\Http\Middleware\CacheResponseMiddleware::class,
     ];
 
     /**

@@ -1,5 +1,7 @@
 # Granular Task List for Malnu Backend Development
 
+> ⚠️ **DEPRECATED**: This granular task breakdown has been superseded by [TASK_MANAGEMENT.md](TASK_MANAGEMENT.md) which contains the comprehensive task management system. This document is preserved for historical reference only.
+
 ## 🚨 Phase 1: Critical Fixes (Week 1-2)
 
 ### Issue #100: Fix Model Relationship Error

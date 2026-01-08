@@ -71,8 +71,14 @@ JWT_SECRET=your-secure-jwt-secret-key-here
 #### 5. Start Docker Services
 
 ```bash
-docker-compose up -d mysql redis
+docker-compose up -d db redis
 ```
+
+This will start:
+- **MySQL 8.0** database service (accessible at `localhost:3306`)
+- **Redis** cache service (accessible at `localhost:6379`)
+
+The database will be initialized automatically with UTF-8 support and configured settings. Database data is persisted in a Docker volume named `dbdata`.
 
 #### 6. Run Database Migrations
 
@@ -102,6 +108,131 @@ npm run dev
 ```
 
 The frontend will be available at `http://localhost:5173`
+
+### Using Docker Compose for Database
+
+The project includes a configured MySQL 8.0 database service in `docker-compose.yml`. This is the recommended approach for development as it provides:
+
+- **Consistent environment** - Same database version as production
+- **Easy setup** - No manual database installation required
+- **Data persistence** - Database data is saved in a Docker volume
+- **Isolation** - Separate from your system's MySQL (if any)
+- **Health checks** - Database service is monitored for readiness
+
+#### Database Configuration
+
+When using Docker Compose, use these settings in your `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=db              # Docker service name, not localhost
+DB_PORT=3306
+DB_DATABASE=malnu
+DB_USERNAME=malnu_user
+DB_PASSWORD=change_me_in_production
+```
+
+**Important:** Use `db` as the `DB_HOST` (the Docker service name), not `localhost`, when running the app in Docker.
+
+#### Starting the Database
+
+```bash
+# Start database and Redis services
+docker-compose up -d db redis
+
+# Check service status
+docker-compose ps
+
+# View database logs
+docker-compose logs -f db
+
+# Stop services
+docker-compose down
+
+# Stop services and remove volumes (deletes all data)
+docker-compose down -v
+```
+
+#### Database Initialization
+
+On first run, MySQL will automatically:
+1. Create the database specified in `DB_DATABASE`
+2. Create the user specified in `DB_USERNAME`
+3. Set the password specified in `DB_PASSWORD`
+4. Run initialization scripts from `database/init/`
+
+#### Running Migrations
+
+After starting the database:
+
+```bash
+# Run migrations
+php artisan migrate
+
+# Run migrations with seeding
+php artisan migrate --seed
+
+# Fresh migration (drop all tables and recreate)
+php artisan migrate:fresh
+```
+
+#### Connecting to the Database
+
+From your terminal:
+
+```bash
+# Connect to MySQL container
+docker-compose exec db mysql -u malnu_user -p
+
+# Use the password from your .env file
+
+# Or as root
+docker-compose exec db mysql -u root -p
+```
+
+From an external tool (like MySQL Workbench, DBeaver, etc.):
+- **Host:** `localhost`
+- **Port:** `3306`
+- **Username:** `malnu_user`
+- **Password:** (from your .env file)
+- **Database:** `malnu`
+
+#### Troubleshooting
+
+**Database connection fails:**
+```bash
+# Check if database is running
+docker-compose ps
+
+# Check database logs
+docker-compose logs db
+
+# Verify .env has correct DB_HOST (should be 'db', not 'localhost')
+```
+
+**Database is empty:**
+```bash
+# Run migrations
+php artisan migrate
+
+# Check tables
+docker-compose exec db mysql -u malnu_user -p malnu -e "SHOW TABLES;"
+```
+
+**Need to reset database:**
+```bash
+# Stop services
+docker-compose down
+
+# Remove volume (WARNING: deletes all data)
+docker volume rm malnu-backend_dbdata
+
+# Start services again
+docker-compose up -d db redis
+
+# Run migrations
+php artisan migrate
+```
 
 ## Project Structure
 

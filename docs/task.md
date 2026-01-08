@@ -9,6 +9,104 @@
 
 ## Active Tasks
 
+### [TASK-301] Improve UI/UX Accessibility and Design System
+
+**Feature**: FEAT-008
+**Status**: In Progress
+**Agent**: 08 UI/UX
+**Priority**: P1
+**Estimated**: 2-3 days
+**Started**: January 8, 2026
+
+#### Description
+
+Frontend components lack proper accessibility features and there is no centralized design system, making the application difficult to use for keyboard-only users and screen reader users, and causing inconsistency across components.
+
+#### Acceptance Criteria
+
+- [x] Add comprehensive ARIA attributes to navigation components (Sidebar, Navbar)
+- [x] Implement keyboard navigation for menus and interactive elements
+- [x] Add proper focus management and error announcements to forms
+- [x] Create centralized design tokens in Tailwind config
+- [x] Extract reusable Button and Card components with accessibility features
+- [x] Add semantic HTML landmarks (main, section, article, nav)
+- [x] Update docs/blueprint.md with UI/UX patterns and accessibility standards
+- [ ] Add responsive design improvements for mobile/tablet
+
+#### Technical Details
+
+**Files Modified**:
+- `frontend/src/components/Sidebar.tsx` - Added ARIA attributes, keyboard nav, semantic HTML
+- `frontend/src/components/Navbar.tsx` - Added aria-labels, proper labels
+- `frontend/src/pages/auth/LoginPage.tsx` - Live regions, focus management
+- `frontend/src/pages/school/StudentData.tsx` - Keyboard nav, table accessibility
+- `frontend/src/pages/Dashboard.tsx` - Landmarks, chart accessibility
+
+**Files Created**:
+- `frontend/src/components/ui/Button.tsx` - Reusable button component
+- `frontend/src/components/ui/Card.tsx` - Reusable card component
+- `frontend/tailwind.config.js` - Design tokens (colors, spacing, typography)
+
+**Documentation**:
+- `docs/blueprint.md` - Added Frontend UI/UX Standards section
+
+#### Completed Work
+
+1. **Sidebar Accessibility**:
+   - Added `aria-expanded`, `aria-controls` to collapsible menus
+   - Implemented keyboard navigation (Enter/Space to toggle, Escape to close)
+   - Added proper focus management with refs
+   - Used semantic `<nav>` and `<ul>/<li>` structure
+   - Added `aria-current="page"` for active links
+   - Added `role="list"` to menu lists
+
+2. **Navbar Accessibility**:
+   - Added `aria-label` to icon-only buttons
+   - Added visible label for search input (sr-only label)
+   - Added `role="banner"` to header
+   - Improved focus states on all buttons
+
+3. **Login Page Accessibility**:
+   - Added live region for error announcements (`role="alert"`, `aria-live="assertive"`)
+   - Implemented focus management when errors occur
+   - Added `aria-invalid` and `aria-describedby` to form fields
+   - Added `aria-busy` attribute for loading state
+
+4. **StudentData Table Accessibility**:
+   - Added keyboard navigation for action menus
+   - Added `aria-live` for loading states
+   - Added proper table caption for context
+   - Added `aria-label` to pagination buttons
+   - Added `role="menu"` and `role="menuitem"` to dropdown
+
+5. **Dashboard Accessibility**:
+   - Added semantic landmarks (`<main>`, `<section>`, `<article>`)
+   - Added `role="img"` and descriptive `aria-label` to charts
+   - Added proper heading hierarchy
+   - Added `aria-label` to select inputs
+   - Added `role="list"` to activity lists
+
+6. **Design System Tokens**:
+   - Implemented centralized color system (primary, success, warning, danger)
+   - Added consistent spacing scale (0.25rem base)
+   - Added typography scale with responsive text sizes
+   - Created custom animations (fade-in, slide-up, slide-down)
+   - Added border radius variations
+
+7. **Reusable Components**:
+   - **Button**: Variants (primary, secondary, success, warning, danger, ghost), sizes (sm, md, lg), loading states, icon support, full keyboard accessibility
+   - **Card**: Sub-components (Header, Title, Content, Footer), hover/focusable states, semantic HTML
+
+8. **Documentation**:
+   - Added comprehensive Frontend UI/UX Standards to blueprint.md
+   - Documented WCAG 2.1 AA compliance requirements
+   - Created accessibility best practices guide
+   - Specified component library standards
+
+**Dependencies**: None (independent task)
+
+---
+
 ### [TASK-281] Fix Authentication System
 
 **Feature**: FEAT-001
@@ -743,7 +841,7 @@ Created interface contracts for all authentication-related services to follow De
 | Performance | 05 Performance | - |
 | Database | 06 Data Architect | TASK-283, TASK-222, TASK-103 |
 | APIs | 07 Integration | TASK-102, TASK-300 (Completed) |
-| UI/UX | 08 UI/UX | - |
+| UI/UX | 08 UI/UX | TASK-301 (In Progress) |
 | CI/CD | 09 DevOps | TASK-225 |
 | Docs | 10 Tech Writer | - |
 | Review/Refactor | 11 Code Reviewer | - |

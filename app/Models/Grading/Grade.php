@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\Grading;
 
@@ -15,10 +15,6 @@ use App\Models\User;
 
 class Grade extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
-
     protected $fillable = [
         'student_id',
         'subject_id',
@@ -34,8 +30,8 @@ class Grade extends Model
     ];
 
     protected $casts = [
-        'grade'      => 'decimal:2',
-        'semester'   => 'integer',
+        'grade' => 'decimal:2',
+        'semester' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -51,7 +47,7 @@ class Grade extends Model
         return $this->belongsTo(Subject::class);
     }
 
-    public function class ()
+    public function class()
     {
         return $this->belongsTo(ClassModel::class);
     }

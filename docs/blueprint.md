@@ -43,6 +43,26 @@
 - Enables dependency injection and testability
 - Follows Dependency Inversion Principle
 
+**Implementation Status (January 8, 2026)**:
+✅ All 13 services have corresponding interfaces
+✅ All services implement their respective interfaces
+✅ Controllers use interfaces for dependency injection
+
+**Available Interfaces**:
+- AuthServiceInterface
+- JWTServiceInterface
+- TokenBlacklistServiceInterface
+- CacheServiceInterface
+- CircuitBreakerInterface
+- RetryServiceInterface
+- TimeoutServiceInterface
+- FileUploadServiceInterface
+- FileTypeDetectorInterface
+- LeaveManagementServiceInterface
+- RolePermissionServiceInterface
+- CalendarServiceInterface
+- BackupServiceInterface
+
 #### Domain Organization
 ```
 app/Models/
@@ -63,6 +83,38 @@ app/Models/
 3. **Controllers**: Request handling and response formatting
 4. **Middleware**: Request/response processing
 5. **Requests**: Validation classes
+
+#### Model Standardization
+
+All models must inherit from `App\Models\Model` which provides:
+- **Primary Key**: UUID string (`id`)
+- **Key Type**: String (not incrementing)
+- **Incrementing**: False (UUID-based)
+
+**Best Practices**:
+- Never manually set `$primaryKey`, `$keyType`, or `$incrementing` in individual models
+- Use `UsesUuid` trait for automatic UUID generation during `create()`
+- All models automatically inherit UUID configuration from base Model
+- Migrations use `DB::raw('(UUID())')` for default UUID values
+
+**Example**:
+```php
+// Correct - inherits UUID config
+class User extends Authenticatable
+{
+    use UsesUuid;
+
+    protected array $fillable = [...];
+}
+
+// Incorrect - redundant configuration
+class User extends Authenticatable
+{
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+}
+```
 
 ### Security Standards
 
@@ -123,7 +175,172 @@ tests/
 └── Database/             # Migration and schema tests
 ```
 
-### Quality Gates
+#### Integration Standards
+
+#### Resilience Patterns
+
+The application implements the following resilience patterns to ensure reliability and availability:
+
+**Rate Limiting**
+- Protects API endpoints from overload and abuse
+- Middleware: `App\Http\Middleware\RateLimitMiddleware`
+- Configuration: `RATE_LIMIT_MAX_ATTEMPTS`, `RATE_LIMIT_DECAY_SECONDS`
+- Different limits for different endpoint types (auth endpoints stricter)
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
+**Timeouts**
+- All external service calls must have timeouts configured
+- Database timeout: 10 seconds (config/database.php)
+- External service timeout: 30 seconds (configurable)
+- Circuit breaker timeout: 60 seconds
+- Prevents cascading failures from hung operations
+
+**Retries with Exponential Backoff**
+- Service: `App\Services\RetryService`
+- Automatic retry for transient failures
+- Exponential backoff: base_delay * (2^(attempt-1))
+- Jitter added to prevent thundering herd
+- Max 3 attempts by default
+- Retryable exceptions: RuntimeException, PDOException, network errors
+
+**Circuit Breaker**
+- Service: `App\Services\CircuitBreaker`
+- States: CLOSED, OPEN, HALF_OPEN
+- Failure threshold: 5 consecutive failures
+- Recovery timeout: 60 seconds
+- Success threshold: 2 consecutive successes in HALF_OPEN
+- Prevents calling failing services repeatedly
+- Supports fallback functions for degraded functionality
+
+**Fallback Mechanisms**
+- Graceful degradation when services fail
+- Fallback functions for all external service calls
+- Cached responses for GET endpoints (CacheResponse middleware)
+- Default responses for non-critical features
+- User-friendly error messages
+
+#### Error Response Standardization
+
+**Error Codes**
+- Centralized in `App\Enums\ErrorCode`
+- Standardized codes: `STUDENT_NOT_FOUND`, `AUTH_TOKEN_EXPIRED`, etc.
+- Grouped by domain: 1xxx (General), 2xxx (Auth), 3xxx (Registration), etc.
+- Automatic HTTP status code mapping via `ErrorCode::getStatusCode()`
+
+**Error Response Format**
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Human-readable error message",
+    "code": "ERROR_CODE_CONSTANT",
+    "details": { "field": ["Error message"] }
+  },
+  "timestamp": "2026-01-07T12:00:00+00:00"
+}
+```
+
+**Using Error Codes**
+```php
+use App\Enums\ErrorCode;
+
+return $this->errorResponse(
+    $message,
+    ErrorCode::STUDENT_NOT_FOUND,
+    $details,
+    ErrorCode::getStatusCode(ErrorCode::STUDENT_NOT_FOUND)
+);
+```
+
+#### Integration Best Practices
+
+**External API Calls**
+1. Always use `RetryService` for network calls
+2. Wrap with `CircuitBreaker` for external services
+3. Provide fallback functions for critical operations
+4. Log failures with context (service, attempt count, exception)
+5. Set reasonable timeouts (never infinite)
+
+**Database Operations**
+1. Use `RetryService` for transaction conflicts
+2. Configure connection timeouts in database config
+3. Use proper indexes to prevent slow queries
+4. Leverage caching for frequently accessed data
+5. Monitor query performance
+
+**Cache Management**
+1. Use `CacheService` for all cache operations
+2. Set appropriate TTLs (short for volatile, long for static)
+3. Implement cache invalidation on data changes
+4. Use cache warming for high-traffic endpoints
+5. Monitor cache hit rates
+
+**Error Handling**
+1. Use centralized `ErrorCode` constants
+2. Provide meaningful error messages
+3. Include relevant details for debugging
+4. Log errors with full context
+5. Never expose sensitive information in error messages
+
+**Controller Standardization**
+All API controllers must follow these standards:
+- Extend `App\Http\Controllers\Api\BaseController`
+- Use `App\Enums\ErrorCode` for all error responses
+- Use BaseController response methods:
+  - `successResponse($data, $message, $statusCode)`
+  - `errorResponse($message, $errorCode, $details, $statusCode)`
+  - `validationErrorResponse($errors)`
+  - `notFoundResponse($message)`
+  - `unauthorizedResponse($message)`
+  - `forbiddenResponse($message)`
+  - `serverErrorResponse($message)`
+- Never use direct `$this->response->json()` calls
+- Always wrap database operations in try-catch blocks
+- Use appropriate Hyperf framework imports (not Laravel)
+- Apply proper validation for all inputs
+
+**Rate Limiting**
+All API routes must be protected with rate limiting:
+- Public routes: `Route::group(['middleware' => ['input.sanitization', 'rate_limit']])`
+- Protected routes: `Route::group(['middleware' => ['jwt', 'rate_limit']])`
+- Rate limits configured via environment variables
+- Headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
+#### Service Integration Examples
+
+**Circuit Breaker + Retry + Timeout**
+```php
+$circuitBreaker = new CircuitBreaker('external_api');
+$retryService = new RetryService();
+$timeoutService = new TimeoutService();
+
+$result = $circuitBreaker->call(
+    fn() => $retryService->call(
+        fn() => $timeoutService->call(
+            fn() => $this->makeApiCall(),
+            timeoutMs: 5000
+        )
+    ),
+    fallback: fn() => ['data' => 'cached_response']
+);
+```
+
+**Database Operation with Retry**
+```php
+$retryService = new RetryService();
+
+$student = $retryService->call(fn() => Student::create($data));
+```
+
+**Cached API Response**
+```php
+$cacheService = new CacheService();
+$key = $cacheService->generateKey('students:list', $params);
+
+$students = $cacheService->remember($key, fn() => Student::paginate(), 300);
+```
+
+## Quality Gates
 
 #### Pre-commit
 - PHPStan static analysis (level 5)

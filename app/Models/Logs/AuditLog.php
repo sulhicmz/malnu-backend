@@ -9,9 +9,6 @@ use App\Models\User;
 
 class AuditLog extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'user_id',

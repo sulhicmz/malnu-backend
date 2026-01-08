@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hyperf\Support\Str;
+use Hypervel\Support\Str;
 
 return [
     /*
@@ -129,7 +129,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'hypervel'), '_') . '_session'
+        Hypervel\Support\Str::slug(env('APP_NAME', 'hypervel'), '_') . '_session'
     ),
 
     /*

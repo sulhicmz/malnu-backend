@@ -11,9 +11,6 @@ use App\Models\User;
 
 class Competency extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'student_id',

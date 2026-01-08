@@ -13,7 +13,7 @@ const StudentData: React.FC = () => {
   const handleWebSocketMessage = (data: any) => {
     if (data.type === 'student_update') {
       setStudents(prev => {
-        // Update or add the student based on the action
+        // Update or add student based on the action
         const existingIndex = prev.findIndex(s => s.id === data.student.id);
         if (existingIndex !== -1) {
           // Update existing student
@@ -30,7 +30,17 @@ const StudentData: React.FC = () => {
     }
   };
 
-  const { isConnected, connectionError } = useWebSocket(handleWebSocketMessage);
+  useEffect(() => {
+    if (!loading && !error && students.length > 0) {
+      const statusMessage = `Menampilkan ${students.length} siswa`;
+      const existingStatus = document.getElementById('student-status-message');
+      if (existingStatus) {
+        existingStatus.textContent = statusMessage;
+      }
+    }
+  }, [loading, error, students]);
+
+  useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -61,28 +71,30 @@ const StudentData: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800">Data Siswa</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center">
-          <UserPlus className="h-4 w-4 mr-2" />
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center" aria-label="Add new student">
+          <UserPlus className="h-4 w-4 mr-2" aria-hidden="true" />
           Tambah Siswa
         </button>
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div className="flex flex-1 max-w-md items-center rounded-md border border-gray-300 px-3 py-2 focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600">
-          <Search className="h-4 w-4 text-gray-500" />
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-1 max-w-md items-center rounded-md border border-gray-300 px-3 py-2 focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600 w-full md:w-auto">
+          <Search className="h-4 w-4 text-gray-500" aria-hidden="true" />
           <input
             type="text"
             placeholder="Cari siswa..."
             className="w-full border-0 focus:outline-none focus:ring-0 text-sm text-gray-600 ml-2"
+            aria-label="Search students"
           />
         </div>
-        <div className="flex space-x-2">
-          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50">
-            <Filter className="h-4 w-4 mr-2" />
+        <div className="flex flex-wrap gap-2">
+          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50" aria-label="Filter students">
+            <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
             Filter
           </button>
-          <select className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium">
+          <label htmlFor="class-filter" className="sr-only">Filter by class</label>
+          <select id="class-filter" className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium">
             <option value="">Semua Kelas</option>
             <option value="X-A">X-A</option>
             <option value="X-B">X-B</option>
@@ -91,8 +103,8 @@ const StudentData: React.FC = () => {
             <option value="XII-A">XII-A</option>
             <option value="XII-B">XII-B</option>
           </select>
-          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50">
-            <Download className="h-4 w-4 mr-2" />
+          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50" aria-label="Export student data">
+            <Download className="h-4 w-4 mr-2" aria-hidden="true" />
             Export
           </button>
         </div>
@@ -100,13 +112,14 @@ const StudentData: React.FC = () => {
 
       {/* Loading and Error States */}
       {loading && (
-        <div className="flex justify-center items-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex justify-center items-center py-10" role="status" aria-live="polite" aria-busy="true">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" aria-hidden="true"></div>
+          <span className="ml-3 text-gray-600">Memuat data siswa...</span>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert" aria-live="assertive">
           <strong className="font-bold">Error! </strong>
           <span className="block sm:inline">{error}</span>
         </div>
@@ -114,26 +127,26 @@ const StudentData: React.FC = () => {
 
       {/* Students Table */}
       {!loading && !error && (
-        <div className="overflow-x-auto shadow-sm rounded-lg">
+        <div className="overflow-x-auto shadow-sm rounded-lg -mx-4 px-4 md:mx-0 md:px-0" role="region" aria-live="polite" aria-label="Daftar siswa">
           <table className="min-w-full divide-y divide-gray-200 bg-white">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Siswa
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   NISN
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Kelas
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                   Tahun Masuk
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Aksi
                 </th>
               </tr>
@@ -141,7 +154,7 @@ const StudentData: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {students.map((student, index) => (
                 <tr key={student.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         {student.avatar ? (
@@ -154,50 +167,53 @@ const StudentData: React.FC = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">{student.email}</div>
+                        <div className="text-sm text-gray-500 hidden sm:block">{student.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                     {student.nisn}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {student.class}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                     {student.enrollmentYear}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      student.status === 'active' ? 'bg-green-100 text-green-800' : 
-                      student.status === 'inactive' ? 'bg-red-100 text-red-800' : 
+                      student.status === 'active' ? 'bg-green-100 text-green-800' :
+                      student.status === 'inactive' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {student.status === 'active' ? 'Aktif' : 
-                       student.status === 'inactive' ? 'Non-Aktif' : 
-                       'Cuti'}
+                      {student.status === 'active' ? '● Aktif' :
+                       student.status === 'inactive' ? '● Non-Aktif' :
+                       '● Cuti'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                    <button 
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                    <button
                       onClick={() => toggleActionMenu(index)}
                       className="text-gray-500 hover:text-gray-700"
+                      aria-label="Show actions"
+                      aria-expanded={showActionMenu === index}
+                      aria-controls={`action-menu-${index}`}
                     >
-                      <MoreHorizontal className="h-5 w-5" />
+                      <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
                     </button>
                     {showActionMenu === index && (
-                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                      <div id={`action-menu-${index}`} className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                         <div className="py-1" role="menu" aria-orientation="vertical">
                           <button className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                            <Edit className="h-4 w-4 inline mr-2" />
+                            <Edit className="h-4 w-4 inline mr-2" aria-hidden="true" />
                             Edit Siswa
                           </button>
                           <button className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                            <User className="h-4 w-4 inline mr-2" />
+                            <User className="h-4 w-4 inline mr-2" aria-hidden="true" />
                             Lihat Detail
                           </button>
                           <button className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">
-                            <Trash2 className="h-4 w-4 inline mr-2" />
+                            <Trash2 className="h-4 w-4 inline mr-2" aria-hidden="true" />
                             Hapus Siswa
                           </button>
                         </div>
@@ -213,24 +229,24 @@ const StudentData: React.FC = () => {
 
       {/* Pagination - will be updated when we have actual pagination data */}
       {!loading && !error && students.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4" aria-live="polite">
+          <div className="text-sm text-gray-500" id="student-status-message">
             Menampilkan {students.length} dari {students.length} siswa
           </div>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <div className="flex flex-wrap justify-center gap-2">
+            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled aria-label="Previous page">
               Sebelumnya
             </button>
-            <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+            <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700" aria-label="Page 1, current page" aria-current="page">
               1
             </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
+            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50" aria-label="Go to page 2">
               2
             </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
+            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50" aria-label="Go to page 3">
               3
             </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
+            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50" aria-label="Next page">
               Selanjutnya
             </button>
           </div>

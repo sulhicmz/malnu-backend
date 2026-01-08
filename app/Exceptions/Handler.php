@@ -4,35 +4,34 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
-use Hyperf\Foundation\Exceptions\Handler as ExceptionHandler;
-use Hyperf\Http\Request;
+use Hyperf\ExceptionHandler\ExceptionHandler;
+use Swow\Psr7\Message\ResponsePlusInterface;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
     /**
-     * The list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
+     * Handle the exception, and return the specified result.
      */
-    protected array $dontFlash = [
-        'current_password',
-        'password',
-        'password_confirmation',
-    ];
+    public function handle(Throwable $throwable, ResponsePlusInterface $response)
+    {
+        return $response->withStatus(500)
+            ->withBody(new \Hyperf\HttpMessage\Stream\SwooleStream(json_encode([
+                'success' => false,
+                'error' => [
+                    'message' => $throwable->getMessage(),
+                    'code' => 'INTERNAL_SERVER_ERROR',
+                ],
+                'timestamp' => date('c'),
+            ])))
+            ->withAddedHeader('content-type', 'application/json');
+    }
 
     /**
-     * Register the exception handling callbacks for the application.
+     * Determine if the current exception handler should handle the exception.
      */
-    public function register(): void
+    public function isValid(Throwable $throwable): bool
     {
-        // return json when path start with `api`
-        $this->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
-            return str_starts_with($path = $request->path(), 'api')
-                && (strlen($path) === 3 || $path[3] === '/');
-        });
-
-        $this->reportable(function (Throwable $e) {
-        });
+        return true;
     }
 }

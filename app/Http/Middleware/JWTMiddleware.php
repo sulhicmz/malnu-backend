@@ -23,7 +23,7 @@ class JWTMiddleware implements MiddlewareInterface
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->request = $container->get(RequestInterface::class);
+        $this->request = $container->get(Hypervel\HttpServer\Contract\RequestInterface::class);
         $this->response = $container->get(HttpResponse::class);
         $this->authService = new \App\Services\AuthService();
     }

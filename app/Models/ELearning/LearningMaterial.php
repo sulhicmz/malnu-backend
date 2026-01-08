@@ -10,9 +10,6 @@ use App\Models\ELearning\VirtualClass;
 
 class LearningMaterial extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'virtual_class_id',

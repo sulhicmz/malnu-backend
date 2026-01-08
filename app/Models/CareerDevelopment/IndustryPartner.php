@@ -8,9 +8,6 @@ use App\Models\Model;
 
 class IndustryPartner extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'name',

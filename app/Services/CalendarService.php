@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\CalendarServiceInterface;
 use App\Models\Calendar\Calendar;
 use App\Models\Calendar\CalendarEvent;
 use App\Models\Calendar\CalendarEventRegistration;
@@ -13,7 +14,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 
-class CalendarService
+class CalendarService implements CalendarServiceInterface
 {
     /**
      * Create a new calendar

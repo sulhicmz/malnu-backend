@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\FileUploadServiceInterface;
 use Hyperf\HttpMessage\Upload\UploadedFile;
 use Psr\Http\Message\UploadedFileInterface;
 
-class FileUploadService
+class FileUploadService implements FileUploadServiceInterface
 {
     private array $allowedMimeTypes = [
         // Images

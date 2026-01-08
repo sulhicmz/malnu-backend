@@ -4,16 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\Model;
-use App\Models\Role;
-use App\Models\RoleHasPermission;
-
 class Permission extends Model
 {
-    protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
-    protected string $keyType = 'string';
-    public bool $incrementing = false;
-
     protected array $fillable = [
         'name',
         'guard_name',
@@ -39,7 +31,7 @@ class Permission extends Model
     {
         RoleHasPermission::create([
             'permission_id' => $this->id,
-            'role_id'       => $role->id,
+            'role_id' => $role->id,
         ]);
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, PlusCircle, Download, MoreHorizontal, Edit, Trash2, Book, FileText, Video, Link as LinkIcon, Clock, Eye } from 'lucide-react';
+import { Search, Filter, PlusCircle, Download, MoreHorizontal, Edit, Trash2, FileText, Video, Link as LinkIcon, Clock, Eye } from 'lucide-react';
 
 const LearningMaterials: React.FC = () => {
   const [materials] = useState<LearningMaterial[]>(mockMaterials);

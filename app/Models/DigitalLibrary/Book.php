@@ -8,10 +8,6 @@ use App\Models\Model;
 
 class Book extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
-
     protected $fillable = [
         'isbn',
         'title',

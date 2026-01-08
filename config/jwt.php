@@ -204,17 +204,21 @@ return [
 
      'leeway' => env('JWT_LEEWAY', 0),
 
-     /*
-     |--------------------------------------------------------------------------
-     | Blacklist Enabled
-     |--------------------------------------------------------------------------
-     |
-     | In order to invalidate tokens, you must have the blacklist enabled.
-     | If you do not want or need this functionality, then set this to false.
-     |
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Blacklist Enabled
+    |--------------------------------------------------------------------------
+    |
+    | In order to invalidate tokens, you must have the blacklist enabled.
+    | If you do not want or need this functionality, then set this to false.
+    |
+    | Note: Token blacklist requires Redis to be running and configured.
+    | Ensure REDIS_HOST, REDIS_PORT, and REDIS_DB are set in your .env file.
+    | The blacklist tokens are stored in Redis with a 24-hour TTL by default.
+    |
+    */
 
-     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', false),
+    'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
      /*
      | -------------------------------------------------------------------------

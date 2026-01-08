@@ -5,7 +5,7 @@
 ### Framework Stack
 - **Backend**: HyperVel (Laravel-style with Hyperf/Swoole)
 - **PHP**: 8.2+ with strict types
-- **Database**: SQLite (dev) / MySQL (prod)
+- **Database**: MySQL 8.0 (Docker) / SQLite (local dev)
 - **Cache**: Redis
 - **Frontend**: React with Vite
 
@@ -211,5 +211,5 @@ tests/
 
 ---
 
-*Last Updated: January 7, 2026*
+*Last Updated: January 8, 2026*
 *Owner: Principal Product Strategist*

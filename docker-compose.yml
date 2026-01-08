@@ -43,6 +43,10 @@ services:
     # depends_on:
     #   - db # Link to the database service defined below
 
+    # Link to the Redis service (uncomment database service above and add to list if needed)
+    depends_on:
+      - redis # Link to the Redis service defined below
+
   # # Example MySQL Database Service (Uncomment to use)
   # db:
   #   image: mysql:8.0 # Use an official MySQL image
@@ -68,7 +72,23 @@ services:
   #   volumes:
   #     - pgdata:/var/lib/postgresql/data # Persist database data
 
+  # Redis Service for caching, sessions, and queues
+  redis:
+    image: redis:7-alpine # Use Redis 7 Alpine image for better performance
+    ports:
+      - "6379:6379" # Map host port 6379 to container port 6379
+    volumes:
+      - redisdata:/data # Persist Redis data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
 # # Define volumes for data persistence (Uncomment if using database services)
 # volumes:
 #   dbdata: # Volume for MySQL data
 #   pgdata: # Volume for PostgreSQL data
+volumes:
+  redisdata: # Volume for Redis data persistence

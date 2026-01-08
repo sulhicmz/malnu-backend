@@ -20,6 +20,10 @@ class LeaveType extends Model
 {
     use UsesUuid;
 
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $table = 'leave_types';
 
     protected $fillable = [

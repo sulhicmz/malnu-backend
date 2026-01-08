@@ -21,6 +21,10 @@ class LeaveBalance extends Model
 {
     use UsesUuid;
 
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $table = 'leave_balances';
 
     protected $fillable = [

@@ -9,9 +9,9 @@ use App\Models\User;
 
 class Transaction extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
 
     protected $fillable = [
         'user_id',

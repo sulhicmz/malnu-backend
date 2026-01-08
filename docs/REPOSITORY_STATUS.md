@@ -1,5 +1,7 @@
 # Malnu Backend Repository Status Summary
 
+> ⚠️ **DEPRECATED**: This document has been superseded by [APPLICATION_STATUS.md](APPLICATION_STATUS.md) which contains the most up-to-date repository status. This document is preserved for historical reference only.
+
 ## 📊 Executive Dashboard
 
 **Analysis Date**: November 26, 2025  

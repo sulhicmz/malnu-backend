@@ -1,5 +1,7 @@
 # Malnu Backend Development Roadmap
 
+> ⚠️ **DEPRECATED**: This document has been superseded by [ROADMAP.md](ROADMAP.md) which contains a more comprehensive and up-to-date development roadmap. This document is preserved for historical reference only.
+
 ## 📊 Executive Summary
 
 **Repository Health Score**: 6.5/10 → Target: 9.0/10  

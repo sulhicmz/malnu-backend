@@ -1,5 +1,7 @@
 # 📊 Repository Analysis Report
 
+> ⚠️ **DEPRECATED**: This document has been superseded by [APPLICATION_STATUS.md](APPLICATION_STATUS.md) which contains the most up-to-date information. This report is preserved for historical reference only.
+
 ## 🎯 Executive Summary
 
 **Repository Health Score**: 6.5/10  

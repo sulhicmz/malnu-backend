@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\LibraryManagementController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -80,5 +81,59 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Library Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('library')->group(function () {
+        // Patron Management Routes
+        Route::post('patrons', [LibraryManagementController::class, 'createPatron']);
+        Route::get('patrons', [LibraryManagementController::class, 'getPatrons']);
+        Route::get('patrons/{id}', [LibraryManagementController::class, 'getPatron']);
+        Route::put('patrons/{id}', [LibraryManagementController::class, 'updatePatron']);
+        Route::delete('patrons/{id}', [LibraryManagementController::class, 'deletePatron']);
+
+        // Circulation Routes
+        Route::post('circulation/checkout', [LibraryManagementController::class, 'checkoutBook']);
+        Route::post('circulation/return/{loanId}', [LibraryManagementController::class, 'returnBook']);
+        Route::post('circulation/renew/{loanId}', [LibraryManagementController::class, 'renewBook']);
+
+        // Hold Management Routes
+        Route::post('holds', [LibraryManagementController::class, 'placeHold']);
+        Route::post('holds/{holdId}/cancel', [LibraryManagementController::class, 'cancelHold']);
+        Route::post('holds/{holdId}/fulfill', [LibraryManagementController::class, 'fulfillHold']);
+
+        // Fine Management Routes
+        Route::post('fines', [LibraryManagementController::class, 'createFine']);
+        Route::post('fines/{fineId}/pay', [LibraryManagementController::class, 'payFine']);
+        Route::post('fines/{fineId}/waive', [LibraryManagementController::class, 'waiveFine']);
+
+        // Inventory Management Routes
+        Route::post('inventory', [LibraryManagementController::class, 'createInventoryRecord']);
+
+        // Acquisition Management Routes
+        Route::post('acquisitions', [LibraryManagementController::class, 'createAcquisition']);
+        Route::post('acquisitions/{id}/receive', [LibraryManagementController::class, 'markAcquisitionReceived']);
+
+        // Reading Program Routes
+        Route::post('reading-programs', [LibraryManagementController::class, 'createReadingProgram']);
+        Route::post('reading-programs/enroll', [LibraryManagementController::class, 'enrollInProgram']);
+        Route::post('reading-programs/participants/{participantId}/books-read', [LibraryManagementController::class, 'recordBooksRead']);
+
+        // Space Management Routes
+        Route::post('spaces', [LibraryManagementController::class, 'createSpace']);
+        Route::post('spaces/book', [LibraryManagementController::class, 'bookSpace']);
+        Route::post('spaces/bookings/{bookingId}/cancel', [LibraryManagementController::class, 'cancelSpaceBooking']);
+
+        // MARC Record Routes
+        Route::post('marc-records', [LibraryManagementController::class, 'createMarcRecord']);
+        Route::post('marc-records/{recordId}/fields', [LibraryManagementController::class, 'addMarcField']);
+
+        // Analytics Routes
+        Route::post('analytics', [LibraryManagementController::class, 'recordAnalytics']);
+        Route::get('analytics/popular-books', [LibraryManagementController::class, 'getPopularBooks']);
+        Route::get('patrons/{patronId}/reading-history', [LibraryManagementController::class, 'getPatronReadingHistory']);
+        Route::post('fines/generate-overdue', [LibraryManagementController::class, 'generateOverdueFines']);
     });
 });

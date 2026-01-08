@@ -841,6 +841,329 @@ All API endpoints now use `/api/v1/` prefix:
 
 ---
 
+### [TASK-302] Refactor AuthService to use Dependency Injection
+
+**Feature**: Architecture Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: P1
+**Estimated**: 2-3 days
+
+#### Description
+
+AuthService violates Dependency Injection principles by directly instantiating services in constructor, and uses inefficient O(n) authentication logic that fetches all users then iterates manually.
+
+#### Acceptance Criteria
+
+- [ ] Replace direct service instantiation with constructor injection of JWTServiceInterface and TokenBlacklistServiceInterface
+- [ ] Refactor login() method to use Eloquent queries instead of getAllUsers() + manual iteration
+- [ ] Remove getAllUsers() method or implement proper database query
+- [ ] Complete password reset functionality (remove placeholder comments)
+- [ ] Complete password change functionality (remove placeholder comments)
+- [ ] Add unit tests for AuthService methods
+- [ ] Verify authentication performance improves from O(n) to O(1)
+
+#### Technical Details
+
+**Files to Modify**:
+- `app/Services/AuthService.php` - Lines 17-21 (constructor), 48-56, 94-99, 139-147 (login methods), 158-189 (password reset), 197-209 (password change)
+
+**Files to Create**:
+- `tests/Unit/Services/AuthServiceTest.php` - Unit tests
+
+**Issues Found**:
+- Direct instantiation violates SOLID Dependency Inversion Principle
+- Inefficient authentication: Fetches ALL users from DB, then iterates in PHP
+- Incomplete password reset and change functionality
+- Hardcoded success returns instead of actual logic
+
+**Suggested Implementation**:
+```php
+public function __construct(
+    private JWTServiceInterface $jwtService,
+    private TokenBlacklistServiceInterface $tokenBlacklistService
+) {}
+
+public function login(string $email, string $password): array
+{
+    $user = User::where('email', $email)->first();
+    
+    if (!$user || !password_verify($password, $user->password)) {
+        throw new \Exception('Invalid credentials');
+    }
+    // ... rest of implementation
+}
+```
+
+**Dependencies**: ARCH-001 (Interface-Based Design completed)
+
+---
+
+### [TASK-303] Eliminate Bearer Token Code Duplication
+
+**Feature**: Code Quality Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: P1
+**Estimated**: 1 day
+
+#### Description
+
+Bearer token extraction and validation logic is duplicated 12+ times across 6 different files, violating DRY principle and making maintenance difficult.
+
+#### Acceptance Criteria
+
+- [ ] Create AuthTokenHelper class with extractTokenFromRequest() and validateBearerToken() methods
+- [ ] Replace all 12+ occurrences of Bearer token extraction logic with AuthTokenHelper calls
+- [ ] Update AuthController.php to use helper methods
+- [ ] Update JWTMiddleware.php to use helper methods
+- [ ] Update RoleMiddleware.php to use helper methods
+- [ ] Add unit tests for AuthTokenHelper methods
+- [ ] Verify all token handling still works after refactoring
+
+#### Technical Details
+
+**Files to Create**:
+- `app/Helpers/AuthTokenHelper.php` - Centralized token extraction/validation
+
+**Files to Modify**:
+- `app/Http/Controllers/Api/AuthController.php` - Lines 105, 109, 128, 132, 150, 154, 259, 263
+- `app/Http/Middleware/JWTMiddleware.php` - Lines 35, 43
+- `app/Http/Middleware/RoleMiddleware.php` - Lines 24, 28
+
+**Files Affected**: 6 files with 12+ occurrences total
+
+**Code Duplication Example** (appears 12+ times):
+```php
+$authHeader = $request->getHeaderLine('Authorization');
+if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+    return $this->unauthorizedResponse('Token not provided');
+}
+$token = substr($authHeader, 7);
+```
+
+**Suggested Helper Class**:
+```php
+namespace App\Helpers;
+
+class AuthTokenHelper
+{
+    public static function extractTokenFromRequest($request): ?string
+    {
+        $authHeader = $request->getHeaderLine('Authorization');
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+            return null;
+        }
+        return substr($authHeader, 7);
+    }
+    
+    public static function validateBearerToken(string $authHeader): bool
+    {
+        return $authHeader && str_starts_with($authHeader, 'Bearer ');
+    }
+}
+```
+
+**Benefits**:
+- Eliminates 50+ lines of duplicate code
+- Centralizes token handling logic
+- Easier to maintain and update
+- Consistent token validation across entire codebase
+- Single point for security fixes
+
+**Dependencies**: None (independent task)
+
+---
+
+### [TASK-304] Extract Duplicate Date Range Logic in CalendarService
+
+**Feature**: Code Quality Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: P2
+**Estimated**: 1 day
+
+#### Description
+
+CalendarService contains identical date range filtering logic in two different methods, violating DRY principle. Conflict detection logic is also duplicated.
+
+#### Acceptance Criteria
+
+- [ ] Extract date range filtering logic into applyDateRangeFilter() private method
+- [ ] Extract conflict detection logic into detectConflicts() private method
+- [ ] Replace duplicate code with method calls
+- [ ] Add unit tests for extracted methods
+- [ ] Verify calendar functionality still works correctly
+
+#### Technical Details
+
+**Files to Modify**:
+- `app/Services/CalendarService.php` - Lines 105-126 (first occurrence), 131-158 (second occurrence), 256-271 (conflict detection), 283-289 (duplicate conflict detection)
+
+**Code Duplication 1** - Date Range Filtering (Lines 105-126 & 131-158):
+```php
+$query->where(function ($q) use ($startDate, $endDate) {
+    $q->whereBetween('start_date', [$startDate, $endDate])
+      ->orWhereBetween('end_date', [$startDate, $endDate])
+      ->orWhere(function ($q) use ($startDate, $endDate) {
+          $q->where('start_date', '<=', $startDate)
+            ->where('end_date', '>=', $endDate);
+      });
+});
+```
+
+**Code Duplication 2** - Conflict Detection (Lines 256-271 & 283-289):
+```php
+$query->where(function ($q) use ($startDate, $endDate) {
+    $q->whereBetween('start_date', [$startDate, $endDate])
+      ->orWhereBetween('end_date', [$startDate, $endDate])
+      ->orWhere(function ($q) use ($startDate, $endDate) {
+          $q->where('start_date', '<=', $startDate)
+            ->where('end_date', '>=', $endDate);
+      });
+});
+```
+
+**Suggested Refactoring**:
+```php
+private function applyDateRangeFilter($query, Carbon $startDate, Carbon $endDate)
+{
+    return $query->where(function ($q) use ($startDate, $endDate) {
+        $q->whereBetween('start_date', [$startDate, $endDate])
+          ->orWhereBetween('end_date', [$startDate, $endDate])
+          ->orWhere(function ($q) use ($startDate, $endDate) {
+              $q->where('start_date', '<=', $startDate)
+                ->where('end_date', '>=', $endDate);
+          });
+    });
+}
+
+private function detectConflicts($query, Carbon $startDate, Carbon $endDate)
+{
+    return $this->applyDateRangeFilter($query, $startDate, $endDate);
+}
+```
+
+**Benefits**:
+- Eliminates 30+ lines of duplicate code
+- Easier to maintain date range logic
+- Consistent conflict detection across methods
+- Single source of truth for date filtering
+
+**Dependencies**: None (independent task)
+
+---
+
+### [TASK-305] Remove Hardcoded Role Data from RolePermissionService
+
+**Feature**: Architecture Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: P2
+**Estimated**: 2-3 days
+
+#### Description
+
+RolePermissionService contains hardcoded role and permission data with placeholder implementations instead of database queries, making authentication/authorization system non-functional.
+
+#### Acceptance Criteria
+
+- [ ] Replace getAllRoles() with database query to Role model
+- [ ] Replace getAllPermissions() with database query to Permission model
+- [ ] Implement assignRoleToUser() to actually update database
+- [ ] Implement removeRoleFromUser() to actually update database
+- [ ] Implement assignPermissionToRole() to actually update database
+- [ ] Remove all "In a real implementation" comments
+- [ ] Create Role and Permission models if they don't exist
+- [ ] Create pivot tables for user_roles and role_permissions if needed
+- [ ] Add unit tests for all role/permission operations
+
+#### Technical Details
+
+**Files to Modify**:
+- `app/Services/RolePermissionService.php` - Lines 10-18 (hardcoded roles), 39-50 (hardcoded permissions), 59-65 (hardcoded mappings), 84, 90, 99, 108 (placeholder implementations)
+
+**Files to Create** (if not existing):
+- `app/Models/Role.php` - Role model
+- `app/Models/Permission.php` - Permission model
+- `database/migrations/*_create_roles_table.php` - Roles migration
+- `database/migrations/*_create_permissions_table.php` - Permissions migration
+- `database/migrations/*_create_user_roles_table.php` - Pivot table
+- `database/migrations/*_create_role_permissions_table.php` - Pivot table
+- `tests/Unit/Services/RolePermissionServiceTest.php` - Unit tests
+
+**Current Problematic Code**:
+```php
+public function getAllRoles(): array
+{
+    // In a real implementation, this would query the database
+    return [
+        ['id' => 'admin', 'name' => 'admin', 'description' => '...'],
+        ['id' => 'teacher', 'name' => 'teacher', 'description' => '...'],
+        // ... more hardcoded data
+    ];
+}
+
+public function assignRoleToUser(string $userId, string $roleName): bool
+{
+    // In a real implementation, this would update the database
+    return true;  // ❌ Always returns true
+}
+```
+
+**Suggested Implementation**:
+```php
+public function getAllRoles(): array
+{
+    return Role::all()->toArray();
+}
+
+public function assignRoleToUser(string $userId, string $roleName): bool
+{
+    $role = Role::where('name', $roleName)->first();
+    if (!$role) {
+        return false;
+    }
+    
+    ModelHasRole::firstOrCreate([
+        'model_type' => User::class,
+        'model_id' => $userId,
+        'role_id' => $role->id,
+    ]);
+    
+    return true;
+}
+
+public function getAllPermissions(): array
+{
+    return Permission::all()->toArray();
+}
+
+public function assignPermissionToRole(string $roleName, string $permissionName): bool
+{
+    $role = Role::where('name', $roleName)->first();
+    $permission = Permission::where('name', $permissionName)->first();
+    
+    if (!$role || !$permission) {
+        return false;
+    }
+    
+    $role->permissions()->syncWithoutDetaching([$permission->id]);
+    return true;
+}
+```
+
+**Benefits**:
+- Production-ready authentication/authorization system
+- Dynamic role and permission management
+- Database-driven RBAC system
+- Eliminates tech debt and placeholder code
+- Enables proper role management through admin interface
+
+**Dependencies**: TASK-283 (Database services enabled), TASK-222 (Migration imports fixed)
+
+---
+
 ## Completed Tasks
 
 ### [ARCH-001] Implement Interface-Based Design for Authentication Services
@@ -910,7 +1233,7 @@ Created interface contracts for all authentication-related services to follow De
 | UI/UX | 08 UI/UX | TASK-301 (In Progress) |
 | CI/CD | 09 DevOps | TASK-225 |
 | Docs | 10 Tech Writer | - |
-| Review/Refactor | 11 Code Reviewer | - |
+| Review/Refactor | 11 Code Reviewer | TASK-302, TASK-303, TASK-304, TASK-305 |
 
 ---
 

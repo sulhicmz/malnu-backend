@@ -79,6 +79,12 @@ See [Application Status](docs/APPLICATION_STATUS.md) for detailed information ab
 - Critical blockers and issues
 - Development phases and progress
 
+## 🔒 Security
+
+For security policies and vulnerability reporting, see [SECURITY.md](SECURITY.md).
+
+**Important**: Do NOT open a public issue for security vulnerabilities. Report them privately via [GitHub's private vulnerability reporting](https://github.com/sulhicmz/malnu-backend/security/advisories).
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for:

@@ -1,0 +1,171 @@
+# CODEOWNERS
+
+# This file defines code ownership and required reviewers for different parts of the repository.
+# Format: pattern @owner1 @owner2 ...
+# Patterns are matched using Git's pathspec syntax.
+
+# Global Owners (Required for all changes)
+# These owners review all code changes
+* @sulhicmz
+
+# Repository Administrators (Emergency access)
+# Can approve changes in emergencies
+* @admin-team
+
+# Root Files
+# Configuration, documentation, and top-level files
+/.github/ @sulhicmz
+/docs/ @sulhicmz
+*.md @sulhicmz
+*.json @sulhicmz
+*.yml @sulhicmz
+*.yaml @sulhicmz
+.env.example @sulhicmz
+docker-compose.yml @sulhicmz
+
+# Security Files (Require security team review)
+SECURITY.md @security-team @sulhicmz
+CODEOWNERS @security-team @sulhicmz
+app/Http/Middleware/SecurityHeaders.php @security-team
+app/Http/Middleware/VerifyCsrfToken.php @security-team
+app/Http/Middleware/JWTMiddleware.php @security-team
+app/Services/JwtService.php @security-team
+
+# Framework Core (Require core team review)
+/app/ @core-team @sulhicmz
+/bootstrap/ @core-team @sulhicmz
+/config/ @core-team @sulhicmz
+/public/ @core-team @sulhicmz
+routes/ @core-team @sulhicmz
+
+# Business Domains - School Management
+/app/Models/SchoolManagement/ @school-management-team
+/app/Http/Controllers/Api/SchoolManagement/ @school-management-team
+/app/Services/SchoolManagement/ @school-management-team
+
+# Business Domains - AI Assistant
+/app/Models/AIAssistant/ @ai-team
+/app/Http/Controllers/Api/AIAssistant/ @ai-team
+/app/Services/AIAssistant/ @ai-team
+
+# Business Domains - E-Learning
+/app/Models/ELearning/ @elearning-team
+/app/Http/Controllers/Api/ELearning/ @elearning-team
+/app/Services/ELearning/ @elearning-team
+
+# Business Domains - Online Exam
+/app/Models/OnlineExam/ @exam-team
+/app/Http/Controllers/Api/OnlineExam/ @exam-team
+/app/Services/OnlineExam/ @exam-team
+
+# Business Domains - Grading
+/app/Models/Grading/ @grading-team
+/app/Http/Controllers/Api/Grading/ @grading-team
+/app/Services/Grading/ @grading-team
+
+# Business Domains - Digital Library
+/app/Models/DigitalLibrary/ @library-team
+/app/Http/Controllers/Api/DigitalLibrary/ @library-team
+/app/Services/DigitalLibrary/ @library-team
+
+# Business Domains - Parent Portal
+/app/Models/ParentPortal/ @portal-team
+/app/Http/Controllers/Api/ParentPortal/ @portal-team
+/app/Services/ParentPortal/ @portal-team
+
+# Business Domains - PPDB (Admission)
+/app/Models/PPDB/ @admission-team
+/app/Http/Controllers/Api/PPDB/ @admission-team
+/app/Services/PPDB/ @admission-team
+
+# Business Domains - Calendar
+/app/Models/Calendar/ @calendar-team
+/app/Http/Controllers/Api/Calendar/ @calendar-team
+/app/Services/Calendar/ @calendar-team
+
+# Business Domains - Attendance
+/app/Models/Attendance/ @attendance-team
+/app/Http/Controllers/Api/Attendance/ @attendance-team
+/app/Services/Attendance/ @attendance-team
+
+# Business Domains - Career Development
+/app/Models/CareerDevelopment/ @career-team
+/app/Http/Controllers/Api/CareerDevelopment/ @career-team
+/app/Services/CareerDevelopment/ @career-team
+
+# Business Domains - System Core
+/app/Models/Role.php @system-team @security-team
+/app/Models/Permission.php @system-team @security-team
+/app/Models/User.php @system-team @security-team
+/app/Http/Controllers/Api/AuthController.php @system-team @security-team
+
+# Database & Migrations
+/database/migrations/ @database-team @core-team
+/database/seeders/ @database-team @core-team
+
+# Frontend (React)
+/frontend/ @frontend-team
+frontend/package.json @frontend-team
+frontend/src/ @frontend-team
+
+# Testing
+/tests/ @testing-team @core-team
+phpunit.xml.dist @testing-team @core-team
+phpstan.neon @testing-team @core-team
+
+# CI/CD & Workflows
+/.github/workflows/ @devops-team @core-team
+.envoy.blade.php @devops-team @core-team
+
+# Security Files (Strict)
+# Security changes require security team approval
+app/Http/Middleware/Authenticate.php @security-team
+app/Http/Middleware/RoleMiddleware.php @security-team
+app/Http/Middleware/RatelimitingMiddleware.php @security-team
+
+# Documentation Files
+/docs/SECURITY_ANALYSIS.md @security-team @documentation-team
+/docs/API.md @api-team @documentation-team
+/docs/ARCHITECTURE.md @core-team @documentation-team
+/docs/DATABASE_SCHEMA.md @database-team @documentation-team
+docs/DEPLOYMENT.md @devops-team @documentation-team
+
+# Configuration Files
+config/jwt.php @security-team @core-team
+config/auth.php @security-team @core-team
+config/database.php @database-team @core-team
+
+# Override Rules (No Owners)
+# These files don't require specific owner approval
+README.md @sulhicmz
+LICENSE @sulhicmz
+
+# Emergency Override
+# In case of emergency or lack of available reviewers:
+# @admin-team can approve any change after documenting the reason
+
+# NOTES FOR MAINTAINERS
+#
+# 1. Team Aliases:
+#    - Replace @team-name with actual GitHub usernames or team names
+#    - Use GitHub teams for group ownership: @org/team-name
+#
+# 2. Review Requirements:
+#    - Each line defines owners who must approve changes
+#    - Multiple owners = ANY ONE can approve
+#    - First matching pattern determines ownership
+#
+# 3. Setting Up Teams:
+#    - Create teams in GitHub organization settings
+#    - Add appropriate members to each team
+#    - Update team references in this file
+#
+# 4. Special Teams:
+#    - @admin-team: Repository administrators (emergency access)
+#    - @security-team: Security experts for security changes
+#    - @core-team: Core framework and architecture experts
+#
+# 5. Current Structure:
+#    - Reflects 11 business domains in app/Models/
+#    - Aligns with domain-driven architecture
+#    - Supports team autonomy by domain

@@ -20,7 +20,7 @@ class RoleMiddleware
     public function handle($request, $next, $role)
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
+
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             return $this->unauthorizedResponse('Authorization token required');
         }
@@ -33,22 +33,30 @@ class RoleMiddleware
             return $this->unauthorizedResponse('Invalid or expired token');
         }
 
+        // Get user instance from database to check roles
+        $userModel = \App\Models\User::find($user['id']);
+
+        if (!$userModel) {
+            return $this->unauthorizedResponse('User not found');
+        }
+
         // Check if user has the required role
-        // In a real implementation, this would check the user's roles against the database
-        $hasRole = $this->userHasRole($user, $role);
-        
+        $hasRole = $this->userHasRole($userModel, $role);
+
         if (!$hasRole) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
         return $next($request);
     }
-    
+
     private function userHasRole($user, $requiredRole)
     {
-        // In a real implementation, this would query the database to check user roles
-        // For now, we'll return true for demonstration purposes
-        return true;
+        // Support multiple roles separated by pipe (|)
+        $requiredRoles = explode('|', $requiredRole);
+
+        // Check if user has any of the required roles
+        return $user->hasAnyRole($requiredRoles);
     }
     
     private function unauthorizedResponse($message)

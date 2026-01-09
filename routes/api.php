@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -18,15 +19,19 @@ Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function ()
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);
     Route::post('/auth/password/reset', [AuthController::class, 'resetPassword']);
+    });
 });
 
-// Protected routes (JWT authentication required)
-Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::post('/auth/refresh', [AuthController::class, 'refresh']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
-    Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+// Backup Management Routes (protected - admin/staff only)
+Route::group(['middleware' => ['jwt', 'role:Super Admin|Kepala Sekolah|Staf TU', 'rate.limit']], function () {
+    Route::prefix('backup')->group(function () {
+        Route::get('/status', [BackupController::class, 'getStatus']);
+        Route::get('/list', [BackupController::class, 'listBackups']);
+        Route::get('/latest', [BackupController::class, 'getLatestBackups']);
+        Route::post('/verify', [BackupController::class, 'verifyBackup']);
+    });
 });
+
 
 // Attendance and Leave Management Routes (protected)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
@@ -80,5 +85,15 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Backup Management Routes (protected - admin/staff only)
+Route::group(['middleware' => ['jwt', 'role:Super Admin|Kepala Sekolah|Staf TU', 'rate.limit']], function () {
+    Route::prefix('backup')->group(function () {
+        Route::get('/status', [BackupController::class, 'getStatus']);
+        Route::get('/list', [BackupController::class, 'listBackups']);
+        Route::get('/latest', [BackupController::class, 'getLatestBackups']);
+        Route::post('/verify', [BackupController::class, 'verifyBackup']);
     });
 });

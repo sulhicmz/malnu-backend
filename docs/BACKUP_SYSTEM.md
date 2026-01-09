@@ -102,6 +102,64 @@ Options:
 - `--alert-email`: Email address for alerts
 - `--webhook-url`: Webhook URL for alerts
 
+## API Endpoints
+
+The backup system provides REST API endpoints for monitoring and management.
+
+### Get Backup Status
+```http
+GET /api/backup/status
+```
+
+Returns comprehensive backup status including:
+- Backup locations
+- Statistics (counts of each backup type)
+- Latest backups for each category
+
+### List All Backups
+```http
+GET /api/backup/list
+```
+
+Returns list of all backups organized by type:
+- Database backups
+- Filesystem backups
+- Configuration backups
+- Comprehensive backups
+
+Each backup entry includes:
+- File name
+- Size (bytes and formatted)
+- Modification date
+
+### Get Latest Backups
+```http
+GET /api/backup/latest
+```
+
+Returns only the most recent backup of each type.
+
+### Verify Backup
+```http
+POST /api/backup/verify
+Content-Type: application/json
+
+{
+  "backup_file": "full_backup_2024-01-09-12-00-00.tar.gz"
+}
+```
+
+Verifies a specific backup file and returns:
+- Verification results
+- File integrity status
+- Component validation
+- Checksum information
+
+**Note**: All API endpoints require:
+- JWT authentication
+- Role-based authorization (Super Admin, Kepala Sekolah, or Staf TU)
+- Rate limiting
+
 ## Backup Storage Locations
 
 By default, backups are stored in:
@@ -195,6 +253,47 @@ Regular testing of backup and recovery procedures should be performed:
 1. **Monthly**: Perform a full restoration to a test environment
 2. **Quarterly**: Test disaster recovery procedures with full system restoration
 3. **Annually**: Perform comprehensive business continuity testing
+
+## Automated Testing
+
+The system includes a comprehensive test suite in `tests/Feature/BackupSystemTest.php` that covers:
+
+### Backup Service Tests
+- Database backup creation
+- Filesystem backup creation
+- Configuration backup creation
+- Comprehensive backup creation
+- Backup status retrieval
+- Backup verification
+- Old backup cleanup
+
+### Backup Integrity Tests
+- File integrity validation
+- Backup structure verification
+- Checksum calculation (MD5, SHA256)
+- File size validation
+- Summary file verification
+
+### Running Tests
+
+```bash
+# Run all backup tests
+vendor/bin/phpunit tests/Feature/BackupSystemTest.php
+
+# Run specific test method
+vendor/bin/phpunit --filter testBackupServiceCanCreateDatabaseBackup tests/Feature/BackupSystemTest.php
+```
+
+### Test Coverage
+
+The test suite ensures:
+- ✅ BackupService can create backups of all types
+- ✅ BackupService can verify backup integrity
+- ✅ BackupService can retrieve backup status
+- ✅ BackupService can clean old backups according to retention policy
+- ✅ Backup files maintain proper structure
+- ✅ Backup verification detects corrupted files
+- ✅ Checksums are correctly calculated
 
 ## Business Continuity Planning
 

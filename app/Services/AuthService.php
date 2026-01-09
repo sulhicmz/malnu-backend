@@ -8,16 +8,19 @@ use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
+use App\Services\PasswordValidator;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
+    private PasswordValidator $passwordValidator;
 
     public function __construct()
     {
         $this->jwtService = new JWTService();
         $this->tokenBlacklistService = new TokenBlacklistService();
+        $this->passwordValidator = new PasswordValidator();
     }
 
     /**
@@ -172,14 +175,14 @@ class AuthService implements AuthServiceInterface
     {
         // In a real implementation, this would validate the reset token against the database
         // For now, we'll just validate the token format and update the password
-        
+
         if (strlen($token) !== 64) { // 32 bytes = 64 hex chars
             throw new \Exception('Invalid reset token');
         }
 
-        // Validate password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception(implode('. ', $errors));
         }
 
         // In a real implementation, this would update the user's password in the database
@@ -196,9 +199,10 @@ class AuthService implements AuthServiceInterface
     {
         // In a real implementation, this would fetch the user from the database
         // and verify the current password
-        
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters');
+
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception(implode('. ', $errors));
         }
 
         // In a real implementation, this would update the user's password in the database

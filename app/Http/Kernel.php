@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected array $middleware = [
+        \App\Http\Middleware\RequestResponseLoggingMiddleware::class,
         \App\Http\Middleware\SecurityHeaders::class,
         // \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
@@ -59,6 +60,7 @@ class Kernel extends HttpKernel
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
+        'request.logging' => \App\Http\Middleware\RequestResponseLoggingMiddleware::class,
     ];
 
     /**

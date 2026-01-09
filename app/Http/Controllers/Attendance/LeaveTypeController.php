@@ -2,144 +2,167 @@
 
 namespace App\Http\Controllers\Attendance;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveType;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Container\ContainerInterface;
 
-class LeaveTypeController extends Controller
+class LeaveTypeController extends BaseController
 {
-    /**
-     * Display a listing of the leave types.
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $query = LeaveType::query();
-
-        // Filter by active status if provided
-        if ($request->has('is_active')) {
-            $query->where('is_active', $request->is_active);
-        }
-
-        // Filter by paid status if provided
-        if ($request->has('is_paid')) {
-            $query->where('is_paid', $request->is_paid);
-        }
-
-        $leaveTypes = $query->orderBy('name')->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $leaveTypes
-        ]);
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container
+    ) {
+        parent::__construct($request, $response, $container);
     }
 
-    /**
-     * Store a newly created leave type.
-     */
-    public function store(Request $request): JsonResponse
+    public function index()
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'code' => 'required|string|max:20|unique:leave_types,code',
-            'description' => 'nullable|string',
-            'max_days_per_year' => 'nullable|integer|min:0',
-            'is_paid' => 'boolean',
-            'requires_approval' => 'boolean',
-            'eligibility_criteria' => 'nullable|json',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $query = LeaveType::query();
 
-        $leaveType = LeaveType::create($request->all());
+            if ($this->request->has('is_active')) {
+                $query->where('is_active', $this->request->input('is_active'));
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type created successfully',
-            'data' => $leaveType
-        ], 201);
+            if ($this->request->has('is_paid')) {
+                $query->where('is_paid', $this->request->input('is_paid'));
+            }
+
+            $leaveTypes = $query->orderBy('name')->paginate(15);
+
+            return $this->successResponse($leaveTypes, 'Leave types retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave types');
+        }
     }
 
-    /**
-     * Display the specified leave type.
-     */
-    public function show(string $id): JsonResponse
+    public function store()
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $data = $this->request->all();
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+            $requiredFields = ['name', 'code'];
+            $errors = [];
+
+            foreach ($requiredFields as $field) {
+                if (empty($data[$field])) {
+                    $errors[$field] = ["The {$field} field is required."];
+                }
+            }
+
+            if (isset($data['name']) && strlen($data['name']) > 100) {
+                $errors['name'] = ['The name must not exceed 100 characters.'];
+            }
+
+            if (isset($data['code']) && strlen($data['code']) > 20) {
+                $errors['code'] = ['The code must not exceed 20 characters.'];
+            }
+
+            if (isset($data['code'])) {
+                $existingLeaveType = LeaveType::where('code', $data['code'])->first();
+                if ($existingLeaveType) {
+                    $errors['code'] = ['The code has already been taken.'];
+                }
+            }
+
+            if (isset($data['max_days_per_year']) && (!is_numeric($data['max_days_per_year']) || $data['max_days_per_year'] < 0)) {
+                $errors['max_days_per_year'] = ['The max days per year must be a positive number.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            $leaveType = LeaveType::create($data);
+
+            return $this->successResponse($leaveType, 'Leave type created successfully', 201);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to create leave type');
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $leaveType
-        ]);
     }
 
-    /**
-     * Update the specified leave type.
-     */
-    public function update(Request $request, string $id): JsonResponse
+    public function show(string $id)
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+            if (!$leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            return $this->successResponse($leaveType, 'Leave type retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve leave type');
         }
-
-        $request->validate([
-            'name' => 'string|max:100',
-            'code' => 'string|max:20|unique:leave_types,code,' . $id,
-            'description' => 'nullable|string',
-            'max_days_per_year' => 'nullable|integer|min:0',
-            'is_paid' => 'boolean',
-            'requires_approval' => 'boolean',
-            'eligibility_criteria' => 'nullable|json',
-            'is_active' => 'boolean',
-        ]);
-
-        $leaveType->update($request->all());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type updated successfully',
-            'data' => $leaveType
-        ]);
     }
 
-    /**
-     * Remove the specified leave type.
-     */
-    public function destroy(string $id): JsonResponse
+    public function update(string $id)
     {
-        $leaveType = LeaveType::find($id);
+        try {
+            $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+            if (!$leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            $data = $this->request->all();
+
+            $errors = [];
+
+            if (isset($data['name']) && strlen($data['name']) > 100) {
+                $errors['name'] = ['The name must not exceed 100 characters.'];
+            }
+
+            if (isset($data['code']) && strlen($data['code']) > 20) {
+                $errors['code'] = ['The code must not exceed 20 characters.'];
+            }
+
+            if (isset($data['code']) && $data['code'] !== $leaveType->code) {
+                $existingLeaveType = LeaveType::where('code', $data['code'])->first();
+                if ($existingLeaveType) {
+                    $errors['code'] = ['The code has already been taken.'];
+                }
+            }
+
+            if (isset($data['max_days_per_year']) && (!is_numeric($data['max_days_per_year']) || $data['max_days_per_year'] < 0)) {
+                $errors['max_days_per_year'] = ['The max days per year must be a positive number.'];
+            }
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            $leaveType->update($data);
+
+            return $this->successResponse($leaveType, 'Leave type updated successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to update leave type');
         }
+    }
 
-        // Check if there are any leave requests associated with this type
-        if ($leaveType->leaveRequests()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete leave type with associated leave requests'
-            ], 400);
+    public function destroy(string $id)
+    {
+        try {
+            $leaveType = LeaveType::find($id);
+
+            if (!$leaveType) {
+                return $this->notFoundResponse('Leave type not found');
+            }
+
+            $leaveRequestCount = $leaveType->leaveRequests()->count();
+
+            if ($leaveRequestCount > 0) {
+                return $this->errorResponse('Cannot delete leave type with associated leave requests', 'DELETE_ERROR');
+            }
+
+            $leaveType->delete();
+
+            return $this->successResponse(null, 'Leave type deleted successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to delete leave type');
         }
-
-        $leaveType->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type deleted successfully'
-        ]);
     }
 }

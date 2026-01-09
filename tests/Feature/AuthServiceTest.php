@@ -246,6 +246,73 @@ class AuthServiceTest extends TestCase
         );
     }
 
+    public function test_reset_password_without_uppercase()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one uppercase letter');
+
+        $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'password1!'
+        );
+    }
+
+    public function test_reset_password_without_lowercase()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one lowercase letter');
+
+        $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'PASSWORD1!'
+        );
+    }
+
+    public function test_reset_password_without_number()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one number');
+
+        $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'Password!'
+        );
+    }
+
+    public function test_reset_password_without_special_char()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one special character');
+
+        $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'Password1'
+        );
+    }
+
+    public function test_reset_password_with_common_password()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password is too common');
+
+        $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'Password123!'
+        );
+    }
+
+    public function test_reset_password_with_strong_password()
+    {
+        $result = $this->authService->resetPassword(
+            str_repeat('a', 64),
+            'SecureP@ssw0rd'
+        );
+
+        $this->assertArrayHasKey('success', $result);
+        $this->assertTrue($result['success']);
+        $this->assertArrayHasKey('message', $result);
+    }
+
     public function test_change_password()
     {
         $result = $this->authService->changePassword('user-id', 'currentpass', 'newpassword123');
@@ -258,8 +325,57 @@ class AuthServiceTest extends TestCase
     public function test_change_password_with_weak_password()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('New password must be at least 8 characters');
+        $this->expectExceptionMessage('Password must be at least 8 characters');
 
         $this->authService->changePassword('user-id', 'currentpass', 'weak');
+    }
+
+    public function test_change_password_without_uppercase()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one uppercase letter');
+
+        $this->authService->changePassword('user-id', 'currentpass', 'password1!');
+    }
+
+    public function test_change_password_without_lowercase()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one lowercase letter');
+
+        $this->authService->changePassword('user-id', 'currentpass', 'PASSWORD1!');
+    }
+
+    public function test_change_password_without_number()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one number');
+
+        $this->authService->changePassword('user-id', 'currentpass', 'Password!');
+    }
+
+    public function test_change_password_without_special_char()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one special character');
+
+        $this->authService->changePassword('user-id', 'currentpass', 'Password1');
+    }
+
+    public function test_change_password_with_common_password()
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password is too common');
+
+        $this->authService->changePassword('user-id', 'currentpass', 'Password123!');
+    }
+
+    public function test_change_password_with_strong_password()
+    {
+        $result = $this->authService->changePassword('user-id', 'currentpass', 'SecureP@ssw0rd');
+
+        $this->assertArrayHasKey('success', $result);
+        $this->assertTrue($result['success']);
+        $this->assertArrayHasKey('message', $result);
     }
 }

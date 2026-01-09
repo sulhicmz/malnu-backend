@@ -30,6 +30,8 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 
 ## 📚 Documentation
 
+**📖 [Complete Documentation Index](docs/INDEX.md)** - Navigate all documentation from one place
+
 ### Getting Started
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Comprehensive onboarding and setup
 - **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Architecture and code organization

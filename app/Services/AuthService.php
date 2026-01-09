@@ -180,15 +180,24 @@ class AuthService implements AuthServiceInterface
             throw new \Exception('Password must be at least 8 characters');
         }
 
-        // Find valid token in database
-        $resetTokenRecord = PasswordResetToken::valid()->first();
+        // Get all valid tokens from database
+        $validTokens = PasswordResetToken::valid()->get();
 
-        if (!$resetTokenRecord) {
+        if ($validTokens->isEmpty()) {
             throw new \Exception('Invalid or expired reset token');
         }
 
-        // Verify token against hashed version
-        if (!password_verify($token, $resetTokenRecord->token)) {
+        // Find the matching token by verifying against all valid tokens
+        $resetTokenRecord = null;
+        foreach ($validTokens as $tokenRecord) {
+            if (password_verify($token, $tokenRecord->token)) {
+                $resetTokenRecord = $tokenRecord;
+                break;
+            }
+        }
+
+        // Check if token was found and is valid
+        if (!$resetTokenRecord) {
             throw new \Exception('Invalid reset token');
         }
 

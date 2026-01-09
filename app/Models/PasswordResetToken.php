@@ -12,7 +12,7 @@ class PasswordResetToken extends \Hyperf\Database\Model\Model
 
     public bool $incrementing = false;
 
-    protected string $table = 'password_reset_tokens';
+    protected ?string $table = 'password_reset_tokens';
 
     protected string $primaryKey = 'id';
 

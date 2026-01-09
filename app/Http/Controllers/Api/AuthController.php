@@ -273,4 +273,116 @@ class AuthController extends BaseController
             return $this->errorResponse($e->getMessage());
         }
     }
+
+    /**
+     * Setup MFA
+     */
+    public function setupMfa()
+    {
+        try {
+            $authHeader = $this->request->getHeaderLine('Authorization');
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                return $this->unauthorizedResponse('Token not provided');
+            }
+
+            $token = substr($authHeader, 7);
+            $user = $this->authService->getUserFromToken($token);
+
+            if (!$user) {
+                return $this->unauthorizedResponse('User not authenticated');
+            }
+
+            $result = $this->authService->setupMfa($user['id']);
+
+            return $this->successResponse($result, 'MFA setup initiated successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Verify and enable MFA
+     */
+    public function verifyMfa()
+    {
+        try {
+            $data = $this->request->all();
+
+            $errors = $this->validateRequired($data, ['secret', 'code']);
+
+            if (!empty($errors)) {
+                return $this->validationErrorResponse($errors);
+            }
+
+            $authHeader = $this->request->getHeaderLine('Authorization');
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                return $this->unauthorizedResponse('Token not provided');
+            }
+
+            $token = substr($authHeader, 7);
+            $user = $this->authService->getUserFromToken($token);
+
+            if (!$user) {
+                return $this->unauthorizedResponse('User not authenticated');
+            }
+
+            $result = $this->authService->verifyMfa($user['id'], $data['secret'], $data['code']);
+
+            return $this->successResponse($result, 'MFA enabled successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'MFA_VERIFICATION_ERROR', null, 400);
+        }
+    }
+
+    /**
+     * Disable MFA
+     */
+    public function disableMfa()
+    {
+        try {
+            $authHeader = $this->request->getHeaderLine('Authorization');
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                return $this->unauthorizedResponse('Token not provided');
+            }
+
+            $token = substr($authHeader, 7);
+            $user = $this->authService->getUserFromToken($token);
+
+            if (!$user) {
+                return $this->unauthorizedResponse('User not authenticated');
+            }
+
+            $result = $this->authService->disableMfa($user['id']);
+
+            return $this->successResponse($result, 'MFA disabled successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Get MFA status
+     */
+    public function getMfaStatus()
+    {
+        try {
+            $authHeader = $this->request->getHeaderLine('Authorization');
+            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+                return $this->unauthorizedResponse('Token not provided');
+            }
+
+            $token = substr($authHeader, 7);
+            $user = $this->authService->getUserFromToken($token);
+
+            if (!$user) {
+                return $this->unauthorizedResponse('User not authenticated');
+            }
+
+            $result = $this->authService->getMfaStatus($user['id']);
+
+            return $this->successResponse($result, 'MFA status retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
 }

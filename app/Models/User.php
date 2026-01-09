@@ -18,7 +18,10 @@ use App\Models\Grading\Competency;
 use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Logs\AuditLog;
-use App\Models\Monetization\MarketplaceProduct;
+    use App\Models\Monetization\MarketplaceProduct;
+    use App\Models\MfaSecret;
+    use App\Models\UserDevice;
+    use App\Models\SecurityEvent;
 use App\Models\Monetization\Transaction;
 use App\Models\OnlineExam\Exam;
 use App\Models\OnlineExam\QuestionBank;
@@ -204,5 +207,20 @@ class User extends Authenticatable
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function mfaSecret()
+    {
+        return $this->hasOne(MfaSecret::class);
+    }
+
+    public function userDevices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function securityEvents()
+    {
+        return $this->hasMany(SecurityEvent::class);
     }
 }

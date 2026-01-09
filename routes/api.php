@@ -26,6 +26,12 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+    
+    // MFA Routes
+    Route::post('/auth/mfa/setup', [AuthController::class, 'setupMfa']);
+    Route::post('/auth/mfa/verify', [AuthController::class, 'verifyMfa']);
+    Route::post('/auth/mfa/disable', [AuthController::class, 'disableMfa']);
+    Route::get('/auth/mfa/status', [AuthController::class, 'getMfaStatus']);
 });
 
 // Attendance and Leave Management Routes (protected)

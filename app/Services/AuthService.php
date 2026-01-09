@@ -7,17 +7,20 @@ namespace App\Services;
 use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
+use App\Contracts\MfaServiceInterface;
 use App\Models\User;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
+    private MfaServiceInterface $mfaService;
 
     public function __construct()
     {
         $this->jwtService = new JWTService();
         $this->tokenBlacklistService = new TokenBlacklistService();
+        $this->mfaService = new \App\Services\MfaService();
     }
 
     /**
@@ -214,5 +217,90 @@ class AuthService implements AuthServiceInterface
     private function getAllUsers(): array
     {
         return User::all()->toArray();
+    }
+
+    /**
+     * Setup MFA for user
+     */
+    public function setupMfa(string $userId): array
+    {
+        $secret = $this->mfaService->generateSecret();
+        $qrCodeUrl = $this->mfaService->generateQrCodeUrl($secret, $userId);
+
+        return [
+            'secret' => $secret,
+            'qr_code_url' => $qrCodeUrl
+        ];
+    }
+
+    /**
+     * Verify and enable MFA for user
+     */
+    public function verifyMfa(string $userId, string $secret, string $code): array
+    {
+        if (!$this->mfaService->verifyCode($secret, $code)) {
+            throw new \Exception('Invalid MFA code');
+        }
+
+        $user = User::findOrFail($userId);
+        $mfaSecret = $user->mfaSecret ?? new \App\Models\MfaSecret();
+        $mfaSecret->user_id = $userId;
+        $mfaSecret->secret = $secret;
+        $mfaSecret->is_enabled = true;
+        $mfaSecret->backup_codes = json_encode($this->mfaService->generateBackupCodes());
+        $mfaSecret->backup_codes_count = 10;
+        $mfaSecret->save();
+
+        return [
+            'success' => true,
+            'message' => 'MFA enabled successfully'
+        ];
+    }
+
+    /**
+     * Disable MFA for user
+     */
+    public function disableMfa(string $userId): array
+    {
+        $user = User::findOrFail($userId);
+        $user->mfaSecret()->delete();
+
+        return [
+            'success' => true,
+            'message' => 'MFA disabled successfully'
+        ];
+    }
+
+    /**
+     * Verify MFA code during login
+     */
+    public function verifyMfaLogin(string $userId, string $code): bool
+    {
+        $user = User::findOrFail($userId);
+        $mfaSecret = $user->mfaSecret;
+
+        if (!$mfaSecret || !$mfaSecret->is_enabled) {
+            return false;
+        }
+
+        if ($this->mfaService->verifyCode($mfaSecret->secret, $code)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get MFA status for user
+     */
+    public function getMfaStatus(string $userId): array
+    {
+        $user = User::findOrFail($userId);
+        $mfaSecret = $user->mfaSecret;
+
+        return [
+            'mfa_enabled' => $mfaSecret ? $mfaSecret->is_enabled : false,
+            'backup_codes_remaining' => $mfaSecret ? $mfaSecret->backup_codes_count : 0
+        ];
     }
 }

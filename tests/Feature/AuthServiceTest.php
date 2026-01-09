@@ -7,6 +7,8 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Services\AuthService;
 use App\Services\TokenBlacklistService;
+use App\Models\User;
+use App\Models\PasswordResetToken;
 
 class AuthServiceTest extends TestCase
 {
@@ -198,10 +200,16 @@ class AuthServiceTest extends TestCase
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
         $this->assertArrayHasKey('message', $result);
-        $this->assertArrayHasKey('reset_token', $result);
-        $this->assertArrayHasKey('expires_at', $result);
-        $this->assertIsString($result['reset_token']);
-        $this->assertIsInt($result['expires_at']);
+
+        $this->assertArrayNotHasKey('reset_token', $result);
+        $this->assertArrayNotHasKey('expires_at', $result);
+
+        $user = User::where('email', 'reset@example.com')->first();
+        $tokenRecord = PasswordResetToken::where('user_id', $user->id)->first();
+
+        $this->assertNotNull($tokenRecord);
+        $this->assertIsString($tokenRecord->token);
+        $this->assertNotNull($tokenRecord->expires_at);
     }
 
     public function test_password_reset_request_for_nonexistent_user()
@@ -217,20 +225,39 @@ class AuthServiceTest extends TestCase
 
     public function test_reset_password_with_valid_token()
     {
-        $result = $this->authService->resetPassword(
-            str_repeat('a', 64),
-            'newpassword123'
-        );
+        $userData = [
+            'name' => 'Reset Password User',
+            'email' => 'resetpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'resetpass@example.com')->first();
+        $originalHash = $user->password;
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $result = $this->authService->resetPassword($resetToken, 'newpassword123');
 
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
         $this->assertArrayHasKey('message', $result);
+
+        $user->refresh();
+        $this->assertNotEquals($originalHash, $user->password);
+        $this->assertTrue(password_verify('newpassword123', $user->password));
     }
 
     public function test_reset_password_with_invalid_token_format()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid reset token');
+        $this->expectExceptionMessage('Invalid or expired reset token');
 
         $this->authService->resetPassword('invalidtoken', 'newpassword123');
     }
@@ -248,18 +275,106 @@ class AuthServiceTest extends TestCase
 
     public function test_change_password()
     {
-        $result = $this->authService->changePassword('user-id', 'currentpass', 'newpassword123');
+        $userData = [
+            'name' => 'Change Password User',
+            'email' => 'changepass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $result = $this->authService->changePassword($userId, 'originalpassword', 'newpassword123');
 
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
         $this->assertArrayHasKey('message', $result);
+
+        $user = User::find($userId);
+        $this->assertTrue(password_verify('newpassword123', $user->password));
     }
 
     public function test_change_password_with_weak_password()
     {
+        $userData = [
+            'name' => 'Weak Password User',
+            'email' => 'weakpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('New password must be at least 8 characters');
 
-        $this->authService->changePassword('user-id', 'currentpass', 'weak');
+        $this->authService->changePassword($userId, 'originalpassword', 'weak');
+    }
+
+    public function test_change_password_with_incorrect_current_password()
+    {
+        $userData = [
+            'name' => 'Incorrect Password User',
+            'email' => 'incorrectpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Current password is incorrect');
+
+        $this->authService->changePassword($userId, 'wrongpassword', 'newpassword123');
+    }
+
+    public function test_reset_password_with_expired_token()
+    {
+        $userData = [
+            'name' => 'Expired Token User',
+            'email' => 'expired@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'expired@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->subHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Reset token has expired');
+
+        $this->authService->resetPassword($resetToken, 'newpassword123');
+    }
+
+    public function test_reset_password_with_invalid_token_hash()
+    {
+        $userData = [
+            'name' => 'Invalid Token User',
+            'email' => 'invalid@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'invalid@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Invalid reset token');
+
+        $this->authService->resetPassword('wrongtoken' . str_repeat('a', 64), 'newpassword123');
     }
 }

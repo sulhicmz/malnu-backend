@@ -8,16 +8,20 @@ use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
+use App\Models\PasswordResetToken;
+use App\Services\EmailService;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
+    private EmailService $emailService;
 
     public function __construct()
     {
         $this->jwtService = new JWTService();
         $this->tokenBlacklistService = new TokenBlacklistService();
+        $this->emailService = new EmailService();
     }
 
     /**
@@ -135,33 +139,34 @@ class AuthService implements AuthServiceInterface
      */
     public function requestPasswordReset(string $email): array
     {
-        // Find user by email (simplified approach)
-        $users = $this->getAllUsers();
-        $user = null;
-        
-        foreach ($users as $u) {
-            if ($u['email'] === $email) {
-                $user = $u;
-                break;
-            }
-        }
-        
+        $user = User::where('email', $email)->first();
+
         if (!$user) {
             // Don't reveal if email exists to prevent enumeration
             return ['success' => true, 'message' => 'If the email exists, a reset link has been sent'];
         }
 
-        // Generate reset token
-        $resetToken = bin2hex(random_bytes(32)); // 64 character hex string
-        $expiresAt = time() + (60 * 60); // 1 hour from now
+        // Delete any existing reset tokens for this user
+        PasswordResetToken::where('user_id', $user->id)->delete();
 
-        // In a real implementation, this would save to database
-        // For now, we'll just return the token
+        // Generate reset token (plaintext for email, hashed for storage)
+        $resetToken = bin2hex(random_bytes(32));
+        $hashedToken = password_hash($resetToken, PASSWORD_DEFAULT);
+        $expiresAt = now()->addHour();
+
+        // Store hashed token in database
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => $hashedToken,
+            'expires_at' => $expiresAt,
+        ]);
+
+        // Send email with plaintext token
+        $this->emailService->sendPasswordResetEmail($email, $resetToken);
+
         return [
             'success' => true,
             'message' => 'If the email exists, a reset link has been sent',
-            'reset_token' => $resetToken,
-            'expires_at' => $expiresAt
         ];
     }
 
@@ -170,19 +175,53 @@ class AuthService implements AuthServiceInterface
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // In a real implementation, this would validate the reset token against the database
-        // For now, we'll just validate the token format and update the password
-        
-        if (strlen($token) !== 64) { // 32 bytes = 64 hex chars
-            throw new \Exception('Invalid reset token');
-        }
-
         // Validate password strength
         if (strlen($newPassword) < 8) {
             throw new \Exception('Password must be at least 8 characters');
         }
 
-        // In a real implementation, this would update the user's password in the database
+        // Get all valid tokens from database
+        $validTokens = PasswordResetToken::valid()->get();
+
+        if ($validTokens->isEmpty()) {
+            throw new \Exception('Invalid or expired reset token');
+        }
+
+        // Find the matching token by verifying against all valid tokens
+        $resetTokenRecord = null;
+        foreach ($validTokens as $tokenRecord) {
+            if (password_verify($token, $tokenRecord->token)) {
+                $resetTokenRecord = $tokenRecord;
+                break;
+            }
+        }
+
+        // Check if token was found and is valid
+        if (!$resetTokenRecord) {
+            throw new \Exception('Invalid reset token');
+        }
+
+        // Check if token is expired
+        if ($resetTokenRecord->isExpired()) {
+            $resetTokenRecord->delete();
+            throw new \Exception('Reset token has expired');
+        }
+
+        // Get user
+        $user = User::find($resetTokenRecord->user_id);
+
+        if (!$user) {
+            throw new \Exception('User not found');
+        }
+
+        // Update user password
+        $user->update([
+            'password' => password_hash($newPassword, PASSWORD_DEFAULT),
+        ]);
+
+        // Delete used token
+        $resetTokenRecord->delete();
+
         return [
             'success' => true,
             'message' => 'Password has been reset successfully'
@@ -194,14 +233,28 @@ class AuthService implements AuthServiceInterface
      */
     public function changePassword(string $userId, string $currentPassword, string $newPassword): array
     {
-        // In a real implementation, this would fetch the user from the database
-        // and verify the current password
-        
+        // Fetch user from database
+        $user = User::find($userId);
+
+        if (!$user) {
+            throw new \Exception('User not found');
+        }
+
+        // Verify current password
+        if (!password_verify($currentPassword, $user->password)) {
+            throw new \Exception('Current password is incorrect');
+        }
+
+        // Validate new password strength
         if (strlen($newPassword) < 8) {
             throw new \Exception('New password must be at least 8 characters');
         }
 
-        // In a real implementation, this would update the user's password in the database
+        // Update user password
+        $user->update([
+            'password' => password_hash($newPassword, PASSWORD_DEFAULT),
+        ]);
+
         return [
             'success' => true,
             'message' => 'Password has been changed successfully'

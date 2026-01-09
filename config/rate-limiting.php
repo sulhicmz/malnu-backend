@@ -40,6 +40,11 @@ return [
             'decay_minutes' => 1,
             'key_type' => 'ip',
         ],
+        'auth.password.forgot' => [
+            'max_attempts' => 3,
+            'decay_minutes' => 15,
+            'key_type' => 'ip',
+        ],
         'auth.password.reset' => [
             'max_attempts' => 3,
             'decay_minutes' => 1,

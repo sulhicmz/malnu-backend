@@ -89,6 +89,10 @@ class RateLimitingMiddleware implements MiddlewareInterface
             return 'auth.register';
         }
 
+        if ($method === 'POST' && str_ends_with($route, '/auth/password/forgot')) {
+            return 'auth.password.forgot';
+        }
+
         if ($method === 'POST' && str_ends_with($route, '/auth/password/reset')) {
             return 'auth.password.reset';
         }

@@ -1,284 +1,393 @@
-# Malnu Backend Development Roadmap
+# Malnu Backend Development Roadmap (Updated January 9, 2026)
 
 ## 🎯 Project Overview
 Malnu Kananga School Management System built on HyperVel framework with Swoole support for high-performance school management operations.
 
-## 📊 Current Status Analysis (Updated November 21, 2025)
+## 📊 Current Repository Status
 
-### ✅ Strengths
-- Modern HyperVel framework with Swoole support
-- Well-organized domain-driven model structure (11 domains, 46+ models)
-- Comprehensive database schema with UUID implementation
-- Security headers and CSP configuration
-- Excellent documentation structure
-- Active issue management with 40+ open issues
+### Summary Statistics (January 2026)
+- **Total Issues**: 311+ (70+ Closed, 240+ Open)
+- **Total PRs**: 346+ (5+ Merged, 340+ Open)
+- **New Issues Created**: 15 new issues from comprehensive analysis
+- **Repository Health**: 4.9/10 (CRITICAL - System Non-Functional)
 
-### ⚠️ Critical Issues Identified (Updated)
-1. **Framework Import Errors** (Issue #136) - 50+ HyperVel import errors, application non-functional
-2. **JWT Security Vulnerabilities** (Issue #132) - Missing JWT configuration, rate limiting
-3. **Input Validation Missing** (Issue #133) - No validation classes, XSS/SQL injection risks
-4. **CI/CD Pipeline Broken** (Issue #134) - No automated testing, redundant workflows
-5. **Missing DB Imports** (Issue #101) - 46+ migration files missing DB facade import
-6. **No RESTful Controllers** (Issue #102) - Only 3 basic controllers for complex system
-7. **Performance Bottlenecks** (Issue #135) - No Redis caching, missing database indexes
-8. **Inconsistent UUID Implementation** (Issue #103) - Models not standardized
-9. **Minimal Test Coverage** (Issue #104) - Only basic tests, no comprehensive coverage
+### System Status
+- **Architecture**: ✅ Excellent (95/100)
+- **Documentation**: ✅ Good (90/100)
+- **Security Config**: ⚠️ Partial (75/100)
+- **Authentication**: ❌ Critical (0/100) - **Completely Broken**
+- **Database**: ❌ Critical (0/100) - **Not Connected**
+- **API Controllers**: ⚠️ Poor (25/100) - 75% Missing
+- **Testing**: ❌ Poor (20/100)
+- **Frontend**: ⚠️ Good (85/100) - Security vulnerabilities present
 
-## 📊 Issue Priority Matrix
+---
 
-### 🔴 Critical Priority (Week 1-2) - BLOCKERS
+## 🚨 NEW CRITICAL ISSUES IDENTIFIED (January 2026)
+
+### New Security & Code Quality Issues
+1. **#347** CRITICAL: Replace MD5 with SHA-256 in TokenBlacklistService
+2. **#348** CRITICAL: Fix password reset token exposure in API response
+3. **#349** HIGH: Implement Form Request validation classes
+4. **#350** HIGH: Replace direct service instantiation with dependency injection
+5. **#351** HIGH: Fix hardcoded configuration values
+6. **#352** HIGH: Implement proper password complexity validation
+7. **#353** MEDIUM: Create generic CRUD base class/trait
+8. **#354** MEDIUM: Implement soft deletes for critical models
+9. **#355** MEDIUM: Add comprehensive API documentation
+10. **#356** MEDIUM: Standardize error handling across controllers
+11. **#357** MEDIUM: Implement request/response logging middleware
+12. **#358** MEDIUM: Add missing database indexes
+13. **#359** CRITICAL: Implement missing CSRF protection
+14. **#360** CRITICAL: Implement proper RBAC authorization
+15. **#361** HIGH: Add environment variable validation
+
+### Existing Critical Issues (Blockers)
+- **#281** CRITICAL: Fix broken authentication system (AuthService returns empty array)
+- **#282** CRITICAL: Fix SecurityHeaders middleware (Laravel imports in Hyperf)
+- **#283** HIGH: Enable database services in Docker Compose
+- **#194** CRITICAL: Fix 9 frontend security vulnerabilities
+- **#221** CRITICAL: Generate JWT secret for production
+- **#222** CRITICAL: Fix database migration imports
+
+---
+
+## 📊 Updated Issue Priority Matrix
+
+### 🔴 CRITICAL Priority (Week 1) - IMMEDIATE ACTION REQUIRED
 | Issue | Title | Impact | Effort | Timeline |
 |-------|-------|--------|--------|----------|
-| #136 | HyperVel framework import errors and type definitions | Critical | Critical | 3-5 days |
-| #132 | JWT configuration and security vulnerabilities | Critical | High | 1 week |
-| #133 | Input validation and sanitization | Critical | High | 1 week |
-| #134 | CI/CD pipeline and automated testing | Critical | High | 1 week |
-| #101 | Fix missing DB imports in database migrations | Critical | Medium | 1-2 days |
-| #103 | Standardize UUID implementation across models | High | Medium | 3-5 days |
-| #104 | Implement comprehensive test suite | Critical | High | 2-3 weeks |
+| #281 | Fix broken authentication system | Critical | High | 2-3 days |
+| #282 | Fix SecurityHeaders middleware | Critical | High | 1-2 days |
+| #347 | Replace MD5 with SHA-256 | Critical | Low | 1-2 hours |
+| #348 | Fix password reset token exposure | Critical | High | 1-2 days |
+| #359 | Implement CSRF protection | Critical | High | 2-3 days |
+| #360 | Implement RBAC authorization | Critical | High | 3-5 days |
 
-### 🟡 High Priority (Week 3-6) - CORE FUNCTIONALITY
+### 🟠 HIGH Priority (Week 2-4) - CORE STABILITY
 | Issue | Title | Impact | Effort | Timeline |
 |-------|-------|--------|--------|----------|
-| #102 | Implement proper RESTful API controllers | Critical | High | 2-3 weeks |
-| #14 | Implement proper authentication and authorization | Critical | High | 2 weeks |
-| #135 | Redis caching and query optimization | High | High | 1-2 weeks |
-| #30 | Implement core CRUD controllers | High | Medium | 1-2 weeks |
-| #31 | Implement academic controllers | High | Medium | 2 weeks |
+| #283 | Enable database services | High | Low | 1-2 days |
+| #307 | Fix hardcoded JWT_SECRET | High | Low | 1 hour |
+| #302 | Remove duplicate JWT middleware | High | Low | 1-2 hours |
+| #349 | Implement Form Request validation | High | High | 3-5 days |
+| #350 | Replace with dependency injection | High | High | 2-3 days |
+| #351 | Fix hardcoded configuration | High | Medium | 1-2 days |
+| #352 | Password complexity validation | High | Medium | 1-2 days |
+| #361 | Environment variable validation | High | Medium | 1-2 days |
+| #194 | Fix frontend security vulnerabilities | High | Medium | 2-4 hours |
+| #224 | Implement Redis caching | High | High | 1-2 weeks |
 
-### 🟢 Medium Priority (Month 2-3) - BUSINESS FEATURES
+### 🟡 MEDIUM Priority (Week 5-8) - CODE QUALITY
 | Issue | Title | Impact | Effort | Timeline |
 |-------|-------|--------|--------|----------|
-| #31 | Implement academic controllers | High | Medium | 2 weeks |
-| #30 | Implement core CRUD controllers | High | Medium | 1-2 weeks |
-| #51 | Documentation organization | Medium | Low | 1-2 days |
-| #21 | API documentation | Medium | Medium | 1 week |
+| #173 | Add comprehensive test suite | High | High | 2-3 weeks |
+| #223 | Implement API controllers | High | Very High | 3-4 weeks |
+| #353 | Create CRUD base class | Medium | Medium | 1-2 weeks |
+| #354 | Implement soft deletes | Medium | Medium | 1-2 weeks |
+| #355 | Add API documentation | Medium | Medium | 1-2 weeks |
+| #356 | Standardize error handling | Medium | Medium | 3-5 days |
+| #357 | Implement request/response logging | Medium | Medium | 2-3 days |
+| #358 | Add database indexes | Medium | Medium | 2-3 days |
 
-### 🔵 Low Priority (Month 4-5) - ENHANCEMENTS
+### 🔵 LOW Priority (Month 3+) - ENHANCEMENTS
 | Issue | Title | Impact | Effort | Timeline |
 |-------|-------|--------|--------|----------|
-| #53 | Legacy app deprecation strategy | Medium | High | 2-3 months |
-| #28 | Docker development environment | Medium | Medium | 1-2 weeks |
-| #27 | Application monitoring and logging | Medium | Medium | 1-2 weeks |
+| #226 | Create API documentation with OpenAPI | Medium | Medium | 1-2 weeks |
+| #227 | Implement monitoring system | Medium | High | 2-3 weeks |
+| #225 | Consolidate GitHub Actions workflows | Medium | Medium | 1 week |
 
-## 🗓️ Development Roadmap
+---
 
-### Phase 1: Critical Fixes (Week 1-2)
-**Priority: CRITICAL - Blockers for Development**
+## 🗓️ Updated Development Roadmap
 
-#### Week 1: Database & Model Fixes
-- [ ] **Fix Model Relationship Error** (#100)
-  - Fix Student.php Parent class reference
-  - Test all model relationships
-  - Verify data integrity
+### Phase 1: CRITICAL SECURITY & STABILIZATION (Week 1)
+**Priority: CRITICAL - System Non-Functional**
 
-- [ ] **Fix Database Migration Imports** (#101)
-  - Add missing DB facade imports to all 11 migration files
-  - Test migration fresh and rollback
-  - Verify UUID generation works correctly
+#### Week 1: Emergency Fixes
+- [ ] **Fix Authentication System** (#281) - **BLOCKER**
+  - Replace empty array return with proper Eloquent query
+  - Fix registration to save users to database
+  - Implement proper password verification
+  - Add authentication flow tests
 
-#### Week 2: Foundation Setup
-- [ ] **Standardize UUID Implementation** (#103)
-  - Audit all models for UUID configuration
-  - Create base model standardization
-  - Update all models to follow consistent pattern
+- [ ] **Fix Security Headers** (#282) - **CRITICAL**
+  - Replace Laravel imports with Hyperf equivalents
+  - Update middleware method signatures
+  - Test security header application
 
-- [ ] **Setup Testing Infrastructure** (#104)
-  - Configure database testing with RefreshDatabase
-  - Create model factory classes
-  - Setup test database and seeding
+- [ ] **Replace MD5 with SHA-256** (#347) - **CRITICAL**
+  - Update TokenBlacklistService
+  - Clear existing MD5 cache entries
+  - Add hash verification tests
 
-### Phase 2: Core Architecture (Week 3-6)
-**Priority: HIGH - Core Functionality**
+- [ ] **Fix Password Reset** (#348) - **CRITICAL**
+  - Remove reset token from API response
+  - Store reset tokens securely in database
+  - Implement email sending functionality
 
-#### Week 3-4: Authentication & Authorization
-- [ ] **Implement JWT Authentication** (Issue #14)
-  - JWT token generation and validation
-  - Login/logout endpoints
-  - Password reset functionality
+- [ ] **Fix Frontend Security** (#194) - **CRITICAL**
+  - Run `npm audit fix` in frontend directory
+  - Update vulnerable dependencies
+  - Verify application functionality
 
-- [ ] **Role-Based Access Control** (Issue #14)
-  - Implement permissions system
-  - Role assignment and management
-  - Middleware for route protection
+#### Week 1: Infrastructure Fixes
+- [ ] **Enable Database Services** (#283) - **HIGH**
+  - Uncomment database services in docker-compose.yml
+  - Configure secure credentials
+  - Test database connectivity
 
-#### Week 5-6: RESTful API Controllers
-- [ ] **Core CRUD Controllers** (#102)
-  - Student, Teacher, Class management
-  - Subject, Schedule management
-  - Basic CRUD operations with validation
+- [ ] **Fix JWT_SECRET Configuration** (#307) - **HIGH**
+  - Add warning in .env.example
+  - Document secure secret generation
+  - Validate secret is not default value
 
-- [ ] **API Resources & Transformers**
-  - Consistent JSON response format
-  - Data transformation and filtering
-  - Error handling standards
+- [ ] **Remove Duplicate Middleware** (#302) - **HIGH**
+  - Delete duplicate JWT middleware file
+  - Update all references
+  - Test middleware functionality
 
-### Phase 3: Business Features (Week 7-12)
-**Priority: MEDIUM - Feature Implementation**
+### Phase 2: SECURITY HARDENING (Week 2-3)
+**Priority: HIGH - Authorization & Validation**
 
-#### Week 7-8: Academic Management
-- [ ] **Grade Management System** (Issue #31)
-  - Grade input and calculation
-  - Report card generation
-  - Competency tracking
+#### Week 2: Authorization
+- [ ] **Implement CSRF Protection** (#359) - **CRITICAL**
+  - Add CSRF middleware for state-changing routes
+  - Implement CSRF token validation
+  - Add CSRF tests
 
-- [ ] **Attendance System** (Issue #31)
-  - Daily attendance tracking
-  - Attendance reports
-  - Parent notifications
+- [ ] **Implement RBAC Authorization** (#360) - **CRITICAL**
+  - Create role-based permissions system
+  - Add authorization middleware
+  - Implement permission checks in controllers
+  - Add authorization tests
 
-#### Week 9-10: E-Learning Platform
-- [ ] **Virtual Classrooms** (Issue #18)
-  - Video conference integration
-  - Screen sharing and recording
-  - Real-time chat
+- [ ] **Password Complexity Validation** (#352) - **HIGH**
+  - Add uppercase, lowercase, number, special character requirements
+  - Implement common password blacklist
+  - Add password strength tests
 
-- [ ] **Assignment & Quiz System**
-  - Assignment creation and submission
-  - Online quizzes with timer
-  - Automatic grading
+#### Week 3: Architecture Improvements
+- [ ] **Implement Form Request Validation** (#349) - **HIGH**
+  - Create Form Request classes for all controllers
+  - Move validation logic from controllers
+  - Type-hint validation classes
+  - Remove duplicate validation code
 
-#### Week 11-12: Student Services
-- [ ] **PPDB Registration** (Issue #60)
-  - Online registration form
-  - Document upload
-  - Registration status tracking
+- [ ] **Replace with Dependency Injection** (#350) - **HIGH**
+  - Identify all direct service instantiations
+  - Update constructors to use DI
+  - Type-hint interfaces where available
+  - Add DI tests
 
-- [ ] **Parent Portal** (Issue #15)
-  - Student progress monitoring
-  - Fee payment tracking
-  - Communication with teachers
+- [ ] **Fix Hardcoded Configuration** (#351) - **HIGH**
+  - Create config/upload.php
+  - Create config/token-blacklist.php
+  - Move magic numbers to config
+  - Use config() helper
 
-### Phase 4: Advanced Features (Week 13-16)
-**Priority: LOW - Enhancement Features**
+- [ ] **Environment Variable Validation** (#361) - **HIGH**
+  - Create configuration validation service
+  - Add startup validation
+  - Validate all required env vars
+  - Add validation tests
 
-#### Week 13-14: Digital Library
-- [ ] **E-Book Management** (Issue #20)
-  - Book catalog and search
-  - Digital lending system
-  - Reading progress tracking
+### Phase 3: PERFORMANCE & OPTIMIZATION (Week 4-6)
+**Priority: HIGH - Performance Foundation**
 
-#### Week 15-16: Analytics & Reporting
-- [ ] **Analytics Dashboard** (Issue #61)
-  - Student performance analytics
-  - Teacher productivity reports
-  - Financial reporting
+#### Week 4-5: Caching & Performance
+- [ ] **Implement Redis Caching** (#224) - **HIGH**
+  - Configure Redis connection
+  - Implement query result caching
+  - Add cache invalidation
+  - Add caching tests
 
-### Phase 5: Legacy Management (Months 4-5)
-**Goal**: Deprecate legacy application
+- [ ] **Add Database Indexes** (#358) - **MEDIUM**
+  - Analyze query patterns
+  - Add indexes for frequently queried fields
+  - Optimize foreign key relationships
+  - Test query performance
 
-#### Month 4: Migration Planning
-- [ ] **Feature audit of legacy app** (#53)
-  - Compare features between main and legacy
-  - Identify missing functionality
-  - Create migration strategy
+#### Week 5-6: Error Handling & Logging
+- [ ] **Standardize Error Handling** (#356) - **MEDIUM**
+  - Choose consistent error response pattern
+  - Update all controllers
+  - Add error type constants
+  - Add error handling tests
 
-#### Month 5: Execution
-- [ ] **Feature migration**
-  - Migrate unique features from legacy
-  - User transition planning
-  - Legacy deprecation timeline
+- [ ] **Implement Request/Response Logging** (#357) - **MEDIUM**
+  - Create logging middleware
+  - Log all API requests
+  - Log all API responses
+  - Configure log levels
+  - Add log rotation
 
-## 🚀 Technical Debt & Optimization
+### Phase 4: CODE QUALITY IMPROVEMENTS (Week 7-10)
+**Priority: MEDIUM - Maintainability**
 
-### Performance Optimization
-- [ ] **Redis Caching Implementation** (Issue #52)
-  - Query result caching
-  - Session storage optimization
-  - API response caching
+#### Week 7-8: Code Refactoring
+- [ ] **Create CRUD Base Class** (#353) - **MEDIUM**
+  - Create generic CRUD trait
+  - Implement standard CRUD methods
+  - Update controllers to use trait
+  - Add CRUD tests
 
-- [ ] **Database Query Optimization** (Issue #25)
-  - Query analysis and optimization
-  - Index strategy implementation
-  - N+1 query problem resolution
+- [ ] **Implement Soft Deletes** (#354) - **MEDIUM**
+  - Add soft deletes to critical models
+  - Update migrations
+  - Implement restore functionality
+  - Add soft delete tests
 
-### Security Enhancements
-- [ ] **Input Validation & Sanitization** (Issue #24)
-  - Request validation classes
-  - XSS prevention
-  - SQL injection protection
+- [ ] **Add API Documentation** (#355, #226) - **MEDIUM**
+  - Add OpenAPI/Swagger annotations
+  - Generate API documentation
+  - Create interactive API docs
+  - Keep documentation updated
 
-- [ ] **Security Audit & Hardening**
-  - Regular security scans
-  - Dependency vulnerability checks
-  - Security headers optimization
+#### Week 9-10: Testing Foundation
+- [ ] **Add Comprehensive Test Suite** (#173) - **HIGH**
+  - Aim for 80%+ code coverage
+  - Add unit tests for all services
+  - Add feature tests for all endpoints
+  - Add integration tests for flows
+  - Add edge case tests
 
-### Code Quality
-- [ ] **Comprehensive Testing** (Issue #104)
-  - Unit tests for all models
-  - Feature tests for all endpoints
-  - Integration tests for business flows
+### Phase 5: FEATURE IMPLEMENTATION (Week 11-20)
+**Priority: MEDIUM - Business Features**
 
-- [ ] **Code Documentation**
-  - API documentation with OpenAPI/Swagger
-  - Code comments and PHPDoc
-  - Developer onboarding guides
+#### Week 11-14: Core API Controllers
+- [ ] **Implement API Controllers** (#223) - **HIGH**
+  - Student Management API
+  - Teacher Management API
+  - Class Management API
+  - Subject Management API
+  - Academic Management API
+  - Attendance API
+  - Assessment API
+  - Calendar API
+  - Communication API
+  - Fee Management API
+  - Reporting API
 
-## 📈 Success Metrics
+#### Week 15-18: Advanced Features
+- [ ] **Implement Application Monitoring** (#227) - **MEDIUM**
+  - APM integration
+  - Error tracking (Sentry)
+  - Performance monitoring
+  - Health check endpoints
 
-### Technical Metrics
-- **Code Coverage**: Target 90%+ test coverage
-- **Performance**: API response time <200ms
-- **Security**: Zero critical vulnerabilities
-- **Reliability**: 99.9% uptime
+- [ ] **Implement Business Features** (various issues)
+  - School administration module (#233)
+  - Parent engagement portal (#232)
+  - Assessment & examination system (#231)
+  - Timetable & scheduling (#230)
+  - Notification system (#257)
+  - Report card generation (#259)
 
-### Business Metrics
-- **User Adoption**: 100+ active users
-- **Feature Usage**: All core modules actively used
-- **Performance**: 50% faster than manual processes
-- **Satisfaction**: 4.5+ user rating
+#### Week 19-20: Optimization & Polish
+- [ ] **Optimize GitHub Actions** (#225) - **MEDIUM**
+  - Consolidate workflows
+  - Reduce complexity
+  - Improve build times
 
-## 🔄 Maintenance & Operations
+- [ ] **Final Testing & QA**
+  - End-to-end testing
+  - Security audit
+  - Performance testing
+  - Load testing
 
-### Regular Tasks
-- **Weekly**: Security updates and dependency checks
-- **Monthly**: Performance monitoring and optimization
-- **Quarterly**: Feature reviews and roadmap updates
-- **Annually**: Architecture review and technology updates
+---
 
-### Monitoring & Alerting
-- **Application Performance**: Response times, error rates
-- **Database Performance**: Query times, connection pools
-- **Security**: Failed logins, suspicious activities
-- **Infrastructure**: Server resources, network latency
+## 📈 Success Metrics & Targets
 
-## 🎯 Next Steps
+### Critical Success Metrics (Week 1-2 Targets)
+| Metric | Current | Target | Status |
+|--------|---------|--------|---------|
+| Authentication System | 0% | 100% | 🔴 Critical |
+| Security Headers Applied | 0% | 100% | 🔴 Critical |
+| Database Connectivity | 0% | 100% | 🔴 Critical |
+| Security Vulnerabilities | 12+ | 0 | 🔴 Critical |
+| CSRF Protection | 0% | 100% | 🔴 Critical |
+| RBAC Authorization | 0% | 100% | 🔴 Critical |
 
-1. **Immediate (This Week)**: Fix critical issues #100 and #101
-2. **Short Term (Next 2 Weeks)**: Complete Phase 1 foundation
-3. **Medium Term (Next Month)**: Implement core authentication and controllers
-4. **Long Term (Next Quarter)**: Complete business features and optimization
+### Technical Targets (Month 1)
+| Metric | Current | Target | Status |
+|--------|---------|--------|---------|
+| Test Coverage | <20% | 80%+ | 🔴 Critical |
+| API Response Time | ~500ms | <200ms | 🔴 Critical |
+| API Coverage | 25% | 100% | 🔴 Critical |
+| Code Quality Issues | 57+ | <10 | 🟡 Medium |
+| Configuration Hardcoding | 10+ | 0 | 🟡 Medium |
 
-## 🚀 Risk Mitigation
+### Business Targets (Month 2-3)
+| Metric | Current | Target | Status |
+|--------|---------|--------|---------|
+| System Uptime | 95% | 99.9% | 🟡 Medium |
+| Bug Resolution Time | ~1 week | <48 hours | 🟡 Medium |
+| Developer Onboarding | 1 week | 2 days | 🟡 Medium |
+
+---
+
+## 🎯 Implementation Dependencies
+
+### Critical Path
+1. **#281** (Auth) → **#360** (RBAC) → All authorization-dependent features
+2. **#283** (Database) → **#224** (Redis) → All caching features
+3. **#349** (Validation) → All controller improvements
+4. **#350** (DI) → Testability improvements
+
+### Parallel Development Tracks
+- **Track 1**: Security (#281, #282, #347, #348, #359, #360)
+- **Track 2**: Architecture (#349, #350, #351, #361)
+- **Track 3**: Performance (#224, #358, #356, #357)
+- **Track 4**: Quality (#353, #354, #355, #173)
+
+---
+
+## 🚨 Risk Assessment
 
 ### High-Risk Items
-1. **Data Migration**: Risk of data loss during legacy app deprecation
-   - **Mitigation**: Comprehensive backup and rollback plans
-2. **Performance**: Risk of poor performance under load
-   - **Mitigation**: Early load testing and optimization
-3. **Security**: Risk of security vulnerabilities
-   - **Mitigation**: Regular security audits and testing
+1. **Authentication Bypass** - Any credentials accepted until #281 fixed
+   - **Mitigation**: Fix immediately, do not deploy
 
-### Contingency Plans
-- **Delay Legacy Deprecation**: If migration issues arise
-- **Additional Testing**: If quality standards not met
-- **Performance Optimization**: If targets not achieved
+2. **Token Blacklist Bypass** - MD5 collision attacks possible
+   - **Mitigation**: Replace with SHA-256 immediately (#347)
 
-## 📋 Dependencies
+3. **Password Reset Token Leakage** - Tokens exposed in API responses
+   - **Mitigation**: Fix immediately, add email sending (#348)
 
-### Technical Dependencies
-- HyperVel framework stability
-- Redis infrastructure availability
-- Database performance optimization
-- Frontend integration completion
+4. **No Authorization** - Any authenticated user can access any endpoint
+   - **Mitigation**: Implement RBAC before feature rollout (#360)
 
-### External Dependencies
-- Third-party service integrations
-- User adoption and feedback
-- Infrastructure provisioning
-- Security audit completion
+### Medium-Risk Items
+1. **Test Coverage Gap** - <20% coverage for production system
+   - **Mitigation**: Prioritize test suite implementation (#173)
 
-## 🔄 Review Process
+2. **Performance Degradation** - No caching, unoptimized queries
+   - **Mitigation**: Implement caching and indexes before scaling (#224, #358)
+
+3. **Code Quality Issues** - 57+ identified issues
+   - **Mitigation**: Address systematically by priority
+
+---
+
+## 📋 Resource Requirements
+
+### Human Resources
+- **Backend Developer**: 2-3 full-time for 20 weeks
+- **Security Engineer**: 1 full-time for 2 weeks (Phase 1-2)
+- **QA Engineer**: 1 full-time for testing implementation
+- **DevOps Engineer**: 1 part-time for CI/CD optimization
+
+### Technical Resources
+- **Development Environment**: Enhanced testing infrastructure
+- **CI/CD Pipeline**: Automated testing and deployment
+- **Monitoring Tools**: Application performance monitoring
+- **Security Tools**: Automated security scanning
+
+---
+
+## 🔄 Review & Adaptation
 
 ### Weekly Reviews
 - Progress assessment against timeline
@@ -290,212 +399,11 @@ Malnu Kananga School Management System built on HyperVel framework with Swoole s
 - Strategic goal alignment
 - Timeline adjustments
 - Success metric evaluation
-- Stakeholder communication
-
-## 📞 Communication Plan
-
-### Internal Team
-- Daily standups for progress updates
-- Weekly planning meetings
-- Bi-weekly technical reviews
-- Monthly strategic reviews
-
-### External Stakeholders
-- Monthly progress reports
-- Quarterly roadmap reviews
-- Major milestone announcements
-- Production deployment notification
+- Stakeholder feedback integration
 
 ---
 
-## 🔄 ORCHESTRATOR UPDATE (November 25, 2025)
-
-### New Critical Issues Identified & Created
-- **#194** CRITICAL: Fix 9 frontend security vulnerabilities (2 high, 5 moderate, 2 low severity)
-- **#195** CRITICAL: Remove deprecated web-sch-12 application completely [COMPLETED]
-- **#196** HIGH: Implement comprehensive JWT authentication and authorization system [COMPLETED]
-- **#197** MEDIUM: Implement automated security scanning and dependency monitoring
-- **#221** CRITICAL: Generate and configure JWT secret for production security
-- **#222** CRITICAL: Fix database migration imports and test migration system
-- **#223** HIGH: Implement comprehensive API controllers for all 11 business domains
-- **#224** HIGH: Implement Redis caching strategy for performance optimization
-- **#225** MEDIUM: Consolidate and optimize GitHub Actions workflows
-- **#226** MEDIUM: Create comprehensive API documentation with OpenAPI/Swagger
-- **#227** MEDIUM: Implement application monitoring and observability system
-
-### Comprehensive Repository Analysis Summary
-**Current State Assessment**:
-- **Total Issues**: 87+ (75+ Open, 12+ Closed) - 85%+ open rate
-- **Total PRs**: 93 (81 Open, 12 Merged) - 13% merge rate
-- **Critical Issues**: 6 requiring immediate attention
-- **Security Vulnerabilities**: 9 frontend vulnerabilities (CRITICAL)
-- **Test Coverage**: < 20% (Target: 90%)
-- **Documentation Accuracy**: 70% (Target: 95%)
-- **API Coverage**: 25% (3 controllers for 11 domains)
-- **Performance**: ~500ms response time (Target: <200ms)
-
-**Key Findings**:
-- **CRITICAL**: 9 frontend security vulnerabilities requiring immediate fix
-- **CRITICAL**: JWT secret configuration missing in .env.example
-- **CRITICAL**: Database migration files missing required imports
-- **HIGH**: Only 3 API controllers implemented for 11 business domains (75% missing)
-- **HIGH**: No Redis caching implementation despite configuration
-- **HIGH**: Test coverage dramatically insufficient for production system
-- **MEDIUM**: 7 GitHub Actions workflows causing over-automation complexity
-- **MEDIUM**: No API documentation or monitoring system in place
-
-### Security Analysis Results
-**Frontend Vulnerabilities**:
-- **High Severity (2)**: cross-spawn, glob - ReDoS attack potential
-- **Moderate Severity (5)**: @babel/helpers, esbuild, js-yaml, nanoid, etc.
-- **Low Severity (2)**: Minor dependency issues
-- **Action Required**: `cd frontend && npm audit fix` immediately
-
-**Architecture Assessment**:
-- **Main Application**: HyperVel framework - ACTIVE and PRIMARY
-- **Legacy Application**: web-sch-12/ - FULLY DEPRECATED, must be removed
-- **Impact**: Dual structure causing 50% repository size waste and confusion
-
-### Updated Priority Matrix
-**Phase 1 (Week 1-2) - CRITICAL SECURITY & STABILIZATION**:
-- **Week 1**: Fix security vulnerabilities (#194), Generate JWT secret (#221), Fix DB migrations (#222)
-- **Week 2**: Complete API controllers (#223), Implement Redis caching (#224), Set up monitoring (#227)
-- **Week 3**: Comprehensive testing (#173), Optimize GitHub Actions (#225), Create API docs (#226)
-- **Week 4**: UUID standardization (#174), Input validation (#133), Security monitoring (#197)
-
-**Phase 2 (Weeks 5-12) - FEATURE ENHANCEMENT**:
-- **Sprints 1-2**: Communication & Calendar systems (#158, #159)
-- **Sprints 3-4**: Academic Management & Reporting (#160, grading)
-- **Sprints 5-6**: Student Services & Health (#161, #162)
-
-**Phase 3 (Weeks 13-16) - OPTIMIZATION & SCALE**:
-- Performance optimization and caching
-- Documentation overhaul (#175)
-- Developer experience improvements
-- Operations and monitoring setup
-
-### Success Metrics Established
-**Technical Targets**:
-- Security Vulnerabilities: 0 (Current: 9 - CRITICAL)
-- Test Coverage: 90% (Current: <20%)
-- API Response Time: <200ms (Current: ~500ms)
-- API Coverage: 100% (Current: 25%)
-- Issue Closure Rate: 80% (Current: 15%)
-- PR Merge Rate: 70% (Current: 13%)
-
-**Business Targets**:
-- System Uptime: 99.9% (Current: 95%)
-- Developer Onboarding: 2 days (Current: 1 week)
-- Bug Resolution: <48 hours (Current: ~1 week)
-- Documentation Accuracy: 95% (Current: 70%)
-- Security Compliance: 100% (Current: 75%)
-
-### GitHub Project Management
-- Project creation blocked by permissions
-- Comprehensive issue analysis completed
-- Priority-based task breakdown established
-- Strategic roadmap with clear phases defined
-
-### Next Immediate Actions (Priority Order)
-1. **Fix security vulnerabilities** - Run `npm audit fix` in frontend directory (#194)
-2. **Generate JWT secret** - Configure secure JWT secret for production (#221)
-3. **Fix database migrations** - Add missing imports and test migration system (#222)
-4. **Implement API controllers** - Create controllers for all 11 business domains (#223)
-5. **Implement Redis caching** - Set up comprehensive caching strategy (#224)
-6. **Set up monitoring system** - APM, error tracking, and health checks (#227)
-7. **Create API documentation** - OpenAPI/Swagger specifications (#226)
-8. **Optimize GitHub Actions** - Consolidate from 7 to 3 essential workflows (#225)
-9. **Set up testing infrastructure** - 90% coverage target (#173)
-10. **Standardize UUID** implementation across all models (#174)
-
----
-
-## 🔄 ORCHESTRATOR UPDATE (November 27, 2025)
-
-### New Critical Issues Identified & Created
-Based on comprehensive repository analysis, additional critical issues have been identified:
-
-**CRITICAL Security & Functionality Issues**:
-- **#281** CRITICAL: Fix completely broken authentication system - AuthService returns empty array
-- **#282** CRITICAL: Fix SecurityHeaders middleware - Laravel imports incompatible with Hyperf  
-- **#283** HIGH: Enable and configure database services in Docker Compose
-- **#284** MEDIUM: Enhance input validation and prevent injection attacks
-
-### Updated Critical Assessment
-**System State**: **NON-FUNCTIONAL** - Core authentication completely broken
-
-**Root Cause Analysis**:
-1. **Authentication Service** (`app/Services/AuthService.php:213-218`) returns empty array instead of database query
-2. **Security Headers** middleware uses Laravel imports in Hyperf environment
-3. **Database Services** disabled in Docker Compose (lines 46-74 commented out)
-4. **Input Validation** insufficient for production security requirements
-
-**Immediate Impact**:
-- Any user can "authenticate" with any credentials
-- No security headers applied (XSS, clickjacking vulnerable)
-- No data persistence possible
-- Multiple injection attack vectors
-
-### Updated Phase 1 - CRITICAL FIXES (Week 1-2)
-
-#### Week 1: System Stabilization
-- [ ] **Fix Authentication System** (#281) - **BLOCKER**
-  - Replace `getAllUsers()` empty array with Eloquent query
-  - Fix registration to save users to database
-  - Implement proper password verification
-  - Add authentication flow tests
-
-- [ ] **Fix Security Headers** (#282) - **CRITICAL**
-  - Replace Laravel imports with Hyperf equivalents
-  - Update middleware method signatures
-  - Test security header application
-  - Add header validation tests
-
-- [ ] **Enable Database Services** (#283) - **HIGH**
-  - Uncomment and configure database services
-  - Set secure database credentials
-  - Configure volume mounting
-  - Test database connectivity
-
-#### Week 2: Security Hardening
-- [ ] **Enhance Input Validation** (#284) - **MEDIUM**
-  - Implement comprehensive SQL injection protection
-  - Add file upload security scanning
-  - Create rate limiting middleware
-  - Add business rule validation
-
-- [ ] **Complete Previous Critical Issues**
-  - Fix frontend security vulnerabilities (#194)
-  - Generate JWT secret (#221)
-  - Fix database migration imports (#222)
-
-### Updated Success Metrics
-**Critical Targets for Week 1-2**:
-- Authentication System: 100% functional (Current: 0%)
-- Security Headers: 100% applied (Current: 0%)
-- Database Connectivity: 100% operational (Current: 0%)
-- Security Vulnerabilities: 0 critical (Current: 12+)
-
-### Risk Assessment - ELEVATED
-**CRITICAL RISKS**:
-1. **Complete Authentication Bypass** - System compromise possible
-2. **No Security Headers** - Client-side attacks vulnerable
-3. **No Database Persistence** - Data loss and system non-functional
-4. **Injection Vulnerabilities** - Data integrity at risk
-
-**Mitigation Strategy**:
-- Immediate fixes required before any production consideration
-- Comprehensive security audit after fixes
-- Extensive testing of authentication flows
-- Security monitoring implementation
-
-### Resource Allocation
-**Week 1-2 Focus**: 100% of development resources on critical fixes
-**Week 3-4**: Resume feature development with stable foundation
-
----
-
-*Last Updated: November 27, 2025*
-*Next Review: December 4, 2025*
-*Owner: Repository Orchestrator*
-*Version: 7.0 - Critical System Stabilization Plan*
+**Last Updated**: January 9, 2026
+**Next Review**: January 16, 2026
+**Owner**: Repository Orchestrator
+**Version**: 8.0 - Comprehensive Update with New Issues

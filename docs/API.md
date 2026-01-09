@@ -4,6 +4,18 @@
 
 This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
+### 🌐 Interactive Documentation
+
+**Swagger UI**: Interactive API documentation available at `/swagger`
+
+**OpenAPI Specification**: Machine-readable spec at `/openapi.json`
+
+See [OpenAPI Documentation Guide](docs/OPENAPI_DOCUMENTATION.md) for:
+- Generating API documentation
+- Adding OpenAPI annotations
+- Using Swagger UI
+- Client SDK generation
+
 **Implementation Status:** 27 of 54 endpoints implemented (50%)
 
 ## 🔐 Authentication

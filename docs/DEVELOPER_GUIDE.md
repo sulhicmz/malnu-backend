@@ -53,31 +53,41 @@ APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost:9501
 
+# Database Configuration (Docker defaults)
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=malnu_backend
-DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_USERNAME=malnu_user
+DB_PASSWORD=malnu_password_2024
 
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
+# Redis Configuration (Docker defaults)
+REDIS_HOST=redis
 REDIS_PORT=6379
 
 # CRITICAL: Generate your own secure JWT secret
 JWT_SECRET=your-secure-jwt-secret-key-here
 ```
 
+**Note**: When using Docker Compose, the default configuration in `.env.example` is pre-configured for Docker services (`DB_HOST=db`, `REDIS_HOST=redis`). For local development without Docker, update these to `127.0.0.1` or `localhost`.
+
 #### 5. Start Docker Services
 
+For detailed Docker setup instructions, see **[Docker Setup Guide](DOCKER.md)**.
+
 ```bash
-docker-compose up -d mysql redis
+docker compose up -d
 ```
+
+This will start:
+- **app**: Hyperf application server
+- **db**: MySQL database (default)
+- **redis**: Redis cache and session storage
 
 #### 6. Run Database Migrations
 
 ```bash
-php artisan migrate
+docker compose exec app php artisan migrate
 ```
 
 #### 7. Run Database Seeders

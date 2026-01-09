@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Services\AuthService;
 use App\Services\TokenBlacklistService;
+use Exception;
+use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class AuthServiceTest extends TestCase
 {
     private AuthService $authService;
+
     private TokenBlacklistService $tokenBlacklistService;
 
     protected function setUp(): void
@@ -21,7 +27,7 @@ class AuthServiceTest extends TestCase
         $this->tokenBlacklistService = new TokenBlacklistService();
     }
 
-    public function test_user_registration_with_database_persistence()
+    public function testUserRegistrationWithDatabasePersistence()
     {
         $userData = [
             'name' => 'Test User',
@@ -40,7 +46,7 @@ class AuthServiceTest extends TestCase
         $this->assertTrue(password_verify('password123', $result['user']['password']));
     }
 
-    public function test_duplicate_email_registration_fails()
+    public function testDuplicateEmailRegistrationFails()
     {
         $userData = [
             'name' => 'Test User',
@@ -50,13 +56,13 @@ class AuthServiceTest extends TestCase
 
         $this->authService->register($userData);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('User with this email already exists');
 
         $this->authService->register($userData);
     }
 
-    public function test_successful_login_with_correct_credentials()
+    public function testSuccessfulLoginWithCorrectCredentials()
     {
         $userData = [
             'name' => 'Login Test User',
@@ -77,7 +83,7 @@ class AuthServiceTest extends TestCase
         $this->assertEquals('login@example.com', $result['user']['email']);
     }
 
-    public function test_failed_login_with_wrong_credentials()
+    public function testFailedLoginWithWrongCredentials()
     {
         $userData = [
             'name' => 'Wrong Password User',
@@ -87,21 +93,21 @@ class AuthServiceTest extends TestCase
 
         $this->authService->register($userData);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid credentials');
 
         $this->authService->login('wrongpassword@example.com', 'wrongpassword');
     }
 
-    public function test_login_with_nonexistent_user_fails()
+    public function testLoginWithNonexistentUserFails()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid credentials');
 
         $this->authService->login('nonexistent@example.com', 'anypassword');
     }
 
-    public function test_get_user_from_token()
+    public function testGetUserFromToken()
     {
         $userData = [
             'name' => 'Token Test User',
@@ -121,7 +127,7 @@ class AuthServiceTest extends TestCase
         $this->assertEquals($registerResult['user']['id'], $user['id']);
     }
 
-    public function test_get_user_from_blacklisted_token_returns_null()
+    public function testGetUserFromBlacklistedTokenReturnsNull()
     {
         $userData = [
             'name' => 'Blacklist Test User',
@@ -140,7 +146,7 @@ class AuthServiceTest extends TestCase
         $this->assertNull($user);
     }
 
-    public function test_token_refresh()
+    public function testTokenRefresh()
     {
         $userData = [
             'name' => 'Refresh Test User',
@@ -163,7 +169,7 @@ class AuthServiceTest extends TestCase
         $this->assertEquals('Refresh Test User', $newUser['name']);
     }
 
-    public function test_refresh_blacklisted_token_fails()
+    public function testRefreshBlacklistedTokenFails()
     {
         $userData = [
             'name' => 'Blacklist Refresh User',
@@ -177,13 +183,13 @@ class AuthServiceTest extends TestCase
         $token = $loginResult['token']['access_token'];
         $this->authService->logout($token);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Token is blacklisted');
 
         $this->authService->refreshToken($token);
     }
 
-    public function test_password_reset_request_for_existing_user()
+    public function testPasswordResetRequestForExistingUser()
     {
         $userData = [
             'name' => 'Password Reset User',
@@ -198,13 +204,10 @@ class AuthServiceTest extends TestCase
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
         $this->assertArrayHasKey('message', $result);
-        $this->assertArrayHasKey('reset_token', $result);
-        $this->assertArrayHasKey('expires_at', $result);
-        $this->assertIsString($result['reset_token']);
-        $this->assertIsInt($result['expires_at']);
+        $this->assertArrayNotHasKey('reset_token', $result);
     }
 
-    public function test_password_reset_request_for_nonexistent_user()
+    public function testPasswordResetRequestForNonexistentUser()
     {
         $result = $this->authService->requestPasswordReset('nonexistent@example.com');
 
@@ -212,32 +215,61 @@ class AuthServiceTest extends TestCase
         $this->assertTrue($result['success']);
         $this->assertArrayHasKey('message', $result);
         $this->assertArrayNotHasKey('reset_token', $result);
-        $this->assertArrayNotHasKey('expires_at', $result);
     }
 
-    public function test_reset_password_with_valid_token()
+    public function testPasswordResetTokenStoredInDatabase()
     {
-        $result = $this->authService->resetPassword(
-            str_repeat('a', 64),
-            'newpassword123'
-        );
+        $userData = [
+            'name' => 'Token Storage User',
+            'email' => 'token@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+
+        $this->authService->requestPasswordReset('token@example.com');
+
+        $tokens = \App\Models\PasswordResetToken::where('user_id', $registerResult['user']['id'])->get();
+        $this->assertGreaterThan(0, $tokens->count());
+    }
+
+    public function testResetPasswordWithValidTokenUpdatesPassword()
+    {
+        $userData = [
+            'name' => 'Reset Password User',
+            'email' => 'resetpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->authService->requestPasswordReset('resetpass@example.com');
+
+        $tokenRecord = \App\Models\PasswordResetToken::where('user_id', $userId)->first();
+
+        $newPassword = 'newpassword123';
+        $result = $this->authService->resetPassword($tokenRecord->token, $newPassword);
 
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
-        $this->assertArrayHasKey('message', $result);
+
+        $loginResult = $this->authService->login('resetpass@example.com', $newPassword);
+        $this->assertArrayHasKey('user', $loginResult);
+        $this->assertEquals('Reset Password User', $loginResult['user']['name']);
     }
 
-    public function test_reset_password_with_invalid_token_format()
+    public function testResetPasswordWithInvalidTokenFormat()
     {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid reset token');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid or expired reset token');
 
         $this->authService->resetPassword('invalidtoken', 'newpassword123');
     }
 
-    public function test_reset_password_with_weak_password()
+    public function testResetPasswordWithWeakPassword()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Password must be at least 8 characters');
 
         $this->authService->resetPassword(
@@ -246,20 +278,58 @@ class AuthServiceTest extends TestCase
         );
     }
 
-    public function test_change_password()
+    public function testChangePasswordWithCorrectCurrentPassword()
     {
-        $result = $this->authService->changePassword('user-id', 'currentpass', 'newpassword123');
+        $userData = [
+            'name' => 'Change Password User',
+            'email' => 'changepass@example.com',
+            'password' => 'currentpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $newPassword = 'newpassword123';
+        $result = $this->authService->changePassword($userId, 'currentpassword', $newPassword);
 
         $this->assertArrayHasKey('success', $result);
         $this->assertTrue($result['success']);
-        $this->assertArrayHasKey('message', $result);
+
+        $loginResult = $this->authService->login('changepass@example.com', $newPassword);
+        $this->assertArrayHasKey('user', $loginResult);
     }
 
-    public function test_change_password_with_weak_password()
+    public function testChangePasswordWithIncorrectCurrentPassword()
     {
-        $this->expectException(\Exception::class);
+        $userData = [
+            'name' => 'Wrong Current Password User',
+            'email' => 'wrongpass@example.com',
+            'password' => 'currentpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Current password is incorrect');
+
+        $this->authService->changePassword($userId, 'wrongpassword', 'newpassword123');
+    }
+
+    public function testChangePasswordWithWeakNewPassword()
+    {
+        $userData = [
+            'name' => 'Weak New Password User',
+            'email' => 'weakpass@example.com',
+            'password' => 'currentpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('New password must be at least 8 characters');
 
-        $this->authService->changePassword('user-id', 'currentpass', 'weak');
+        $this->authService->changePassword($userId, 'currentpassword', 'weak');
     }
 }

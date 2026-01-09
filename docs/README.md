@@ -2,6 +2,8 @@
 
 This directory contains comprehensive documentation for the Malnu Backend School Management System.
 
+**📖 [Complete Documentation Index](INDEX.md)** - Navigate all documentation from one place
+
 ## 📚 Quick Navigation
 
 ### Getting Started

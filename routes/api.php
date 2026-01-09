@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\FeeManagement\FeeManagementController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -80,5 +81,43 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Fee Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('fees')->group(function () {
+        // Fee Type Management
+        Route::get('fee-types', [FeeManagementController::class, 'feeTypesIndex']);
+        Route::post('fee-types', [FeeManagementController::class, 'feeTypesStore']);
+        Route::get('fee-types/{id}', [FeeManagementController::class, 'feeTypesShow']);
+        Route::put('fee-types/{id}', [FeeManagementController::class, 'feeTypesUpdate']);
+        Route::delete('fee-types/{id}', [FeeManagementController::class, 'feeTypesDestroy']);
+
+        // Fee Structure Management
+        Route::get('fee-structures', [FeeManagementController::class, 'feeStructuresIndex']);
+        Route::post('fee-structures', [FeeManagementController::class, 'feeStructuresStore']);
+        Route::get('fee-structures/{id}', [FeeManagementController::class, 'feeStructuresShow']);
+        Route::put('fee-structures/{id}', [FeeManagementController::class, 'feeStructuresUpdate']);
+        Route::delete('fee-structures/{id}', [FeeManagementController::class, 'feeStructuresDestroy']);
+
+        // Invoice Management
+        Route::get('invoices', [FeeManagementController::class, 'invoicesIndex']);
+        Route::post('invoices', [FeeManagementController::class, 'invoicesStore']);
+        Route::post('invoices/generate-bulk', [FeeManagementController::class, 'invoicesGenerateBulk']);
+        Route::get('invoices/{id}', [FeeManagementController::class, 'invoicesShow']);
+
+        // Payment Management
+        Route::get('payments', [FeeManagementController::class, 'paymentsIndex']);
+        Route::post('payments', [FeeManagementController::class, 'paymentsStore']);
+        Route::get('payments/{id}', [FeeManagementController::class, 'paymentsShow']);
+
+        // Waiver Management
+        Route::get('waivers', [FeeManagementController::class, 'waiversIndex']);
+        Route::post('waivers', [FeeManagementController::class, 'waiversStore']);
+
+        // Reports
+        Route::get('reports/financial', [FeeManagementController::class, 'reportsFinancial']);
+        Route::get('students/{studentId}/outstanding', [FeeManagementController::class, 'studentOutstanding']);
     });
 });

@@ -1,5 +1,7 @@
 # Technical Architecture Documentation
 
+*Last Updated: January 9, 2026*
+
 ## 🏗️ System Architecture Overview
 
 ### Framework Stack
@@ -22,24 +24,41 @@
 malnu-backend/
 ├── app/                          # Application code
 │   ├── Console/                  # Artisan commands
+│   ├── Contracts/                 # Service interfaces
 │   ├── Events/                   # Event classes
 │   ├── Exceptions/               # Exception handlers
 │   ├── Http/                     # HTTP layer
 │   │   ├── Controllers/          # API controllers
-│   │   ├── Middleware/           # HTTP middleware
-│   │   └── Requests/             # Form request validation
+│   │   │   ├── admin/         # Admin controllers
+│   │   │   ├── Api/           # API controllers
+│   │   │   ├── Attendance/    # Attendance controllers
+│   │   │   └── Calendar/      # Calendar controllers
+│   │   ├── Middleware/        # HTTP middleware
+│   │   ├── Requests/           # Form request validation
+│   │   ├── AbstractController.php
+│   │   ├── BaseController.php
+│   │   └── Controller.php
+│   ├── Listeners/               # Event listeners
 │   ├── Models/                   # Eloquent models
-│   │   ├── AIAssistant/          # AI tutoring features
-│   │   ├── CareerDevelopment/    # Career guidance
-│   │   ├── DigitalLibrary/       # E-book management
-│   │   ├── ELearning/            # Online learning
-│   │   ├── Grading/              # Grade management
-│   │   ├── Monetization/         # Financial features
-│   │   ├── OnlineExam/           # Examination system
-│   │   ├── ParentPortal/         # Parent access
-│   │   ├── PPDB/                 # Student registration
-│   │   └── SchoolManagement/     # Core school operations
+│   │   ├── AIAssistant/         # AI tutoring models
+│   │   ├── Attendance/          # Attendance models
+│   │   ├── CareerDevelopment/   # Career development models
+│   │   ├── DigitalLibrary/      # Digital library models
+│   │   ├── ELearning/           # E-Learning models
+│   │   ├── Grading/            # Grading models
+│   │   ├── Logs/               # Logging models
+│   │   ├── Monetization/        # Monetization models
+│   │   ├── OnlineExam/          # Online exam models
+│   │   ├── PPDB/               # PPDB models
+│   │   ├── ParentPortal/        # Parent portal models
+│   │   ├── SchoolManagement/    # School management models
+│   │   ├── System/              # System models
+│   │   ├── User.php
+│   │   ├── Role.php
+│   │   ├── Permission.php
+│   │   └── Model.php
 │   ├── Providers/                # Service providers
+│   ├── Services/                 # Business logic services
 │   └── Traits/                   # Reusable traits
 ├── config/                       # Configuration files
 ├── database/                     # Database layer

@@ -6,11 +6,21 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Quick Start
 - **[Developer Guide](DEVELOPER_GUIDE.md)** - Comprehensive onboarding guide with setup, configuration, and development workflow
+- **[Quick Start Guide](DEVELOPER_GUIDE.md#quick-start-new-to-the-project)** - Fast-track onboarding for new developers
 - **[GitHub Projects Setup](GITHUB_PROJECTS_SETUP.md)** - Setting up GitHub projects for issue tracking and project management
 
 ### Initial Setup
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Application architecture, folder organization, and code layout
 - **[Development](DEVELOPMENT.md)** - Development workflow, practices, and guidelines
+
+### Framework & Architecture
+- **[HyperVel Framework Guide](HYPERVEL_FRAMEWORK_GUIDE.md)** - Understanding HyperVel concepts, Swoole coroutines, and framework-specific patterns
+- **[Architecture](ARCHITECTURE.md)** - System design, patterns, HyperVel implementation, and architectural principles
+- **[Structure Summary](STRUCTURE_SUMMARY.md)** - High-level overview of system components and organization
+- **[Database Schema](DATABASE_SCHEMA.md)** - Database design, tables, relationships, and migrations
+
+### Business Domains
+- **[Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md)** - Comprehensive overview of 11 business domains, their features, models, and interrelationships
 
 ---
 
@@ -103,11 +113,11 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **API**: [API Documentation](API.md), [Error Handling](API_ERROR_HANDLING.md)
 
 ### By Role
-- **New Developers**: Start with [Developer Guide](DEVELOPER_GUIDE.md) → [Project Structure](PROJECT_STRUCTURE.md) → [Contributing](CONTRIBUTING.md)
+- **New Developers**: [Quick Start](DEVELOPER_GUIDE.md#quick-start-new-to-the-project) → [HyperVel Framework Guide](HYPERVEL_FRAMEWORK_GUIDE.md) → [Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md) → [Developer Guide](DEVELOPER_GUIDE.md)
 - **API Consumers**: [API Documentation](API.md) → [Error Handling](API_ERROR_HANDLING.md) → [Rate Limiting](RATE_LIMITING.md)
 - **DevOps Engineers**: [Deployment](DEPLOYMENT.md) → [Backup System](BACKUP_SYSTEM.md) → [Migration Plan](MIGRATION_PLAN.md)
 - **Project Managers**: [Application Status](APPLICATION_STATUS.md) → [Repository Status](REPOSITORY_STATUS.md) → [Roadmap](ROADMAP.md)
-- **Security Analysts**: [Security Analysis](SECURITY_ANALYSIS.md) → [API Error Handling](API_ERROR_HANDLING.md)
+- **Security Analysts**: [Security Analysis](SECURITY_ANALYSIS.md) → [API Error Handling](API_ERROR_HANDLING.md) → [Developer Guide Security](DEVELOPER_GUIDE.md#security)
 
 ---
 

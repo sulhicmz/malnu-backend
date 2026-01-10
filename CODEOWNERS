@@ -1,0 +1,121 @@
+# Code Owners
+
+This file defines code ownership and approval requirements for the Malnu Kananga School Management System.
+
+## Global Owner
+
+`@sulhicmz`
+
+## Business Domain Owners
+
+### School Management (`app/Http/Controllers/Api/SchoolManagement/`)
+
+```
+# All school management controllers
+app/Http/Controllers/Api/SchoolManagement/*
+```
+
+### Attendance Management (`app/Http/Controllers/Attendance/`)
+
+```
+# All attendance controllers
+app/Http/Controllers/Attendance/*
+```
+
+### Calendar Management (`app/Http/Controllers/Calendar/`)
+
+```
+# All calendar controllers
+app/Http/Controllers/Calendar/*
+```
+
+### Authentication (`app/Http/Controllers/Api/AuthController.php`)
+
+```
+# Authentication controller
+app/Http/Controllers/Api/AuthController.php
+```
+
+### Core Infrastructure (`app/`)
+
+```
+# Core application infrastructure
+app/Models/
+app/Services/
+app/Traits/
+```
+
+### Database (`database/`)
+
+```
+# All database migrations and configurations
+database/migrations/*
+database/seeders/*
+config/database.php
+```
+
+### Configuration (`config/`)
+
+```
+# Application configuration files
+config/*
+```
+
+### Documentation (`docs/`)
+
+```
+# All documentation files
+docs/*
+```
+
+### Security (`app/Http/Middleware/`, `app/Traits/InputValidationTrait.php`)
+
+```
+# Security middleware and validation
+app/Http/Middleware/*
+app/Traits/InputValidationTrait.php
+```
+
+### Testing (`tests/`)
+
+```
+# All test files
+tests/*
+phpunit.xml
+```
+
+## Approval Requirements
+
+| Area | Required Reviewers | Notes |
+|-------|-------------------|-------|
+| Authentication | @sulhicmz | Critical security area |
+| School Management | @sulhicmz | Student, teacher management |
+| Attendance | @sulhicmz | Leave, staff attendance |
+| Calendar | @sulhicmz | Events, scheduling |
+| Security Middleware | @sulhicmz | Auth, rate limiting, CSRF |
+| Models | @sulhicmz | Core business models |
+| Services | @sulhicmz | Business logic services |
+| Database | @sulhicmz | Migrations, seeders |
+| Configuration | @sulhicmz | Environment configs |
+| Documentation | @sulhicmz | API guides, architecture |
+
+## Notes
+
+- Owners can be individuals, teams, or groups (defined using `@username` or `@team`)
+- To add a new owner, add them to the appropriate section above
+- Use `*` as a wildcard to match all files (e.g., `*.php` matches all PHP files)
+- This file follows GitHub CODEOWNERS syntax: https://docs.github.com/en/repositories/managing-your-health-settings-with-code-owners/
+
+## Updates
+
+When adding new business domains or major areas, update this file to include:
+- Domain controller directories
+- Model directories  
+- Service classes
+- API routes
+
+## Special Rules
+
+- Security changes (SECURITY.md, middleware, auth) always require @sulhicmz review
+- Database schema changes always require @sulhicmz review
+- Critical bugs always require @sulhicmz review

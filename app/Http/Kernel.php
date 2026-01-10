@@ -32,7 +32,7 @@ class Kernel extends HttpKernel
             // \Hyperf\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             // \Hyperf\Session\Middleware\StartSession::class,
             // \Hyperf\View\Middleware\ShareErrorsFromSession::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
         ],
 
         'api' => [

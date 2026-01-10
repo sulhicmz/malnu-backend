@@ -10,6 +10,9 @@ use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use Carbon\Carbon;
+use Hyperf\Context\ApplicationContext;
+use Psr\Http\Message\ServerRequestInterface;
 
 class AuthService implements AuthServiceInterface
 {
@@ -17,11 +20,14 @@ class AuthService implements AuthServiceInterface
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
 
-    public function __construct()
-    {
-        $this->jwtService = new JWTService();
-        $this->tokenBlacklistService = new TokenBlacklistService();
-        $this->emailService = new EmailService();
+    public function __construct(
+        JWTServiceInterface $jwtService,
+        TokenBlacklistServiceInterface $tokenBlacklistService,
+        EmailService $emailService
+    ) {
+        $this->jwtService = $jwtService;
+        $this->tokenBlacklistService = $tokenBlacklistService;
+        $this->emailService = $emailService;
     }
 
     /**
@@ -49,28 +55,32 @@ class AuthService implements AuthServiceInterface
      */
     public function login(string $email, string $password): array
     {
-        $users = $this->getAllUsers();
-        $user = null;
-        
-        foreach ($users as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                $user = $u;
-                break;
-            }
-        }
-        
-        if (!$user) {
+        $user = User::where('email', $email)->first();
+
+        if (!$user || !password_verify($password, $user->password)) {
             throw new \Exception('Invalid credentials');
         }
 
+        if (!$user->is_active) {
+            throw new \Exception('Account is inactive');
+        }
+
+        // Update last login
+        $request = ApplicationContext::getContainer()->get(ServerRequestInterface::class);
+        $serverParams = $request->getServerParams();
+        $user->update([
+            'last_login_time' => new \DateTime(),
+            'last_login_ip' => $serverParams['remote_addr'] ?? null
+        ]);
+
         // Generate JWT token
         $token = $this->jwtService->generateToken([
-            'id' => $user['id'],
-            'email' => $user['email']
+            'id' => $user->id,
+            'email' => $user->email
         ]);
 
         return [
-            'user' => $user,
+            'user' => $user->toArray(),
             'token' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -88,21 +98,20 @@ class AuthService implements AuthServiceInterface
         if ($this->tokenBlacklistService->isTokenBlacklisted($token)) {
             return null;
         }
-        
+
         $payload = $this->jwtService->decodeToken($token);
-        
+
         if (!$payload) {
             return null;
         }
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['id'] === $payload['data']['id']) {
-                return $user;
-            }
+        $user = User::find($payload['data']['id']);
+
+        if (!$user || !$user->is_active) {
+            return null;
         }
-        
-        return null;
+
+        return $user->toArray();
     }
 
     /**
@@ -152,7 +161,7 @@ class AuthService implements AuthServiceInterface
         // Generate reset token (plaintext for email, hashed for storage)
         $resetToken = bin2hex(random_bytes(32));
         $hashedToken = password_hash($resetToken, PASSWORD_DEFAULT);
-        $expiresAt = now()->addHour();
+        $expiresAt = Carbon::now()->addHour();
 
         // Store hashed token in database
         PasswordResetToken::create([
@@ -261,11 +270,4 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    /**
-     * Get all users from database
-     */
-    private function getAllUsers(): array
-    {
-        return User::all()->toArray();
-    }
 }

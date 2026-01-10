@@ -6,7 +6,9 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Services\AuthService;
+use App\Services\JWTService;
 use App\Services\TokenBlacklistService;
+use App\Services\EmailService;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 
@@ -19,8 +21,12 @@ class AuthServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->authService = new AuthService();
-        $this->tokenBlacklistService = new TokenBlacklistService();
+        $jwtService = new JWTService();
+        $tokenBlacklistService = new TokenBlacklistService();
+        $emailService = new EmailService();
+
+        $this->authService = new AuthService($jwtService, $tokenBlacklistService, $emailService);
+        $this->tokenBlacklistService = $tokenBlacklistService;
     }
 
     public function test_user_registration_with_database_persistence()
@@ -101,6 +107,48 @@ class AuthServiceTest extends TestCase
         $this->expectExceptionMessage('Invalid credentials');
 
         $this->authService->login('nonexistent@example.com', 'anypassword');
+    }
+
+    public function test_login_with_inactive_account_fails()
+    {
+        $userData = [
+            'name' => 'Inactive User',
+            'email' => 'inactive@example.com',
+            'password' => 'password123',
+        ];
+
+        $result = $this->authService->register($userData);
+        $userId = $result['user']['id'];
+
+        $user = User::find($userId);
+        $user->update(['is_active' => false]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Account is inactive');
+
+        $this->authService->login('inactive@example.com', 'password123');
+    }
+
+    public function test_get_user_from_token_with_inactive_user_returns_null()
+    {
+        $userData = [
+            'name' => 'Inactive Token User',
+            'email' => 'inactivetoken@example.com',
+            'password' => 'password123',
+        ];
+
+        $result = $this->authService->register($userData);
+        $userId = $result['user']['id'];
+
+        $user = User::find($userId);
+        $user->update(['is_active' => false]);
+
+        $loginResult = $this->authService->login('inactivetoken@example.com', 'password123');
+        $token = $loginResult['token']['access_token'];
+
+        $userFromToken = $this->authService->getUserFromToken($token);
+
+        $this->assertNull($userFromToken);
     }
 
     public function test_get_user_from_token()

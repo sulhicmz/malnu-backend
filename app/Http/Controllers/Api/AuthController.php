@@ -10,13 +10,13 @@ use App\Traits\InputValidationTrait;
 class AuthController extends BaseController
 {
     use InputValidationTrait;
-    
+
     private AuthServiceInterface $authService;
 
-    public function __construct()
+    public function __construct(AuthServiceInterface $authService)
     {
         parent::__construct();
-        $this->authService = new \App\Services\AuthService();
+        $this->authService = $authService;
     }
 
     /**

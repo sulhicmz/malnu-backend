@@ -26,6 +26,7 @@ use App\Models\ParentPortal\ParentOrtu;
 use App\Models\PPDB\PpdbAnnouncement;
 use App\Models\PPDB\PpdbDocument;
 use App\Models\PPDB\PpdbTest;
+use App\Models\Role;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
@@ -78,6 +79,36 @@ class User extends Authenticatable
         foreach ($roleNames as $roleName) {
             $this->assignRole($roleName);
         }
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')
+            ->where('model_type', self::class);
+    }
+
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    public function hasAnyRole(array $roleNames): bool
+    {
+        return $this->roles()->whereIn('name', $roleNames)->exists();
+    }
+
+    public function getAllPermissions()
+    {
+        $permissions = collect();
+        foreach ($this->roles as $role) {
+            $permissions = $permissions->merge($role->permissions);
+        }
+        return $permissions->unique('id');
+    }
+
+    public function hasPermission(string $permissionName): bool
+    {
+        return $this->getAllPermissions()->contains('name', $permissionName);
     }
 
     // Relationships

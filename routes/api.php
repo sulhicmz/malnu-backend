@@ -34,14 +34,20 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
     Route::prefix('attendance')->group(function () {
         // Staff Attendance Routes
-        Route::apiResource('staff-attendances', StaffAttendanceController::class);
-        Route::post('staff-attendances/mark-attendance', [StaffAttendanceController::class, 'markAttendance']);
+        Route::apiResource('staff-attendances', StaffAttendanceController::class)
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+        Route::post('staff-attendances/mark-attendance', [StaffAttendanceController::class, 'markAttendance'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
 
         // Leave Management Routes
-        Route::apiResource('leave-types', LeaveTypeController::class);
-        Route::apiResource('leave-requests', LeaveRequestController::class);
-        Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
-        Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
+        Route::apiResource('leave-types', LeaveTypeController::class)
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+        Route::apiResource('leave-requests', LeaveRequestController::class)
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+        Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU');
+        Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU');
     });
 });
 
@@ -49,10 +55,12 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
-        Route::apiResource('students', StudentController::class);
-        
+        Route::apiResource('students', StudentController::class)
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU');
+
         // Teacher Management Routes
-        Route::apiResource('teachers', TeacherController::class);
+        Route::apiResource('teachers', TeacherController::class)
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU');
     });
 });
 
@@ -60,25 +68,34 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
         // Calendar Management
-        Route::post('calendars', [CalendarController::class, 'createCalendar']);
+        Route::post('calendars', [CalendarController::class, 'createCalendar'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
         Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
-        Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar']);
-        Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar']);
-        
+        Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+        Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+
         // Event Management
-        Route::post('events', [CalendarController::class, 'createEvent']);
+        Route::post('events', [CalendarController::class, 'createEvent'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
         Route::get('events/{id}', [CalendarController::class, 'getEvent']);
-        Route::put('events/{id}', [CalendarController::class, 'updateEvent']);
-        Route::delete('events/{id}', [CalendarController::class, 'deleteEvent']);
+        Route::put('events/{id}', [CalendarController::class, 'updateEvent'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+        Route::delete('events/{id}', [CalendarController::class, 'deleteEvent'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
         Route::get('calendars/{calendarId}/events', [CalendarController::class, 'getEventsByDateRange']);
-        
+
         // Event Registration
-        Route::post('events/{eventId}/register', [CalendarController::class, 'registerForEvent']);
-        
+        Route::post('events/{eventId}/register', [CalendarController::class, 'registerForEvent'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+
         // Calendar Sharing
-        Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
-        
+        Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
+
         // Resource Booking
-        Route::post('resources/book', [CalendarController::class, 'bookResource']);
+        Route::post('resources/book', [CalendarController::class, 'bookResource'])
+            ->middleware('role:Super Admin|Kepala Sekolah|Staf TU|Guru');
     });
 });

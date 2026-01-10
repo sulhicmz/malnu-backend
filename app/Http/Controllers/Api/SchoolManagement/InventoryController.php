@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Models\SchoolManagement\SchoolInventory;
-use App\Models\SchoolManagement\AssetCategory;
 use App\Models\SchoolManagement\AssetAssignment;
+use App\Models\SchoolManagement\AssetCategory;
 use App\Models\SchoolManagement\AssetMaintenance;
+use App\Models\SchoolManagement\SchoolInventory;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -43,15 +46,15 @@ class InventoryController extends BaseController
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('asset_code', 'like', "%{$search}%")
-                      ->orWhere('serial_number', 'like', "%{$search}%");
+                        ->orWhere('asset_code', 'like', "%{$search}%")
+                        ->orWhere('serial_number', 'like', "%{$search}%");
                 });
             }
 
             $inventory = $query->orderBy('name', 'asc')->paginate($limit, ['*'], 'page', $page);
 
             return $this->successResponse($inventory, 'Inventory items retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -70,13 +73,13 @@ class InventoryController extends BaseController
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             if (isset($data['category_id'])) {
                 $category = AssetCategory::find($data['category_id']);
-                if (!$category) {
+                if (! $category) {
                     return $this->validationErrorResponse(['category_id' => ['Category not found.']]);
                 }
             }
@@ -86,7 +89,7 @@ class InventoryController extends BaseController
             $item = SchoolInventory::create($data);
 
             return $this->successResponse($item, 'Inventory item created successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'INVENTORY_CREATION_ERROR', null, 400);
         }
     }
@@ -96,12 +99,12 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::with(['category', 'assignedTo', 'maintenanceRecords', 'assignments'])->find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
             return $this->successResponse($item, 'Inventory item retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -111,7 +114,7 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
@@ -119,7 +122,7 @@ class InventoryController extends BaseController
 
             if (isset($data['category_id'])) {
                 $category = AssetCategory::find($data['category_id']);
-                if (!$category) {
+                if (! $category) {
                     return $this->validationErrorResponse(['category_id' => ['Category not found.']]);
                 }
             }
@@ -131,7 +134,7 @@ class InventoryController extends BaseController
             $item->update($data);
 
             return $this->successResponse($item, 'Inventory item updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'INVENTORY_UPDATE_ERROR', null, 400);
         }
     }
@@ -141,7 +144,7 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
@@ -152,7 +155,7 @@ class InventoryController extends BaseController
             $item->delete();
 
             return $this->successResponse(null, 'Inventory item deleted successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'INVENTORY_DELETION_ERROR', null, 400);
         }
     }
@@ -162,11 +165,11 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
-            if (!$item->isAvailable()) {
+            if (! $item->isAvailable()) {
                 return $this->errorResponse('Item is not available for assignment', 'ITEM_NOT_AVAILABLE', null, 400);
             }
 
@@ -194,7 +197,7 @@ class InventoryController extends BaseController
             ]);
 
             return $this->successResponse($assignment, 'Item assigned successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'ITEM_ASSIGNMENT_ERROR', null, 400);
         }
     }
@@ -204,11 +207,11 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
-            if (!$item->isAssigned()) {
+            if (! $item->isAssigned()) {
                 return $this->errorResponse('Item is not assigned', 'ITEM_NOT_ASSIGNED', null, 400);
             }
 
@@ -228,7 +231,7 @@ class InventoryController extends BaseController
             ]);
 
             return $this->successResponse(null, 'Item returned successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'ITEM_RETURN_ERROR', null, 400);
         }
     }
@@ -238,7 +241,7 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
@@ -253,7 +256,7 @@ class InventoryController extends BaseController
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
@@ -275,7 +278,7 @@ class InventoryController extends BaseController
             ]);
 
             return $this->successResponse($maintenance, 'Maintenance record created successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), 'MAINTENANCE_RECORD_ERROR', null, 400);
         }
     }
@@ -285,14 +288,14 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
             $assignments = $item->assignments()->with('assignedTo')->orderBy('created_at', 'desc')->get();
 
             return $this->successResponse($assignments, 'Assignment history retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -302,14 +305,14 @@ class InventoryController extends BaseController
         try {
             $item = SchoolInventory::find($id);
 
-            if (!$item) {
+            if (! $item) {
                 return $this->notFoundResponse('Inventory item not found');
             }
 
             $records = $item->maintenanceRecords()->orderBy('maintenance_date', 'desc')->get();
 
             return $this->successResponse($records, 'Maintenance records retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }

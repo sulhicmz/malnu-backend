@@ -1,16 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\SchoolManagement\SchoolInventory;
 use App\Models\SchoolManagement\AssetCategory;
+use App\Models\SchoolManagement\SchoolInventory;
 use App\Models\User;
+use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class InventoryManagementTest extends TestCase
 {
     protected $user;
+
     protected $token;
 
     protected function setUp(): void
@@ -21,10 +28,10 @@ class InventoryManagementTest extends TestCase
         $this->token = JWTAuth::fromUser($this->user);
     }
 
-    public function test_can_list_inventory_items()
+    public function testCanListInventoryItems()
     {
         SchoolInventory::factory()->count(3)->create([
-            'status' => 'available'
+            'status' => 'available',
         ]);
 
         $response = $this->withHeaders([
@@ -32,21 +39,21 @@ class InventoryManagementTest extends TestCase
         ])->getJson('/api/school/inventory');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'data',
-                         'per_page',
-                         'current_page',
-                         'last_page',
-                         'total'
-                     ],
-                     'message',
-                     'timestamp'
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'data',
+                    'per_page',
+                    'current_page',
+                    'last_page',
+                    'total',
+                ],
+                'message',
+                'timestamp',
+            ]);
     }
 
-    public function test_can_create_inventory_item()
+    public function testCanCreateInventoryItem()
     {
         $category = AssetCategory::factory()->create();
 
@@ -67,35 +74,35 @@ class InventoryManagementTest extends TestCase
         ])->postJson('/api/school/inventory', $inventoryData);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Inventory item created successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Inventory item created successfully',
+            ]);
     }
 
-    public function test_validation_fails_without_required_fields()
+    public function testValidationFailsWithoutRequiredFields()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
         ])->postJson('/api/school/inventory', [
-            'name' => 'Test Item'
+            'name' => 'Test Item',
         ]);
 
         $response->assertStatus(422)
-                 ->assertJsonStructure([
-                     'success',
-                     'error' => [
-                         'message',
-                         'code',
-                         'details'
-                     ]
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'error' => [
+                    'message',
+                    'code',
+                    'details',
+                ],
+            ]);
     }
 
-    public function test_can_show_inventory_item()
+    public function testCanShowInventoryItem()
     {
         $item = SchoolInventory::factory()->create([
-            'status' => 'available'
+            'status' => 'available',
         ]);
 
         $response = $this->withHeaders([
@@ -103,21 +110,21 @@ class InventoryManagementTest extends TestCase
         ])->getJson("/api/school/inventory/{$item->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Inventory item retrieved successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Inventory item retrieved successfully',
+            ]);
     }
 
-    public function test_can_update_inventory_item()
+    public function testCanUpdateInventoryItem()
     {
         $item = SchoolInventory::factory()->create([
-            'status' => 'available'
+            'status' => 'available',
         ]);
 
         $updateData = [
             'name' => 'Updated Item Name',
-            'condition' => 'excellent'
+            'condition' => 'excellent',
         ];
 
         $response = $this->withHeaders([
@@ -125,22 +132,22 @@ class InventoryManagementTest extends TestCase
         ])->putJson("/api/school/inventory/{$item->id}", $updateData);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Inventory item updated successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Inventory item updated successfully',
+            ]);
 
         $this->assertDatabaseHas('school_inventory', [
             'id' => $item->id,
             'name' => 'Updated Item Name',
-            'condition' => 'excellent'
+            'condition' => 'excellent',
         ]);
     }
 
-    public function test_can_delete_inventory_item()
+    public function testCanDeleteInventoryItem()
     {
         $item = SchoolInventory::factory()->create([
-            'status' => 'available'
+            'status' => 'available',
         ]);
 
         $response = $this->withHeaders([
@@ -148,21 +155,21 @@ class InventoryManagementTest extends TestCase
         ])->deleteJson("/api/school/inventory/{$item->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Inventory item deleted successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Inventory item deleted successfully',
+            ]);
 
         $this->assertDatabaseMissing('school_inventory', [
-            'id' => $item->id
+            'id' => $item->id,
         ]);
     }
 
-    public function test_cannot_delete_assigned_item()
+    public function testCannotDeleteAssignedItem()
     {
         $item = SchoolInventory::factory()->create([
             'status' => 'assigned',
-            'assigned_to' => $this->user->id
+            'assigned_to' => $this->user->id,
         ]);
 
         $response = $this->withHeaders([
@@ -172,7 +179,7 @@ class InventoryManagementTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_can_filter_inventory_by_status()
+    public function testCanFilterInventoryByStatus()
     {
         SchoolInventory::factory()->count(2)->create(['status' => 'available']);
         SchoolInventory::factory()->count(1)->create(['status' => 'assigned']);
@@ -187,7 +194,7 @@ class InventoryManagementTest extends TestCase
         $this->assertCount(2, $data);
     }
 
-    public function test_can_filter_inventory_by_category()
+    public function testCanFilterInventoryByCategory()
     {
         $category = AssetCategory::factory()->create();
         SchoolInventory::factory()->count(3)->create(['category_id' => $category->id]);

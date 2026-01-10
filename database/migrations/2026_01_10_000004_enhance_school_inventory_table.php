@@ -1,14 +1,12 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Support\Facades\Schema;
-use Hyperf\DbConnection\Db;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::table('school_inventory', function (Blueprint $table) {
@@ -40,7 +38,7 @@ return new class extends Migration
                 'purchase_cost',
                 'assigned_to',
                 'assigned_date',
-                'notes'
+                'notes',
             ]);
         });
     }

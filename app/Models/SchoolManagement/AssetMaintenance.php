@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
@@ -8,10 +8,13 @@ use App\Models\Model;
 
 class AssetMaintenance extends Model
 {
-    protected $table = 'asset_maintenance';
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $table = 'asset_maintenance';
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'asset_id',

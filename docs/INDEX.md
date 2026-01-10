@@ -77,8 +77,11 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Analysis Documents
 - **[Analysis Report](ANALYSIS_REPORT.md)** - Comprehensive analysis of system architecture and implementation
-- **[Organizer Analysis Report](ORCHESTRATOR_ANALYSIS_REPORT.md)** - Analysis of workflow organization and automation
+- **[Orchestrator Analysis Report v1](ORCHESTRATOR_ANALYSIS_REPORT.md)** - Previous analysis (Jan 9, 2026)
+- **[Orchestrator Analysis Report v2](ORCHESTRATOR_ANALYSIS_REPORT_v2.md)** - Latest comprehensive analysis (Jan 10, 2026)
 - **[Complex Issue Breakdown](COMPLEX_ISSUE_BREAKDOWN.md)** - Analysis of complex technical issues and solutions
+- **[Duplicate Issues Analysis](DUPLICATE_ISSUES_ANALYSIS.md)** - Identification and consolidation plan for duplicate issues
+- **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP_GUIDE.md)** - GitHub Projects structure and configuration guide
 
 ### Security
 - **[Security Analysis](SECURITY_ANALYSIS.md)** - Security assessment, vulnerabilities, and best practices

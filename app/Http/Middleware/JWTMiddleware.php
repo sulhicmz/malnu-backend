@@ -20,12 +20,14 @@ class JWTMiddleware implements MiddlewareInterface
     protected HttpResponse $response;
     protected AuthServiceInterface $authService;
 
-    public function __construct(ContainerInterface $container)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        AuthServiceInterface $authService
+    ) {
         $this->container = $container;
         $this->request = $container->get(RequestInterface::class);
         $this->response = $container->get(HttpResponse::class);
-        $this->authService = new \App\Services\AuthService();
+        $this->authService = $authService;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

@@ -17,11 +17,14 @@ class AuthService implements AuthServiceInterface
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
 
-    public function __construct()
-    {
-        $this->jwtService = new JWTService();
-        $this->tokenBlacklistService = new TokenBlacklistService();
-        $this->emailService = new EmailService();
+    public function __construct(
+        JWTServiceInterface $jwtService,
+        TokenBlacklistServiceInterface $tokenBlacklistService,
+        EmailService $emailService
+    ) {
+        $this->jwtService = $jwtService;
+        $this->tokenBlacklistService = $tokenBlacklistService;
+        $this->emailService = $emailService;
     }
 
     /**

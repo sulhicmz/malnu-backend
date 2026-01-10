@@ -1004,6 +1004,77 @@ Content-Type: application/json
 
 ---
 
+## 🔍 System Health
+
+### Health Check ✅
+```http
+GET /api/v1/system/health
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "timestamp": "2026-01-10T12:00:00+00:00",
+    "checks": {
+      "cache": {
+        "status": "healthy",
+        "message": "Cache service is operational",
+        "metrics": {
+          "total_commands": 15234,
+          "total_keys": 245,
+          "keyspace_hits": 12345,
+          "keyspace_misses": 2889,
+          "hit_rate": 81.04
+        }
+      },
+      "email": {
+        "service": "email",
+        "status": "healthy",
+        "circuit_breaker": {
+          "service": "email_service",
+          "state": "closed",
+          "failures": 0,
+          "failure_threshold": 5,
+          "timeout_seconds": 60
+        },
+        "configuration": {
+          "timeout_seconds": 10,
+          "max_retries": 3,
+          "initial_delay_ms": 100
+        }
+      },
+      "memory": {
+        "status": "healthy",
+        "usage_bytes": 83886080,
+        "limit_bytes": 536870912,
+        "usage_percent": 15.63
+      },
+      "disk": {
+        "status": "healthy",
+        "free_bytes": 107374182400,
+        "total_bytes": 214748364800,
+        "used_bytes": 107374182400,
+        "usage_percent": 50
+      }
+    }
+  },
+  "message": "Health check completed",
+  "timestamp": "2026-01-10T12:00:00+00:00"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+**Health Status Values:**
+- `healthy`: All checks passing
+- `degraded`: Some checks passing but with warnings (e.g., high memory/disk usage)
+- `unhealthy`: Critical failures (e.g., cache down, circuit breaker open)
+
+---
+
 ## 🚨 Error Responses
 
 All error responses follow standardized format with structured error codes.
@@ -1168,7 +1239,8 @@ When rate limit is exceeded, a `429 Too Many Requests` response is returned:
 | Digital Library | 0 | 5 | ❌ 0% |
 | E-Learning | 0 | 4 | ❌ 0% |
 | Reports & Analytics | 0 | 3 | ❌ 0% |
-| **Total** | **37** | **73** | **51%** |
+| System Health | 1 | 1 | ✅ 100% |
+| **Total** | **38** | **74** | **51%** |
 
 ---
 

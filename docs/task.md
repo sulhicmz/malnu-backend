@@ -9,6 +9,161 @@
 
 ## Active Tasks
 
+### [TASK-312] Integration Hardening - External Service Resilience
+
+**Feature**: Integration Enhancement
+**Status**: Completed
+**Agent**: 07 Integration Engineer
+**Priority**: P1
+**Estimated**: 1-2 days
+**Started**: January 10, 2026
+**Completed**: January 10, 2026
+
+#### Description
+
+EmailService lacked proper integration resilience patterns - no timeouts, no retry mechanism, no circuit breaker. External SMTP failures could cause cascading issues and block critical user flows like password resets.
+
+#### Acceptance Criteria
+
+- [x] Create CircuitBreaker pattern implementation for external service resilience
+- [x] Create RetryWithBackoff pattern with exponential backoff
+- [x] Refactor EmailService with timeout support
+- [x] Add circuit breaker protection to EmailService
+- [x] Add retry logic with exponential backoff to EmailService
+- [x] Create HealthController for system health monitoring
+- [x] Add health check endpoint `/api/v1/system/health`
+- [x] Add environment variables for timeout, retry, and circuit breaker configuration
+- [x] Create integration tests for circuit breaker and retry logic
+- [x] Update docs/blueprint.md with integration hardening patterns
+- [x] Update docs/API.md with health endpoint documentation
+
+#### Technical Details
+
+**Files Created**:
+- `app/Patterns/CircuitBreaker.php` - Circuit breaker pattern implementation (152 lines)
+- `app/Patterns/CircuitBreakerOpenException.php` - Custom exception class
+- `app/Patterns/RetryWithBackoff.php` - Retry with exponential backoff pattern (95 lines)
+- `app/Http/Controllers/Api/System/HealthController.php` - Health check controller (166 lines)
+- `tests/Integration/CircuitBreakerTest.php` - Integration tests for resilience patterns (167 lines)
+
+**Files Modified**:
+- `app/Services/EmailService.php` - Refactored with timeout, retry, and circuit breaker (164 lines)
+- `routes/api.php` - Added `/api/v1/system/health` endpoint
+
+**Documentation Updates**:
+- `docs/blueprint.md` - Added Integration Resilience Patterns section
+- `docs/API.md` - Added System Health section with health endpoint documentation
+
+#### Completed Work
+
+**CircuitBreaker Pattern**:
+- Three states: CLOSED (normal operation), OPEN (blocking calls), HALF_OPEN (testing recovery)
+- Configurable failure threshold (default: 5 failures)
+- Configurable timeout in seconds before retrying (default: 60s)
+- Automatic state transitions based on success/failure
+- Metrics endpoint for monitoring circuit breaker state
+- Redis-backed state persistence
+
+**RetryWithBackoff Pattern**:
+- Configurable maximum retry attempts (default: 3)
+- Exponential backoff with multiplier (default: 2.0x)
+- Initial delay in milliseconds (default: 100ms)
+- Maximum delay cap (default: 5000ms)
+- Configurable retryable exception types
+- Comprehensive logging for all retry attempts
+- Throws last exception after all retries exhausted
+
+**EmailService Refactoring**:
+- Added SMTP timeout configuration (default: 10 seconds)
+- Wrapped all email operations in CircuitBreaker protection
+- Wrapped all email operations in RetryWithBackoff
+- Retried exceptions: Swift_TransportException, generic Exception
+- Added `getHealthStatus()` method for monitoring
+- Added `getCircuitBreaker()` for direct circuit breaker access
+- Proper error logging with context (email, error, code)
+- Graceful degradation when circuit breaker is open
+
+**HealthController**:
+- Cache health check: write/read/delete test with metrics
+- Email health check: circuit breaker state and configuration
+- Memory health check: usage, limit, percentage (healthy/degraded/unhealthy thresholds)
+- Disk health check: free, total, used space with percentage
+- Overall status calculation: healthy (all checks), degraded (warnings), unhealthy (failures)
+- Public but rate-limited endpoint
+
+**Integration Tests**:
+- `CircuitBreakerTest`: 5 test cases
+  - Circuit breaker closed on success
+  - Circuit breaker opens after failure threshold
+  - Circuit breaker prevents calls when open
+  - Circuit breaker resets on success
+  - Circuit breaker metrics accuracy
+- `RetryWithBackoffTest`: 5 test cases
+  - Retry succeeds on first attempt
+  - Retry succeeds after failures
+  - Retry fails after max attempts
+  - Retry respects non-retryable exceptions
+  - Retry works with retryable exceptions
+
+#### Configuration
+
+Environment Variables Added to `.env.example`:
+```bash
+# Email Service Resilience
+MAIL_TIMEOUT=10                      # SMTP connection timeout in seconds
+MAIL_MAX_RETRIES=3                    # Maximum retry attempts
+MAIL_INITIAL_DELAY_MS=100              # Initial delay before retry in milliseconds
+MAIL_CIRCUIT_BREAKER_FAILURES=5       # Failures before circuit breaker opens
+MAIL_CIRCUIT_BREAKER_TIMEOUT=60        # Seconds before circuit breaker allows retry
+```
+
+#### API Endpoint Added
+
+**Health Check**: `GET /api/v1/system/health`
+
+Response includes:
+- Overall status (healthy/degraded/unhealthy)
+- Timestamp
+- Detailed checks for:
+  - Cache: status, message, metrics (hit rate, keys, commands)
+  - Email: service status, circuit breaker state, configuration
+  - Memory: usage, limit, percentage (healthy < 80%, degraded 80-95%, unhealthy > 95%)
+  - Disk: free, total, used, percentage (healthy < 80%, degraded 80-95%, unhealthy > 95%)
+
+#### Benefits
+
+- **Resilience**: Email service now gracefully handles SMTP failures
+- **No Cascading Failures**: Circuit breaker prevents SMTP issues from blocking application
+- **Automatic Recovery**: Exponential backoff retries temporary failures
+- **Observability**: Health endpoint provides real-time service status
+- **Configurability**: All parameters configurable via environment variables
+- **Monitoring**: Circuit breaker state visible via health check endpoint
+- **Testing**: Comprehensive integration tests ensure patterns work correctly
+
+#### Anti-Patterns Eliminated
+
+- ❌ External SMTP calls without timeout → Now configured via MAIL_TIMEOUT
+- ❌ No retry on temporary failures → Now retries with exponential backoff
+- ❌ Cascading failures from SMTP → Now protected by circuit breaker
+- ❌ No visibility into email service health → Now available via `/api/v1/system/health`
+
+#### Migration Notes
+
+No migration required. EmailService is backward compatible.
+
+Breaking Changes: None.
+
+Migration for Consumers:
+1. Update `.env` with new MAIL_* environment variables (optional, defaults provided)
+2. Monitor `/api/v1/system/health` endpoint for email service status
+3. If circuit breaker opens frequently, investigate SMTP server health or increase thresholds
+
+#### Dependencies
+
+None (independent task)
+
+---
+
 ### [TASK-311] UUID Model Standardization - Calendar Module
 
 **Feature**: FEAT-006

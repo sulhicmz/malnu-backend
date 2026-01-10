@@ -104,6 +104,66 @@ app/Models/
 - **Input Sanitization**: All inputs sanitized via `InputSanitizationMiddleware`
 - **Error Classification**: Exception types mapped to appropriate error codes and types
 
+#### Integration Resilience Patterns
+
+All external service integrations MUST implement resilience patterns to handle failures gracefully.
+
+**Circuit Breaker Pattern**:
+- Prevents cascading failures when external services are down
+- States: CLOSED (normal), OPEN (blocking), HALF_OPEN (testing)
+- Implementation: `App\Patterns\CircuitBreaker`
+- Usage example:
+  ```php
+  $circuitBreaker = new CircuitBreaker($cache, 'email_service', 5, 60);
+  $result = $circuitBreaker->call(function () {
+      return $this->sendEmail();
+  });
+  ```
+- Configuration via environment variables:
+  - `MAIL_CIRCUIT_BREAKER_FAILURES`: Number of failures before opening (default: 5)
+  - `MAIL_CIRCUIT_BREAKER_TIMEOUT`: Seconds before trying again (default: 60)
+
+**Retry with Exponential Backoff**:
+- Automatic retries with increasing delays between attempts
+- Implementation: `App\Patterns\RetryWithBackoff`
+- Usage example:
+  ```php
+  $retry = new RetryWithBackoff(3, 100, 2.0, 5000);
+  $result = $retry->execute(function () {
+      return $this->callExternalAPI();
+  }, [HttpException::class, TimeoutException::class]);
+  ```
+- Configuration via environment variables:
+  - `MAIL_MAX_RETRIES`: Maximum retry attempts (default: 3)
+  - `MAIL_INITIAL_DELAY_MS`: Initial delay in milliseconds (default: 100)
+  - Backoff multiplier: 2.0 (fixed)
+  - Max delay: 5000ms (fixed)
+
+**Timeout Configuration**:
+- All external calls MUST have timeouts configured
+- Email timeout via: `MAIL_TIMEOUT` environment variable (default: 10 seconds)
+- Database timeouts configured in `config/database.php`
+- Cache timeouts configured in `config/cache.php`
+
+**Health Monitoring**:
+- Health check endpoint: `GET /api/v1/system/health`
+- Checks: cache, email, memory, disk
+- Returns overall status: healthy, degraded, unhealthy
+- Service-specific metrics available in response
+
+**Error Handling for External Services**:
+- All external exceptions logged with context
+- CircuitBreakerOpenException (503): Service temporarily unavailable
+- Retryable exceptions: Swift_TransportException, timeout errors
+- Non-retryable exceptions: Validation errors, authentication failures
+
+**Integration Anti-Patterns (NEVER Do)**:
+- ❌ External calls without timeouts
+- ❌ Infinite retries without limits
+- ❌ No error handling for external failures
+- ❌ Blocking main thread on external calls
+- ❌ Cascading failures from external services
+
 ### Security Standards
 
 #### Authentication

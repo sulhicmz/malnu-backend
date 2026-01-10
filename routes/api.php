@@ -15,6 +15,10 @@ use Hyperf\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::any('/', [IndexController::class, 'index']);
 
+    Route::group(['middleware' => ['rate.limit']], function () {
+        Route::get('/system/health', [HealthController::class, 'healthCheck']);
+    });
+
     Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {
         Route::prefix('auth')->group(function () {
             Route::post('/register', [AuthController::class, 'register']);

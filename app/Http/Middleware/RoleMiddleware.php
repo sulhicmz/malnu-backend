@@ -12,9 +12,9 @@ class RoleMiddleware
 {
     private AuthServiceInterface $authService;
 
-    public function __construct()
+    public function __construct(AuthServiceInterface $authService)
     {
-        $this->authService = new \App\Services\AuthService();
+        $this->authService = $authService;
     }
 
     public function handle($request, $next, $role)

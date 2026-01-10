@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Cafeteria\CafeteriaController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -80,5 +81,46 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Cafeteria Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('cafeteria')->group(function () {
+        // Meal Plan Routes
+        Route::get('meal-plans', [CafeteriaController::class, 'indexMealPlans']);
+        Route::post('meal-plans', [CafeteriaController::class, 'storeMealPlan']);
+        Route::get('meal-plans/{id}', [CafeteriaController::class, 'showMealPlan']);
+        Route::put('meal-plans/{id}', [CafeteriaController::class, 'updateMealPlan']);
+        Route::delete('meal-plans/{id}', [CafeteriaController::class, 'destroyMealPlan']);
+
+        // Student Preference Routes
+        Route::get('student-preferences', [CafeteriaController::class, 'indexStudentPreferences']);
+        Route::post('student-preferences', [CafeteriaController::class, 'storeStudentPreference']);
+        Route::get('student-preferences/{id}', [CafeteriaController::class, 'showStudentPreference']);
+        Route::put('student-preferences/{id}', [CafeteriaController::class, 'updateStudentPreference']);
+        Route::delete('student-preferences/{id}', [CafeteriaController::class, 'destroyStudentPreference']);
+
+        // Inventory Routes
+        Route::get('inventory', [CafeteriaController::class, 'indexInventory']);
+        Route::post('inventory', [CafeteriaController::class, 'storeInventory']);
+        Route::get('inventory/{id}', [CafeteriaController::class, 'showInventory']);
+        Route::put('inventory/{id}', [CafeteriaController::class, 'updateInventory']);
+        Route::delete('inventory/{id}', [CafeteriaController::class, 'destroyInventory']);
+        Route::get('inventory/low-stock', [CafeteriaController::class, 'lowStock']);
+
+        // Meal Payment Routes
+        Route::get('payments', [CafeteriaController::class, 'indexPayments']);
+        Route::post('payments', [CafeteriaController::class, 'storePayment']);
+        Route::get('payments/{id}', [CafeteriaController::class, 'showPayment']);
+        Route::put('payments/{id}', [CafeteriaController::class, 'updatePayment']);
+        Route::delete('payments/{id}', [CafeteriaController::class, 'destroyPayment']);
+
+        // Vendor Routes
+        Route::get('vendors', [CafeteriaController::class, 'indexVendors']);
+        Route::post('vendors', [CafeteriaController::class, 'storeVendor']);
+        Route::get('vendors/{id}', [CafeteriaController::class, 'showVendor']);
+        Route::put('vendors/{id}', [CafeteriaController::class, 'updateVendor']);
+        Route::delete('vendors/{id}', [CafeteriaController::class, 'destroyVendor']);
     });
 });

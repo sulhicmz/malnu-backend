@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
@@ -8,9 +8,11 @@ use App\Models\Model;
 
 class SchoolInventory extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'name',
@@ -23,9 +25,9 @@ class SchoolInventory extends Model
     ];
 
     protected $casts = [
-        'purchase_date'    => 'date',
+        'purchase_date' => 'date',
         'last_maintenance' => 'date',
-        'created_at'       => 'datetime',
-        'updated_at'       => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }

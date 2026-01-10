@@ -16,9 +16,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 class RateLimitingMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected RequestInterface $request;
+
     protected HttpResponse $response;
+
     protected Redis $redis;
+
     protected array $config;
 
     public function __construct(ContainerInterface $container)

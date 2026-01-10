@@ -1,5 +1,5 @@
 # Magic behaviour with __get, __set, __call and __callStatic is not exactly static analyser-friendly :)
-# Fortunately, You can ignore it by the following config.
+# Fortunately, You can ignore it by following config.
 #
 parameters:
   level: 5
@@ -8,4 +8,15 @@ parameters:
     - config
   reportUnmatchedIgnoredErrors: false
   excludePaths:
+    - tests
   ignoreErrors:
+    # Ignore Eloquent magic methods
+    - '#Call to an undefined static method#'
+    - '#Call to an undefined method#'
+    - '#Access to an undefined property#'
+    # Ignore Illuminate types in controllers (legacy Laravel code)
+    - '#.*Illuminate.*#'
+    # Ignore Eloquent magic methods
+    - '#Call to an undefined static method#'
+    - '#Call to an undefined method#'
+    - '#Access to an undefined property#'

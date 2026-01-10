@@ -7,6 +7,9 @@ namespace App\Http\Controllers\Api;
 use App\Contracts\AuthServiceInterface;
 use App\Traits\InputValidationTrait;
 use Exception;
+use Hyperf\Context\ApplicationContext;
+use Hyperf\HttpServer\Request;
+use Hyperf\HttpServer\Response;
 
 class AuthController extends BaseController
 {
@@ -14,9 +17,13 @@ class AuthController extends BaseController
 
     private AuthServiceInterface $authService;
 
-    public function __construct(AuthServiceInterface $authService)
-    {
-        parent::__construct();
+    public function __construct(
+        AuthServiceInterface $authService
+    ) {
+        $request = ApplicationContext::getContainer()->get(Request::class);
+        $response = ApplicationContext::getContainer()->get(Response::class);
+        $container = ApplicationContext::getContainer();
+        parent::__construct($request, $response, $container);
         $this->authService = $authService;
     }
 

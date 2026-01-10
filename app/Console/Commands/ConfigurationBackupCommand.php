@@ -184,9 +184,34 @@ class ConfigurationBackupCommand extends Command
         }
     }
 
+    protected function getConfigValues(): array
+    {
+        return [
+            'app' => [
+                'name' => $this->config->get('app.name', 'Malnu'),
+                'env' => $this->config->get('app.env', 'production'),
+                'debug' => $this->config->get('app.debug', false),
+                'timezone' => $this->config->get('app.timezone', 'UTC'),
+                'locale' => $this->config->get('app.locale', 'en'),
+            ],
+            'database' => [
+                'default' => $this->config->get('database.default', 'mysql'),
+            ],
+            'cache' => [
+                'default' => $this->config->get('cache.default', 'redis'),
+            ],
+            'queue' => [
+                'default' => $this->config->get('queue.default', 'redis'),
+            ],
+            'session' => [
+                'driver' => $this->config->get('session.driver', 'redis'),
+            ],
+        ];
+    }
+
     protected function createConfigSummary(string $tempDir): void
     {
-        $config = $this->config->all();
+        $config = $this->getConfigValues();
 
         // Remove sensitive data from config
         $safeConfig = $this->sanitizeConfig($config);

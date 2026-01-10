@@ -42,7 +42,7 @@ cd ..
 
 ```bash
 cp .env.example .env
-php artisan key:generate
+# Edit .env file with your configuration (no key:generate command needed in HyperVel)
 ```
 
 Edit `.env` file with your configuration:

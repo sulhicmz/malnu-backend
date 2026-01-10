@@ -9,6 +9,78 @@
 
 ## Active Tasks
 
+### [TASK-313] Documentation Updates - Quick Start & API Fixes
+
+**Feature**: Documentation Enhancement
+**Status**: Completed
+**Agent**: Technical Writer
+**Priority**: P1
+**Estimated**: 1-2 hours
+**Started**: January 10, 2026
+**Completed**: January 10, 2026
+
+#### Description
+
+Documentation had outdated Quick Start instructions not aligned with Docker-first setup, duplicate API endpoints, and non-existent commands in developer guide.
+
+#### Acceptance Criteria
+
+- [x] Update README.md Quick Start to prioritize Docker setup
+- [x] Update .env.example to be Docker-first with MySQL as default
+- [x] Remove duplicate `/auth/*` endpoints from API.md (only `/api/v1/*` exist)
+- [x] Fix implementation status numbers in API.md header
+- [x] Remove non-existent `php artisan key:generate` from DEVELOPER_GUIDE.md
+- [x] Update INDEX.md last updated date
+
+#### Technical Details
+
+**Files Modified**:
+- `README.md` - Updated Quick Start with Docker-first setup
+- `.env.example` - Changed default to MySQL (Docker) instead of SQLite
+- `docs/API.md` - Removed duplicate endpoints, fixed implementation status
+- `docs/DEVELOPER_GUIDE.md` - Removed non-existent command
+- `docs/INDEX.md` - Updated last updated date
+
+#### Completed Work
+
+1. **README.md Quick Start Updates**:
+   - Added Docker (Recommended) section first
+   - Added Local Development (Without Docker) as alternative
+   - Included Docker Configuration Notes
+   - Added JWT secret generation instruction
+   - Added proper command: `docker-compose exec app php artisan migrate`
+
+2. **.env.example Database Configuration**:
+   - Changed default from SQLite to MySQL
+   - Made Docker Compose settings primary
+   - Added comments for Local Development and SQLite alternatives
+   - Clarified DB_ROOT_PASSWORD, DB_USERNAME, DB_PASSWORD for Docker
+
+3. **API.md Cleanup**:
+   - Removed duplicate `/auth/*` endpoints (176 lines removed)
+   - Updated implementation status from "27 of 54 (50%)" to "38 of 74 (51%)"
+   - All endpoints now match routes/api.php correctly
+
+4. **DEVELOPER_GUIDE.md Fix**:
+   - Removed `php artisan key:generate` command
+   - Added comment that no key:generate command is needed in HyperVel
+
+5. **INDEX.md Update**:
+   - Updated last updated date from January 9, 2026 to January 10, 2026
+
+#### Benefits
+
+- **Clarity**: New developers can start correctly with Docker
+- **Accuracy**: API documentation matches actual routes
+- **Correctness**: Removed non-existent commands that would fail
+- **Consistency**: Documentation aligns with actual implementation
+
+#### Dependencies
+
+None (independent task)
+
+---
+
 ### [TASK-312] Integration Hardening - External Service Resilience
 
 **Feature**: Integration Enhancement

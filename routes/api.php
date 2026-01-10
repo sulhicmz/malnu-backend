@@ -33,11 +33,9 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
     Route::any('/', [IndexController::class, 'index']);
 
     Route::prefix('attendance')->group(function () {
-        // Staff Attendance Routes
         Route::apiResource('staff-attendances', StaffAttendanceController::class);
         Route::post('staff-attendances/mark-attendance', [StaffAttendanceController::class, 'markAttendance']);
 
-        // Leave Management Routes
         Route::apiResource('leave-types', LeaveTypeController::class);
         Route::apiResource('leave-requests', LeaveRequestController::class);
         Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
@@ -49,34 +47,28 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
 Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
     Route::apiResource('students', StudentController::class);
     
-    // Teacher Management Routes
     Route::apiResource('teachers', TeacherController::class);
-    });
 });
 
 // Calendar and Event Management Routes (protected)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
-        // Calendar Management
-        Route::post('calendars', [CalendarController::class, 'createCalendar']);
-        Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
-        Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar']);
-        Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar']);
+        Route::group(['middleware' => ['role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+            Route::post('calendars', [CalendarController::class, 'createCalendar']);
+            Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
+            Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar']);
+            Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar']);
+        });
         
-        // Event Management
         Route::post('events', [CalendarController::class, 'createEvent']);
         Route::get('events/{id}', [CalendarController::class, 'getEvent']);
         Route::put('events/{id}', [CalendarController::class, 'updateEvent']);
         Route::delete('events/{id}', [CalendarController::class, 'deleteEvent']);
         Route::get('calendars/{calendarId}/events', [CalendarController::class, 'getEventsByDateRange']);
-        
-        // Event Registration
         Route::post('events/{eventId}/register', [CalendarController::class, 'registerForEvent']);
         
-        // Calendar Sharing
         Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
         
-        // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
     });
 });

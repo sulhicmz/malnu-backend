@@ -97,13 +97,13 @@ const StudentData: React.FC = () => {
             className="w-full border-0 focus:outline-none focus:ring-0 text-sm text-gray-600 ml-2"
           />
         </div>
-        <div className="flex space-x-2">
-          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div className="flex flex-wrap gap-2">
+          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100">
             <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
             Filter
           </button>
           <label htmlFor="class-filter" className="sr-only">Filter berdasarkan kelas</label>
-          <select id="class-filter" className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select id="class-filter" className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]">
             <option value="">Semua Kelas</option>
             <option value="X-A">X-A</option>
             <option value="X-B">X-B</option>
@@ -112,7 +112,7 @@ const StudentData: React.FC = () => {
             <option value="XII-A">XII-A</option>
             <option value="XII-B">XII-B</option>
           </select>
-          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 text-sm font-medium flex items-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100">
             <Download className="h-4 w-4 mr-2" aria-hidden="true" />
             Export
           </button>
@@ -135,27 +135,27 @@ const StudentData: React.FC = () => {
 
       {/* Students Table */}
       {!loading && !error && (
-        <div className="overflow-x-auto shadow-sm rounded-lg">
+        <div className="overflow-x-auto shadow-sm rounded-lg -mx-4 md:mx-0 border border-gray-200">
           <table className="min-w-full divide-y divide-gray-200 bg-white" aria-label="Students table">
             <caption className="sr-only">Daftar siswa dengan informasi lengkap</caption>
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Siswa
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   NISN
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Kelas
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Tahun Masuk
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Status
                 </th>
-                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-4 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Aksi
                 </th>
               </tr>
@@ -163,7 +163,7 @@ const StudentData: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {students.map((student, index) => (
                 <tr key={student.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         {student.avatar ? (
@@ -174,22 +174,22 @@ const StudentData: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="ml-4">
+                      <div className="ml-3 md:ml-4">
                         <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">{student.email}</div>
+                        <div className="text-sm text-gray-500 hidden md:block">{student.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
                     {student.nisn}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
                     {student.class}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
                     {student.enrollmentYear}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       student.status === 'active' ? 'bg-green-100 text-green-800' :
                       student.status === 'inactive' ? 'bg-red-100 text-red-800' :
@@ -200,7 +200,7 @@ const StudentData: React.FC = () => {
                        'Cuti'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                  <td className="px-4 md:px-6 py-3 md:py-4 whitespace-nowrap text-right text-sm font-medium relative">
                     <button
                       ref={(el) => menuButtonRefs.current[index] = el}
                       onClick={() => toggleActionMenu(index)}
@@ -259,39 +259,39 @@ const StudentData: React.FC = () => {
 
       {/* Pagination */}
       {!loading && !error && students.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="text-sm text-gray-500 text-center sm:text-left">
             Menampilkan {students.length} dari {students.length} siswa
           </div>
-          <nav className="flex space-x-2" aria-label="Pagination">
+          <nav className="flex flex-wrap justify-center sm:justify-start space-x-2" aria-label="Pagination">
             <button
               disabled
-              className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100"
               aria-label="Halaman sebelumnya"
             >
               Sebelumnya
             </button>
             <button
-              className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-blue-800"
               aria-current="page"
               aria-label="Halaman 1"
             >
               1
             </button>
             <button
-              className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100"
               aria-label="Halaman 2"
             >
               2
             </button>
             <button
-              className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100"
               aria-label="Halaman 3"
             >
               3
             </button>
             <button
-              className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100"
               aria-label="Halaman selanjutnya"
             >
               Selanjutnya

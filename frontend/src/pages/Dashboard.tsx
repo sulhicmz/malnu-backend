@@ -22,23 +22,23 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <main className="space-y-6">
-      <header className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard Sekolah</h1>
-        <div className="flex items-center space-x-2">
+    <main className="space-y-4 md:space-y-6">
+      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800">Dashboard Sekolah</h1>
+        <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="year-select" className="sr-only">Pilih tahun ajaran</label>
           <select id="year-select" className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option>Tahun Ajaran 2024/2025</option>
             <option>Tahun Ajaran 2023/2024</option>
           </select>
-          <button className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <button className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-blue-800">
             Export Data
           </button>
         </div>
       </header>
 
       {/* Stats Cards */}
-      <section aria-label="Statistik sekolah" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section aria-label="Statistik sekolah" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Siswa"
           value="1,245"
@@ -74,8 +74,8 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* Charts */}
-      <section aria-label="Grafik analitik sekolah" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-5 rounded-lg shadow-sm">
+      <section aria-label="Grafik analitik sekolah" className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-white p-4 md:p-5 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-gray-800">Kehadiran Bulanan</h2>
             <div className="flex items-center space-x-2" role="group" aria-label="Legenda grafik kehadiran">
@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="h-64" role="img" aria-label="Grafik garis kehadiran bulanan. Siswa: 95-97%, Guru: 95-99%">
+          <div className="h-48 md:h-64" role="img" aria-label="Grafik garis kehadiran bulanan. Siswa: 95-97%, Guru: 95-99%">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={attendanceData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -103,7 +103,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow-sm">
+        <div className="bg-white p-4 md:p-5 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-medium text-gray-800">Nilai Rata-Rata Kelas</h2>
             <label htmlFor="semester-select" className="sr-only">Pilih semester</label>
@@ -112,7 +112,7 @@ const Dashboard: React.FC = () => {
               <option>Semester Genap</option>
             </select>
           </div>
-          <div className="h-64" role="img" aria-label="Grafik batang nilai rata-rata kelas. Class A: 85, Class B: 78, Class C: 82, Class D: 88, Class E: 76">
+          <div className="h-48 md:h-64" role="img" aria-label="Grafik batang nilai rata-rata kelas. Class A: 85, Class B: 78, Class C: 82, Class D: 88, Class E: 76">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={gradeData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -127,8 +127,8 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* Recent Activities & Quick Actions */}
-      <section aria-label="Aktivitas dan aksi cepat" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-5 rounded-lg shadow-sm">
+      <section aria-label="Aktivitas dan aksi cepat" className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="lg:col-span-2 bg-white p-4 md:p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aktivitas Terbaru</h2>
           <ul className="space-y-4" role="list">
             {activities.map((activity, index) => (
@@ -148,7 +148,7 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        <div className="bg-white p-5 rounded-lg shadow-sm">
+        <div className="bg-white p-4 md:p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aksi Cepat</h2>
           <ul className="space-y-3" role="list">
             <li>
@@ -196,20 +196,20 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, icon, color }) => {
   return (
-    <article className="bg-white p-6 rounded-lg shadow-sm">
+    <article className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-start">
-        <div>
+        <div className="flex-1">
           <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-800 my-1">{value}</h3>
+          <h3 className="text-xl md:text-2xl font-bold text-gray-800 my-1">{value}</h3>
           <div className="flex items-center">
             <span className={`text-xs ${isIncrease ? 'text-green-600' : 'text-red-600'} font-medium flex items-center`} aria-label={`Perubahan ${isIncrease ? 'naik' : 'turun'} sebesar ${change}`}>
               {isIncrease ? <ArrowUp className="h-3 w-3 mr-1" aria-hidden="true" /> : <ArrowDown className="h-3 w-3 mr-1" aria-hidden="true" />}
               {change}
             </span>
-            <span className="text-xs text-gray-500 ml-1">vs bulan lalu</span>
+            <span className="text-xs text-gray-500 ml-1 hidden sm:inline">vs bulan lalu</span>
           </div>
         </div>
-        <div className={`p-3 rounded-full bg-${color}-100`} aria-hidden="true">
+        <div className={`p-2 md:p-3 rounded-full bg-${color}-100`} aria-hidden="true">
           {icon}
         </div>
       </div>

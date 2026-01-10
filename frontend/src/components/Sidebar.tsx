@@ -56,7 +56,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col bg-white border-r" role="navigation" aria-label="Main navigation">
-      <div className="p-4 border-b">
+      <div className="p-4 md:p-6 border-b hidden md:block">
         <h1 className="flex items-center justify-center text-xl font-bold text-gray-800">
           <School className="h-8 w-8 text-blue-600" aria-hidden="true" />
           <span className="sr-only">School Admin</span>
@@ -64,8 +64,8 @@ const Sidebar: React.FC = () => {
         </h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-2">
-        <nav className="space-y-1 px-2" aria-label="Main menu">
+      <div className="flex-1 overflow-y-auto py-2 -webkit-overflow-scrolling:touch">
+        <nav className="space-y-1 px-2 md:px-4" aria-label="Main menu">
           {/* Dashboard Section */}
           <div ref={(el) => menuRefs.current['dashboard'] = el}>
             <button
@@ -73,7 +73,7 @@ const Sidebar: React.FC = () => {
               onKeyDown={(e) => handleMenuKeyDown(e, 'dashboard')}
               aria-expanded={openMenus.dashboard}
               aria-controls="dashboard-menu"
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full flex items-center justify-between px-3 py-3 md:py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-gray-100"
             >
               <div className="flex items-center">
                 <LayoutDashboard className="h-5 w-5 text-gray-500" aria-hidden="true" />
@@ -521,14 +521,14 @@ const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      <div className="p-4 border-t">
+      <div className="p-4 md:p-6 border-t">
         <div className="flex items-center" role="button" tabIndex={0} aria-label="User profile menu">
-          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center" aria-hidden="true">
-            <User className="h-5 w-5 text-white" />
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500 flex items-center justify-center" aria-hidden="true">
+            <User className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-700">Admin User</p>
-            <p className="text-xs text-gray-500">admin@school.com</p>
+            <p className="text-xs text-gray-500 hidden md:block">admin@school.com</p>
           </div>
         </div>
       </div>

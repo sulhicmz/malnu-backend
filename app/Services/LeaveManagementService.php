@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\LeaveManagementServiceInterface;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\SchoolManagement\Staff;
 
-class LeaveManagementService
+class LeaveManagementService implements LeaveManagementServiceInterface
 {
     /**
      * Calculate leave balance for a staff member and leave type for the current year.

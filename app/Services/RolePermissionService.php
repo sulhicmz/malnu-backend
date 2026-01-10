@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-class RolePermissionService
+use App\Contracts\RolePermissionServiceInterface;
+
+class RolePermissionService implements RolePermissionServiceInterface
 {
     /**
      * Get all roles.

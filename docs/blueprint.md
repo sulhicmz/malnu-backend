@@ -67,6 +67,55 @@
 - Enables dependency injection and testability
 - Follows Dependency Inversion Principle
 
+**Implemented Service Interfaces**:
+- `CalendarServiceInterface` - Calendar and event management
+- `LeaveManagementServiceInterface` - Leave balance and request processing
+- `FileUploadServiceInterface` - File validation and sanitization
+- `BackupServiceInterface` - Backup and restore operations
+- `RolePermissionServiceInterface` - Role-based access control
+- `AuthServiceInterface` - Authentication and authorization
+- `JWTServiceInterface` - JWT token generation and validation
+- `TokenBlacklistServiceInterface` - Token revocation management
+
+**Interface Implementation Pattern**:
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Contracts\ServiceInterface;
+
+class Service implements ServiceInterface
+{
+    public function methodName(): ReturnType
+    {
+    }
+}
+```
+
+**Controller Dependency Injection Pattern**:
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use App\Contracts\ServiceInterface;
+
+class Controller extends BaseController
+{
+    private ServiceInterface $service;
+
+    public function __construct(ServiceInterface $service)
+    {
+        $this->service = $service;
+    }
+}
+```
+
 #### Domain Organization
 ```
 app/Models/

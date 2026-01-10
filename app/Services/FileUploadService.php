@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\FileUploadServiceInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-class FileUploadService
+class FileUploadService implements FileUploadServiceInterface
 {
     private array $allowedMimeTypes = [
         // Images

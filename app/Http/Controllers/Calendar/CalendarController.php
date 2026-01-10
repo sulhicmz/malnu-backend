@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Calendar;
 
+use App\Contracts\CalendarServiceInterface;
 use App\Http\Controllers\AbstractController;
 use App\Http\Middleware\JWTMiddleware;
-use App\Services\CalendarService;
 use DateTime;
 use Exception;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -23,9 +23,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 class CalendarController extends AbstractController
 {
-    private CalendarService $calendarService;
+    private CalendarServiceInterface $calendarService;
 
-    public function __construct(CalendarService $calendarService)
+    public function __construct(CalendarServiceInterface $calendarService)
     {
         $this->calendarService = $calendarService;
     }

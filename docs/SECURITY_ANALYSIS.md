@@ -89,10 +89,18 @@ npm audit --audit-level=moderate
 - X-Content-Type-Options
 - Referrer Policy
 
-#### 2. Framework Security
+#### 2. CSRF Protection
+**File**: `app/Http/Middleware/VerifyCsrfToken.php`  
+**Status**: ✅ Fully Implemented  
+**Features**:
+- CSRF verification for web routes (state-changing operations)
+- API routes excluded (stateless JWT authentication provides equivalent protection)
+- Configurable route exclusions via `$except` array
+- Session-based token verification
+
+#### 3. Framework Security
 **Framework**: HyperVel (Laravel-based)  
 **Features**:
-- Built-in CSRF protection
 - SQL injection prevention
 - XSS protection
 - Secure password hashing

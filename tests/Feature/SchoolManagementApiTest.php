@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\User;
+use App\Models\Role;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SchoolManagementApiTest extends TestCase
@@ -15,9 +16,16 @@ class SchoolManagementApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Create a test user
+
+        // Create Super Admin role if it doesn't exist
+        \App\Models\Role::firstOrCreate(
+            ['name' => 'Super Admin', 'guard_name' => 'web'],
+            ['guard_name' => 'web']
+        );
+
+        // Create a test user and assign Super Admin role
         $this->user = User::factory()->create();
+        $this->user->assignRole('Super Admin');
     }
 
     public function test_student_api_endpoints()

@@ -1162,10 +1162,44 @@ Models not standardized for UUID primary keys. Inconsistent implementation acros
 **Priority**: P2
 **Estimated**: 3-5 days
 **Started**: January 8, 2026
+**Updated**: January 10, 2026
 
 #### Description
 
 9 GitHub Actions workflows causing over-automation complexity. Need consolidation to 3 essential workflows.
+
+**Note**: OpenCode autonomous system (on-push, on-pull, oc-*.yml) is the primary development workflow. Traditional CI/CD workflows (ci.yml, security-audit.yml, docs.yml) are supplementary and provide traditional testing/building/validation. Both systems serve different purposes and should coexist.
+
+**IMPORTANT**: CI/CD Issues Found (January 10, 2026):
+
+1. **workflow-monitor permission failure**:
+   - Issue: Missing `actions: write` permission
+   - Effect: Cannot trigger on-push and on-pull workflows (HTTP 403 error)
+   - Fix: Add `actions: write` permission to workflow-monitor.yml
+
+2. **OpenCode workflow timeouts** (oc-issue-solver, oc-maintainer, oc-pr-handler, oc-problem-finder, oc-researcher, oc-cf-supabase):
+   - Issue: Step timeout of 20 minutes too short for complex operations
+   - Effect: OpenCode agent times out before completing work
+   - Fix: Increase step timeout from 20 to 35 minutes (leaves 5 min buffer for 40 min job timeout)
+
+3. **Workflow file modification restriction**:
+   - Issue: GITHUB_TOKEN lacks `workflows: write` permission to push workflow file changes
+   - Effect: Cannot commit workflow permission/timeout fixes via automated agents
+   - Fix: Requires repository-level permission update (manual admin action)
+
+#### Acceptance Criteria
+
+- [x] Consolidate to 3 workflows:
+  - [x] CI/CD Pipeline (test + build + deploy)
+  - [x] Security Audit (daily vulnerability scanning)
+  - [x] Documentation Generation
+  - [x] Document workflow triggers and conditions
+  - [x] Test all consolidated workflows
+  - [ ] Remove deprecated workflows
+  - [x] Update documentation (CI/CD Standards added to blueprint.md)
+  - [ ] Fix workflow-monitor permissions
+  - [ ] Fix OpenCode workflow timeouts
+  - [ ] Fix workflow file modification permissions
 
 #### Acceptance Criteria
 

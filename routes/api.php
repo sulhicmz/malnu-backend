@@ -29,7 +29,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 });
 
 // Attendance and Leave Management Routes (protected)
-Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
     Route::any('/', [IndexController::class, 'index']);
 
     Route::prefix('attendance')->group(function () {
@@ -46,13 +46,11 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 });
 
 // School Management Routes (protected)
-Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
-    Route::prefix('school')->group(function () {
-        // Student Management Routes
-        Route::apiResource('students', StudentController::class);
-        
-        // Teacher Management Routes
-        Route::apiResource('teachers', TeacherController::class);
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+    Route::apiResource('students', StudentController::class);
+    
+    // Teacher Management Routes
+    Route::apiResource('teachers', TeacherController::class);
     });
 });
 

@@ -1,0 +1,182 @@
+# CODEOWNERS File for Malnu Backend
+#
+# This file defines who owns and must approve changes to different parts of the codebase.
+# Owners are listed as GitHub usernames (e.g., @username).
+#
+# Format:
+#   <file-pattern> <owner1> <owner2> ...
+#
+# Patterns:
+#   - Use * for wildcard (matches any string)
+#   - Use /** for recursive directory matching
+#   - Lines starting with # are comments
+#
+# Ownership Levels:
+#   - Single owner: That person must approve changes
+#   - Multiple owners: Any one of them can approve
+#   - @team: All members of the team can approve
+
+# ============================================================
+# REPOSITORY-LEVEL OWNERSHIP
+# ============================================================
+# All changes to the repository require approval from maintainers
+* @sulhicmz
+
+# ============================================================
+# CORE SYSTEM FILES
+# ============================================================
+
+# Configuration and setup
+/config/ @sulhicmz
+/.env.example @sulhicmz
+/composer.json @sulhicmz
+/docker-compose.yml @sulhicmz
+/phpstan.neon @sulhicmz
+/phpunit.xml.dist @sulhicmz
+
+# Build and deployment
+/.github/ @sulhicmz
+/.gitignore @sulhicmz
+/.dockerignore @sulhicmz
+/artisan @sulhicmz
+
+# Root documentation
+/README.md @sulhicmz
+/LICENSE @sulhicmz
+/SECURITY.md @sulhicmz
+/CODEOWNERS @sulhicmz
+
+# ============================================================
+# APPLICATION CORE
+# ============================================================
+
+# Application structure
+/bootstrap/ @sulhicmz
+/app/Providers/ @sulhicmz
+/app/Contracts/ @sulhicmz
+/app/Events/ @sulhicmz
+/app/Listeners/ @sulhicmz
+/app/Exceptions/ @sulhicmz
+
+# Routes
+/routes/ @sulhicmz
+
+# Authentication & Authorization
+/app/Models/User.php @sulhicmz
+/app/Models/Role.php @sulhicmz
+/app/Models/Permission.php @sulhicmz
+/app/Http/Middleware/ @sulhicmz
+/app/Http/Controllers/Auth/ @sulhicmz
+
+# ============================================================
+# BUSINESS DOMAINS - MODULES
+# ============================================================
+
+# AI Assistant Module
+/app/Models/AIAssistant/ @sulhicmz
+/app/Http/Controllers/AIAssistant/ @sulhicmz
+
+# Attendance Module
+/app/Models/Attendance/ @sulhicmz
+/app/Http/Controllers/Attendance/ @sulhicmz
+
+# Calendar Module
+/app/Models/Calendar/ @sulhicmz
+/app/Http/Controllers/Calendar/ @sulhicmz
+
+# Career Development Module
+/app/Models/CareerDevelopment/ @sulhicmz
+/app/Http/Controllers/CareerDevelopment/ @sulhicmz
+
+# Digital Library Module
+/app/Models/DigitalLibrary/ @sulhicmz
+/app/Http/Controllers/DigitalLibrary/ @sulhicmz
+
+# E-Learning Module
+/app/Models/ELearning/ @sulhicmz
+/app/Http/Controllers/ELearning/ @sulhicmz
+
+# Grading Module
+/app/Models/Grading/ @sulhicmz
+/app/Http/Controllers/Grading/ @sulhicmz
+
+# Monetization Module
+/app/Models/Monetization/ @sulhicmz
+/app/Http/Controllers/Monetization/ @sulhicmz
+
+# Online Exam Module
+/app/Models/OnlineExam/ @sulhicmz
+/app/Http/Controllers/OnlineExam/ @sulhicmz
+
+# PPDB (Admission System) Module
+/app/Models/PPDB/ @sulhicmz
+/app/Http/Controllers/PPDB/ @sulhicmz
+
+# Parent Portal Module
+/app/Models/ParentPortal/ @sulhicmz
+/app/Http/Controllers/ParentPortal/ @sulhicmz
+
+# School Management Module
+/app/Models/SchoolManagement/ @sulhicmz
+/app/Http/Controllers/SchoolManagement/ @sulhicmz
+
+# ============================================================
+# SYSTEM & INFRASTRUCTURE
+# ============================================================
+
+# System models and services
+/app/Models/System/ @sulhicmz
+/app/Models/Logs/ @sulhicmz
+/app/Services/ @sulhicmz
+/app/Traits/ @sulhicmz
+/app/Console/ @sulhicmz
+
+# Database
+/database/ @sulhicmz
+
+# Public assets
+/public/ @sulhicmz
+
+# Storage
+/storage/ @sulhicmz
+
+# Resources
+/resources/ @sulhicmz
+
+# ============================================================
+# DOCUMENTATION
+# ============================================================
+
+# All documentation
+/docs/ @sulhicmz
+
+# ============================================================
+# FRONTEND
+# ============================================================
+
+# Frontend code
+/frontend/ @sulhicmz
+
+# ============================================================
+# TESTING
+# ============================================================
+
+# Test files
+/tests/ @sulhicmz
+/.php-cs-fixer.php @sulhicmz
+
+# ============================================================
+# NOTES
+# ============================================================
+#
+# This CODEOWNERS file is a starting point. As the project grows
+# and new contributors join, ownership can be refined by:
+#
+# 1. Adding specific maintainers for each module/domain
+# 2. Creating GitHub teams for cross-functional areas
+# 3. Adjusting ownership based on team expertise and capacity
+#
+# To update this file:
+# - Edit directly and open a pull request
+# - Discuss ownership changes with the team
+# - Consider security implications of ownership changes

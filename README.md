@@ -72,6 +72,12 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 - **Financial Management** - Fee management and billing
 - **E-Learning Platform** - Online learning resources
 
+## 🔐 Security
+
+We take security seriously. For information about:
+- Security policy and vulnerability reporting: **[Security Policy](SECURITY.md)**
+- Security assessment and current status: **[Security Analysis](docs/SECURITY_ANALYSIS.md)**
+
 ## 📊 Project Status
 
 **Repository Health**: Improving (Critical issues being addressed)

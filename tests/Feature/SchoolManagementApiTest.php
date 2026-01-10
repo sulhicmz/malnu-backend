@@ -15,9 +15,12 @@ class SchoolManagementApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user
         $this->user = User::factory()->create();
+
+        // Assign Super Admin role to test user
+        $this->user->assignRole('Super Admin');
     }
 
     public function test_student_api_endpoints()

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -36,6 +37,15 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         // Staff Attendance Routes
         Route::apiResource('staff-attendances', StaffAttendanceController::class);
         Route::post('staff-attendances/mark-attendance', [StaffAttendanceController::class, 'markAttendance']);
+
+        // Student Attendance Routes
+        Route::post('student/mark', [AttendanceController::class, 'markAttendance']);
+        Route::post('student/bulk-mark', [AttendanceController::class, 'markBulkAttendance']);
+        Route::get('student/{id}', [AttendanceController::class, 'getStudentAttendance']);
+        Route::get('student/{id}/statistics', [AttendanceController::class, 'getAttendanceStatistics']);
+        Route::get('class/{id}', [AttendanceController::class, 'getClassAttendance']);
+        Route::get('class/{id}/report', [AttendanceController::class, 'getAttendanceReport']);
+        Route::get('chronic-absentees', [AttendanceController::class, 'getChronicAbsentees']);
 
         // Leave Management Routes
         Route::apiResource('leave-types', LeaveTypeController::class);

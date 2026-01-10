@@ -38,14 +38,18 @@ class TeacherController extends BaseController
             $cacheKey = "teachers:index:{$subjectId}:{$classId}:{$status}:{$search}:{$page}:{$limit}";
 
             $teachers = $this->cache->remember($cacheKey, CacheService::TTL_SHORT, function () use ($subjectId, $classId, $status, $search, $page, $limit) {
-                $query = Teacher::with(['subject', 'class']);
+                $query = Teacher::with(['classSubjects']);
 
                 if ($subjectId) {
-                    $query->where('subject_id', $subjectId);
+                    $query->whereHas('classSubjects', function ($q) use ($subjectId) {
+                        $q->where('subject_id', $subjectId);
+                    });
                 }
 
                 if ($classId) {
-                    $query->where('class_id', $classId);
+                    $query->whereHas('classSubjects', function ($q) use ($classId) {
+                        $q->where('class_id', $classId);
+                    });
                 }
 
                 if ($status) {
@@ -94,7 +98,9 @@ class TeacherController extends BaseController
             }
 
             if (isset($data['email']) && $data['email']) {
-                $existingTeacher = Teacher::where('email', $data['email'])->first();
+                $existingTeacher = Teacher::with('user')->whereHas('user', function ($q) use ($data) {
+                    $q->where('email', $data['email']);
+                })->first();
                 if ($existingTeacher) {
                     $errors['email'] = ['The email has already been taken.'];
                 }
@@ -121,7 +127,7 @@ class TeacherController extends BaseController
             $cacheKey = "teacher:{$id}";
 
             $teacher = $this->cache->remember($cacheKey, CacheService::TTL_LONG, function () use ($id) {
-                return Teacher::with(['subject', 'class'])->find($id);
+                return Teacher::with(['classSubjects'])->find($id);
             });
 
             if (! $teacher) {
@@ -152,8 +158,10 @@ class TeacherController extends BaseController
                 }
             }
 
-            if (isset($data['email']) && $data['email'] && $data['email'] !== $teacher->email) {
-                $existingTeacher = Teacher::where('email', $data['email'])->first();
+            if (isset($data['email']) && $data['email'] && $data['email'] !== $teacher->user->email) {
+                $existingTeacher = Teacher::with('user')->whereHas('user', function ($q) use ($data) {
+                    $q->where('email', $data['email']);
+                })->where('id', '!=', $id)->first();
                 if ($existingTeacher) {
                     return $this->validationErrorResponse(['email' => ['The email has already been taken.']]);
                 }

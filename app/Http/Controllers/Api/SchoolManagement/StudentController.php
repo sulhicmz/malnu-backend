@@ -89,7 +89,9 @@ class StudentController extends BaseController
             }
 
             if (isset($data['email']) && $data['email']) {
-                $existingStudent = Student::where('email', $data['email'])->first();
+                $existingStudent = Student::with('user')->whereHas('user', function ($q) use ($data) {
+                    $q->where('email', $data['email']);
+                })->first();
                 if ($existingStudent) {
                     $errors['email'] = ['The email has already been taken.'];
                 }
@@ -147,8 +149,10 @@ class StudentController extends BaseController
                 }
             }
 
-            if (isset($data['email']) && $data['email'] && $data['email'] !== $student->email) {
-                $existingStudent = Student::where('email', $data['email'])->first();
+            if (isset($data['email']) && $data['email'] && $data['email'] !== $student->user->email) {
+                $existingStudent = Student::with('user')->whereHas('user', function ($q) use ($data) {
+                    $q->where('email', $data['email']);
+                })->where('id', '!=', $id)->first();
                 if ($existingStudent) {
                     return $this->validationErrorResponse(['email' => ['The email has already been taken.']]);
                 }

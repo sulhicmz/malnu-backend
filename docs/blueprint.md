@@ -254,6 +254,30 @@ tests/
   - [ ] No security issues
   - [ ] Performance impact considered
 
+### CI/CD Standards
+
+#### Workflow Permissions
+- Workflows that trigger other workflows MUST have `actions: write` permission
+- Workflows that modify workflow files MUST have `workflows: write` permission
+- GITHUB_TOKEN must be properly configured with required permissions
+
+#### Workflow Timeouts
+- Step-level timeout: 35 minutes for OpenCode agent workflows (allows complex operations)
+- Job-level timeout: 40 minutes for all workflows
+- Timeout hierarchy: Step timeout takes precedence over job timeout
+
+#### CI Health Monitoring
+- Check recent workflow runs for failures before starting new work
+- Failed workflows have priority over new features
+- Monitor for timeout patterns (indicates step timeout too short)
+
+#### Anti-Patterns (NEVER Do)
+- ❌ Workflow dispatch without `actions: write` permission
+- ❌ Modifying workflow files without `workflows: write` permission
+- ❌ Step timeout shorter than job timeout (causes confusion)
+- ❌ Ignoring failing CI builds (red builds = ONLY priority)
+- ❌ Committing without verifying workflows pass green
+
 ## Anti-Patterns
 
 ### Never Do

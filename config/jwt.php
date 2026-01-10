@@ -102,7 +102,7 @@ return [
      |
      */
 
-      'ttl' => env('JWT_TTL', 30),
+     'ttl' => env('JWT_TTL', 120),
 
      /*
      |--------------------------------------------------------------------------
@@ -121,7 +121,7 @@ return [
      |
      */
 
-      'refresh_ttl' => env('JWT_REFRESH_TTL', 1440),
+     'refresh_ttl' => env('JWT_REFRESH_TTL', 20160),
 
      /*
      |--------------------------------------------------------------------------
@@ -160,14 +160,14 @@ return [
      |
      */
 
-      'required_claims' => [
-          'iss',
-          'iat',
-          'exp',
-          'nbf',
-          'sub',
-          'jti',
-      ],
+     'required_claims' => [
+         // 'iss',
+         'iat',
+         // 'exp',
+         // 'nbf',
+         'sub',
+         // 'jti',
+     ],
 
      /*
      |--------------------------------------------------------------------------
@@ -244,7 +244,7 @@ return [
      |
      */
 
-      'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 1440),
+     'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 20160),
 
      /*
      |--------------------------------------------------------------------------

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Service for the Hyperf application
   app:
@@ -39,46 +37,40 @@ services:
     # env_file:
     #   - .env
 
-    # Uncomment the lines below to link the app service to a database service
-    # depends_on:
-    #   - db # Link to the database service defined below
-
-    # Link to the Redis service (uncomment database service above and add to list if needed)
+    # Link to database and Redis services
     depends_on:
-      - redis # Link to the Redis service defined below
+      - db
+      - redis
 
-  # # Example MySQL Database Service (Uncomment to use)
-  # db:
-  #   image: mysql:8.0 # Use an official MySQL image
-  #   ports:
-  #     - "3306:3306" # Map host port 3306 to container port 3306
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: your_root_password # !! Change this in production !!
-  #     MYSQL_DATABASE: hyperf # Database name
-  #     MYSQL_USER: hyperf # Database user
-  #     MYSQL_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - dbdata:/var/lib/mysql # Persist database data
-
-  # # Example PostgreSQL Database Service (Uncomment to use)
-  # db:
-  #   image: postgres:13 # Use an official PostgreSQL image
-  #   ports:
-  #     - "5432:5432" # Map host port 5432 to container port 5432
-  #   environment:
-  #     POSTGRES_DB: hyperf # Database name
-  #     POSTGRES_USER: hyperf # Database user
-  #     POSTGRES_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data # Persist database data
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-malnu_root_password_2026}
+      MYSQL_DATABASE: ${DB_DATABASE:-malnu}
+      MYSQL_USER: ${DB_USERNAME:-malnu_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-malnu_secure_password_2026}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - dbdata:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-malnu_root_password_2026}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # Redis Service for caching, sessions, and queues
   redis:
-    image: redis:7-alpine # Use Redis 7 Alpine image for better performance
+    image: redis:7-alpine
     ports:
-      - "6379:6379" # Map host port 6379 to container port 6379
+      - "6379:6379"
     volumes:
-      - redisdata:/data # Persist Redis data
+      - redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -86,9 +78,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-# # Define volumes for data persistence (Uncomment if using database services)
-# volumes:
-#   dbdata: # Volume for MySQL data
-#   pgdata: # Volume for PostgreSQL data
+# Define volumes for data persistence
 volumes:
-  redisdata: # Volume for Redis data persistence
+  dbdata:
+  redisdata:

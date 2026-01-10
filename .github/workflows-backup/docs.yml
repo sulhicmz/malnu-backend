@@ -1,0 +1,110 @@
+name: Documentation Generation
+
+on:
+  push:
+    branches: [ main, agent ]
+    paths:
+      - 'docs/**'
+      - 'app/**'
+      - 'routes/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6:00 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  generate-docs:
+    name: Generate Documentation
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: redis, pdo_mysql, mbstring, json, tokenizer
+          tools: composer:v2
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Generate API Documentation
+        run: |
+          # Generate API documentation using phpDocumentor or similar tool
+          # Example (if using phpDocumentor):
+          # php ./vendor/bin/phpdoc -d app -t docs/api --title "Malnu Backend API"
+          echo "API documentation generation placeholder"
+
+      - name: Generate Database Documentation
+        run: |
+          # Generate database schema documentation
+          php artisan migrate:status --json > docs/database/migration-status.json
+          echo "Database documentation generated"
+
+      - name: Generate Route Documentation
+        run: |
+          # Generate route list documentation
+          php artisan route:list --json > docs/routes/routes.json
+          echo "Route documentation generated"
+
+      - name: Generate Test Coverage Report
+        run: |
+          # Run tests with coverage
+          composer test -- --coverage-clover coverage.xml --coverage-html=docs/coverage
+          echo "Test coverage report generated"
+
+      - name: Upload Coverage to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: docs/coverage/
+          retention-days: 7
+
+      - name: Check for Changes
+        id: verify-diff
+        run: |
+          git diff --quiet docs/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit Documentation
+        if: steps.verify-diff.outputs.changed == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git commit -m "docs: auto-generated documentation [skip ci]" || exit 0
+          git push
+
+      - name: Generate CHANGELOG
+        run: |
+          # Generate changelog from recent commits
+          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD > CHANGELOG_LATEST.md
+          echo "Changelog generated"
+
+      - name: Create Documentation PR
+        if: steps.verify-diff.outputs.changed == 'true' && github.ref != 'refs/heads/main'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: "docs: auto-generated documentation update"
+          body: "Automated documentation update from documentation generation workflow."
+          branch: docs/update
+          delete-branch: true

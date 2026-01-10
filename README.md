@@ -88,6 +88,11 @@ We welcome contributions! Please see [CONTRIBUTING.md](docs/CONTRIBUTING.md) for
 - Code style standards
 - Pull request process
 
+## 🔒 Security
+
+- **[Security Policy](SECURITY.md)** - Report vulnerabilities and security practices
+- **[Security Analysis](docs/SECURITY_ANALYSIS.md)** - Comprehensive security assessment
+
 ## 📝 License
 
 See [LICENSE](LICENSE) file for details.

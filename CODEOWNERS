@@ -1,0 +1,211 @@
+# Code Owners File
+
+# This file defines the code ownership structure for the Malnu Backend project.
+# Owners listed here will be automatically requested for review when pull requests
+# modify files matching the patterns below.
+#
+# Format: pattern @owner1 @owner2 @owner3
+# - Patterns use .gitignore syntax (see: https://git-scm.com/docs/gitignore)
+# - Multiple owners can be specified
+# - Use * to match any file in a directory
+# - Use ** to match recursively
+
+# ====================
+# Repository Owners
+# ====================
+
+# Default fallback - repository maintainer
+* @sulhicmz
+
+# ====================
+# Core Application
+# ====================
+
+# Root configuration files
+*.md @sulhicmz
+.editorconfig @sulhicmz
+.gitattributes @sulhicmz
+
+# Configuration
+config/ @sulhicmz
+.env.example @sulhicmz
+
+# Entry points
+composer.json @sulhicmz
+composer.lock @sulhicmz
+artisan @sulhicmz
+
+# ====================
+# Security
+# ====================
+
+# Security-related files require maintainer review
+SECURITY.md @sulhicmz
+CODEOWNERS @sulhicmz
+
+# Security middleware and authentication
+app/Http/Middleware/JWTMiddleware.php @sulhicmz
+app/Http/Middleware/RoleMiddleware.php @sulhicmz
+app/Http/Middleware/VerifyCsrfToken.php @sulhicmz
+app/Http/Middleware/SecurityHeaders.php @sulhicmz
+
+# Security services
+app/Services/AuthService.php @sulhicmz
+app/Services/JWTService.php @sulhicmz
+app/Services/TokenBlacklistService.php @sulhicmz
+app/Services/PasswordValidator.php @sulhicmz
+
+# Authentication controllers
+app/Http/Controllers/Api/AuthController.php @sulhicmz
+
+# ====================
+# School Management Domain
+# ====================
+
+# School management controllers
+app/Http/Controllers/Api/SchoolManagement/ @sulhicmz
+
+# School management models
+app/Models/School* @sulhicmz
+
+# School management requests
+app/Http/Requests/SchoolManagement/ @sulhicmz
+
+# ====================
+# Attendance Domain
+# ====================
+
+# Attendance controllers
+app/Http/Controllers/Attendance/ @sulhicmz
+
+# Attendance models
+app/Models/Attendance* @sulhicmz
+app/Models/LeaveRequest* @sulhicmz
+
+# Attendance requests
+app/Http/Requests/Attendance/ @sulhicmz
+
+# ====================
+# Calendar Domain
+# ====================
+
+# Calendar controllers
+app/Http/Controllers/Calendar/ @sulhicmz
+
+# Calendar models
+app/Models/Calendar* @sulhicmz
+app/Models/Event* @sulhicmz
+
+# ====================
+# API Routes
+# ====================
+
+# API route definitions
+routes/api.php @sulhicmz
+routes/web.php @sulhicmz
+
+# ====================
+# Database
+# ====================
+
+# Database migrations
+database/migrations/ @sulhicmz
+
+# Database seeders
+database/seeders/ @sulhicmz
+
+# Database factories
+database/factories/ @sulhicmz
+
+# ====================
+# Testing
+# ====================
+
+# All tests
+tests/ @sulhicmz
+
+# PHPUnit configuration
+phpunit.xml @sulhicmz
+
+# ====================
+# Documentation
+# ====================
+
+# All documentation
+docs/ @sulhicmz
+
+# ====================
+# CI/CD
+# ====================
+
+# GitHub workflows
+.github/workflows/ @sulhicmz
+
+# GitHub actions
+.github/actions/ @sulhicmz
+
+# ====================
+# Infrastructure
+# ====================
+
+# Docker configuration
+Dockerfile @sulhicmz
+docker-compose.yml @sulhicmz
+.dockerignore @sulhicmz
+
+# Deployment
+deploy/ @sulhicmz
+
+# ====================
+# Frontend Integration
+# ====================
+
+# Frontend directory (if present)
+frontend/ @sulhicmz
+
+# Public assets
+public/ @sulhicmz
+
+# Resources
+resources/ @sulhicmz
+
+# ====================
+# Dependencies
+# ====================
+
+# Vendor management
+composer.json @sulhicmz
+package.json @sulhicmz
+
+# ====================
+# Special Rules
+# ====================
+
+# Critical changes (high impact areas)
+# These require maintainer approval regardless of other rules
+
+# Authentication and authorization
+app/Http/Controllers/Api/AuthController.php @sulhicmz
+app/Http/Middleware/JWTMiddleware.php @sulhicmz
+app/Http/Middleware/RoleMiddleware.php @sulhicmz
+
+# Security configuration
+config/jwt.php @sulhicmz
+config/auth.php @sulhicmz
+config/session.php @sulhicmz
+
+# Database schema
+database/migrations/create_*.php @sulhicmz
+
+# Service provider bindings
+config/autoload/dependencies.php @sulhicmz
+
+# ====================
+# Notes
+# ====================
+
+# - @sulhicmz is the repository maintainer
+# - All pull requests will automatically request review from the maintainers
+# - Reviewers can approve or request changes on pull requests
+# - This file follows GitHub CODEOWNERS syntax
+# - For more information: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners

@@ -1226,6 +1226,248 @@ Models not standardized for UUID primary keys. Inconsistent implementation acros
 
 ---
 
+### [REFACTOR-001] Standardize Controller Response Patterns
+
+**Feature**: Code Quality Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: Medium
+**Estimated**: 2-3 days
+
+#### Description
+
+Controllers use inconsistent base classes and response patterns, making codebase harder to maintain and reducing benefits of having a unified response structure. Different controllers implement error handling and response formatting differently.
+
+- `LeaveRequestController` extends `BaseController` and uses standardized response methods
+- `LeaveTypeController` extends `Controller` and uses `response()->json()` directly
+- `StaffAttendanceController` extends `Controller` and uses `response()->json()` directly
+- `CalendarController` extends `AbstractController` and uses `$this->response->json()->withStatus()`
+
+#### Acceptance Criteria
+
+- [ ] Update all API controllers to extend `BaseController`
+- [ ] Replace all direct `response()->json()` calls with standardized response methods:
+  - `successResponse($data, $message, $statusCode)`
+  - `errorResponse($message, $errorCode, $details, $statusCode)`
+  - `validationErrorResponse($errors)`
+  - `notFoundResponse($message)`
+  - `unauthorizedResponse($message)`
+  - `forbiddenResponse($message)`
+  - `serverErrorResponse($message)`
+- [ ] Remove `AbstractController` if no longer needed
+- [ ] Remove direct `Controller` usage in API controllers
+- [ ] Verify all controllers follow the same response pattern
+- [ ] Update `docs/blueprint.md` if base class patterns change
+
+#### Technical Details
+
+**Files to Modify**:
+- `app/Http/Controllers/Attendance/LeaveTypeController.php` - Lines 13, 33, 42, 57, 72, 90
+- `app/Http/Controllers/Attendance/StaffAttendanceController.php` - Lines 13, 41, 77, 98, 129, 193
+- `app/Http/Controllers/Calendar/CalendarController.php` - Lines 24, 43, 53, 75, 82, 106, 112, 136, 142, 165, 177, 194, 201, 226, 232, 256, 262, 287, 291, 310, 315, 332, 336, 352, 356, 387, 395, 402
+
+**Example Refactoring**:
+```php
+// Before (LeaveTypeController):
+public function show(string $id): JsonResponse
+{
+    $leaveType = LeaveType::find($id);
+    if (! $leaveType) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Leave type not found',
+        ], 404);
+    }
+    return response()->json([
+        'success' => true,
+        'data' => $leaveType,
+    ]);
+}
+
+// After:
+public function show(string $id)
+{
+    $leaveType = LeaveType::find($id);
+    if (! $leaveType) {
+        return $this->notFoundResponse('Leave type not found');
+    }
+    return $this->successResponse($leaveType);
+}
+```
+
+#### Benefits
+
+- **Consistency**: All API responses follow same structure
+- **Maintainability**: Changes to response format only need to be made once
+- **Reduced Code**: Less boilerplate code across controllers
+- **Standards Compliance**: Follows blueprint's API integration patterns
+
+#### Dependencies**: None (independent refactoring task)
+
+---
+
+### [REFACTOR-002] Create Service Interfaces for Dependency Injection
+
+**Feature**: Architecture Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: Medium
+**Estimated**: 1-2 days
+
+#### Description
+
+Blueprint specifies interface-based design pattern, but several services lack interface contracts. This violates the Dependency Inversion Principle and reduces testability. Services cannot be easily mocked for unit tests.
+
+#### Acceptance Criteria
+
+- [ ] Create `app/Contracts/CalendarServiceInterface.php` for `CalendarService`
+- [ ] Create `app/Contracts/LeaveManagementServiceInterface.php` for `LeaveManagementService`
+- [ ] Create `app/Contracts/FileUploadServiceInterface.php` for `FileUploadService`
+- [ ] Create `app/Contracts/BackupServiceInterface.php` for `BackupService`
+- [ ] Create `app/Contracts/RolePermissionServiceInterface.php` for `RolePermissionService`
+- [ ] Create `app/Contracts/EmailServiceInterface.php` for `EmailService` (if not exists)
+- [ ] Update all services to implement their respective interfaces
+- [ ] Update all controllers to type-hint interfaces instead of concrete classes
+- [ ] Update `docs/blueprint.md` to document all new interfaces
+- [ ] Verify dependency injection works with interface bindings
+
+#### Technical Details
+
+**Files to Create**:
+- `app/Contracts/CalendarServiceInterface.php`
+- `app/Contracts/LeaveManagementServiceInterface.php`
+- `app/Contracts/FileUploadServiceInterface.php`
+- `app/Contracts/BackupServiceInterface.php`
+- `app/Contracts/RolePermissionServiceInterface.php`
+
+**Files to Modify**:
+- `app/Services/CalendarService.php` - Add implements clause
+- `app/Services/LeaveManagementService.php` - Add implements clause
+- `app/Services/FileUploadService.php` - Add implements clause
+- `app/Services/BackupService.php` - Add implements clause
+- `app/Services/RolePermissionService.php` - Add implements clause
+- `app/Http/Controllers/Calendar/CalendarController.php` - Type-hint interface
+- `app/Http/Controllers/Attendance/LeaveRequestController.php` - Type-hint interface
+- `docs/blueprint.md` - Document interface-based design
+
+**Example Interface**:
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Contracts;
+
+interface CalendarServiceInterface
+{
+    public function createCalendar(array $data): ?object;
+    public function getCalendar(string $id): ?object;
+    public function updateCalendar(string $id, array $data): bool;
+    public function deleteCalendar(string $id): bool;
+    public function createEvent(array $data): ?object;
+    public function getEvent(string $id): ?object;
+    // ... other methods
+}
+```
+
+#### Benefits
+
+- **Testability**: Services can be mocked for unit tests
+- **Flexibility**: Implementations can be swapped without breaking dependent code
+- **Maintainability**: Clear contracts define expected behavior
+- **Dependency Inversion**: High-level modules don't depend on low-level implementations
+- **Standards Compliance**: Follows blueprint's "Interface-Based Design" principle
+
+#### Dependencies**: TASK-281 (Authentication system) for consistency
+
+---
+
+### [REFACTOR-003] Extract Hardcoded Configuration Values to Config Files
+
+**Feature**: Code Quality Improvement
+**Status**: Backlog
+**Agent**: 11 Code Reviewer
+**Priority**: Medium
+**Estimated**: 1 day
+
+#### Description
+
+Several services have hardcoded magic numbers and configuration values instead of using config files. This reduces maintainability and makes it difficult to adjust settings without code changes.
+
+#### Acceptance Criteria
+
+- [ ] Create `config/upload.php` for file upload configuration
+- [ ] Create `config/backup.php` for backup service configuration
+- [ ] Create `config/role-permission.php` for RBAC configuration
+- [ ] Create `config/blacklist.php` for token blacklist configuration
+- [ ] Extract hardcoded values from `FileUploadService` to config:
+  - Max file size: 5242880 bytes
+  - Allowed MIME types
+  - Allowed file extensions
+- [ ] Extract hardcoded values from `TokenBlacklistService` to config:
+  - Cache prefix: 'jwt_blacklist:'
+  - Token TTL: 86400 seconds (24 hours)
+  - Clean expired TTL: 86400 seconds
+- [ ] Extract hardcoded values from `BackupService` to config:
+  - Base path: BASE_PATH
+  - Backup directory structure
+  - Default retention count: 5 backups
+- [ ] Extract hardcoded values from `RolePermissionService` to config:
+  - Role definitions
+  - Permission definitions
+  - Role-permission mappings
+- [ ] Update `docs/blueprint.md` with new config file documentation
+- [ ] Update `.env.example` with new configuration options
+
+#### Technical Details
+
+**Files to Create**:
+- `config/upload.php` - File upload settings
+- `config/backup.php` - Backup service settings
+- `config/role-permission.php` - RBAC settings
+- `config/blacklist.php` - Token blacklist settings
+
+**Files to Modify**:
+- `app/Services/FileUploadService.php` - Lines 11-28 (MIME types), 30 (max size)
+- `app/Services/TokenBlacklistService.php` - Lines 15 (prefix), 48, 51, 79 (TTL values)
+- `app/Services/BackupService.php` - Lines 218 (BASE_PATH), default retention count
+- `app/Services/RolePermissionService.php` - Lines 14-20 (roles), 43-66 (permissions), 60-69 (mappings)
+- `.env.example` - Add new configuration options
+- `docs/blueprint.md` - Document configuration files
+
+**Example Config File** (`config/upload.php`):
+```php
+<?php
+declare(strict_types=1);
+
+return [
+    'max_file_size' => (int) env('UPLOAD_MAX_SIZE', 5242880), // 5MB in bytes
+    'allowed_mime_types' => [
+        // Images
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml',
+        // Documents
+        'application/pdf', 'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        // ... more types
+    ],
+    'allowed_extensions' => [
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'zip',
+    ],
+];
+```
+
+#### Benefits
+
+- **Maintainability**: Settings can be changed without code modifications
+- **Environment Flexibility**: Different environments can have different configurations
+- **Documentation**: Config files serve as self-documenting settings
+- **Standards Compliance**: Follows blueprint's "Configuration Management" patterns
+- **Testing**: Easier to test with different configurations
+
+#### Dependencies**: None (independent refactoring task)
+
+---
+
 ### [TASK-225] Optimize GitHub Actions Workflows
 
 **Feature**: DEP-002
@@ -2005,7 +2247,7 @@ Created interface contracts for all authentication-related services to follow De
 | UI/UX | 08 UI/UX | TASK-301 (In Progress) |
 | CI/CD | 09 DevOps | TASK-225 |
 | Docs | 10 Tech Writer | - |
-| Review/Refactor | 11 Code Reviewer | TASK-302, TASK-303, TASK-304, TASK-305 |
+| Review/Refactor | 11 Code Reviewer | TASK-302, TASK-303, TASK-304, TASK-305, REFACTOR-001, REFACTOR-002, REFACTOR-003 |
 
 ---
 

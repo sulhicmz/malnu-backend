@@ -33,22 +33,25 @@ class RoleMiddleware
             return $this->unauthorizedResponse('Invalid or expired token');
         }
 
-        // Check if user has the required role
-        // In a real implementation, this would check the user's roles against the database
-        $hasRole = $this->userHasRole($user, $role);
-        
+        $userModel = User::find($user['id']);
+
+        if (!$userModel) {
+            return $this->unauthorizedResponse('User not found');
+        }
+
+        $hasRole = $this->userHasRole($userModel, $role);
+
         if (!$hasRole) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
         return $next($request);
     }
-    
+
     private function userHasRole($user, $requiredRole)
     {
-        // In a real implementation, this would query the database to check user roles
-        // For now, we'll return true for demonstration purposes
-        return true;
+        $requiredRoles = explode('|', $requiredRole);
+        return $user->hasAnyRole($requiredRoles);
     }
     
     private function unauthorizedResponse($message)

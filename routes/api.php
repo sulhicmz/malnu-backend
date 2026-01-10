@@ -79,6 +79,40 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
         
         // Resource Booking
-        Route::post('resources/book', [CalendarController::class, 'bookResource']);
+         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+     });
+
+    // Behavior and Discipline Management Routes (protected)
+    Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+        // Incidents Management
+        Route::post('/behavior/incidents', [BehaviorManagementController::class, 'createIncident']);
+        Route::get('/behavior/incidents', [BehaviorManagementController::class, 'getIncidents']);
+        Route::get('/behavior/incidents/{id}', [BehaviorManagementController::class, 'getIncident']);
+        Route::put('/behavior/incidents/{id}', [BehaviorManagementController::class, 'updateIncident']);
+
+        // Discipline Actions Management
+        Route::post('/behavior/discipline-actions', [BehaviorManagementController::class, 'createDisciplineAction']);
+        Route::get('/behavior/discipline-actions', [BehaviorManagementController::class, 'getDisciplineActions']);
+        Route::get('/behavior/discipline-actions/{id}', [BehaviorManagementController::class, 'getDisciplineAction']);
+        Route::put('/behavior/discipline-actions/{id}', [BehaviorManagementController::class, 'updateDisciplineAction']);
+
+        // Intervention Plans Management
+        Route::post('/behavior/intervention-plans', [BehaviorManagementController::class, 'createInterventionPlan']);
+        Route::get('/behavior/intervention-plans', [BehaviorManagementController::class, 'getInterventionPlans']);
+        Route::get('/behavior/intervention-plans/{id}', [BehaviorManagementController::class, 'getInterventionPlan']);
+        Route::put('/behavior/intervention-plans/{id}', [BehaviorManagementController::class, 'updateInterventionPlan']);
+
+        // Behavior Notes Management
+        Route::post('/behavior/notes', [BehaviorManagementController::class, 'createBehaviorNote']);
+        Route::get('/behavior/notes', [BehaviorManagementController::class, 'getBehaviorNotes']);
+
+        // Reports
+        Route::get('/behavior/reports', [BehaviorManagementController::class, 'generateBehaviorReport']);
+
+        // Categories
+        Route::get('/behavior/categories', [BehaviorManagementController::class, 'getBehaviorCategories']);
+
+        // Student History
+        Route::get('/behavior/student/{studentId}/history', [BehaviorManagementController::class, 'getStudentBehaviorHistory']);
     });
 });

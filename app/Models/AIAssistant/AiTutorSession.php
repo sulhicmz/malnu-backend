@@ -10,9 +10,9 @@ use App\Models\User;
 
 class AiTutorSession extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
 
     protected $fillable = [
         'user_id',

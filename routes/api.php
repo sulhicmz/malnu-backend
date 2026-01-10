@@ -78,7 +78,69 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         // Calendar Sharing
         Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
         
-        // Resource Booking
-        Route::post('resources/book', [CalendarController::class, 'bookResource']);
+         // Resource Booking
+         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+     });
+});
+
+// School Administration and Governance Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('administration')->group(function () {
+        // Index route
+        Route::get('/', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+
+        // Compliance and Accreditation Routes
+        Route::get('compliance', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('compliance', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createComplianceRequirement']);
+        Route::put('compliance/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateComplianceRequirement']);
+        Route::delete('compliance/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'deleteComplianceRequirement']);
+
+        Route::get('accreditation', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('accreditation', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createAccreditationStandard']);
+
+        // Policy Management Routes
+        Route::get('policies', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('policies', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createPolicy']);
+        Route::put('policies/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updatePolicy']);
+
+        // Staff Evaluation Routes
+        Route::get('evaluations', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('evaluations', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createEvaluation']);
+        Route::put('evaluations/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateEvaluation']);
+
+        // Professional Development Routes
+        Route::get('professional-development', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('professional-development', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createProfessionalDevelopment']);
+        Route::put('professional-development/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateProfessionalDevelopment']);
+
+        // Budget Management Routes
+        Route::get('budget', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('budget', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createBudgetAllocation']);
+        Route::put('budget/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateBudgetAllocation']);
+
+        // Expense Management Routes
+        Route::get('expenses', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('expenses', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createExpense']);
+        Route::post('expenses/{id}/approve', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'approveExpense']);
+        Route::post('expenses/{id}/reject', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'rejectExpense']);
+
+        // Inventory Management Routes
+        Route::get('inventory', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('inventory', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createInventoryItem']);
+        Route::put('inventory/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateInventoryItem']);
+
+        // Vendor Contract Routes
+        Route::get('vendors', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('vendors', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createVendorContract']);
+        Route::put('vendors/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateVendorContract']);
+
+        // Institutional Metrics Routes
+        Route::get('metrics', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'index']);
+        Route::post('metrics', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'createMetric']);
+        Route::put('metrics/{id}', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'updateMetric']);
+
+        // Reports Routes
+        Route::get('reports', [App\Http\Controllers\Api\SchoolAdministrationController::class, 'getReports']);
     });
 });
+

@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
@@ -50,9 +51,17 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
         Route::apiResource('students', StudentController::class);
-        
+
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+
+        // Inventory Management Routes
+        Route::apiResource('inventory', InventoryController::class);
+        Route::post('inventory/{id}/assign', [InventoryController::class, 'assign']);
+        Route::post('inventory/{id}/return', [InventoryController::class, 'returnItem']);
+        Route::post('inventory/{id}/maintenance', [InventoryController::class, 'maintenance']);
+        Route::get('inventory/{id}/assignments', [InventoryController::class, 'getAssignments']);
+        Route::get('inventory/{id}/maintenance', [InventoryController::class, 'getMaintenanceRecords']);
     });
 });
 

@@ -9,6 +9,101 @@
 
 ## Active Tasks
 
+### [TASK-311] UUID Model Standardization - Calendar Module
+
+**Feature**: FEAT-006
+**Status**: Completed
+**Agent**: 06 Data Architect
+**Priority**: P1
+**Estimated**: 1 day
+**Started**: January 10, 2026
+**Completed**: January 10, 2026
+
+#### Description
+
+Calendar module models (Calendar, CalendarEvent, CalendarEventRegistration, ResourceBooking, CalendarShare) lacked proper UUID configuration, breaking data integrity standards and potentially causing issues with UUID generation and model behavior.
+
+#### Acceptance Criteria
+
+- [x] Add `UsesUuid` trait to all Calendar module models
+- [x] Add `public $incrementing = false;` to all Calendar module models
+- [x] Add `protected $primaryKey = 'id';` to all Calendar module models
+- [x] Add `protected $keyType = 'string';` to all Calendar module models
+- [x] Ensure CalendarEvent keeps SoftDeletes trait alongside UsesUuid
+- [x] Update docs/blueprint.md with UUID standardization pattern
+- [x] Update docs/task.md with task completion status
+
+#### Technical Details
+
+**Files Modified**:
+- `app/Models/Calendar/Calendar.php` - Added UsesUuid trait and UUID configuration
+- `app/Models/Calendar/CalendarEvent.php` - Added UsesUuid trait and UUID configuration
+- `app/Models/Calendar/CalendarEventRegistration.php` - Added UsesUuid trait and UUID configuration
+- `app/Models/Calendar/ResourceBooking.php` - Added UsesUuid trait and UUID configuration
+- `app/Models/Calendar/CalendarShare.php` - Added UsesUuid trait and UUID configuration
+- `docs/blueprint.md` - Added UUID standardization pattern documentation
+
+#### Completed Work
+
+**Calendar Model Standardization**:
+- Added `use App\Traits\UsesUuid;` import
+- Added `use UsesUuid;` trait usage
+- Added `public $incrementing = false;`
+- Added `protected $primaryKey = 'id';`
+- Added `protected $keyType = 'string';`
+
+**CalendarEvent Model Standardization**:
+- Added `use App\Traits\UsesUuid;` import
+- Changed trait usage from `use SoftDeletes;` to `use SoftDeletes, UsesUuid;`
+- Added `public $incrementing = false;`
+- Added `protected $primaryKey = 'id';`
+- Added `protected $keyType = 'string';`
+
+**CalendarEventRegistration Model Standardization**:
+- Added `use App\Traits\UsesUuid;` import
+- Added `use UsesUuid;` trait usage
+- Added `public $incrementing = false;`
+- Added `protected $primaryKey = 'id';`
+- Added `protected $keyType = 'string';`
+
+**ResourceBooking Model Standardization**:
+- Added `use App\Traits\UsesUuid;` import
+- Added `use UsesUuid;` trait usage
+- Added `public $incrementing = false;`
+- Added `protected $primaryKey = 'id';`
+- Added `protected $keyType = 'string';`
+
+**CalendarShare Model Standardization**:
+- Added `use App\Traits\UsesUuid;` import
+- Added `use UsesUuid;` trait usage
+- Added `public $incrementing = false;`
+- Added `protected $primaryKey = 'id';`
+- Added `protected $keyType = 'string';`
+
+**Documentation Updates**:
+- Updated `docs/blueprint.md` Database section with UUID standardization pattern
+- Documented required UUID configuration for all models
+- Added code example for proper UUID model setup
+
+#### Benefits
+
+- **Data Integrity**: UUIDs now properly generated using UsesUuid trait
+- **Consistency**: All Calendar module models now follow same UUID pattern
+- **Standards Compliance**: Aligns with TASK-103 (UUID Standardization) requirements
+- **Prevents Bugs**: Eliminates potential issues with auto-incrementing vs UUID conflicts
+- **Maintainability**: Clear pattern documented for future models
+
+#### Testing Notes
+
+All Calendar module models now inherit UUID generation from UsesUuid trait:
+- UUID automatically generated on model creation
+- UUID v4 format (RFC 4122) for uniqueness
+- No database migration required (models already use UUID primary keys)
+
+**Dependencies**: TASK-222 (Fix Database Migration Imports)
+
+---
+
 ### [TASK-301] Improve UI/UX Accessibility and Design System
 
 **Feature**: FEAT-008

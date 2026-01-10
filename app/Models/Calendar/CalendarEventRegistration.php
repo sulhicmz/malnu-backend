@@ -6,10 +6,19 @@ namespace App\Models\Calendar;
 
 use App\Models\Model;
 use App\Models\User;
+use App\Traits\UsesUuid;
 
 class CalendarEventRegistration extends Model
 {
+    use UsesUuid;
+
+    public $incrementing = false;
+
     protected $table = 'calendar_event_registrations';
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'event_id',

@@ -6,10 +6,19 @@ namespace App\Models\Calendar;
 
 use App\Models\Model;
 use App\Models\User;
+use App\Traits\UsesUuid;
 
 class ResourceBooking extends Model
 {
+    use UsesUuid;
+
+    public $incrementing = false;
+
     protected $table = 'resource_bookings';
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'resource_type',

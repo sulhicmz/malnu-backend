@@ -27,6 +27,19 @@
 - **Soft Deletes**: `deleted_at` DATETIME (nullable)
 - **Indexes**: Composite indexes on foreign key pairs
 - **Migrations**: Hyperf migration format with `use Hyperf\DbConnection\Db;`
+- **Model UUID Standardization**: All models MUST include:
+  ```php
+  use App\Traits\UsesUuid;
+  
+  class ModelName extends Model
+  {
+      use UsesUuid;
+      
+      public $incrementing = false;
+      protected $primaryKey = 'id';
+      protected $keyType = 'string';
+  }
+  ```
 
 #### API
 - **RESTful**: Resource-based routing

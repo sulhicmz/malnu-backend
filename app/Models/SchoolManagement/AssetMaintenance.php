@@ -8,13 +8,10 @@ use App\Models\Model;
 
 class AssetMaintenance extends Model
 {
-    public $incrementing = false;
 
     protected $table = 'asset_maintenance';
 
-    protected $primaryKey = 'id';
 
-    protected $keyType = 'string';
 
     protected $fillable = [
         'asset_id',

@@ -15,9 +15,6 @@ use App\Models\User;
 
 class Grade extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'student_id',

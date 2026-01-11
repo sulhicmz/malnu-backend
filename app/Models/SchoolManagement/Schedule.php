@@ -9,9 +9,6 @@ use App\Models\SchoolManagement\ClassSubject;
 
 class Schedule extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'class_subject_id',

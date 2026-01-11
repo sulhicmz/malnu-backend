@@ -18,9 +18,6 @@ use App\Models\SchoolManagement\ClassModel;
 
 class Student extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'user_id',

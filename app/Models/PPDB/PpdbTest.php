@@ -9,9 +9,6 @@ use App\Models\User;
 
 class PpdbTest extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'registration_id',

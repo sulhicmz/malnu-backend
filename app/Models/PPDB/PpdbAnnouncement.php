@@ -10,9 +10,6 @@ use App\Models\User;
 class PpdbAnnouncement extends Model
 {
 
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'registration_id',

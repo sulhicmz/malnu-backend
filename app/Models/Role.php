@@ -11,9 +11,6 @@ use App\Models\User;
 
 class Role extends Model
 {
-    protected string $primaryKey = 'id';
-    protected string $keyType = 'string';
-    public bool $incrementing = false;
     protected array $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

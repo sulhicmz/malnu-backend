@@ -11,9 +11,6 @@ use App\Models\ELearning\VirtualClass;
 
 class Quiz extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'virtual_class_id',

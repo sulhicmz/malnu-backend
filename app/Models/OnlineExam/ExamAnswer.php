@@ -8,9 +8,6 @@ use App\Models\Model;
 
 class ExamAnswer extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'exam_result_id',

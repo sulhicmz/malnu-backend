@@ -16,9 +16,6 @@ use App\Models\SchoolManagement\ClassSubject;
 class ClassModel extends Model
 {
 
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'name',

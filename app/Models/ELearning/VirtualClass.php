@@ -15,9 +15,6 @@ use App\Models\ELearning\VideoConference;
 
 class VirtualClass extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
 
     protected $fillable = [
         'class_id',

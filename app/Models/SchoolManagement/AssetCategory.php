@@ -8,13 +8,10 @@ use App\Models\Model;
 
 class AssetCategory extends Model
 {
-    public $incrementing = false;
 
     protected $table = 'asset_categories';
 
-    protected $primaryKey = 'id';
 
-    protected $keyType = 'string';
 
     protected $fillable = [
         'name',

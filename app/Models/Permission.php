@@ -10,9 +10,6 @@ use App\Models\RoleHasPermission;
 
 class Permission extends Model
 {
-    protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
-    protected string $keyType = 'string';
-    public bool $incrementing = false;
 
     protected array $fillable = [
         'name',

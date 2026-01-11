@@ -9,4 +9,8 @@ use Hyperf\Database\Eloquent\Model as BaseModel;
 abstract class Model extends BaseModel
 {
     protected ?string $connection = null;
+
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
 }

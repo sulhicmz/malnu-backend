@@ -9,11 +9,8 @@ use App\Models\User;
 
 class SchoolInventory extends Model
 {
-    public $incrementing = false;
 
-    protected $primaryKey = 'id';
 
-    protected $keyType = 'string';
 
     protected $fillable = [
         'name',

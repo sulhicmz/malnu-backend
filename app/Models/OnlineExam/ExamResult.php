@@ -9,9 +9,6 @@ use App\Models\SchoolManagement\Student;
 
 class ExamResult extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'exam_id',

@@ -11,9 +11,6 @@ use App\Models\ELearning\DiscussionReply;
 
 class Discussion extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'virtual_class_id',

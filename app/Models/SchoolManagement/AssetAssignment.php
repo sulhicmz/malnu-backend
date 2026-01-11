@@ -8,13 +8,10 @@ use App\Models\Model;
 
 class AssetAssignment extends Model
 {
-    public $incrementing = false;
 
     protected $table = 'asset_assignments';
 
-    protected $primaryKey = 'id';
 
-    protected $keyType = 'string';
 
     protected $fillable = [
         'asset_id',

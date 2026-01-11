@@ -34,6 +34,9 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 
 ### Getting Started
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Comprehensive onboarding and setup
+- **[Quick Start](docs/DEVELOPER_GUIDE.md#quick-start-new-to-the-project)** - Fast-track onboarding for new developers
+- **[HyperVel Framework Guide](docs/HYPERVEL_FRAMEWORK_GUIDE.md)** - Understanding HyperVel concepts and patterns
+- **[Business Domains Guide](docs/BUSINESS_DOMAINS_GUIDE.md)** - Overview of 11 business domains
 - **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Architecture and code organization
 - **[Contributing](docs/CONTRIBUTING.md)** - Contribution guidelines
 

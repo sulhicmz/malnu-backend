@@ -10,21 +10,25 @@ use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use App\Services\PasswordValidator;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
+    private PasswordValidator $passwordValidator;
 
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
-        EmailService $emailService
+        EmailService $emailService,
+        PasswordValidator $passwordValidator
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
         $this->emailService = $emailService;
+        $this->passwordValidator = $passwordValidator;
     }
 
     /**
@@ -178,9 +182,10 @@ class AuthService implements AuthServiceInterface
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // Validate password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters');
+        // Validate password complexity
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (count($errors) > 0) {
+            throw new \Exception(implode('. ', $errors));
         }
 
         // Get all valid tokens from database
@@ -248,9 +253,10 @@ class AuthService implements AuthServiceInterface
             throw new \Exception('Current password is incorrect');
         }
 
-        // Validate new password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters');
+        // Validate new password complexity
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (count($errors) > 0) {
+            throw new \Exception(implode('. ', $errors));
         }
 
         // Update user password

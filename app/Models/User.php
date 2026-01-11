@@ -80,6 +80,61 @@ class User extends Authenticatable
         }
     }
 
+    /**
+     * Get user's assigned roles.
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')
+            ->where('model_has_roles.model_type', self::class);
+    }
+
+    /**
+     * Check if user has specific role.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('roles.name', $roleName)->exists();
+    }
+
+    /**
+     * Check if user has any of the specified roles.
+     */
+    public function hasAnyRole(array $roleNames): bool
+    {
+        return $this->roles()->whereIn('roles.name', $roleNames)->exists();
+    }
+
+    /**
+     * Get all permissions from user's roles.
+     */
+    public function getAllPermissions()
+    {
+        return Permission::select('permissions.*')
+            ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+            ->join('roles', 'role_has_permissions.role_id', '=', 'roles.id')
+            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_id', $this->id)
+            ->where('model_has_roles.model_type', self::class)
+            ->distinct()
+            ->get();
+    }
+
+    /**
+     * Check if user has specific permission.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return Permission::select('permissions.*')
+            ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+            ->join('roles', 'role_has_permissions.role_id', '=', 'roles.id')
+            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_id', $this->id)
+            ->where('model_has_roles.model_type', self::class)
+            ->where('permissions.name', $permission)
+            ->exists();
+    }
+
     // Relationships
     public function parent()
     {

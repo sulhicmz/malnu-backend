@@ -25,6 +25,7 @@ class InventoryManagementTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('Super Admin');
         $this->token = JWTAuth::fromUser($this->user);
     }
 

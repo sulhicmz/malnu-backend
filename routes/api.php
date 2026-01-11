@@ -29,8 +29,8 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
 });
 
-// Attendance and Leave Management Routes (protected)
-Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+// Attendance and Leave Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
     Route::any('/', [IndexController::class, 'index']);
 
     Route::prefix('attendance')->group(function () {
@@ -46,8 +46,8 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     });
 });
 
-// School Management Routes (protected)
-Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+// School Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
         Route::apiResource('students', StudentController::class);
@@ -65,29 +65,29 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     });
 });
 
-// Calendar and Event Management Routes (protected)
+// Calendar and Event Management Routes (protected with role check)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
-        // Calendar Management
-        Route::post('calendars', [CalendarController::class, 'createCalendar']);
+        // Calendar Management - Write operations require specific roles
+        Route::post('calendars', [CalendarController::class, 'createCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
         Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
-        Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar']);
-        Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar']);
-        
-        // Event Management
-        Route::post('events', [CalendarController::class, 'createEvent']);
+        Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::delete('calendars/{id}', [CalendarController::class, 'deleteCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Event Management - Write operations require specific roles
+        Route::post('events', [CalendarController::class, 'createEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
         Route::get('events/{id}', [CalendarController::class, 'getEvent']);
-        Route::put('events/{id}', [CalendarController::class, 'updateEvent']);
-        Route::delete('events/{id}', [CalendarController::class, 'deleteEvent']);
+        Route::put('events/{id}', [CalendarController::class, 'updateEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::delete('events/{id}', [CalendarController::class, 'deleteEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
         Route::get('calendars/{calendarId}/events', [CalendarController::class, 'getEventsByDateRange']);
-        
-        // Event Registration
+
+        // Event Registration - All authenticated users can register
         Route::post('events/{eventId}/register', [CalendarController::class, 'registerForEvent']);
-        
-        // Calendar Sharing
-        Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar']);
-        
-        // Resource Booking
-        Route::post('resources/book', [CalendarController::class, 'bookResource']);
+
+        // Calendar Sharing - Write operation requires specific roles
+        Route::post('calendars/{calendarId}/share', [CalendarController::class, 'shareCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Resource Booking - Write operation requires specific roles
+        Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
     });
 });

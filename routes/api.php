@@ -9,6 +9,7 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\TimetableController;
 use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
@@ -53,6 +54,17 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
+
+        // Timetable Management Routes
+        Route::prefix('timetable')->group(function () {
+            Route::post('generate', [TimetableController::class, 'generate']);
+            Route::post('validate', [TimetableController::class, 'validate']);
+            Route::post('conflicts', [TimetableController::class, 'detectConflicts']);
+            Route::get('available-slots', [TimetableController::class, 'getAvailableSlots']);
+            Route::get('class/{classId}/schedule', [TimetableController::class, 'getClassSchedule']);
+            Route::get('teacher/{teacherId}/schedule', [TimetableController::class, 'getTeacherSchedule']);
+            Route::apiResource('schedules', TimetableController::class, ['only' => ['store', 'update', 'destroy']]);
+        });
     });
 });
 

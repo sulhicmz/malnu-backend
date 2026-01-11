@@ -1,182 +1,176 @@
-# CODEOWNERS File for Malnu Backend
-#
-# This file defines who owns and must approve changes to different parts of the codebase.
-# Owners are listed as GitHub usernames (e.g., @username).
-#
-# Format:
-#   <file-pattern> <owner1> <owner2> ...
-#
-# Patterns:
-#   - Use * for wildcard (matches any string)
-#   - Use /** for recursive directory matching
-#   - Lines starting with # are comments
-#
-# Ownership Levels:
-#   - Single owner: That person must approve changes
-#   - Multiple owners: Any one of them can approve
-#   - @team: All members of the team can approve
+# Code Owners
 
-# ============================================================
-# REPOSITORY-LEVEL OWNERSHIP
-# ============================================================
-# All changes to the repository require approval from maintainers
-* @sulhicmz
+This file defines the code owners for different parts of the codebase. Changes to these areas require approval from the listed owners.
 
-# ============================================================
-# CORE SYSTEM FILES
-# ============================================================
+## Global Owners
+* All files: @sulhicmz
 
-# Configuration and setup
-/config/ @sulhicmz
-/.env.example @sulhicmz
-/composer.json @sulhicmz
-/docker-compose.yml @sulhicmz
-/phpstan.neon @sulhicmz
-/phpunit.xml.dist @sulhicmz
+## Core Application
+# Main application configuration and entry points
+/ @sulhicmz
+composer.json @sulhicmz
+composer.lock @sulhicmz
+phpstan.neon @sulhicmz
+phpunit.xml* @sulhicmz
 
-# Build and deployment
-/.github/ @sulhicmz
-/.gitignore @sulhicmz
-/.dockerignore @sulhicmz
-/artisan @sulhicmz
+## Security-Critical Areas
+# Authentication, authorization, and security middleware
+app/Http/Middleware/Authenticate.php @sulhicmz
+app/Http/Middleware/JWTMiddleware.php @sulhicmz
+app/Http/Middleware/RoleMiddleware.php @sulhicmz
+app/Http/Middleware/VerifyCsrfToken.php @sulhicmz
+app/Http/Middleware/SecurityHeaders.php @sulhicmz
+app/Http/Middleware/RateLimitingMiddleware.php @sulhicmz
 
-# Root documentation
-/README.md @sulhicmz
-/LICENSE @sulhicmz
-/SECURITY.md @sulhicmz
-/CODEOWNERS @sulhicmz
+app/Http/Controllers/Api/AuthController.php @sulhicmz
 
-# ============================================================
-# APPLICATION CORE
-# ============================================================
+app/Services/AuthService.php @sulhicmz
+app/Services/JwtService.php @sulhicmz
+app/Services/TokenBlacklistService.php @sulhicmz
 
-# Application structure
-/bootstrap/ @sulhicmz
-/app/Providers/ @sulhicmz
-/app/Contracts/ @sulhicmz
-/app/Events/ @sulhicmz
-/app/Listeners/ @sulhicmz
-/app/Exceptions/ @sulhicmz
+app/Contracts/AuthServiceInterface.php @sulhicmz
 
-# Routes
-/routes/ @sulhicmz
+config/jwt.php @sulhicmz
+config/auth.php @sulhicmz
 
-# Authentication & Authorization
-/app/Models/User.php @sulhicmz
-/app/Models/Role.php @sulhicmz
-/app/Models/Permission.php @sulhicmz
-/app/Http/Middleware/ @sulhicmz
-/app/Http/Controllers/Auth/ @sulhicmz
+## Business Domains
+# School Management
+app/Http/Controllers/Api/SchoolManagement/ @sulhicmz
+app/Models/Student.php @sulhicmz
+app/Models/Teacher.php @sulhicmz
+app/Models/ClassRoom.php @sulhicmz
+app/Models/Subject.php @sulhicmz
+app/Models/Department.php @sulhicmz
 
-# ============================================================
-# BUSINESS DOMAINS - MODULES
-# ============================================================
+# Academic Records
+app/Http/Controllers/Api/AcademicRecords/ @sulhicmz
+app/Models/Grade.php @sulhicmz
+app/Models/Exam.php @sulhicmz
+app/Models/Assignment.php @sulhicmz
 
-# AI Assistant Module
-/app/Models/AIAssistant/ @sulhicmz
-/app/Http/Controllers/AIAssistant/ @sulhicmz
+# Attendance
+app/Http/Controllers/Attendance/ @sulhicmz
+app/Http/Controllers/Api/Attendance/ @sulhicmz
+app/Models/Attendance.php @sulhicmz
+app/Models/LeaveRequest.php @sulhicmz
+app/Models/LeaveType.php @sulhicmz
 
-# Attendance Module
-/app/Models/Attendance/ @sulhicmz
-/app/Http/Controllers/Attendance/ @sulhicmz
+# Calendar & Events
+app/Http/Controllers/Calendar/ @sulhicmz
+app/Http/Controllers/Api/Calendar/ @sulhicmz
+app/Models/Event.php @sulhicmz
+app/Models/Calendar.php @sulhicmz
 
-# Calendar Module
-/app/Models/Calendar/ @sulhicmz
-/app/Http/Controllers/Calendar/ @sulhicmz
+# Assessment
+app/Http/Controllers/Api/Assessment/ @sulhicmz
+app/Models/Assessment.php @sulhicmz
 
-# Career Development Module
-/app/Models/CareerDevelopment/ @sulhicmz
-/app/Http/Controllers/CareerDevelopment/ @sulhicmz
+# Fee Management
+app/Http/Controllers/Api/FeeManagement/ @sulhicmz
+app/Models/Fee.php @sulhicmz
+app/Models/Payment.php @sulhicmz
 
-# Digital Library Module
-/app/Models/DigitalLibrary/ @sulhicmz
-/app/Http/Controllers/DigitalLibrary/ @sulhicmz
+# Parent Portal
+app/Http/Controllers/Api/ParentPortal/ @sulhicmz
 
-# E-Learning Module
-/app/Models/ELearning/ @sulhicmz
-/app/Http/Controllers/ELearning/ @sulhicmz
+# E-Learning
+app/Http/Controllers/Api/ELearning/ @sulhicmz
+app/Models/Course.php @sulhicmz
+app/Models/Lesson.php @sulhicmz
 
-# Grading Module
-/app/Models/Grading/ @sulhicmz
-/app/Http/Controllers/Grading/ @sulhicmz
+# Inventory Management
+app/Http/Controllers/Api/Inventory/ @sulhicmz
+app/Models/Asset.php @sulhicmz
+app/Models/InventoryItem.php @sulhicmz
 
-# Monetization Module
-/app/Models/Monetization/ @sulhicmz
-/app/Http/Controllers/Monetization/ @sulhicmz
+# Communication
+app/Http/Controllers/Api/Communication/ @sulhicmz
+app/Models/Announcement.php @sulhicmz
+app/Models/Message.php @sulhicmz
 
-# Online Exam Module
-/app/Models/OnlineExam/ @sulhicmz
-/app/Http/Controllers/OnlineExam/ @sulhicmz
+# Reports & Analytics
+app/Http/Controllers/Api/Reports/ @sulhicmz
 
-# PPDB (Admission System) Module
-/app/Models/PPDB/ @sulhicmz
-/app/Http/Controllers/PPDB/ @sulhicmz
+## Database
+# Database migrations, seeders, and schema
+database/ @sulhicmz
+app/Models/ @sulhicmz
 
-# Parent Portal Module
-/app/Models/ParentPortal/ @sulhicmz
-/app/Http/Controllers/ParentPortal/ @sulhicmz
+## Testing
+# All test files
+tests/ @sulhicmz
 
-# School Management Module
-/app/Models/SchoolManagement/ @sulhicmz
-/app/Http/Controllers/SchoolManagement/ @sulhicmz
+## Documentation
+# Documentation and guides
+docs/ @sulhicmz
+*.md @sulhicmz
+README.md @sulhicmz
+CONTRIBUTING.md @sulhicmz
+SECURITY.md @sulhicmz
 
-# ============================================================
-# SYSTEM & INFRASTRUCTURE
-# ============================================================
+## Infrastructure & Deployment
+# CI/CD, Docker, deployment configs
+.github/ @sulhicmz
+docker-compose.yml @sulhicmz
+Dockerfile @sulhicmz
+deploy/ @sulhicmz
 
-# System models and services
-/app/Models/System/ @sulhicmz
-/app/Models/Logs/ @sulhicmz
-/app/Services/ @sulhicmz
-/app/Traits/ @sulhicmz
-/app/Console/ @sulhicmz
+## Configuration
+# Application configuration files
+config/ @sulhicmz
+.env.example @sulhicmz
 
-# Database
-/database/ @sulhicmz
+## Services
+# Application services
+app/Services/ @sulhicmz
 
-# Public assets
-/public/ @sulhicmz
+## Middleware
+# HTTP middleware
+app/Http/Middleware/ @sulhicmz
 
-# Storage
-/storage/ @sulhicmz
+## Exceptions
+# Exception handling
+app/Exceptions/ @sulhicmz
 
-# Resources
-/resources/ @sulhicmz
+## Console Commands
+app/Console/ @sulhicmz
 
-# ============================================================
-# DOCUMENTATION
-# ============================================================
+## Events & Listeners
+app/Events/ @sulhicmz
+app/Listeners/ @sulhicmz
 
-# All documentation
-/docs/ @sulhicmz
+## Providers
+app/Providers/ @sulhicmz
 
-# ============================================================
-# FRONTEND
-# ============================================================
+## Contracts & Interfaces
+app/Contracts/ @sulhicmz
+app/Traits/ @sulhicmz
 
-# Frontend code
-/frontend/ @sulhicmz
+## Notes
 
-# ============================================================
-# TESTING
-# ============================================================
+### Code Owner Approval Rules
+- **1 owner**: Changes require 1 approval
+- **Multiple owners listed**: Any owner can approve (OR logic)
+- **Global owner**: Can approve any changes
 
-# Test files
-/tests/ @sulhicmz
-/.php-cs-fixer.php @sulhicmz
+### Security-Sensitive Changes
+Changes to the following require additional security review:
+- Authentication/authorization logic
+- CSRF protection
+- JWT handling
+- Password management
+- Input validation
+- Database queries
 
-# ============================================================
-# NOTES
-# ============================================================
-#
-# This CODEOWNERS file is a starting point. As the project grows
-# and new contributors join, ownership can be refined by:
-#
-# 1. Adding specific maintainers for each module/domain
-# 2. Creating GitHub teams for cross-functional areas
-# 3. Adjusting ownership based on team expertise and capacity
-#
-# To update this file:
-# - Edit directly and open a pull request
-# - Discuss ownership changes with the team
-# - Consider security implications of ownership changes
+### Breaking Changes
+Breaking API changes require:
+- Code owner approval
+- Documentation update
+- Migration guide
+- Announcement in release notes
+
+---
+
+**Last Updated**: January 10, 2026
+
+For questions about code ownership or to request changes to this file, please open an issue with the `documentation` label.

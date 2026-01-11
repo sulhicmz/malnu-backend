@@ -48,11 +48,12 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 - **[Roadmap](docs/ROADMAP.md)** - Development roadmap and milestones
 - **[Task Management](docs/TASK_MANAGEMENT.md)** - Task breakdown and priorities
 
-### Specialized Topics
-- **[Security Analysis](docs/SECURITY_ANALYSIS.md)** - Security assessment and recommendations
-- **[Calendar System](docs/CALENDAR_SYSTEM.md)** - Calendar and scheduling module
-- **[Backup System](docs/BACKUP_SYSTEM.md)** - Backup and disaster recovery
-- **[API Error Handling](docs/API_ERROR_HANDLING.md)** - Error handling patterns
+ ### Specialized Topics
+ - **[Security Policy](SECURITY.md)** - Security policy, vulnerability reporting, and best practices
+ - **[Security Analysis](docs/SECURITY_ANALYSIS.md)** - Security assessment and recommendations
+ - **[Calendar System](docs/CALENDAR_SYSTEM.md)** - Calendar and scheduling module
+ - **[Backup System](docs/BACKUP_SYSTEM.md)** - Backup and disaster recovery
+ - **[API Error Handling](docs/API_ERROR_HANDLING.md)** - Error handling patterns
 
 ## 🏗️ Technology Stack
 

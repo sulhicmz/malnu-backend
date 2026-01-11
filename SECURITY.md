@@ -2,119 +2,160 @@
 
 ## Supported Versions
 
-We currently support the following versions of Malnu Backend:
+The Malnu Backend team maintains security updates for the following versions:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| main    | :white_check_mark: |
+| Version | Supported |
+|---------|-----------|
+| 0.1.x   | ✅ Current |
+| < 0.1   | ❌ Unsupported |
 
 ## Reporting a Vulnerability
 
-### Private Disclosure Process
+**Please do NOT report security vulnerabilities through GitHub issues.** Instead, use one of the following methods:
 
-**Do NOT open a public issue for security vulnerabilities.**
+### Private Disclosure (Preferred)
 
-To report a security vulnerability, please send an email to our security team. Please include:
+To report a security vulnerability privately, please send an email to:
 
-- A description of the vulnerability
+**Email:** `security@example.com`
+
+Please include the following information in your report:
+- Description of the vulnerability
 - Steps to reproduce the issue
-- Potential impact of the vulnerability
-- Any suggested patches or mitigations (if available)
+- Potential impact
+- Suggested fix (if known)
 
-### What Happens Next
+### What to Expect
 
-1. **Confirmation**: We will acknowledge receipt of your report within 48 hours
-2. **Assessment**: Our security team will investigate and validate the vulnerability
-3. **Resolution**: We will develop and test a fix
-4. **Disclosure**: We will work with you to coordinate public disclosure
+1. **Acknowledgment**: We will acknowledge receipt of your vulnerability report within 48 hours
+2. **Investigation**: We will investigate and validate the vulnerability within 7 business days
+3. **Resolution**: We will work on a fix and provide an estimated timeline
+4. **Disclosure**: We will coordinate disclosure with you, typically after the fix is deployed
 
-### Responsible Disclosure Policy
+## Responsible Disclosure Policy
 
-We follow a responsible disclosure process to protect users while giving security researchers appropriate credit:
+We follow responsible disclosure practices to protect our users while acknowledging the valuable contributions of security researchers:
 
-- **Response Time**: We aim to respond within 48 hours of initial report
-- **Fix Timeline**: Critical issues are addressed within 7 days, high priority within 14 days
-- **Public Disclosure**: We will coordinate with you to announce the fix and release simultaneously
-- **Credit**: With your permission, we will acknowledge your contribution in security advisories
+- **No Legal Action**: We will not pursue legal action against security researchers who follow this policy
+- **Credit**: With your permission, we will credit you in our security advisories
+- **Timeline**: We aim to disclose vulnerabilities within 90 days of reporting, depending on severity and complexity
 
 ## Security Best Practices for Contributors
 
 When contributing to Malnu Backend, please follow these security guidelines:
 
-### Code Security
+### Never Commit Sensitive Data
+- **Credentials**: API keys, passwords, tokens, certificates
+- **Personal Data**: Real emails, phone numbers, addresses
+- **Secrets**: JWT secrets, encryption keys
 
-- **Input Validation**: Always validate and sanitize user input
-- **Output Encoding**: Use proper output encoding to prevent XSS attacks
-- **SQL Injection**: Use parameterized queries (ORM/Eloquent) - never concatenate user input into SQL
-- **Authentication**: Follow existing authentication patterns and never store credentials in code
-- **Authorization**: Implement proper access controls using the RBAC system
-- **Secrets Management**: Never commit secrets, API keys, or credentials to the repository
+Use `.env.example` with placeholder values like `your-secret-key-here`.
+
+### Input Validation
+- Always validate and sanitize user input
+- Use HyperVel's built-in validation features
+- Implement Form Request validation classes
+- See [Issue #349](https://github.com/sulhicmz/malnu-backend/issues/349) for validation improvements
+
+### Authentication & Authorization
+- Ensure all protected endpoints use `JWTMiddleware`
+- Implement proper role-based access control (RBAC)
+- See [Issue #359](https://github.com/sulhicmz/malnu-backend/issues/359) for RBAC implementation
+- Never bypass security middleware
+
+### CSRF Protection
+- Ensure state-changing operations (POST/PUT/DELETE) are protected
+- See [Issue #358](https://github.com/sulhicmz/malnu-backend/issues/358) for CSRF middleware fixes
 
 ### Dependencies
-
-- **Keep Updated**: Regularly update dependencies to get security patches
-- **Audit**: Run `npm audit` and `composer audit` regularly
-- **Review**: Carefully review new dependencies before adding them
-
-### Testing
-
-- **Security Tests**: Write tests for security-critical code paths
-- **Edge Cases**: Consider edge cases and potential abuse scenarios
-- **Error Handling**: Don't expose sensitive information in error messages
+- Regularly update dependencies
+- Run `composer audit` and `npm audit` regularly
+- Address security vulnerabilities promptly
 
 ### Code Review
+- All code changes require review
+- Security-sensitive changes require additional scrutiny
+- See `CODEOWNERS` for approval requirements
 
-- **Security Review**: Mark security-related PRs for extra review attention
-- **Peer Review**: All code must be reviewed before merging
-- **Changes**: Be cautious about changes to authentication, authorization, or data handling
+## Current Security Status
 
-## Security Features in Malnu Backend
+For comprehensive security analysis, see:
+- [Security Analysis Report](docs/SECURITY_ANALYSIS.md) - Complete security assessment
+- [Application Status](docs/APPLICATION_STATUS.md) - Current security posture
 
-Malnu Backend includes several built-in security features:
+### Known Critical Issues
 
-- **Security Headers**: Content Security Policy, HSTS, X-Frame-Options, etc.
-- **CSRF Protection**: Built-in CSRF protection for state-changing operations
-- **SQL Injection Prevention**: Parameterized queries via ORM
-- **XSS Protection**: Output escaping and Content Security Policy
-- **Password Hashing**: Secure password hashing using bcrypt
-- **UUID Implementation**: Prevents ID enumeration attacks
-- **JWT Authentication**: Token-based authentication (in progress)
+The following critical security issues are being addressed:
 
-## Ongoing Security Efforts
+- 🔴 **RBAC Not Implemented** - RoleMiddleware bypasses authorization ([#359](https://github.com/sulhicmz/malnu-backend/issues/359))
+- 🔴 **CSRF Protection Broken** - Middleware extends non-existent class ([#358](https://github.com/sulhicmz/malnu-backend/issues/358))
+- 🔴 **MD5 Hashing** - Weak hashing in token blacklist ([#347](https://github.com/sulhicmz/malnu-backend/issues/347))
+- 🔴 **Weak Password Validation** - No complexity requirements ([#351](https://github.com/sulhicmz/malnu-backend/issues/351))
 
-We are continuously improving our security posture. For a comprehensive security analysis, see:
+## Security Features Implemented
 
-- [Security Analysis Report](docs/SECURITY_ANALYSIS.md) - Detailed vulnerability assessment and recommendations
-- [Contributing Guidelines](docs/CONTRIBUTING.md) - Contribution guidelines including security considerations
+### ✅ Security Headers
+- Content Security Policy (CSP)
+- HTTP Strict Transport Security (HSTS)
+- X-Frame-Options
+- X-Content-Type-Options
+- Referrer Policy
 
-## Current Security Priorities
+### ✅ Framework Security
+- Built-in CSRF protection (when middleware is fixed)
+- SQL injection prevention (parameterized queries)
+- XSS protection
+- Secure password hashing (bcrypt)
 
-Based on our security analysis, we are currently working on:
+### ✅ Rate Limiting
+- API rate limiting middleware
+- Redis-backed rate limiting
+- Configurable thresholds
 
-1. :white_check_mark: Add SECURITY.md and CODEOWNERS governance files (this issue)
-2. :construction: Fix frontend dependency vulnerabilities
-3. :construction: Complete JWT authentication implementation
-4. :construction: Implement RBAC authorization across all controllers
-5. :construction: Add comprehensive input validation
+### ✅ JWT Authentication
+- Token-based authentication
+- Token blacklisting
+- Refresh token support
 
-## Security Contacts
+## Security Monitoring
 
-- **Security Email**: [to be configured]
-- **Repository**: https://github.com/sulhicmz/malnu-backend
-- **Security Issues**: Use the private disclosure process above
+We are implementing automated security monitoring:
+- Vulnerability scanning
+- Security event logging
+- Intrusion detection
+- Alerting system
 
-## Security Metrics
+## Contact
 
-We track the following security metrics:
+### Security Team
+- **Security Lead**: [To be assigned]
+- **Development Team**: Repository maintainers
+- **Security Advisories**: [GitHub Security Advisories](https://github.com/sulhicmz/malnu-backend/security/advisories)
 
-- **Open Vulnerabilities**: See [Security Analysis](docs/SECURITY_ANALYSIS.md)
-- **Security Coverage**: Ongoing improvement
-- **Automated Scanning**: To be implemented
-
-## Acknowledgments
-
-We thank all security researchers who help us improve the security of Malnu Backend. Your responsible disclosure helps protect all our users.
+### External Resources
+- **Vulnerability Database**: [CVE](https://cve.mitre.org/), [NVD](https://nvd.nist.gov/)
+- **Security Communities**: [OWASP](https://owasp.org/), [SANS](https://www.sans.org/)
 
 ---
 
-For more detailed information about our security practices and current status, please review our [Security Analysis Documentation](docs/SECURITY_ANALYSIS.md).
+## Security Checklist
+
+### Before Opening a PR
+- [ ] No secrets or credentials committed
+- [ ] Input validation implemented
+- [ ] Authentication/authorization verified
+- [ ] Dependencies audited
+- [ ] Security tests passing
+
+### Before Merging to Production
+- [ ] All security vulnerabilities patched
+- [ ] Security tests passing
+- [ ] Security headers configured
+- [ ] Monitoring enabled
+- [ ] Backup procedures tested
+
+---
+
+**Last Updated**: January 10, 2026
+
+For questions or concerns about this security policy, please open an issue with the `security` label.

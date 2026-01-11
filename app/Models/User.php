@@ -80,6 +80,58 @@ class User extends Authenticatable
         }
     }
 
+    /**
+     * Get all roles assigned to the user.
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')
+            ->where('model_type', self::class);
+    }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * Check if user has any of the given roles.
+     */
+    public function hasAnyRole(array $roleNames): bool
+    {
+        return $this->roles()->whereIn('name', $roleNames)->exists();
+    }
+
+    /**
+     * Get all permissions from user's roles.
+     */
+    public function getAllPermissions(): array
+    {
+        $permissions = [];
+        foreach ($this->roles as $role) {
+            foreach ($role->permissions as $permission) {
+                $permissions[$permission->id] = $permission;
+            }
+        }
+        return array_values($permissions);
+    }
+
+    /**
+     * Check if user has a specific permission.
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        foreach ($this->getAllPermissions() as $permission) {
+            if ($permission->name === $permissionName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Relationships
     public function parent()
     {

@@ -46,9 +46,17 @@ class RoleMiddleware
     
     private function userHasRole($user, $requiredRole)
     {
-        // In a real implementation, this would query the database to check user roles
-        // For now, we'll return true for demonstration purposes
-        return true;
+        // Get fresh user instance from database with roles loaded
+        $freshUser = User::with('roles')->find($user->id);
+
+        if (!$freshUser) {
+            return false;
+        }
+
+        // Support multiple roles separated by pipe (e.g., 'Super Admin|Kepala Sekolah')
+        $requiredRoles = explode('|', $requiredRole);
+
+        return $freshUser->hasAnyRole($requiredRoles);
     }
     
     private function unauthorizedResponse($message)

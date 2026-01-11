@@ -9,6 +9,27 @@ This implementation provides comprehensive API error handling and response stand
 - Consistent response format across all API endpoints
 - Proper error logging and handling
 
+### 2. Controllers Using Standardized Error Handling
+
+All controllers in the application now use standardized error handling:
+
+#### Authentication (app/Http/Controllers/Api/)
+- **AuthController** - User registration, login, logout, token refresh, password reset
+
+#### School Management (app/Http/Controllers/Api/SchoolManagement/)
+- **StudentController** - Student CRUD operations
+- **TeacherController** - Teacher CRUD operations
+
+#### Attendance (app/Http/Controllers/Attendance/)
+- **StaffAttendanceController** - Staff attendance tracking and management
+- **LeaveRequestController** - Leave request management
+- **LeaveTypeController** - Leave type management
+
+#### Calendar (app/Http/Controllers/Calendar/)
+- **CalendarController** - Calendar and event management
+
+All controllers extend `BaseController` and use standardized response methods, ensuring consistent API responses throughout the application.
+
 ### 2. Standard Response Formats
 
 #### Success Response
@@ -90,10 +111,78 @@ class YourController extends BaseController
 }
 ```
 
-## Benefits
+## Migration Guide
 
+If you have existing controllers that use manual `response()->json()` calls, follow these steps to migrate to standardized error handling:
+
+1. **Update Parent Class**
+   ```php
+   // Before
+   use App\Http\Controllers\Controller;
+   class YourController extends Controller
+   
+   // After
+   use App\Http\Controllers\Api\BaseController;
+   class YourController extends BaseController
+   ```
+
+2. **Update Constructor**
+   ```php
+   public function __construct(
+       RequestInterface $request,
+       ResponseInterface $response,
+       ContainerInterface $container
+   ) {
+       parent::__construct($request, $response, $container);
+   }
+   ```
+
+3. **Replace Response Calls**
+   ```php
+   // Before
+   return response()->json([
+       'success' => true,
+       'data' => $data
+   ]);
+   
+   // After
+   return $this->successResponse($data);
+   ```
+
+4. **Replace Error Response Calls**
+   ```php
+   // Before
+   return response()->json([
+       'success' => false,
+       'message' => 'Resource not found'
+   ], 404);
+   
+   // After
+   return $this->notFoundResponse('Resource not found');
+   ```
+
+## Recent Updates
+
+### Issue #355: Standardize Error Handling Across All Controllers
+
+Completed standardization of error handling for all controllers:
+
+- **StaffAttendanceController**: Migrated from manual `response()->json()` to BaseController methods
+- **LeaveTypeController**: Migrated from manual `response()->json()` to BaseController methods
+
+Both controllers now:
+- Extend `BaseController` instead of `Controller`
+- Use Hyperf contracts (RequestInterface, ResponseInterface, ContainerInterface)
+- Include proper constructor with dependency injection
+- Return standardized responses with timestamps
+- Log errors automatically with context information
+- Use standardized error codes for better debugging
+
+## Benefits
+ 
 - **Consistency**: All API responses follow the same format
 - **Developer Experience**: Predictable response structure
 - **Error Handling**: Proper error logging and standardized messages
 - **Maintainability**: Centralized response logic
 - **Security**: Controlled error information exposure
+- **Observability**: Automatic error logging with request context

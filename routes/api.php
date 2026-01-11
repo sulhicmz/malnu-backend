@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\AssessmentController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -42,6 +43,24 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::apiResource('leave-requests', LeaveRequestController::class);
         Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
         Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
+    });
+});
+
+// Assessment Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('assessments')->group(function () {
+        Route::get('/', [AssessmentController::class, 'index']);
+        Route::post('/', [AssessmentController::class, 'store']);
+        Route::get('/{id}', [AssessmentController::class, 'show']);
+        Route::put('/{id}', [AssessmentController::class, 'update']);
+        Route::delete('/{id}', [AssessmentController::class, 'destroy']);
+        Route::post('/{id}/publish', [AssessmentController::class, 'publish']);
+        Route::get('/my', [AssessmentController::class, 'myAssessments']);
+        Route::post('/{id}/start', [AssessmentController::class, 'start']);
+        Route::post('/submissions/{id}/submit', [AssessmentController::class, 'submit']);
+        Route::post('/submissions/{id}/grade', [AssessmentController::class, 'grade']);
+        Route::get('/{id}/analytics', [AssessmentController::class, 'analytics']);
+        Route::get('/performance/me', [AssessmentController::class, 'studentPerformance']);
     });
 });
 

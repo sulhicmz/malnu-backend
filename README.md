@@ -53,6 +53,7 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 - **[Calendar System](docs/CALENDAR_SYSTEM.md)** - Calendar and scheduling module
 - **[Backup System](docs/BACKUP_SYSTEM.md)** - Backup and disaster recovery
 - **[API Error Handling](docs/API_ERROR_HANDLING.md)** - Error handling patterns
+- **[Caching Strategy](docs/CACHING.md)** - Redis caching implementation and performance optimization
 
 ## 🏗️ Technology Stack
 

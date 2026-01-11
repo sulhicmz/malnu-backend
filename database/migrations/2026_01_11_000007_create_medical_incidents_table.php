@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyperf\Database\Migrations\Migration;
+use Hyperf\Database\Schema\Blueprint;
+use Hyperf\Support\Facades\Schema;
+use Hyperf\DbConnection\Db;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('medical_incidents', function (Blueprint $table) {
+            $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
+            $table->uuid('student_id');
+            $table->uuid('health_record_id');
+            $table->string('incident_type');
+            $table->text('description');
+            $table->string('severity')->default('mild'); // mild, moderate, severe
+            $table->timestamp('incident_date');
+            $table->text('treatment_provided')->nullable();
+            $table->text('follow_up_actions')->nullable();
+            $table->boolean('parent_notified')->default(false);
+            $table->timestamp('parent_notification_date')->nullable();
+            $table->text('notes')->nullable();
+            $table->uuid('reported_by')->nullable();
+            $table->uuid('created_by')->nullable();
+            $table->uuid('updated_by')->nullable();
+            $table->timestamp('deleted_at')->nullable();
+            $table->timestamps();
+            
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('health_record_id')->references('id')->on('health_records')->onDelete('cascade');
+            $table->foreign('reported_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
+            
+            $table->index('student_id');
+            $table->index('incident_date');
+            $table->index('severity');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('medical_incidents');
+    }
+};

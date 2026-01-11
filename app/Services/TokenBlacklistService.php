@@ -18,9 +18,9 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
     
     public function __construct()
     {
-        $this->redisHost = $_ENV['REDIS_HOST'] ?? 'localhost';
-        $this->redisPort = (int)($_ENV['REDIS_PORT'] ?? 6379);
-        $this->redisDb = (int)($_ENV['REDIS_DB'] ?? 0);
+        $this->redisHost = env('REDIS_HOST') ?? 'localhost';
+        $this->redisPort = (int)(env('REDIS_PORT') ?? 6379);
+        $this->redisDb = (int)(env('REDIS_DB') ?? 0);
         
         try {
             $this->redis = new Redis();

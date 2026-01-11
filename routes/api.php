@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\CommunicationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -80,5 +81,27 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Communication Management Routes (protected)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('communication')->group(function () {
+        // Message Management
+        Route::get('messages', [CommunicationController::class, 'getMessages']);
+        Route::post('messages', [CommunicationController::class, 'sendMessage']);
+        Route::get('threads/{id}', [CommunicationController::class, 'getThread']);
+        Route::post('threads', [CommunicationController::class, 'createThread']);
+        
+        // Announcement Management
+        Route::get('announcements', [CommunicationController::class, 'getAnnouncements']);
+        Route::post('announcements', [CommunicationController::class, 'createAnnouncement']);
+        Route::put('announcements/{id}', [CommunicationController::class, 'updateAnnouncement']);
+        Route::delete('announcements/{id}', [CommunicationController::class, 'deleteAnnouncement']);
+        Route::post('announcements/{id}/mark-read', [CommunicationController::class, 'markAnnouncementRead']);
+        
+        // Message Templates
+        Route::get('templates', [CommunicationController::class, 'getTemplates']);
+        Route::post('templates', [CommunicationController::class, 'createTemplate']);
     });
 });

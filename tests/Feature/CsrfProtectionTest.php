@@ -4,17 +4,32 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Hyperf\Foundation\Testing\TestCase;
+use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class CsrfProtectionTest extends TestCase
 {
-    public function test_csrf_protection_is_enabled_for_web_routes(): void
+    public function testCsrfProtectionIsEnabledForWebRoutes(): void
     {
-        $this->assertTrue(true);
+        $this->assertTrue(class_exists(\App\Http\Middleware\VerifyCsrfToken::class));
+        $this->assertTrue(class_exists(\Hypervel\Foundation\Http\Middleware\VerifyCsrfToken::class));
     }
 
-    public function test_api_routes_are_excluded_from_csrf(): void
+    public function testApiRoutesAreExcludedFromCsrf(): void
     {
-        $this->assertTrue(true);
+        $middleware = new \App\Http\Middleware\VerifyCsrfToken(
+            $this->getContainer(),
+            $this->getContainer()->get(\Hyperf\Contract\ConfigInterface::class),
+            $this->getContainer()->get(\Hypervel\Encryption\Contracts\Encrypter::class),
+            $this->getContainer()->get(\Hyperf\HttpServer\Request::class)
+        );
+
+        $excluded = $middleware->getExcludedPaths();
+
+        $this->assertContains('api/*', $excluded);
+        $this->assertContains('csp-report', $excluded);
     }
 }

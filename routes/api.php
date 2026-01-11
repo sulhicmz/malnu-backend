@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\Notification\NotificationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -89,5 +90,23 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+});
+
+// Notification Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('notifications')->group(function () {
+        Route::post('/', [NotificationController::class, 'create']);
+        Route::post('/send', [NotificationController::class, 'send']);
+        Route::post('/emergency', [NotificationController::class, 'sendEmergency']);
+        Route::get('/my', [NotificationController::class, 'index']);
+        Route::get('/{id}', [NotificationController::class, 'show']);
+        Route::put('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::put('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::get('/{id}/stats', [NotificationController::class, 'getDeliveryStats']);
+        Route::post('/templates', [NotificationController::class, 'createTemplate']);
+        Route::get('/templates', [NotificationController::class, 'getTemplates']);
+        Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
+        Route::get('/preferences', [NotificationController::class, 'getPreferences']);
     });
 });

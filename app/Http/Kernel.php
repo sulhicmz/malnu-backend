@@ -32,7 +32,7 @@ class Kernel extends HttpKernel
             // \Hyperf\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             // \Hyperf\Session\Middleware\StartSession::class,
             // \Hyperf\View\Middleware\ShareErrorsFromSession::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
         ],
 
         'api' => [
@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
+        'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
     ];
 
     /**
@@ -73,6 +74,6 @@ class Kernel extends HttpKernel
         // \Hyperf\Router\Middleware\SubstituteBindings::class,
         // \Hyperf\Session\Middleware\StartSession::class,
         // \Hyperf\View\Middleware\ShareErrorsFromSession::class,
-        // \App\Http\Middleware\VerifyCsrfToken::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
     ];
 }

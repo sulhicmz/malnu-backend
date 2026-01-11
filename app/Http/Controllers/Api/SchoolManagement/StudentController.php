@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\SchoolManagement\StoreStudent;
+use App\Http\Requests\SchoolManagement\UpdateStudent;
 use App\Models\SchoolManagement\Student;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -62,43 +64,10 @@ class StudentController extends BaseController
     /**
      * Store a newly created student.
      */
-    public function store()
+    public function store(StoreStudent $request)
     {
         try {
-            $data = $this->request->all();
-
-            // Validate required fields
-            $requiredFields = ['name', 'nisn', 'class_id', 'enrollment_year', 'status'];
-            $errors = [];
-            
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    $errors[$field] = ["The {$field} field is required."];
-                }
-            }
-
-            // Additional validation
-            if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-
-            if (isset($data['nisn'])) {
-                $existingStudent = Student::where('nisn', $data['nisn'])->first();
-                if ($existingStudent) {
-                    $errors['nisn'] = ['The NISN has already been taken.'];
-                }
-            }
-
-            if (isset($data['email']) && $data['email']) {
-                $existingStudent = Student::where('email', $data['email'])->first();
-                if ($existingStudent) {
-                    $errors['email'] = ['The email has already been taken.'];
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             $student = Student::create($data);
 
@@ -129,7 +98,7 @@ class StudentController extends BaseController
     /**
      * Update the specified student.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateStudent $request)
     {
         try {
             $student = Student::find($id);
@@ -138,9 +107,8 @@ class StudentController extends BaseController
                 return $this->notFoundResponse('Student not found');
             }
 
-            $data = $this->request->all();
+            $data = $request->validated();
 
-            // Validate unique fields if they are being updated
             if (isset($data['nisn']) && $data['nisn'] !== $student->nisn) {
                 $existingStudent = Student::where('nisn', $data['nisn'])->first();
                 if ($existingStudent) {

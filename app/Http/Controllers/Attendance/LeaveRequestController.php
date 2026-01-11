@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\LeaveRequest\StoreLeaveRequest;
+use App\Http\Requests\LeaveRequest\UpdateLeaveRequest;
+use App\Http\Requests\LeaveRequest\ApproveLeaveRequest;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
-use App\Traits\InputValidationTrait;
 
 class LeaveRequestController extends BaseController
 {
-    use InputValidationTrait;
     
     /**
      * Display a listing of the leave requests.
@@ -53,47 +54,10 @@ class LeaveRequestController extends BaseController
     /**
      * Store a newly created leave request.
      */
-    public function store()
+    public function store(StoreLeaveRequest $request)
     {
         try {
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
-            // Validate required fields
-            $requiredFields = ['staff_id', 'leave_type_id', 'start_date', 'end_date', 'reason'];
-            $errors = $this->validateRequired($input, $requiredFields);
-            
-            // Additional validation
-            if (isset($input['staff_id']) && !$this->validateInteger($input['staff_id'])) {
-                $errors['staff_id'] = ["Invalid staff_id"];
-            }
-            
-            if (isset($input['leave_type_id']) && !$this->validateInteger($input['leave_type_id'])) {
-                $errors['leave_type_id'] = ["Invalid leave_type_id"];
-            }
-            
-            if (isset($input['start_date']) && !$this->validateDate($input['start_date'])) {
-                $errors['start_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['end_date']) && !$this->validateDate($input['end_date'])) {
-                $errors['end_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['start_date']) && isset($input['end_date']) && 
-                !$this->validateDateRange($input['start_date'], $input['end_date'])) {
-                $errors['start_date'] = ["Start date must be before or equal to end date"];
-            }
-
-            if (isset($input['reason']) && !$this->validateStringLength($input['reason'], null, 500)) {
-                $errors['reason'] = ["Reason must not exceed 500 characters"];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $input = $request->validated();
 
             // Calculate total days
             $startDate = new \DateTime($input['start_date']);
@@ -145,7 +109,7 @@ class LeaveRequestController extends BaseController
     /**
      * Update the specified leave request.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -159,20 +123,7 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
-            // Validate comments if provided
-            $errors = [];
-            if (isset($input['comments']) && !is_string($input['comments'])) {
-                $errors['comments'] = ["Comments must be a string"];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $input = $request->validated();
 
             $leaveRequest->update($input); // Only update provided fields
 
@@ -210,7 +161,7 @@ class LeaveRequestController extends BaseController
     /**
      * Approve a leave request.
      */
-    public function approve(string $id)
+    public function approve(string $id, ApproveLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -223,14 +174,11 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'APPROVAL_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
+            $input = $request->validated();
+
             $leaveRequest->update([
                 'status' => 'approved',
-                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_by' => null,
                 'approved_at' => date('Y-m-d H:i:s'),
                 'approval_comments' => $input['approval_comments'] ?? null
             ]);
@@ -255,7 +203,7 @@ class LeaveRequestController extends BaseController
     /**
      * Reject a leave request.
      */
-    public function reject(string $id)
+    public function reject(string $id, ApproveLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -268,14 +216,11 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'REJECTION_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
+            $input = $request->validated();
+
             $leaveRequest->update([
                 'status' => 'rejected',
-                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_by' => null,
                 'approved_at' => date('Y-m-d H:i:s'),
                 'approval_comments' => $input['approval_comments'] ?? null
             ]);

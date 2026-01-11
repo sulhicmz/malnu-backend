@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\SchoolManagement\StoreTeacher;
+use App\Http\Requests\SchoolManagement\UpdateTeacher;
 use App\Models\SchoolManagement\Teacher;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -68,43 +70,10 @@ class TeacherController extends BaseController
     /**
      * Store a newly created teacher.
      */
-    public function store()
+    public function store(StoreTeacher $request)
     {
         try {
-            $data = $this->request->all();
-
-            // Validate required fields
-            $requiredFields = ['name', 'nip', 'subject_id', 'join_date'];
-            $errors = [];
-            
-            foreach ($requiredFields as $field) {
-                if (empty($data[$field])) {
-                    $errors[$field] = ["The {$field} field is required."];
-                }
-            }
-
-            // Additional validation
-            if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-
-            if (isset($data['nip'])) {
-                $existingTeacher = Teacher::where('nip', $data['nip'])->first();
-                if ($existingTeacher) {
-                    $errors['nip'] = ['The NIP has already been taken.'];
-                }
-            }
-
-            if (isset($data['email']) && $data['email']) {
-                $existingTeacher = Teacher::where('email', $data['email'])->first();
-                if ($existingTeacher) {
-                    $errors['email'] = ['The email has already been taken.'];
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             $teacher = Teacher::create($data);
 
@@ -135,7 +104,7 @@ class TeacherController extends BaseController
     /**
      * Update the specified teacher.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateTeacher $request)
     {
         try {
             $teacher = Teacher::find($id);
@@ -144,9 +113,8 @@ class TeacherController extends BaseController
                 return $this->notFoundResponse('Teacher not found');
             }
 
-            $data = $this->request->all();
+            $data = $request->validated();
 
-            // Validate unique fields if they are being updated
             if (isset($data['nip']) && $data['nip'] !== $teacher->nip) {
                 $existingTeacher = Teacher::where('nip', $data['nip'])->first();
                 if ($existingTeacher) {

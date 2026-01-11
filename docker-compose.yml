@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Service for the Hyperf application
   app:
@@ -39,38 +37,48 @@ services:
     # env_file:
     #   - .env
 
-    # Uncomment the lines below to link the app service to a database service
-    # depends_on:
-    #   - db # Link to the database service defined below
-
-    # Link to the Redis service (uncomment database service above and add to list if needed)
+    # Link to the Redis service
     depends_on:
-      - redis # Link to the Redis service defined below
+      - redis
+      - mysql
+      - postgres
 
-  # # Example MySQL Database Service (Uncomment to use)
-  # db:
-  #   image: mysql:8.0 # Use an official MySQL image
-  #   ports:
-  #     - "3306:3306" # Map host port 3306 to container port 3306
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: your_root_password # !! Change this in production !!
-  #     MYSQL_DATABASE: hyperf # Database name
-  #     MYSQL_USER: hyperf # Database user
-  #     MYSQL_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - dbdata:/var/lib/mysql # Persist database data
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_change_in_production
+      MYSQL_DATABASE: malnu
+      MYSQL_USER: malnu_user
+      MYSQL_PASSWORD: malnu_password_change_in_production
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_change_in_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
-  # # Example PostgreSQL Database Service (Uncomment to use)
-  # db:
-  #   image: postgres:13 # Use an official PostgreSQL image
-  #   ports:
-  #     - "5432:5432" # Map host port 5432 to container port 5432
-  #   environment:
-  #     POSTGRES_DB: hyperf # Database name
-  #     POSTGRES_USER: hyperf # Database user
-  #     POSTGRES_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data # Persist database data
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: malnu
+      POSTGRES_USER: malnu_user
+      POSTGRES_PASSWORD: malnu_password_change_in_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U malnu_user -d malnu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # Redis Service for caching, sessions, and queues
   redis:
@@ -78,7 +86,7 @@ services:
     ports:
       - "6379:6379" # Map host port 6379 to container port 6379
     volumes:
-      - redisdata:/data # Persist Redis data
+      - redis_data:/data # Persist Redis data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -86,9 +94,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-# # Define volumes for data persistence (Uncomment if using database services)
-# volumes:
-#   dbdata: # Volume for MySQL data
-#   pgdata: # Volume for PostgreSQL data
 volumes:
-  redisdata: # Volume for Redis data persistence
+  mysql_data:
+  postgres_data:
+  redis_data:

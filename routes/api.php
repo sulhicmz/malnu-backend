@@ -14,6 +14,7 @@ use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
 Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {
+    Route::get('/auth/csrf-token', [AuthController::class, 'csrfToken']);
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);

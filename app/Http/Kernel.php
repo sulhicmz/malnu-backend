@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
         'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 
     /**

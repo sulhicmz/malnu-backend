@@ -46,9 +46,8 @@ class RoleMiddleware
     
     private function userHasRole($user, $requiredRole)
     {
-        // In a real implementation, this would query the database to check user roles
-        // For now, we'll return true for demonstration purposes
-        return true;
+        $requiredRoles = explode('|', $requiredRole);
+        return $user->hasAnyRole($requiredRoles);
     }
     
     private function unauthorizedResponse($message)

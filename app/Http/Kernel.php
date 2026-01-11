@@ -17,6 +17,7 @@ class Kernel extends HttpKernel
      */
     protected array $middleware = [
         \App\Http\Middleware\SecurityHeaders::class,
+        \App\Http\Middleware\PerformanceMonitoringMiddleware::class,
         // \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
     ];

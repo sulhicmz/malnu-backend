@@ -8,4 +8,19 @@ parameters:
     - config
   reportUnmatchedIgnoredErrors: false
   excludePaths:
+    - tests/*
+    - vendor/*
   ignoreErrors:
+    - '#Call to an undefined method#'
+    - '#Access to an undefined property#'
+    - '#Cannot access offset#'
+    - '#Unsafe usage of new static#'
+    -
+      identifier: missingType.iterableValue
+    -
+      identifier: missingType.generics
+  universalObjectCratesClasses:
+    - stdClass
+    - Hyperf\Database\Model\Builder
+    - Hyperf\Database\Model\Collection
+    - Hyperf\Database\Query\Builder

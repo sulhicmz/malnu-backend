@@ -20,3 +20,4 @@ Envoy.blade.php
 /.phpunit.cache
 .phpactor.json
 .phpunit.result.cache
+/build

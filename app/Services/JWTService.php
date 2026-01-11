@@ -14,12 +14,12 @@ class JWTService implements JWTServiceInterface
 
     public function __construct()
     {
-        $this->secret = $_ENV['JWT_SECRET'] ?? '';
-        $this->ttl = (int)($_ENV['JWT_TTL'] ?? 120); // in minutes
-        $this->refreshTtl = (int)($_ENV['JWT_REFRESH_TTL'] ?? 20160); // in minutes
+        $this->secret = config('jwt.secret', '');
+        $this->ttl = config('jwt.ttl', 120); // in minutes
+        $this->refreshTtl = config('jwt.refresh_ttl', 20160); // in minutes
         
         // Validate that JWT_SECRET is properly set in production environments
-        $appEnv = $_ENV['APP_ENV'] ?? 'production';
+        $appEnv = config('app.env', 'production');
         if (empty($this->secret) && $appEnv !== 'testing') {
             throw new \Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
         }

@@ -42,4 +42,33 @@ class Permission extends Model
             'role_id'       => $role->id,
         ]);
     }
+
+    /**
+     * Get permission from cache by ID
+     */
+    public static function getCached(string $id): ?self
+    {
+        return \Hyperf\Cache\Cache::instance()->get('permission:' . $id, function () use ($id) {
+            return self::find($id);
+        }, 3600);
+    }
+
+    /**
+     * Get permission from cache by name
+     */
+    public static function getCachedByName(string $name): ?self
+    {
+        return \Hyperf\Cache\Cache::instance()->get('permission:name:' . $name, function () use ($name) {
+            return self::where('name', $name)->first();
+        }, 3600);
+    }
+
+    /**
+     * Clear permission cache
+     */
+    public function clearCache(): void
+    {
+        \Hyperf\Cache\Cache::instance()->delete('permission:' . $this->id);
+        \Hyperf\Cache\Cache::instance()->delete('permission:name:' . $this->name);
+    }
 }

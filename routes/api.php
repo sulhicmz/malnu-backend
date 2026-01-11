@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CacheController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -80,5 +81,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         
         // Resource Booking
         Route::post('resources/book', [CalendarController::class, 'bookResource']);
+    });
+});
+
+// Cache Management Routes (protected, admin only)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('cache')->group(function () {
+        Route::get('statistics', [CacheController::class, 'getStatistics']);
+        Route::get('top-keys', [CacheController::class, 'getTopKeys']);
+        Route::get('health', [CacheController::class, 'checkHealth']);
+        Route::post('reset-statistics', [CacheController::class, 'resetStatistics']);
+        Route::post('clear-all', [CacheController::class, 'clearAll']);
+        Route::post('clear-pattern', [CacheController::class, 'clearByPattern']);
+        Route::post('warm-up', [CacheController::class, 'warmUp']);
     });
 });

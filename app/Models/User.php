@@ -31,6 +31,9 @@ use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use Hyperf\Foundation\Auth\User as Authenticatable;
 use App\Traits\UsesUuid;
+use Hyperf\Cache\Annotation\Cacheable;
+use Hyperf\Cache\Annotation\CacheEvict;
+use Hyperf\Di\Annotation\Inject;
 
 class User extends Authenticatable
 {
@@ -204,5 +207,75 @@ class User extends Authenticatable
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    /**
+     * Get user from cache by ID
+     */
+    public static function getCached(string $id): ?self
+    {
+        return \Hyperf\Cache\Cache::instance()->get('user:' . $id, function () use ($id) {
+            return self::find($id);
+        }, 3600);
+    }
+
+    /**
+     * Get user from cache by email
+     */
+    public static function getCachedByEmail(string $email): ?self
+    {
+        return \Hyperf\Cache\Cache::instance()->get('user:email:' . $email, function () use ($email) {
+            return self::where('email', $email)->first();
+        }, 3600);
+    }
+
+    /**
+     * Get user roles from cache
+     */
+    public function getCachedRoles(): array
+    {
+        return \Hyperf\Cache\Cache::instance()->get('user:' . $this->id . ':roles', function () {
+            $roles = [];
+            $modelHasRoles = ModelHasRole::where('model_type', self::class)
+                ->where('model_id', $this->id)
+                ->get();
+            foreach ($modelHasRoles as $modelHasRole) {
+                $role = Role::find($modelHasRole->role_id);
+                if ($role) {
+                    $roles[] = $role->name;
+                }
+            }
+            return $roles;
+        }, 3600);
+    }
+
+    /**
+     * Clear user cache
+     */
+    public function clearCache(): void
+    {
+        \Hyperf\Cache\Cache::instance()->delete('user:' . $this->id);
+        \Hyperf\Cache\Cache::instance()->delete('user:email:' . $this->email);
+        \Hyperf\Cache\Cache::instance()->delete('user:' . $this->id . ':roles');
+    }
+
+    /**
+     * Get all permissions from cache
+     */
+    public function getCachedPermissions(): array
+    {
+        return \Hyperf\Cache\Cache::instance()->get('user:' . $this->id . ':permissions', function () {
+            $permissions = [];
+            $roles = $this->getCachedRoles();
+            foreach ($roles as $roleName) {
+                $role = Role::where('name', $roleName)->first();
+                if ($role) {
+                    foreach ($role->permissions as $permission) {
+                        $permissions[] = $permission->name;
+                    }
+                }
+            }
+            return array_unique($permissions);
+        }, 3600);
     }
 }

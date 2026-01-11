@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Services\AuthService;
 use App\Services\TokenBlacklistService;
+use App\Services\PasswordValidator;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 
@@ -376,5 +377,103 @@ class AuthServiceTest extends TestCase
         $this->expectExceptionMessage('Invalid reset token');
 
         $this->authService->resetPassword('wrongtoken' . str_repeat('a', 64), 'newpassword123');
+    }
+
+    public function test_password_validation_requires_uppercase()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertFalse($passwordValidator->isValid('lowercase123!'));
+        $this->assertFalse($passwordValidator->checkUppercase('lowercase123!'));
+    }
+
+    public function test_password_validation_requires_lowercase()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertFalse($passwordValidator->isValid('UPPERCASE123!'));
+        $this->assertFalse($passwordValidator->checkLowercase('UPPERCASE123!'));
+    }
+
+    public function test_password_validation_requires_number()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertFalse($passwordValidator->isValid('Uppercase!'));
+        $this->assertFalse($passwordValidator->checkNumber('Uppercase!'));
+    }
+
+    public function test_password_validation_requires_special_char()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertFalse($passwordValidator->isValid('Uppercase123'));
+        $this->assertFalse($passwordValidator->checkSpecialChar('Uppercase123'));
+    }
+
+    public function test_password_validation_rejects_common_passwords()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertFalse($passwordValidator->isValid('Password123!'));
+        $this->assertTrue($passwordValidator->checkCommonPasswords('Password123!'));
+    }
+
+    public function test_password_validation_accepts_strong_password()
+    {
+        $passwordValidator = new PasswordValidator();
+        $this->assertTrue($passwordValidator->isValid('SecureP@ssw0rd'));
+        $this->assertTrue($passwordValidator->checkUppercase('SecureP@ssw0rd'));
+        $this->assertTrue($passwordValidator->checkLowercase('SecureP@ssw0rd'));
+        $this->assertTrue($passwordValidator->checkNumber('SecureP@ssw0rd'));
+        $this->assertTrue($passwordValidator->checkSpecialChar('SecureP@ssw0rd'));
+    }
+
+    public function test_password_validation_error_messages()
+    {
+        $passwordValidator = new PasswordValidator();
+        $errors = $passwordValidator->validate('lowercase');
+        
+        $this->assertIsArray($errors);
+        $this->assertContains('Password must be at least 8 characters', $errors);
+        $this->assertContains('Password must contain at least one uppercase letter', $errors);
+        $this->assertContains('Password must contain at least one number', $errors);
+        $this->assertContains('Password must contain at least one special character', $errors);
+    }
+
+    public function test_reset_password_requires_complexity_uppercase()
+    {
+        $userData = [
+            'name' => 'Complexity Test User',
+            'email' => 'complexity@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'complexity@example.com')->first();
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one uppercase letter');
+
+        $this->authService->resetPassword($resetToken, 'lowercase123!');
+    }
+
+    public function test_change_password_requires_complexity_number()
+    {
+        $userData = [
+            'name' => 'Number Test User',
+            'email' => 'number@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one number');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'Uppercase!');
     }
 }

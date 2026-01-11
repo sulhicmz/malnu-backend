@@ -71,7 +71,7 @@ JWT_SECRET=your-secure-jwt-secret-key-here
 #### 5. Start Docker Services
 
 ```bash
-docker-compose up -d mysql redis
+docker-compose up -d db redis
 ```
 
 #### 6. Run Database Migrations

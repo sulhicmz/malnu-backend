@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Hyperf\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Hypervel\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -14,5 +14,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected array $except = [
+        'api/*',
+        'csp-report',
     ];
 }

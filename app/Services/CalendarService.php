@@ -24,6 +24,33 @@ class CalendarService
     }
 
     /**
+     * Get all calendars for a user
+     */
+    public function getCalendarsForUser(?string $userId = null, ?string $type = null): array
+    {
+        $query = Calendar::query();
+        
+        // Filter by user access
+        if ($userId) {
+            // User can see: calendars they created, calendars shared with them, or public calendars
+            $query->where(function ($q) use ($userId) {
+                $q->where('created_by', $userId)
+                  ->orWhereHas('shares', function ($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  })
+                  ->orWhere('is_public', true);
+            });
+        }
+        
+        // Filter by type
+        if ($type) {
+            $query->where('type', $type);
+        }
+        
+        return $query->orderBy('created_at', 'desc')->get()->toArray();
+    }
+
+    /**
      * Get calendar by ID
      */
     public function getCalendar(string $id): ?Calendar

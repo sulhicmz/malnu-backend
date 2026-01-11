@@ -11,6 +11,8 @@ Malnu Backend is a comprehensive school management system built with **HyperVel*
 
 ## 🚀 Quick Start
 
+### Standard Installation
+
 ```bash
 # Install dependencies
 composer install
@@ -25,6 +27,59 @@ php artisan migrate
 # Start the server
 php artisan start
 ```
+
+### Using Docker Compose
+
+```bash
+# Build and start all services (app, mysql, postgres, redis)
+docker-compose up -d
+
+# View service status
+docker-compose ps
+
+# View logs
+docker-compose logs -f app
+
+# Stop all services
+docker-compose down
+
+# Stop services and remove volumes (deletes database data)
+docker-compose down -v
+```
+
+#### Database Options
+
+The Docker Compose setup includes three database options:
+
+1. **SQLite (Default)** - No additional configuration needed
+   ```bash
+   # In .env
+   DB_CONNECTION=sqlite
+   ```
+
+2. **MySQL** - Full-featured relational database
+   ```bash
+   # In .env
+   DB_CONNECTION=mysql
+   DB_HOST=mysql
+   DB_PORT=3306
+   DB_DATABASE=malnu
+   DB_USERNAME=malnu_user
+   DB_PASSWORD=malnu_password_change_in_production
+   ```
+
+3. **PostgreSQL** - Advanced open-source database
+   ```bash
+   # In .env
+   DB_CONNECTION=postgres
+   DB_HOST=postgres
+   DB_PORT=5432
+   DB_DATABASE=malnu
+   DB_USERNAME=malnu_user
+   DB_PASSWORD=malnu_password_change_in_production
+   ```
+
+**⚠️ Important**: Change default database passwords in `docker-compose.yml` and `.env` before deploying to production.
 
 For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
 

@@ -230,6 +230,23 @@ class AuthController extends BaseController
     }
 
     /**
+     * Get CSRF token for public routes
+     */
+    public function csrfToken()
+    {
+        try {
+            $token = bin2hex(random_bytes(32));
+            
+            return $this->successResponse([
+                'token' => $token,
+                'expires_in' => 3600
+            ], 'CSRF token generated successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
      * Change authenticated user's password
      */
     public function changePassword()

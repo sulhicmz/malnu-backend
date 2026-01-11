@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Hyperf\Database\Eloquent\Model as BaseModel;
+use Hyperf\Database\Model\Model as EloquentModel;
 
-abstract class Model extends BaseModel
+abstract class Model extends EloquentModel
 {
     protected ?string $connection = null;
 }

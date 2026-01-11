@@ -340,9 +340,27 @@ class ComprehensiveBackupCommand extends Command
         }
     }
 
+    protected function getConfigValues(): array
+    {
+        return [
+            'app' => [
+                'name' => $this->config->get('app.name', 'Malnu'),
+                'env' => $this->config->get('app.env', 'production'),
+                'debug' => $this->config->get('app.debug', false),
+                'timezone' => $this->config->get('app.timezone', 'UTC'),
+            ],
+            'database' => [
+                'default' => $this->config->get('database.default', 'mysql'),
+                'host' => $this->config->get('database.connections.mysql.host', 'localhost'),
+                'port' => $this->config->get('database.connections.mysql.port', 3306),
+                'database' => $this->config->get('database.connections.mysql.database', 'malnu'),
+            ],
+        ];
+    }
+
     protected function createConfigSummary(string $configBackupDir): void
     {
-        $config = $this->config->all();
+        $config = $this->getConfigValues();
 
         // Remove sensitive data from config
         $safeConfig = $this->sanitizeConfig($config);

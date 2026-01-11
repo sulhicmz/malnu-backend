@@ -12,9 +12,11 @@ use App\Models\User;
 
 class Exam extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'name',

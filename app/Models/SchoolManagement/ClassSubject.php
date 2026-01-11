@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace App\Models\SchoolManagement;
 
 use App\Models\Model;
-use App\Models\SchoolManagement\ClassModel;
-use App\Models\SchoolManagement\Subject;
-use App\Models\SchoolManagement\Teacher;
-use App\Models\SchoolManagement\Schedule;
 
 class ClassSubject extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'class_id',

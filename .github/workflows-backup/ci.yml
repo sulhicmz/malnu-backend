@@ -1,0 +1,249 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, agent, develop ]
+  pull_request:
+    branches: [ main, agent, develop ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: redis, pdo_mysql, mbstring, json, tokenizer
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Prepare Environment
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=test_db/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env
+          sed -i 's/REDIS_HOST=.*/REDIS_HOST=127.0.0.1/' .env
+
+      - name: Run Migrations
+        run: php artisan migrate:fresh --seed --force
+
+      - name: Execute Unit Tests
+        run: composer test -- --testsuite=Unit --stop-on-failure
+
+      - name: Execute Feature Tests
+        run: composer test -- --testsuite=Feature --stop-on-failure
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: redis, pdo_mysql, mbstring, json, tokenizer
+          tools: composer:v2, phpstan, php-cs-fixer
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Run PHPStan Analysis
+        run: composer analyse
+
+      - name: Check Code Style
+        run: php-cs-fixer fix --dry-run --diff --verbose
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Build Frontend
+        run: npm run build
+
+  build-artifacts:
+    name: Build Artifacts
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    needs: [backend-tests, code-quality, frontend-tests]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: redis, pdo_mysql, mbstring, json, tokenizer
+          tools: composer:v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-dev --no-progress --no-suggest --no-interaction
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Create Build Artifact
+        run: |
+          tar -czf build-${{ github.sha }}.tar.gz \
+            app/ \
+            config/ \
+            public/ \
+            routes/ \
+            vendor/ \
+            composer.json \
+            composer.lock \
+            frontend/dist/ \
+            .env.example
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build-${{ github.sha }}.tar.gz
+          retention-days: 7
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-24.04-arm
+    needs: build-artifacts
+    if: github.ref == 'refs/heads/agent' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.example.com
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging environment..."
+          echo "Add deployment steps here (e.g., SCP, SSH, etc.)"
+          # Example:
+          # scp build-${{ github.sha }}.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/
+          # ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /var/www/app && tar -xzf /tmp/build-${{ github.sha }}.tar.gz && php artisan migrate --force'
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-24.04-arm
+    needs: build-artifacts
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://example.com
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+
+      - name: Deploy to Production
+        run: |
+          echo "Deploying to production environment..."
+          echo "Add deployment steps here (e.g., SCP, SSH, etc.)"
+          # Example:
+          # scp build-${{ github.sha }}.tar.gz ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/tmp/
+          # ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'cd /var/www/app && tar -xzf /tmp/build-${{ github.sha }}.tar.gz && php artisan migrate --force && php artisan config:cache && php artisan route:cache'

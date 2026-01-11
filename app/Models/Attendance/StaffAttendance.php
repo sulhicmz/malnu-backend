@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
@@ -10,10 +12,10 @@ use App\Traits\UsesUuid;
  * @property string $id
  * @property string $staff_id
  * @property string $attendance_date
- * @property string|null $check_in_time
- * @property string|null $check_out_time
+ * @property null|string $check_in_time
+ * @property null|string $check_out_time
  * @property string $status
- * @property string|null $notes
+ * @property null|string $notes
  * @property string $check_in_method
  * @property string $check_out_method
  */

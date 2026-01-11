@@ -4,20 +4,44 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Patterns\CircuitBreaker;
+use App\Patterns\RetryWithBackoff;
+use Exception;
+use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;
+use Swift_TransportException;
 
 class EmailService
 {
     private Swift_Mailer $mailer;
+
     private string $fromAddress;
+
     private string $fromName;
 
-    public function __construct()
-    {
+    private CircuitBreaker $circuitBreaker;
+
+    private RetryWithBackoff $retryWithBackoff;
+
+    private LoggerInterface $logger;
+
+    private int $timeoutSeconds;
+
+    private int $maxRetries;
+
+    private int $initialDelayMs;
+
+    public function __construct(
+        ?LoggerInterface $logger = null
+    ) {
         $this->fromAddress = env('MAIL_FROM_ADDRESS', 'noreply@example.com');
         $this->fromName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
+
+        $this->timeoutSeconds = (int) env('MAIL_TIMEOUT', 10);
+        $this->maxRetries = (int) env('MAIL_MAX_RETRIES', 3);
+        $this->initialDelayMs = (int) env('MAIL_INITIAL_DELAY_MS', 100);
 
         $transport = (new Swift_SmtpTransport(
             env('MAIL_HOST', 'smtp.mailtrap.io'),
@@ -25,9 +49,30 @@ class EmailService
             env('MAIL_ENCRYPTION', 'tls')
         ))
             ->setUsername(env('MAIL_USERNAME', ''))
-            ->setPassword(env('MAIL_PASSWORD', ''));
+            ->setPassword(env('MAIL_PASSWORD', ''))
+            ->setTimeout($this->timeoutSeconds);
 
         $this->mailer = new Swift_Mailer($transport);
+
+        $this->logger = $logger ?? \Hyperf\Support\make(LoggerInterface::class);
+
+        $cache = \Hyperf\Support\make(\Hyperf\Cache\Cache::class);
+
+        $this->circuitBreaker = new CircuitBreaker(
+            $cache,
+            'email_service',
+            (int) env('MAIL_CIRCUIT_BREAKER_FAILURES', 5),
+            (int) env('MAIL_CIRCUIT_BREAKER_TIMEOUT', 60),
+            1
+        );
+
+        $this->retryWithBackoff = new RetryWithBackoff(
+            $this->maxRetries,
+            $this->initialDelayMs,
+            2.0,
+            5000,
+            $this->logger
+        );
     }
 
     public function sendPasswordResetEmail(string $email, string $token): bool
@@ -38,6 +83,36 @@ class EmailService
         $subject = "Password Reset Request - {$appName}";
         $body = $this->getPasswordResetTemplate($resetLink);
 
+        return $this->circuitBreaker->call(function () use ($email, $subject, $body) {
+            return $this->retryWithBackoff->execute(function () use ($email, $subject, $body) {
+                return $this->sendEmail($email, $subject, $body);
+            }, [Swift_TransportException::class, Exception::class]);
+        });
+    }
+
+    public function getHealthStatus(): array
+    {
+        $circuitBreakerMetrics = $this->circuitBreaker->getMetrics();
+
+        return [
+            'service' => 'email',
+            'status' => $circuitBreakerMetrics['state'] === 'closed' ? 'healthy' : 'degraded',
+            'circuit_breaker' => $circuitBreakerMetrics,
+            'configuration' => [
+                'timeout_seconds' => $this->timeoutSeconds,
+                'max_retries' => $this->maxRetries,
+                'initial_delay_ms' => $this->initialDelayMs,
+            ],
+        ];
+    }
+
+    public function getCircuitBreaker(): CircuitBreaker
+    {
+        return $this->circuitBreaker;
+    }
+
+    private function sendEmail(string $email, string $subject, string $body): bool
+    {
         $message = (new Swift_Message($subject))
             ->setFrom([$this->fromAddress => $this->fromName])
             ->setTo([$email])
@@ -45,17 +120,25 @@ class EmailService
 
         try {
             $result = $this->mailer->send($message);
-            \Hyperf\Support\make(\Psr\Log\LoggerInterface::class)->info('Password reset email sent', [
+            $this->logger->info('Password reset email sent successfully', [
                 'email' => $email,
                 'result' => $result,
             ]);
             return $result > 0;
-        } catch (\Exception $e) {
-            \Hyperf\Support\make(\Psr\Log\LoggerInterface::class)->error('Failed to send password reset email', [
+        } catch (Swift_TransportException $e) {
+            $this->logger->error('Failed to send password reset email - transport error', [
                 'email' => $email,
                 'error' => $e->getMessage(),
+                'code' => $e->getCode(),
             ]);
-            return false;
+            throw $e;
+        } catch (Exception $e) {
+            $this->logger->error('Failed to send password reset email - unexpected error', [
+                'email' => $email,
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ]);
+            throw $e;
         }
     }
 
@@ -92,7 +175,7 @@ class EmailService
         <div class='content'>
             <p>Hello,</p>
             <p>We received a request to reset your password for your <strong>{$appName}</strong> account.</p>
-            <p>Click the button below to reset your password:</p>
+            <p>Click button below to reset your password:</p>
             <a href='{$resetLink}' class='button'>Reset Password</a>
             <p>Or copy and paste this link into your browser:</p>
             <p>{$resetLink}</p>

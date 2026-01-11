@@ -11,13 +11,58 @@ Malnu Backend is a comprehensive school management system built with **HyperVel*
 
 ## 🚀 Quick Start
 
+### Docker (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/sulhicmz/malnu-backend.git
+cd malnu-backend
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your configuration (see Docker section below)
+
+# Generate JWT secret (required for authentication)
+php -r "echo bin2hex(random_bytes(32));" # Copy the output to JWT_SECRET in .env
+
+# Start all services (MySQL, Redis, and application)
+docker-compose up -d
+
+# Run database migrations
+docker-compose exec app php artisan migrate
+
+# View logs
+docker-compose logs -f app
+```
+
+The application will be available at `http://localhost:9501`
+
+### Docker Configuration Notes
+
+- **Database**: MySQL 8.0 on port 3306 (configured in `docker-compose.yml`)
+- **Cache**: Redis 7 on port 6379
+- **Environment**: `.env.example` uses Docker-compatible settings (DB_HOST=db, REDIS_HOST=redis)
+- **Hot Reload**: Application auto-reloads on code changes
+
+For detailed Docker setup and troubleshooting, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
+
+### Local Development (Without Docker)
+
+If you prefer local development without Docker:
+
 ```bash
 # Install dependencies
 composer install
 
 # Set up environment
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env to use local database (change DB_CONNECTION to mysql, set DB_HOST=127.0.0.1)
+
+# Generate JWT secret
+php -r "echo bin2hex(random_bytes(32));" # Copy the output to JWT_SECRET in .env
+
+# Start MySQL and Redis services (use docker-compose or local installations)
+docker-compose up -d mysql redis
 
 # Run migrations
 php artisan migrate
@@ -25,8 +70,6 @@ php artisan migrate
 # Start the server
 php artisan start
 ```
-
-For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
 
 ## 📚 Documentation
 

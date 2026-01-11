@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
-class RolePermissionService
+use App\Contracts\RolePermissionServiceInterface;
+
+class RolePermissionService implements RolePermissionServiceInterface
 {
     /**
-     * Get all roles
+     * Get all roles.
      */
     public function getAllRoles(): array
     {
@@ -19,7 +23,7 @@ class RolePermissionService
     }
 
     /**
-     * Get role by name
+     * Get role by name.
      */
     public function getRoleByName(string $roleName): ?array
     {
@@ -33,7 +37,7 @@ class RolePermissionService
     }
 
     /**
-     * Get all permissions
+     * Get all permissions.
      */
     public function getAllPermissions(): array
     {
@@ -51,14 +55,14 @@ class RolePermissionService
     }
 
     /**
-     * Get permissions for a specific role
+     * Get permissions for a specific role.
      */
     public function getPermissionsForRole(string $roleName): array
     {
         // Define role-permission mappings
         $rolePermissions = [
-            'admin' => ['view_users', 'create_users', 'edit_users', 'delete_users', 
-                       'view_courses', 'create_courses', 'edit_courses', 'delete_courses'],
+            'admin' => ['view_users', 'create_users', 'edit_users', 'delete_users',
+                'view_courses', 'create_courses', 'edit_courses', 'delete_courses'],
             'teacher' => ['view_users', 'view_courses', 'create_courses', 'edit_courses'],
             'student' => ['view_courses'],
             'parent' => ['view_users'],
@@ -68,7 +72,7 @@ class RolePermissionService
     }
 
     /**
-     * Check if a role has a specific permission
+     * Check if a role has a specific permission.
      */
     public function roleHasPermission(string $roleName, string $permission): bool
     {
@@ -77,13 +81,13 @@ class RolePermissionService
     }
 
     /**
-     * Assign a role to a user
+     * Assign a role to a user.
      */
     public function assignRoleToUser(string $userId, string $roleName): bool
     {
         // In a real implementation, this would update the database
         // Check if role exists
-        if (!$this->getRoleByName($roleName)) {
+        if (! $this->getRoleByName($roleName)) {
             return false;
         }
 
@@ -92,7 +96,7 @@ class RolePermissionService
     }
 
     /**
-     * Remove a role from a user
+     * Remove a role from a user.
      */
     public function removeRoleFromUser(string $userId, string $roleName): bool
     {
@@ -101,7 +105,7 @@ class RolePermissionService
     }
 
     /**
-     * Get roles for a specific user
+     * Get roles for a specific user.
      */
     public function getRolesForUser(string $userId): array
     {

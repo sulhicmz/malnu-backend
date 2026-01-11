@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\LeaveType;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class LeaveTypeController extends Controller
 {
@@ -30,7 +32,7 @@ class LeaveTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $leaveTypes
+            'data' => $leaveTypes,
         ]);
     }
 
@@ -55,7 +57,7 @@ class LeaveTypeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Leave type created successfully',
-            'data' => $leaveType
+            'data' => $leaveType,
         ], 201);
     }
 
@@ -66,16 +68,16 @@ class LeaveTypeController extends Controller
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return response()->json([
                 'success' => false,
-                'message' => 'Leave type not found'
+                'message' => 'Leave type not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $leaveType
+            'data' => $leaveType,
         ]);
     }
 
@@ -86,10 +88,10 @@ class LeaveTypeController extends Controller
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return response()->json([
                 'success' => false,
-                'message' => 'Leave type not found'
+                'message' => 'Leave type not found',
             ], 404);
         }
 
@@ -109,7 +111,7 @@ class LeaveTypeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Leave type updated successfully',
-            'data' => $leaveType
+            'data' => $leaveType,
         ]);
     }
 
@@ -120,10 +122,10 @@ class LeaveTypeController extends Controller
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return response()->json([
                 'success' => false,
-                'message' => 'Leave type not found'
+                'message' => 'Leave type not found',
             ], 404);
         }
 
@@ -131,7 +133,7 @@ class LeaveTypeController extends Controller
         if ($leaveType->leaveRequests()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete leave type with associated leave requests'
+                'message' => 'Cannot delete leave type with associated leave requests',
             ], 400);
         }
 
@@ -139,7 +141,7 @@ class LeaveTypeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Leave type deleted successfully'
+            'message' => 'Leave type deleted successfully',
         ]);
     }
 }

@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -25,9 +24,9 @@ return new class extends Migration
             $table->json('permissions')->nullable(); // role-based permissions
             $table->uuid('created_by')->nullable();
             $table->uuid('updated_by')->nullable();
-            
+
             $table->datetimes();
-            
+
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
             $table->index(['type', 'is_public']);
@@ -54,9 +53,9 @@ return new class extends Migration
             $table->json('metadata')->nullable(); // additional event data
             $table->uuid('created_by')->nullable();
             $table->uuid('updated_by')->nullable();
-            
+
             $table->datetimes();
-            
+
             $table->foreign('calendar_id')->references('id')->on('calendars')->onDelete('cascade');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
@@ -74,9 +73,9 @@ return new class extends Migration
             $table->timestamp('registration_date');
             $table->timestamp('confirmation_date')->nullable();
             $table->json('additional_data')->nullable(); // special requirements, etc.
-            
+
             $table->datetimes();
-            
+
             $table->foreign('event_id')->references('id')->on('calendar_events')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['event_id', 'user_id'], 'unique_event_user');
@@ -91,9 +90,9 @@ return new class extends Migration
             $table->uuid('user_id');
             $table->string('permission_type', 20)->default('view'); // view, edit, admin
             $table->timestamp('expires_at')->nullable();
-            
+
             $table->datetimes();
-            
+
             $table->foreign('calendar_id')->references('id')->on('calendars')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['calendar_id', 'user_id'], 'unique_calendar_user_share');
@@ -111,9 +110,9 @@ return new class extends Migration
             $table->string('purpose', 255)->nullable();
             $table->string('status', 20)->default('confirmed'); // pending, confirmed, cancelled, completed
             $table->json('booking_data')->nullable(); // additional booking information
-            
+
             $table->datetimes();
-            
+
             $table->foreign('event_id')->references('id')->on('calendar_events')->onDelete('set null');
             $table->foreign('booked_by')->references('id')->on('users')->onDelete('cascade');
             $table->index(['resource_type', 'resource_id', 'start_time', 'end_time']);

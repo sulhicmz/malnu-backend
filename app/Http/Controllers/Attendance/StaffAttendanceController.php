@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\StaffAttendance;
 use App\Models\SchoolManagement\Staff;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class StaffAttendanceController extends Controller
 {
@@ -38,7 +40,7 @@ class StaffAttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $attendances
+            'data' => $attendances,
         ]);
     }
 
@@ -66,7 +68,7 @@ class StaffAttendanceController extends Controller
         if ($existingAttendance) {
             return response()->json([
                 'success' => false,
-                'message' => 'Attendance record already exists for this staff on the given date'
+                'message' => 'Attendance record already exists for this staff on the given date',
             ], 400);
         }
 
@@ -75,7 +77,7 @@ class StaffAttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Staff attendance recorded successfully',
-            'data' => $attendance
+            'data' => $attendance,
         ], 201);
     }
 
@@ -86,16 +88,16 @@ class StaffAttendanceController extends Controller
     {
         $attendance = StaffAttendance::with('staff')->find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return response()->json([
                 'success' => false,
-                'message' => 'Attendance record not found'
+                'message' => 'Attendance record not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $attendance
+            'data' => $attendance,
         ]);
     }
 
@@ -106,10 +108,10 @@ class StaffAttendanceController extends Controller
     {
         $attendance = StaffAttendance::find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return response()->json([
                 'success' => false,
-                'message' => 'Attendance record not found'
+                'message' => 'Attendance record not found',
             ], 404);
         }
 
@@ -127,7 +129,7 @@ class StaffAttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attendance record updated successfully',
-            'data' => $attendance
+            'data' => $attendance,
         ]);
     }
 
@@ -138,10 +140,10 @@ class StaffAttendanceController extends Controller
     {
         $attendance = StaffAttendance::find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return response()->json([
                 'success' => false,
-                'message' => 'Attendance record not found'
+                'message' => 'Attendance record not found',
             ], 404);
         }
 
@@ -149,7 +151,7 @@ class StaffAttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Attendance record deleted successfully'
+            'message' => 'Attendance record deleted successfully',
         ]);
     }
 
@@ -179,19 +181,19 @@ class StaffAttendanceController extends Controller
             $attendance->update([
                 'check_in_time' => $request->time,
                 'check_in_method' => 'manual',
-                'status' => 'present'
+                'status' => 'present',
             ]);
         } elseif ($request->action === 'check_out') {
             $attendance->update([
                 'check_out_time' => $request->time,
-                'check_out_method' => 'manual'
+                'check_out_method' => 'manual',
             ]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Attendance marked successfully',
-            'data' => $attendance
+            'data' => $attendance,
         ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\Grading;
 
@@ -11,9 +11,11 @@ use App\Models\User;
 
 class Report extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'student_id',
@@ -31,11 +33,11 @@ class Report extends Model
 
     protected $casts = [
         'average_grade' => 'decimal:2',
-        'semester'      => 'integer',
-        'is_published'  => 'boolean',
-        'published_at'  => 'datetime',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'semester' => 'integer',
+        'is_published' => 'boolean',
+        'published_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships
@@ -44,7 +46,7 @@ class Report extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function class ()
+    public function class()
     {
         return $this->belongsTo(ClassModel::class);
     }

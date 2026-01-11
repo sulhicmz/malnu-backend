@@ -9,9 +9,11 @@ use App\Models\SchoolManagement\Student;
 
 class StudentPortfolio extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'student_id',

@@ -4,60 +4,71 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Calendar;
 
-use App\Http\Controllers\AbstractController;
+use App\Http\Controllers\Api\BaseController;
 use App\Services\CalendarService;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\PutMapping;
 use Hyperf\HttpServer\Annotation\DeleteMapping;
-use Hyperf\HttpServer\Annotation\Middleware;
 use App\Http\Middleware\JWTMiddleware;
-use Hyperf\HttpMessage\Stream\SwooleStream;
-use Psr\Http\Message\ResponseInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Di\Annotation\Inject;
+use Psr\Container\ContainerInterface;
 
 /**
  * @Controller(prefix="api/calendar")
  * @Middleware(JWTMiddleware::class)
  */
-class CalendarController extends AbstractController
+class CalendarController extends BaseController
 {
+    /**
+     * @Inject
+     */
     private CalendarService $calendarService;
 
-    public function __construct(CalendarService $calendarService)
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container
+    ) {
+        parent::__construct($request, $response, $container);
+    }
+
+    /**
+     * Get all calendars
+     * @GetMapping(path="calendars")
+     */
+    public function listCalendars()
     {
-        $this->calendarService = $calendarService;
+        try {
+            $calendars = \App\Models\Calendar\Calendar::query()->get()->toArray();
+
+            return $this->successResponse($calendars, 'Calendars retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve calendars: ' . $e->getMessage());
+        }
     }
 
     /**
      * Create a new calendar
      * @PostMapping(path="calendars")
      */
-    public function createCalendar(): ResponseInterface
+    public function createCalendar()
     {
         $data = $this->request->all();
-        
-        // Validate required fields
+
         if (empty($data['name'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Calendar name is required'
-            ])->withStatus(400);
+            return $this->validationErrorResponse(['name' => 'Calendar name is required']);
         }
 
         try {
             $calendar = $this->calendarService->createCalendar($data);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar,
-                'message' => 'Calendar created successfully'
-            ]);
+
+            return $this->successResponse($calendar, 'Calendar created successfully', 201);
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to create calendar: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to create calendar: ' . $e->getMessage());
         }
     }
 
@@ -65,27 +76,18 @@ class CalendarController extends AbstractController
      * Get calendar by ID
      * @GetMapping(path="calendars/{id}")
      */
-    public function getCalendar(string $id): ResponseInterface
+    public function getCalendar($id)
     {
         try {
             $calendar = $this->calendarService->getCalendar($id);
-            
+
             if (!$calendar) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar
-            ]);
+
+            return $this->successResponse($calendar, 'Calendar retrieved successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve calendar: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to retrieve calendar: ' . $e->getMessage());
         }
     }
 
@@ -93,32 +95,22 @@ class CalendarController extends AbstractController
      * Update calendar
      * @PutMapping(path="calendars/{id}")
      */
-    public function updateCalendar(string $id): ResponseInterface
+    public function updateCalendar($id)
     {
         $data = $this->request->all();
-        
+
         try {
             $result = $this->calendarService->updateCalendar($id, $data);
-            
+
             if (!$result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
-            
+
             $calendar = $this->calendarService->getCalendar($id);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $calendar,
-                'message' => 'Calendar updated successfully'
-            ]);
+
+            return $this->successResponse($calendar, 'Calendar updated successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to update calendar: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to update calendar: ' . $e->getMessage());
         }
     }
 
@@ -126,27 +118,79 @@ class CalendarController extends AbstractController
      * Delete calendar
      * @DeleteMapping(path="calendars/{id}")
      */
-    public function deleteCalendar(string $id): ResponseInterface
+    public function deleteCalendar($id)
     {
         try {
             $result = $this->calendarService->deleteCalendar($id);
-            
+
             if (!$result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Calendar not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Calendar not found');
             }
-            
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Calendar deleted successfully'
-            ]);
+
+            return $this->successResponse(null, 'Calendar deleted successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to delete calendar: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to delete calendar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get events by calendar ID
+     * @GetMapping(path="calendars/{calendarId}/events")
+     */
+    public function getCalendarEvents($calendarId)
+    {
+        try {
+            $events = \App\Models\Calendar\CalendarEvent::query()
+                ->where('calendar_id', $calendarId)
+                ->get()
+                ->toArray();
+
+            return $this->successResponse($events, 'Events retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve events: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get events by date range
+     * @GetMapping(path="events/daterange")
+     */
+    public function getEventsByDateRange()
+    {
+        $calendarId = $this->request->query('calendar_id');
+        $startDate = $this->request->query('start_date');
+        $endDate = $this->request->query('end_date');
+        $category = $this->request->query('category');
+        $priority = $this->request->query('priority');
+
+        if (empty($startDate) || empty($endDate)) {
+            return $this->validationErrorResponse([
+                'start_date' => 'Start date is required',
+                'end_date' => 'End date is required'
+            ]);
+        }
+
+        if (empty($calendarId)) {
+            return $this->validationErrorResponse(['calendar_id' => 'Calendar ID is required']);
+        }
+
+        try {
+            $carbon = new \Carbon\Carbon($startDate);
+            $endDateObj = new \Carbon\Carbon($endDate);
+
+            $filters = [];
+            if ($category) {
+                $filters['category'] = $category;
+            }
+            if ($priority) {
+                $filters['priority'] = $priority;
+            }
+
+            $events = $this->calendarService->getEventsByDateRange($calendarId, $carbon, $endDateObj, $filters);
+
+            return $this->successResponse($events, 'Events retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve events: ' . $e->getMessage());
         }
     }
 
@@ -154,31 +198,25 @@ class CalendarController extends AbstractController
      * Create a new event
      * @PostMapping(path="events")
      */
-    public function createEvent(): ResponseInterface
+    public function createEvent()
     {
         $data = $this->request->all();
-        
-        // Validate required fields
+
         if (empty($data['calendar_id']) || empty($data['title']) || empty($data['start_date']) || empty($data['end_date'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Calendar ID, title, start date, and end date are required'
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'calendar_id' => 'Calendar ID is required',
+                'title' => 'Title is required',
+                'start_date' => 'Start date is required',
+                'end_date' => 'End date is required'
+            ]);
         }
 
         try {
             $event = $this->calendarService->createEvent($data);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $event,
-                'message' => 'Event created successfully'
-            ]);
+
+            return $this->successResponse($event, 'Event created successfully', 201);
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to create event: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to create event: ' . $e->getMessage());
         }
     }
 
@@ -186,27 +224,18 @@ class CalendarController extends AbstractController
      * Get event by ID
      * @GetMapping(path="events/{id}")
      */
-    public function getEvent(string $id): ResponseInterface
+    public function getEvent($id)
     {
         try {
             $event = $this->calendarService->getEvent($id);
-            
+
             if (!$event) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $event
-            ]);
+
+            return $this->successResponse($event, 'Event retrieved successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve event: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to retrieve event: ' . $e->getMessage());
         }
     }
 
@@ -214,32 +243,22 @@ class CalendarController extends AbstractController
      * Update event
      * @PutMapping(path="events/{id}")
      */
-    public function updateEvent(string $id): ResponseInterface
+    public function updateEvent($id)
     {
         $data = $this->request->all();
-        
+
         try {
             $result = $this->calendarService->updateEvent($id, $data);
-            
+
             if (!$result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
-            
+
             $event = $this->calendarService->getEvent($id);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $event,
-                'message' => 'Event updated successfully'
-            ]);
+
+            return $this->successResponse($event, 'Event updated successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to update event: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to update event: ' . $e->getMessage());
         }
     }
 
@@ -247,67 +266,18 @@ class CalendarController extends AbstractController
      * Delete event
      * @DeleteMapping(path="events/{id}")
      */
-    public function deleteEvent(string $id): ResponseInterface
+    public function deleteEvent($id)
     {
         try {
             $result = $this->calendarService->deleteEvent($id);
-            
+
             if (!$result) {
-                return $this->response->json([
-                    'success' => false,
-                    'message' => 'Event not found'
-                ])->withStatus(404);
+                return $this->notFoundResponse('Event not found');
             }
-            
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Event deleted successfully'
-            ]);
+
+            return $this->successResponse(null, 'Event deleted successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to delete event: ' . $e->getMessage()
-            ])->withStatus(500);
-        }
-    }
-
-    /**
-     * Get events by date range
-     * @GetMapping(path="calendars/{calendarId}/events")
-     */
-    public function getEventsByDateRange(string $calendarId): ResponseInterface
-    {
-        $startDate = $this->request->query('start_date');
-        $endDate = $this->request->query('end_date');
-        $category = $this->request->query('category');
-        $priority = $this->request->query('priority');
-
-        if (empty($startDate) || empty($endDate)) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Start date and end date are required'
-            ])->withStatus(400);
-        }
-
-        try {
-            $carbon = new \DateTime($startDate);
-            $endDateObj = new \DateTime($endDate);
-            
-            $filters = [];
-            if ($category) $filters['category'] = $category;
-            if ($priority) $filters['priority'] = $priority;
-
-            $events = $this->calendarService->getEventsByDateRange($calendarId, $carbon, $endDateObj, $filters);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $events
-            ]);
-        } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Failed to retrieve events: ' . $e->getMessage()
-            ])->withStatus(500);
+            return $this->serverErrorResponse('Failed to delete event: ' . $e->getMessage());
         }
     }
 
@@ -315,23 +285,58 @@ class CalendarController extends AbstractController
      * Register for an event
      * @PostMapping(path="events/{eventId}/register")
      */
-    public function registerForEvent(string $eventId): ResponseInterface
+    public function registerForEvent($eventId)
     {
-        $userId = $this->request->getAttribute('user_id'); // Assuming JWT middleware sets this
+        $userId = $this->request->getAttribute('user_id');
         $data = $this->request->all();
-        
+
+        if (empty($userId)) {
+            return $this->unauthorizedResponse('User not authenticated');
+        }
+
         try {
-            $result = $this->calendarService->registerForEvent($eventId, $userId, $data);
-            
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Successfully registered for event'
-            ]);
+            $this->calendarService->registerForEvent($eventId, $userId, $data);
+
+            return $this->successResponse(null, 'Successfully registered for event');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), 'REGISTRATION_ERROR', null, 400);
+        }
+    }
+
+    /**
+     * Get event registrations
+     * @GetMapping(path="events/{eventId}/registrations")
+     */
+    public function getEventRegistrations($eventId)
+    {
+        try {
+            $registrations = $this->calendarService->getEventRegistrations($eventId);
+
+            return $this->successResponse($registrations, 'Registrations retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve registrations: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get user's upcoming events
+     * @GetMapping(path="events/upcoming")
+     */
+    public function getUpcomingEvents()
+    {
+        $userId = $this->request->getAttribute('user_id');
+        $days = $this->request->query('days', 30);
+
+        if (empty($userId)) {
+            return $this->unauthorizedResponse('User not authenticated');
+        }
+
+        try {
+            $events = $this->calendarService->getUpcomingEvents($userId, (int)$days);
+
+            return $this->successResponse($events, 'Upcoming events retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve upcoming events: ' . $e->getMessage());
         }
     }
 
@@ -339,34 +344,46 @@ class CalendarController extends AbstractController
      * Share calendar with user
      * @PostMapping(path="calendars/{calendarId}/share")
      */
-    public function shareCalendar(string $calendarId): ResponseInterface
+    public function shareCalendar($calendarId)
     {
         $data = $this->request->all();
-        
+
         if (empty($data['user_id']) || empty($data['permission_type'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'User ID and permission type are required'
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'user_id' => 'User ID is required',
+                'permission_type' => 'Permission type is required'
+            ]);
         }
 
         try {
             $expiresAt = null;
             if (!empty($data['expires_at'])) {
-                $expiresAt = new \DateTime($data['expires_at']);
+                $expiresAt = new \Carbon\Carbon($data['expires_at']);
             }
-            
-            $result = $this->calendarService->shareCalendar($calendarId, $data['user_id'], $data['permission_type'], $expiresAt);
-            
-            return $this->response->json([
-                'success' => true,
-                'message' => 'Calendar shared successfully'
-            ]);
+
+            $this->calendarService->shareCalendar($calendarId, $data['user_id'], $data['permission_type'], $expiresAt);
+
+            return $this->successResponse(null, 'Calendar shared successfully');
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), 'SHARE_ERROR', null, 400);
+        }
+    }
+
+    /**
+     * Get calendar shares
+     * @GetMapping(path="calendars/{calendarId}/shares")
+     */
+    public function getCalendarShares($calendarId)
+    {
+        try {
+            $shares = \App\Models\Calendar\CalendarShare::query()
+                ->where('calendar_id', $calendarId)
+                ->get()
+                ->toArray();
+
+            return $this->successResponse($shares, 'Calendar shares retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve calendar shares: ' . $e->getMessage());
         }
     }
 
@@ -374,30 +391,95 @@ class CalendarController extends AbstractController
      * Book a resource
      * @PostMapping(path="resources/book")
      */
-    public function bookResource(): ResponseInterface
+    public function bookResource()
     {
+        $userId = $this->request->getAttribute('user_id');
         $data = $this->request->all();
-        
+
+        if (empty($userId)) {
+            return $this->unauthorizedResponse('User not authenticated');
+        }
+
         if (empty($data['resource_type']) || empty($data['resource_id']) || empty($data['start_time']) || empty($data['end_time'])) {
-            return $this->response->json([
-                'success' => false,
-                'message' => 'Resource type, resource ID, start time, and end time are required'
-            ])->withStatus(400);
+            return $this->validationErrorResponse([
+                'resource_type' => 'Resource type is required',
+                'resource_id' => 'Resource ID is required',
+                'start_time' => 'Start time is required',
+                'end_time' => 'End time is required'
+            ]);
         }
 
         try {
+            $data['booked_by'] = $userId;
+
             $booking = $this->calendarService->bookResource($data);
-            
-            return $this->response->json([
-                'success' => true,
-                'data' => $booking,
-                'message' => 'Resource booked successfully'
-            ]);
+
+            return $this->successResponse($booking, 'Resource booked successfully', 201);
         } catch (\Exception $e) {
-            return $this->response->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ])->withStatus(400);
+            return $this->errorResponse($e->getMessage(), 'BOOKING_ERROR', null, 400);
+        }
+    }
+
+    /**
+     * Get resource bookings
+     * @GetMapping(path="resources/bookings")
+     */
+    public function getResourceBookings()
+    {
+        $resourceType = $this->request->query('resource_type');
+        $resourceId = $this->request->query('resource_id');
+        $startDate = $this->request->query('start_date');
+        $endDate = $this->request->query('end_date');
+
+        if (empty($resourceType) || empty($resourceId) || empty($startDate) || empty($endDate)) {
+            return $this->validationErrorResponse([
+                'resource_type' => 'Resource type is required',
+                'resource_id' => 'Resource ID is required',
+                'start_date' => 'Start date is required',
+                'end_date' => 'End date is required'
+            ]);
+        }
+
+        try {
+            $carbon = new \Carbon\Carbon($startDate);
+            $endDateObj = new \Carbon\Carbon($endDate);
+
+            $bookings = $this->calendarService->getResourceBookings($resourceType, $resourceId, $carbon, $endDateObj);
+
+            return $this->successResponse($bookings, 'Resource bookings retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve resource bookings: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Cancel a resource booking
+     * @DeleteMapping(path="resources/bookings/{id}")
+     */
+    public function cancelResourceBooking($id)
+    {
+        $userId = $this->request->getAttribute('user_id');
+
+        if (empty($userId)) {
+            return $this->unauthorizedResponse('User not authenticated');
+        }
+
+        try {
+            $booking = \App\Models\Calendar\ResourceBooking::query()->find($id);
+
+            if (!$booking) {
+                return $this->notFoundResponse('Booking not found');
+            }
+
+            if ($booking->booked_by !== $userId) {
+                return $this->forbiddenResponse('You can only cancel your own bookings');
+            }
+
+            $booking->delete();
+
+            return $this->successResponse(null, 'Booking cancelled successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to cancel booking: ' . $e->getMessage());
         }
     }
 }

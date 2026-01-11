@@ -84,6 +84,7 @@ The Calendar and Event Management System provides comprehensive scheduling, even
 ## API Endpoints
 
 ### Calendar Management
+- `GET /api/calendar/calendars` - List all calendars
 - `POST /api/calendar/calendars` - Create a new calendar
 - `GET /api/calendar/calendars/{id}` - Get calendar by ID
 - `PUT /api/calendar/calendars/{id}` - Update calendar

@@ -52,6 +52,7 @@ class Kernel extends HttpKernel
     protected array $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'can' => \Hyperf\Auth\Middleware\Authorize::class,
+        'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
         'throttle' => \Hyperf\Router\Middleware\ThrottleRequests::class,
         'bindings' => \Hyperf\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,

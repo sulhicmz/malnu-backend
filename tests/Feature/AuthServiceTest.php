@@ -377,4 +377,265 @@ class AuthServiceTest extends TestCase
 
         $this->authService->resetPassword('wrongtoken' . str_repeat('a', 64), 'newpassword123');
     }
+
+    public function test_reset_password_without_uppercase()
+    {
+        $userData = [
+            'name' => 'No Uppercase User',
+            'email' => 'nouppercase@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'nouppercase@example.com')->first();
+        $originalHash = $user->password;
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one uppercase letter');
+
+        $this->authService->resetPassword($resetToken, 'newpassword123');
+    }
+
+    public function test_reset_password_without_lowercase()
+    {
+        $userData = [
+            'name' => 'No Lowercase User',
+            'email' => 'nolowercase@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'nolowercase@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one lowercase letter');
+
+        $this->authService->resetPassword($resetToken, 'NEWPASSWORD123');
+    }
+
+    public function test_reset_password_without_number()
+    {
+        $userData = [
+            'name' => 'No Number User',
+            'email' => 'nonumber@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'nonumber@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one number');
+
+        $this->authService->resetPassword($resetToken, 'NewPassword');
+    }
+
+    public function test_reset_password_without_special_char()
+    {
+        $userData = [
+            'name' => 'No Special Char User',
+            'email' => 'nospecialchar@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'nospecialchar@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one special character');
+
+        $this->authService->resetPassword($resetToken, 'NewPassword');
+    }
+
+    public function test_reset_password_with_common_password()
+    {
+        $userData = [
+            'name' => 'Common Password User',
+            'email' => 'commonpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'commonpass@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password is too common');
+
+        $this->authService->resetPassword($resetToken, 'password');
+    }
+
+    public function test_reset_password_with_strong_password()
+    {
+        $userData = [
+            'name' => 'Strong Password User',
+            'email' => 'strongpass@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $this->authService->register($userData);
+
+        $user = User::where('email', 'strongpass@example.com')->first();
+        $originalHash = $user->password;
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $result = $this->authService->resetPassword($resetToken, 'SecureP@ssw0rd');
+
+        $this->assertArrayHasKey('success', $result);
+        $this->assertTrue($result['success']);
+
+        $user->refresh();
+        $this->assertNotEquals($originalHash, $user->password);
+        $this->assertTrue(password_verify('SecureP@ssw0rd', $user->password));
+    }
+
+    public function test_change_password_without_uppercase()
+    {
+        $userData = [
+            'name' => 'Change No Uppercase User',
+            'email' => 'changenouppercase@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one uppercase letter');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'newpassword123');
+    }
+
+    public function test_change_password_without_lowercase()
+    {
+        $userData = [
+            'name' => 'Change No Lowercase User',
+            'email' => 'changenolowercase@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one lowercase letter');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'NEWPASSWORD123');
+    }
+
+    public function test_change_password_without_number()
+    {
+        $userData = [
+            'name' => 'Change No Number User',
+            'email' => 'changenonumber@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one number');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'NewPassword');
+    }
+
+    public function test_change_password_without_special_char()
+    {
+        $userData = [
+            'name' => 'Change No Special Char User',
+            'email' => 'changenospecial@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password must contain at least one special character');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'NewPassword');
+    }
+
+    public function test_change_password_with_common_password()
+    {
+        $userData = [
+            'name' => 'Change Common Password User',
+            'email' => 'changecommon@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Password is too common');
+
+        $this->authService->changePassword($userId, 'originalpassword', 'password');
+    }
+
+    public function test_change_password_with_strong_password()
+    {
+        $userData = [
+            'name' => 'Change Strong Password User',
+            'email' => 'changestrong@example.com',
+            'password' => 'originalpassword',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $result = $this->authService->changePassword($userId, 'originalpassword', 'SecureP@ssw0rd');
+
+        $this->assertArrayHasKey('success', $result);
+        $this->assertTrue($result['success']);
+
+        $user = User::find($userId);
+        $this->assertTrue(password_verify('SecureP@ssw0rd', $user->password));
+    }
 }

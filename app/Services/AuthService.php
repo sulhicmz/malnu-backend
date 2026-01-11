@@ -10,6 +10,7 @@ use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use App\Services\PasswordValidator;
 
 class AuthService implements AuthServiceInterface
 {
@@ -17,11 +18,14 @@ class AuthService implements AuthServiceInterface
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
 
+    private PasswordValidator $passwordValidator;
+
     public function __construct()
     {
         $this->jwtService = new JWTService();
         $this->tokenBlacklistService = new TokenBlacklistService();
         $this->emailService = new EmailService();
+        $this->passwordValidator = new PasswordValidator();
     }
 
     /**
@@ -170,14 +174,16 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    /**
-     * Reset password with token
-     */
+     /**
+      * Reset password with token
+      */
     public function resetPassword(string $token, string $newPassword): array
     {
         // Validate password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters');
+        $validationResult = $this->passwordValidator->validate($newPassword);
+        if (!$validationResult['valid']) {
+            $errors = implode('. ', $validationResult['errors']);
+            throw new \Exception('Password validation failed: ' . $errors);
         }
 
         // Get all valid tokens from database
@@ -228,26 +234,28 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    /**
-     * Change password for authenticated user
-     */
+     /**
+      * Change password for authenticated user
+      */
     public function changePassword(string $userId, string $currentPassword, string $newPassword): array
     {
         // Fetch user from database
         $user = User::find($userId);
-
+        
         if (!$user) {
             throw new \Exception('User not found');
         }
-
+        
         // Verify current password
         if (!password_verify($currentPassword, $user->password)) {
             throw new \Exception('Current password is incorrect');
         }
-
+        
         // Validate new password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters');
+        $validationResult = $this->passwordValidator->validate($newPassword);
+        if (!$validationResult['valid']) {
+            $errors = implode('. ', $validationResult['errors']);
+            throw new \Exception('Password validation failed: ' . $errors);
         }
 
         // Update user password

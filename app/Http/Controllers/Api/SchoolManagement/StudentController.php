@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
+use App\Services\AcademicRecordService;
+use App\Services\EnrollmentService;
+use App\Services\PerformanceAnalyticsService;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -13,7 +16,10 @@ class StudentController extends BaseController
     public function __construct(
         RequestInterface $request,
         ResponseInterface $response,
-        ContainerInterface $container
+        ContainerInterface $container,
+        protected AcademicRecordService $academicRecordService,
+        protected EnrollmentService $enrollmentService,
+        protected PerformanceAnalyticsService $performanceAnalyticsService
     ) {
         parent::__construct($request, $response, $container);
     }
@@ -180,6 +186,143 @@ class StudentController extends BaseController
             return $this->successResponse(null, 'Student deleted successfully');
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), 'STUDENT_DELETION_ERROR', null, 400);
+        }
+    }
+
+    public function calculateGpa(string $id)
+    {
+        try {
+            $semester = $this->request->query('semester') ? (int) $this->request->query('semester') : null;
+            $gpaData = $this->academicRecordService->calculateGPA($id, $semester);
+
+            return $this->successResponse($gpaData, 'GPA calculated successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'GPA_CALCULATION_ERROR', null, 400);
+        }
+    }
+
+    public function generateTranscript(string $id)
+    {
+        try {
+            $transcript = $this->academicRecordService->generateTranscript($id);
+
+            return $this->successResponse($transcript, 'Transcript generated successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'TRANSCRIPT_GENERATION_ERROR', null, 400);
+        }
+    }
+
+    public function getStudentProgress(string $id)
+    {
+        try {
+            $progress = $this->academicRecordService->getStudentProgress($id);
+
+            return $this->successResponse($progress, 'Student progress retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'PROGRESS_RETRIEVAL_ERROR', null, 400);
+        }
+    }
+
+    public function updateEnrollmentStatus(string $id)
+    {
+        try {
+            $data = $this->request->all();
+
+            if (empty($data['status'])) {
+                return $this->validationErrorResponse(['status' => ['The status field is required.']]);
+            }
+
+            $student = $this->enrollmentService->updateEnrollmentStatus($id, $data['status']);
+
+            return $this->successResponse($student, 'Enrollment status updated successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'ENROLLMENT_UPDATE_ERROR', null, 400);
+        }
+    }
+
+    public function assignToClass(string $id)
+    {
+        try {
+            $data = $this->request->all();
+
+            if (empty($data['class_id'])) {
+                return $this->validationErrorResponse(['class_id' => ['The class_id field is required.']]);
+            }
+
+            $student = $this->enrollmentService->assignToClass($id, $data['class_id']);
+
+            return $this->successResponse($student, 'Student assigned to class successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'CLASS_ASSIGNMENT_ERROR', null, 400);
+        }
+    }
+
+    public function getEnrollmentHistory(string $id)
+    {
+        try {
+            $history = $this->enrollmentService->getEnrollmentHistory($id);
+
+            return $this->successResponse($history, 'Enrollment history retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'ENROLLMENT_HISTORY_ERROR', null, 400);
+        }
+    }
+
+    public function getEnrollmentStats()
+    {
+        try {
+            $stats = $this->enrollmentService->getEnrollmentStatistics();
+
+            return $this->successResponse($stats, 'Enrollment statistics retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'STATISTICS_RETRIEVAL_ERROR', null, 400);
+        }
+    }
+
+    public function getClassEnrollment(string $classId)
+    {
+        try {
+            $enrollment = $this->enrollmentService->getClassEnrollment($classId);
+
+            return $this->successResponse($enrollment, 'Class enrollment retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'CLASS_ENROLLMENT_ERROR', null, 400);
+        }
+    }
+
+    public function getStudentPerformance(string $id)
+    {
+        try {
+            $semester = $this->request->query('semester') ? (int) $this->request->query('semester') : null;
+            $performance = $this->performanceAnalyticsService->getStudentPerformance($id, $semester);
+
+            return $this->successResponse($performance, 'Student performance retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'PERFORMANCE_RETRIEVAL_ERROR', null, 400);
+        }
+    }
+
+    public function getClassPerformance(string $classId)
+    {
+        try {
+            $semester = $this->request->query('semester') ? (int) $this->request->query('semester') : null;
+            $performance = $this->performanceAnalyticsService->getClassPerformance($classId, $semester);
+
+            return $this->successResponse($performance, 'Class performance retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'CLASS_PERFORMANCE_ERROR', null, 400);
+        }
+    }
+
+    public function getComparativeAnalysis(string $id)
+    {
+        try {
+            $semester = $this->request->query('semester') ? (int) $this->request->query('semester') : null;
+            $analysis = $this->performanceAnalyticsService->getComparativeAnalysis($id, $semester);
+
+            return $this->successResponse($analysis, 'Comparative analysis retrieved successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 'ANALYSIS_RETRIEVAL_ERROR', null, 400);
         }
     }
 }

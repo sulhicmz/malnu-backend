@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\TransportationController;
 use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
@@ -89,5 +90,50 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+});
+
+// Transportation Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('transport')->group(function () {
+        // Vehicle Management
+        Route::post('vehicles', [TransportationController::class, 'createVehicle']);
+        Route::get('vehicles', [TransportationController::class, 'listVehicles']);
+        Route::get('vehicles/{id}', [TransportationController::class, 'getVehicle']);
+        Route::put('vehicles/{id}', [TransportationController::class, 'updateVehicle']);
+        Route::delete('vehicles/{id}', [TransportationController::class, 'deleteVehicle']);
+
+        // Driver Management
+        Route::post('drivers', [TransportationController::class, 'createDriver']);
+        Route::get('drivers', [TransportationController::class, 'listDrivers']);
+        Route::get('drivers/{id}', [TransportationController::class, 'getDriver']);
+        Route::put('drivers/{id}', [TransportationController::class, 'updateDriver']);
+
+        // Route Management
+        Route::post('routes', [TransportationController::class, 'createRoute']);
+        Route::get('routes', [TransportationController::class, 'listRoutes']);
+        Route::get('routes/{id}', [TransportationController::class, 'getRoute']);
+
+        // Student Assignment
+        Route::post('assignments', [TransportationController::class, 'assignStudent']);
+        Route::get('assignments/{id}', [TransportationController::class, 'getAssignment']);
+        Route::get('students/{studentId}/assignments', [TransportationController::class, 'getStudentAssignments']);
+
+        // Attendance Management
+        Route::post('attendance', [TransportationController::class, 'recordAttendance']);
+        Route::get('attendance/today', [TransportationController::class, 'getTodayAttendance']);
+
+        // Incident Management
+        Route::post('incidents', [TransportationController::class, 'reportIncident']);
+        Route::get('incidents/{id}', [TransportationController::class, 'getIncident']);
+        Route::get('incidents/open', [TransportationController::class, 'getOpenIncidents']);
+
+        // Vehicle Tracking
+        Route::post('tracking/location', [TransportationController::class, 'recordLocation']);
+        Route::get('tracking/vehicles/{vehicleId}/location', [TransportationController::class, 'getVehicleLocation']);
+        Route::get('tracking/vehicles/active', [TransportationController::class, 'getVehiclesWithLocations']);
+
+        // Statistics
+        Route::get('stats', [TransportationController::class, 'getStats']);
     });
 });

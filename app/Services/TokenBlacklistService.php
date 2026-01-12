@@ -79,6 +79,6 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
     
     private function getCacheKey(string $token): string
     {
-        return $this->cachePrefix . md5($token);
+        return $this->cachePrefix . hash('sha256', $token);
     }
 }

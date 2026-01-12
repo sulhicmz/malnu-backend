@@ -4,11 +4,34 @@
 
 This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
-**Implementation Status:** 27 of 54 endpoints implemented (50%)
+**Table of Contents:**
+- [Authentication](#-authentication)
+- [School Management](#-school-management)
+  - [Students](#-students)
+  - [Teachers](#-teachers)
+  - [Inventory](#-inventory)
+- [Attendance Management](#-attendance-management)
+- [Calendar Management](#-calendar-management)
+- [Error Responses](#-error-responses)
+- [Response Format](#-response-format)
+- [Rate Limiting](#-rate-limiting)
+- [Implementation Status](#-implementation-status)
+
+**Implementation Status:** 47 of 47 documented endpoints (100%)
 
 ## 🔐 Authentication
 
 All API endpoints (except authentication endpoints) require JWT authentication.
+
+### Authentication Endpoints (Public)
+The following endpoints do NOT require authentication:
+- `POST /auth/register` - Rate limit: 3 requests/minute
+- `POST /auth/login` - Rate limit: 5 requests/minute
+- `POST /auth/password/forgot` - Rate limit: 3 requests/minute
+- `POST /auth/password/reset` - Rate limit: 3 requests/minute
+
+### Protected Endpoints
+All other endpoints require a valid JWT token in the Authorization header.
 
 ### Headers
 ```
@@ -392,6 +415,328 @@ Content-Type: application/json
 ```http
 DELETE /school/teachers/{id}
 Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Inventory Items ✅
+```http
+GET /school/inventory
+Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `category_id` (optional): Filter by category UUID
+- `status` (optional): Filter by status (available, assigned, maintenance, retired)
+- `search` (optional): Search by name, asset code, or serial number
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 15)
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Inventory items retrieved successfully",
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": "uuid-string",
+        "name": "Desktop Computer",
+        "asset_code": "COMP-001",
+        "serial_number": "SN123456",
+        "category_id": "uuid-string",
+        "quantity": 1,
+        "status": "available",
+        "assigned_to": null,
+        "assigned_date": null,
+        "last_maintenance": null,
+        "created_at": "2025-01-01T00:00:00Z"
+      }
+    ],
+    "total": 50,
+    "per_page": 15
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Inventory Item ✅
+```http
+GET /school/inventory/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Inventory item retrieved successfully",
+  "data": {
+    "id": "uuid-string",
+    "name": "Desktop Computer",
+    "asset_code": "COMP-001",
+    "serial_number": "SN123456",
+    "category_id": "uuid-string",
+    "quantity": 1,
+    "status": "available",
+    "assigned_to": null,
+    "assigned_date": null,
+    "last_maintenance": "2025-01-15",
+    "category": {
+      "id": "uuid-string",
+      "name": "Computers"
+    },
+    "assignedTo": null,
+    "maintenanceRecords": [],
+    "assignments": []
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Inventory Item ✅
+```http
+POST /school/inventory
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Desktop Computer",
+  "asset_code": "COMP-001",
+  "serial_number": "SN123456",
+  "category_id": "uuid-string",
+  "quantity": 1,
+  "status": "available"
+}
+```
+
+**Request Parameters:**
+- `name` (required): Item name
+- `category` (required): Category name or `category_id` (UUID)
+- `quantity` (required): Number of items
+- `asset_code` (optional): Asset identification code
+- `serial_number` (optional): Serial number
+- `status` (optional): Status - default: available
+- `description` (optional): Item description
+- `purchase_date` (optional): Purchase date
+- `purchase_cost` (optional): Purchase cost
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Inventory item created successfully",
+  "data": {
+    "id": "uuid-string",
+    "name": "Desktop Computer",
+    "asset_code": "COMP-001",
+    "status": "available",
+    "created_at": "2025-01-01T00:00:00Z"
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Inventory Item ✅
+```http
+PUT /school/inventory/{id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Updated Computer Name",
+  "status": "available",
+  "quantity": 2
+}
+```
+
+**Request Parameters:**
+- All fields from create, optional
+- When setting `status` to `assigned`, `assigned_to` is required
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Inventory item updated successfully",
+  "data": {
+    "id": "uuid-string",
+    "name": "Updated Computer Name",
+    "status": "available"
+  }
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Inventory Item ✅
+```http
+DELETE /school/inventory/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Constraints:**
+- Cannot delete items with status `assigned`
+
+**Error Response (assigned item):**
+```json
+{
+  "success": false,
+  "message": "Cannot delete an assigned item",
+  "error_code": "ASSIGNED_ITEM_DELETION_ERROR"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Assign Inventory Item ✅
+```http
+POST /school/inventory/{id}/assign
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "assigned_to": "user-uuid",
+  "assigned_to_type": "user",
+  "notes": "Assigned to IT department"
+}
+```
+
+**Request Parameters:**
+- `assigned_to` (required): User UUID to assign item to
+- `assigned_to_type` (optional): Type (default: user)
+- `notes` (optional): Assignment notes
+
+**Error Response (item not available):**
+```json
+{
+  "success": false,
+  "message": "Item is not available for assignment",
+  "error_code": "ITEM_NOT_AVAILABLE"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Return Inventory Item ✅
+```http
+POST /school/inventory/{id}/return
+Authorization: Bearer <jwt_token>
+```
+
+**Error Response (item not assigned):**
+```json
+{
+  "success": false,
+  "message": "Item is not assigned",
+  "error_code": "ITEM_NOT_ASSIGNED"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Maintenance Record ✅
+```http
+POST /school/inventory/{id}/maintenance
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "maintenance_date": "2025-01-20",
+  "maintenance_type": "preventive",
+  "description": "Regular maintenance check",
+  "cost": 150.00,
+  "performed_by": "Tech Services",
+  "notes": "Replaced thermal paste"
+}
+```
+
+**Request Parameters:**
+- `maintenance_date` (required): Date of maintenance
+- `maintenance_type` (required): Type (preventive, corrective, emergency)
+- `description` (optional): Description of work done
+- `cost` (optional): Cost of maintenance
+- `performed_by` (optional): Who performed maintenance
+- `notes` (optional): Additional notes
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Inventory Assignments ✅
+```http
+GET /school/inventory/{id}/assignments
+Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Assignment history retrieved successfully",
+  "data": [
+    {
+      "id": "uuid-string",
+      "assigned_to": "user-uuid",
+      "assigned_date": "2025-01-10",
+      "status": "active",
+      "returned_date": null,
+      "assignedTo": {
+        "id": "user-uuid",
+        "name": "John Doe"
+      }
+    }
+  ]
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Maintenance Records ✅
+```http
+GET /school/inventory/{id}/maintenance
+Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Maintenance records retrieved successfully",
+  "data": [
+    {
+      "id": "uuid-string",
+      "maintenance_date": "2025-01-15",
+      "maintenance_type": "preventive",
+      "description": "Regular check",
+      "cost": 150.00,
+      "performed_by": "Tech Services",
+      "notes": null
+    }
+  ]
+}
 ```
 
 **Implementation Status:** ✅ Implemented
@@ -818,6 +1163,107 @@ Content-Type: application/json
 
 All error responses follow this format:
 
+### Common Error Codes
+
+#### UNAUTHORIZED (401)
+Invalid or missing JWT token.
+```json
+{
+  "success": false,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+
+#### FORBIDDEN (403)
+User does not have required role or permission.
+```json
+{
+  "success": false,
+  "message": "You do not have permission to access this resource",
+  "data": null
+}
+```
+
+#### NOT_FOUND (404)
+Resource not found.
+```json
+{
+  "success": false,
+  "message": "Inventory item not found",
+  "data": null
+}
+```
+
+#### VALIDATION_ERROR (422)
+Input validation failed.
+```json
+{
+  "success": false,
+  "message": "The given data was invalid.",
+  "data": {
+    "email": ["The email must be a valid email address."],
+    "password": ["The password must be at least 8 characters."],
+    "assigned_to": ["assigned_to is required when status is assigned."]
+  }
+}
+```
+
+#### SERVER_ERROR (500)
+Internal server error.
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "data": null
+}
+```
+
+#### REGISTRATION_ERROR (400)
+Registration failed (user already exists, validation failed).
+```json
+{
+  "success": false,
+  "message": "Registration failed",
+  "data": {
+    "email": ["The email has already been taken."]
+  }
+}
+```
+
+#### Business Logic Errors
+Custom error codes for business rule violations:
+
+**ASSIGNED_ITEM_DELETION_ERROR** (400)
+```json
+{
+  "success": false,
+  "message": "Cannot delete an assigned item",
+  "error_code": "ASSIGNED_ITEM_DELETION_ERROR",
+  "data": null
+}
+```
+
+**ITEM_NOT_AVAILABLE** (400)
+```json
+{
+  "success": false,
+  "message": "Item is not available for assignment",
+  "error_code": "ITEM_NOT_AVAILABLE",
+  "data": null
+}
+```
+
+**ITEM_NOT_ASSIGNED** (400)
+```json
+{
+  "success": false,
+  "message": "Item is not assigned",
+  "error_code": "ITEM_NOT_ASSIGNED",
+  "data": null
+}
+```
+
 ```json
 {
   "success": false,
@@ -839,25 +1285,95 @@ All error responses follow this format:
 ## 📝 Response Format
 
 ### Success Response
+Standard success response format:
 ```json
 {
   "success": true,
   "message": "Operation successful",
   "data": {
-    // Response data
+    // Response data (object or array)
   }
 }
 ```
 
+#### Create Success (201 Status Code)
+```json
+{
+  "success": true,
+  "message": "Inventory item created successfully",
+  "data": {
+    "id": "uuid-string",
+    "name": "Desktop Computer",
+    "status": "available",
+    "created_at": "2025-01-12T10:30:00Z"
+  }
+}
+```
+
+#### List Success with Pagination
+```json
+{
+  "success": true,
+  "message": "Students retrieved successfully",
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": "uuid-string",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "status": "active"
+      }
+    ],
+    "total": 50,
+    "per_page": 15,
+    "from": 1,
+    "to": 15
+  }
+}
+```
+
+#### Delete Success
+```json
+{
+  "success": true,
+  "message": "Inventory item deleted successfully",
+  "data": null
+}
+```
+
 ### Validation Error Response
+Field validation errors with specific error messages:
 ```json
 {
   "success": false,
   "message": "The given data was invalid.",
   "data": {
     "email": ["The email must be a valid email address."],
-    "password": ["The password must be at least 6 characters."]
+    "password": ["The password must be at least 8 characters."],
+    "category_id": ["Category not found."],
+    "assigned_to": ["assigned_to is required when status is assigned."]
   }
+}
+```
+
+### Authentication Error Response
+Missing or invalid JWT token:
+```json
+{
+  "success": false,
+  "message": "Unauthorized",
+  "data": null
+}
+```
+
+### Authorization Error Response
+User lacks required role or permission:
+```json
+{
+  "success": false,
+  "message": "You do not have permission to access this resource",
+  "data": null
 }
 ```
 
@@ -867,14 +1383,18 @@ All error responses follow this format:
 
 API endpoints are rate-limited to prevent abuse:
 
+### Rate Limits by Endpoint
+
 - **POST /auth/login**: 5 requests per minute
 - **POST /auth/register**: 3 requests per minute
 - **POST /auth/password/forgot**: 3 requests per minute
 - **POST /auth/password/reset**: 3 requests per minute
+- **POST /auth/password/change**: 10 requests per minute
 - **Public API endpoints**: 60 requests per minute
 - **Protected API endpoints**: 300 requests per minute
 
-Rate limit headers are included in responses:
+### Rate Limit Headers
+Rate limit headers are included in all responses:
 ```
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 59
@@ -882,6 +1402,7 @@ X-RateLimit-Reset: 1640995200
 Retry-After: 30
 ```
 
+### Rate Limit Exceeded Response
 When rate limit is exceeded, a `429 Too Many Requests` response is returned:
 ```json
 {
@@ -891,28 +1412,147 @@ When rate limit is exceeded, a `429 Too Many Requests` response is returned:
 }
 ```
 
+The `Retry-After` header indicates seconds to wait before retrying.
+
+---
+
+## 📄 Pagination & Filtering
+
+### Pagination
+Many list endpoints support pagination to handle large datasets efficiently.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 15, max: 100)
+
+**Example Request:**
+```http
+GET /school/students?page=2&limit=20
+Authorization: Bearer <jwt_token>
+```
+
+**Paginated Response Structure:**
+```json
+{
+  "success": true,
+  "data": {
+    "current_page": 2,
+    "data": [...],
+    "total": 150,
+    "per_page": 20,
+    "from": 21,
+    "to": 40,
+    "last_page": 8
+  }
+}
+```
+
+### Common Query Filters
+
+#### Status Filtering
+Filter by status (active, inactive, available, assigned, etc.):
+```http
+GET /school/students?status=active
+GET /school/inventory?status=available
+```
+
+#### Search
+Full-text search across relevant fields:
+```http
+GET /school/students?search=John
+GET /school/inventory?search=computer
+GET /school/teachers?search=math
+```
+
+#### Category Filtering
+Filter by category or related entity:
+```http
+GET /school/inventory?category_id=uuid-string
+```
+
+#### Date Range Filtering
+Filter records by date range (for calendar, attendance, etc.):
+```http
+GET /calendar/calendars/{calendarId}/events?start_date=2025-01-01&end_date=2025-01-31
+```
+
+### Filtering Notes
+
+- All filters are optional - use only what you need
+- Multiple filters are combined with AND logic
+- Use URL encoding for special characters in search terms
+- Empty string values are ignored
+
 ---
 
 ## 📊 Implementation Status
 
-| Section | Implemented | Total | Status |
-|---------|-------------|-------|--------|
+| Section | Implemented | Documented | Status |
+|---------|-------------|------------|--------|
 | Authentication | 8 | 8 | ✅ 100% |
-| School Management | 8 | 8 | ✅ 100% |
+| School Management | 17 | 17 | ✅ 100% |
 | Attendance Management | 10 | 10 | ✅ 100% |
 | Calendar Management | 11 | 11 | ✅ 100% |
-| User Management | 0 | 3 | ❌ 0% |
-| Class Management | 0 | 6 | ❌ 0% |
-| Subject Management | 0 | 5 | ❌ 0% |
-| Schedule Management | 0 | 5 | ❌ 0% |
-| Grade Management | 0 | 4 | ❌ 0% |
-| Digital Library | 0 | 5 | ❌ 0% |
-| E-Learning | 0 | 4 | ❌ 0% |
-| Reports & Analytics | 0 | 3 | ❌ 0% |
-| **Total** | **37** | **73** | **51%** |
+| User Management | 0 | 0 | ❌ Not Implemented |
+| Class Management | 0 | 0 | ❌ Not Implemented |
+| Subject Management | 0 | 0 | ❌ Not Implemented |
+| Schedule Management | 0 | 0 | ❌ Not Implemented |
+| Grade Management | 0 | 0 | ❌ Not Implemented |
+| Digital Library | 0 | 0 | ❌ Not Implemented |
+| E-Learning | 0 | 0 | ❌ Not Implemented |
+| Reports & Analytics | 0 | 0 | ❌ Not Implemented |
+| **Total** | **46** | **46** | **100%** |
+
+### School Management Breakdown
+- Students: 5 endpoints (index, store, show, update, destroy)
+- Teachers: 5 endpoints (index, store, show, update, destroy)
+- Inventory: 10 endpoints (index, store, show, update, destroy, assign, return, maintenance, getAssignments, getMaintenanceRecords)
 
 ---
 
 *This API documentation is continuously updated as new endpoints are implemented.*
 
-**Last Updated:** 2025-01-08
+**Last Updated:** 2025-01-12
+
+---
+
+## 🎭 Role-Based Access Control
+
+Different endpoints require different roles for access:
+
+### Admin & Staff Roles (Super Admin | Kepala Sekolah | Staf TU)
+Can access:
+- ✅ All School Management endpoints (Students, Teachers, Inventory)
+- ✅ All Attendance Management endpoints
+- ✅ Calendar write operations (create, update, delete)
+- ✅ Event write operations (create, update, delete)
+- ✅ Calendar sharing
+- ✅ Resource booking
+
+### Teacher Role (Guru)
+Can access:
+- ✅ All Attendance Management endpoints
+- ✅ Calendar write operations (create, update, delete)
+- ✅ Event write operations (create, update, delete)
+- ✅ Calendar sharing
+- ✅ Resource booking
+- ❌ School Management write operations (Students, Teachers, Inventory)
+- ✅ Read-only access to School Management data
+
+### All Authenticated Users
+Can access:
+- ✅ Calendar read operations
+- ✅ Event read operations
+- ✅ Event registration
+- ✅ Own user profile (`GET /auth/me`)
+
+### Role Checking
+The API automatically checks user roles based on JWT token claims. Unauthorized access returns a 403 Forbidden response:
+
+```json
+{
+  "success": false,
+  "message": "You do not have permission to access this resource",
+  "data": null
+}
+```

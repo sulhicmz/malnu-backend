@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Calendar\CalendarController;
 use Hyperf\Support\Facades\Route;
 
@@ -47,7 +48,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
 });
 
 // School Management Routes (protected with role check)
-Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
     Route::prefix('school')->group(function () {
         // Student Management Routes
         Route::apiResource('students', StudentController::class);
@@ -79,6 +80,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('events/{id}', [CalendarController::class, 'getEvent']);
         Route::put('events/{id}', [CalendarController::class, 'updateEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
         Route::delete('events/{id}', [CalendarController::class, 'deleteEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
         Route::get('calendars/{calendarId}/events', [CalendarController::class, 'getEventsByDateRange']);
 
         // Event Registration - All authenticated users can register
@@ -89,5 +91,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+});
+
+// Report and Transcript Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('reports')->group(function () {
+        Route::get('', [ReportController::class, 'index']);
+        Route::get('{id}', [ReportController::class, 'show']);
+        Route::post('report-cards', [ReportController::class, 'generateReportCard']);
+        Route::post('transcripts', [ReportController::class, 'generateTranscript']);
+        Route::post('progress-reports', [ReportController::class, 'generateProgressReport']);
+        Route::post('batch-report-cards', [ReportController::class, 'generateBatchReportCards']);
+        Route::post('{id}/publish', [ReportController::class, 'publishReport']);
     });
 });

@@ -10,21 +10,25 @@ use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use App\Services\PasswordValidator;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
+    private PasswordValidator $passwordValidator;
 
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
-        EmailService $emailService
+        EmailService $emailService,
+        PasswordValidator $passwordValidator
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
         $this->emailService = $emailService;
+        $this->passwordValidator = $passwordValidator;
     }
 
     /**
@@ -35,6 +39,11 @@ class AuthService implements AuthServiceInterface
         $existingUser = User::where('email', $data['email'])->first();
         if ($existingUser) {
             throw new \Exception('User with this email already exists');
+        }
+
+        $errors = $this->passwordValidator->validate($data['password']);
+        if (!empty($errors)) {
+            throw new \Exception(implode(' ', $errors));
         }
 
         $user = User::create([
@@ -179,8 +188,9 @@ class AuthService implements AuthServiceInterface
     public function resetPassword(string $token, string $newPassword): array
     {
         // Validate password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception(implode(' ', $errors));
         }
 
         // Get all valid tokens from database
@@ -249,8 +259,9 @@ class AuthService implements AuthServiceInterface
         }
 
         // Validate new password strength
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception('New password: ' . implode(' ', $errors));
         }
 
         // Update user password

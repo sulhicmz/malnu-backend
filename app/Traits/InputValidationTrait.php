@@ -168,4 +168,204 @@ trait InputValidationTrait
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
     }
+
+    /**
+     * Validate URL format.
+     */
+    protected function validateUrl(string $url): bool
+    {
+        $parsed = parse_url($url);
+        
+        if ($parsed === false) {
+            return false;
+        }
+        
+        // Validate scheme (protocol)
+        $allowedSchemes = ['http', 'https'];
+        if (!isset($parsed['scheme']) || !in_array(strtolower($parsed['scheme']), $allowedSchemes)) {
+            return false;
+        }
+        
+        // Validate host
+        if (!isset($parsed['host']) || empty($parsed['host'])) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Validate phone number format.
+     * Supports various formats: +1234567890, (123) 456-7890, 123-456-7890
+     */
+    protected function validatePhoneNumber(string $phone): bool
+    {
+        // Remove all non-numeric characters
+        $digits = preg_replace('/[^0-9]/', '', $phone);
+        
+        // Check if we have between 10 and 15 digits (typical phone number lengths)
+        return strlen($digits) >= 10 && strlen($digits) <= 15;
+    }
+
+    /**
+     * Sanitize input for safe use in SQL queries (escape quotes).
+     * Note: This is a defense-in-depth measure. Always use parameterized queries via Eloquent.
+     */
+    protected function sanitizeForSql(string $input): string
+    {
+        $search = ['\\', "'", '"', "\x00", "\n", "\r", "\x1a"];
+        $replace = ['\\\\', "\\'", '\\"', '\\0', '\\n', '\\r', '\\Z'];
+        
+        return str_replace($search, $replace, $input);
+    }
+
+    /**
+     * Sanitize input for safe use in system commands.
+     */
+    protected function sanitizeForCommand(string $input): string
+    {
+        $input = escapeshellarg($input);
+        
+        return $input;
+    }
+
+    /**
+     * Detect common injection patterns in input.
+     */
+    protected function detectInjectionPatterns(string $input): array
+    {
+        $patterns = [
+            'sql' => [
+                '/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|ALTER|CREATE|TRUNCATE)\b)/i',
+                "/('|\")\s*(OR|AND)\s*('|\")/i",
+                "/(\-\-|\/\*|\*\/|;)/",
+                "/(\b1\s*=\s*1\b|\b1\s*!=\s*0\b)/i"
+            ],
+            'command' => [
+                '/[;&|`$()]/',
+                '/\$\([^)]+\)/',
+                '/`[^`]+`/',
+            ],
+            'ldap' => [
+                '/(\(\|[^)]*\))/',
+                '/(\*[)]+)/',
+                '/([*]?\(.*\))/',
+            ],
+            'path' => [
+                '/(\.\.\/|\.\.\\\)/',
+            ]
+        ];
+        
+        $detected = [];
+        
+        foreach ($patterns as $type => $typePatterns) {
+            foreach ($typePatterns as $pattern) {
+                if (preg_match($pattern, $input)) {
+                    if (!in_array($type, $detected)) {
+                        $detected[] = $type;
+                    }
+                    break;
+                }
+            }
+        }
+        
+        return $detected;
+    }
+
+    /**
+     * Sanitize file name for safe storage.
+     */
+    protected function sanitizeFileName(string $fileName): string
+    {
+        // Remove path information
+        $fileName = basename($fileName);
+        
+        // Replace dangerous characters with underscore
+        $fileName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileName);
+        
+        // Prevent hidden files
+        if (str_starts_with($fileName, '.')) {
+            $fileName = 'file_' . $fileName;
+        }
+        
+        // Prevent double extensions (e.g., file.php.jpg)
+        $parts = explode('.', $fileName);
+        if (count($parts) > 2) {
+            $fileName = $parts[0] . '.' . end($parts);
+        }
+        
+        return $fileName;
+    }
+
+    /**
+     * Validate file upload with enhanced security checks.
+     */
+    protected function validateFileUploadEnhanced(mixed $file, array $allowedExtensions = [], ?int $maxSize = null): array
+    {
+        $errors = $this->validateFileUpload($file, [], $maxSize);
+        
+        if (!empty($errors)) {
+            return $errors;
+        }
+        
+        // File extension validation
+        if (!empty($allowedExtensions)) {
+            $fileName = $file['name'] ?? '';
+            $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            if (!in_array($extension, $allowedExtensions)) {
+                $errors[] = 'File extension not allowed';
+            }
+        }
+        
+        // MIME type verification (double-check)
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $mimeType = finfo_file($finfo, $file['tmp_name'] ?? '');
+            finfo_close($finfo);
+            
+            // Check if file extension matches MIME type
+            $extension = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+            $mimeMap = [
+                'jpg' => ['image/jpeg'],
+                'jpeg' => ['image/jpeg'],
+                'png' => ['image/png'],
+                'gif' => ['image/gif'],
+                'pdf' => ['application/pdf'],
+                'doc' => ['application/msword'],
+                'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                'xls' => ['application/vnd.ms-excel'],
+                'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+                'txt' => ['text/plain'],
+                'csv' => ['text/csv', 'application/csv'],
+            ];
+            
+            if (isset($mimeMap[$extension]) && $mimeType) {
+                if (!in_array($mimeType, $mimeMap[$extension])) {
+                    $errors[] = 'File content does not match file extension';
+                }
+            }
+        }
+        
+        // Check for malicious file content (e.g., PHP code in images)
+        $content = file_get_contents($file['tmp_name'] ?? '');
+        if ($content !== false) {
+            $dangerousPatterns = [
+                '/<\?php/i',
+                '/<script/i',
+                '/javascript:/i',
+                '/eval\(/i',
+                '/base64_decode/i',
+            ];
+            
+            foreach ($dangerousPatterns as $pattern) {
+                if (preg_match($pattern, $content)) {
+                    $errors[] = 'File contains potentially malicious content';
+                    break;
+                }
+            }
+        }
+        
+        return $errors;
+    }
 }

@@ -34,6 +34,7 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 
 ### Getting Started
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Comprehensive onboarding and setup
+- **[Docker Setup Guide](docs/DOCKER.md)** - Docker Compose configuration and usage
 - **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Architecture and code organization
 - **[Contributing](docs/CONTRIBUTING.md)** - Contribution guidelines
 

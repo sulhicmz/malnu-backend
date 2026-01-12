@@ -168,4 +168,49 @@ trait InputValidationTrait
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
     }
+
+    /**
+     * Validate password complexity.
+     * Requires minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character,
+     * and not in common passwords list.
+     *
+     * @return array<string, string> Array of error messages (empty if valid)
+     */
+    protected function validatePasswordComplexity(string $password): array
+    {
+        $errors = [];
+
+        if (strlen($password) < 8) {
+            $errors[] = 'Password must be at least 8 characters long.';
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            $errors[] = 'Password must contain at least 1 uppercase letter.';
+        }
+
+        if (!preg_match('/[a-z]/', $password)) {
+            $errors[] = 'Password must contain at least 1 lowercase letter.';
+        }
+
+        if (!preg_match('/[0-9]/', $password)) {
+            $errors[] = 'Password must contain at least 1 number.';
+        }
+
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+            $errors[] = 'Password must contain at least 1 special character (!@#$%^&*(),.?":{}|<>).';
+        }
+
+        $commonPasswords = [
+            'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', 'master',
+            'dragon', '111111', 'baseball', 'iloveyou', 'trustno1', 'sunshine', 'princess',
+            'admin', 'welcome', 'shadow', 'ashley', 'football', 'jesus', 'michael',
+            'ninja', 'mustang', 'password1', 'password123', 'letmein', 'login', 'starwars'
+        ];
+
+        if (in_array(strtolower($password), $commonPasswords, true)) {
+            $errors[] = 'Password is too common. Please choose a stronger password.';
+        }
+
+        return $errors;
+    }
 }

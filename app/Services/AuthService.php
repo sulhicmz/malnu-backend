@@ -178,9 +178,25 @@ class AuthService implements AuthServiceInterface
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // Validate password strength
+        // Validate password strength (backend validation as safety net)
         if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters');
+            throw new \Exception('Password must be at least 8 characters long');
+        }
+
+        if (!preg_match('/[A-Z]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 uppercase letter');
+        }
+
+        if (!preg_match('/[a-z]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 lowercase letter');
+        }
+
+        if (!preg_match('/[0-9]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 number');
+        }
+
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 special character');
         }
 
         // Get all valid tokens from database
@@ -248,9 +264,25 @@ class AuthService implements AuthServiceInterface
             throw new \Exception('Current password is incorrect');
         }
 
-        // Validate new password strength
+        // Validate new password strength (backend validation as safety net)
         if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters');
+            throw new \Exception('New password must be at least 8 characters long');
+        }
+
+        if (!preg_match('/[A-Z]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 uppercase letter');
+        }
+
+        if (!preg_match('/[a-z]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 lowercase letter');
+        }
+
+        if (!preg_match('/[0-9]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 number');
+        }
+
+        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
+            throw new \Exception('Password must contain at least 1 special character');
         }
 
         // Update user password

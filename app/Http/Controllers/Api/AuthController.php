@@ -42,9 +42,12 @@ class AuthController extends BaseController
             if (isset($data['name']) && !$this->validateStringLength($data['name'], 3)) {
                 $errors['name'] = ['The name must be at least 3 characters.'];
             }
-            
-            if (isset($data['password']) && !$this->validateStringLength($data['password'], 6)) {
-                $errors['password'] = ['The password must be at least 6 characters.'];
+
+            if (isset($data['password'])) {
+                $passwordErrors = $this->validatePasswordComplexity($data['password']);
+                if (!empty($passwordErrors)) {
+                    $errors['password'] = $passwordErrors;
+                }
             }
 
             if (!empty($errors)) {
@@ -211,10 +214,13 @@ class AuthController extends BaseController
             // Validate required fields
             $requiredFields = ['token', 'password'];
             $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
-            if (isset($data['password']) && !$this->validateStringLength($data['password'], 6)) {
-                $errors['password'] = ['The password must be at least 6 characters.'];
+
+            // Password complexity validation
+            if (isset($data['password'])) {
+                $passwordErrors = $this->validatePasswordComplexity($data['password']);
+                if (!empty($passwordErrors)) {
+                    $errors['password'] = $passwordErrors;
+                }
             }
 
             if (!empty($errors)) {
@@ -243,10 +249,13 @@ class AuthController extends BaseController
             // Validate required fields
             $requiredFields = ['current_password', 'new_password'];
             $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
-            if (isset($data['new_password']) && !$this->validateStringLength($data['new_password'], 6)) {
-                $errors['new_password'] = ['The new password must be at least 6 characters.'];
+
+            // Password complexity validation
+            if (isset($data['new_password'])) {
+                $passwordErrors = $this->validatePasswordComplexity($data['new_password']);
+                if (!empty($passwordErrors)) {
+                    $errors['new_password'] = $passwordErrors;
+                }
             }
 
             if (!empty($errors)) {

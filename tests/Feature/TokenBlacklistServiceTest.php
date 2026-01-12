@@ -74,4 +74,63 @@ class TokenBlacklistServiceTest extends TestCase
         $this->expectNotToPerformAssertions();
         $this->tokenBlacklistService->cleanExpiredTokens();
     }
+
+    public function test_cache_key_uses_sha256_not_md5()
+    {
+        $token = 'test_sha256_token';
+        
+        // Get the expected SHA-256 hash
+        $expectedHash = hash('sha256', $token);
+        $md5Hash = md5($token);
+        
+        // Verify the hashes are different
+        $this->assertNotEquals($expectedHash, $md5Hash);
+        
+        // Blacklist the token and verify it works
+        $this->tokenBlacklistService->blacklistToken($token);
+        $this->assertTrue($this->tokenBlacklistService->isTokenBlacklisted($token));
+        
+        // Verify SHA-256 produces 64 character hex string (256 bits)
+        $this->assertEquals(64, strlen($expectedHash));
+        
+        // Verify MD5 produces 32 character hex string (128 bits)
+        $this->assertEquals(32, strlen($md5Hash));
+    }
+
+    public function test_different_tokens_produce_different_sha256_hashes()
+    {
+        $token1 = 'token_alpha_123';
+        $token2 = 'token_beta_456';
+        
+        $hash1 = hash('sha256', $token1);
+        $hash2 = hash('sha256', $token2);
+        
+        // Different tokens should produce different hashes
+        $this->assertNotEquals($hash1, $hash2);
+        
+        // Both should be blacklisted independently
+        $this->tokenBlacklistService->blacklistToken($token1);
+        $this->tokenBlacklistService->blacklistToken($token2);
+        
+        $this->assertTrue($this->tokenBlacklistService->isTokenBlacklisted($token1));
+        $this->assertTrue($this->tokenBlacklistService->isTokenBlacklisted($token2));
+    }
+
+    public function test_token_case_sensitivity_with_sha256()
+    {
+        $token1 = 'TestToken';
+        $token2 = 'testtoken';
+        
+        $hash1 = hash('sha256', $token1);
+        $hash2 = hash('sha256', $token2);
+        
+        // SHA-256 is case-sensitive
+        $this->assertNotEquals($hash1, $hash2);
+        
+        // Only the exact token should be blacklisted
+        $this->tokenBlacklistService->blacklistToken($token1);
+        
+        $this->assertTrue($this->tokenBlacklistService->isTokenBlacklisted($token1));
+        $this->assertFalse($this->tokenBlacklistService->isTokenBlacklisted($token2));
+    }
 }

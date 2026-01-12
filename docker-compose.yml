@@ -43,26 +43,33 @@ services:
     # depends_on:
     #   - db # Link to the database service defined below
 
-    # Link to the Redis service (uncomment database service above and add to list if needed)
+    # Link to database and Redis services
     depends_on:
+      - db # Link to the database service defined below
       - redis # Link to the Redis service defined below
 
-  # # Example MySQL Database Service (Uncomment to use)
-  # db:
-  #   image: mysql:8.0 # Use an official MySQL image
-  #   ports:
-  #     - "3306:3306" # Map host port 3306 to container port 3306
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: your_root_password # !! Change this in production !!
-  #     MYSQL_DATABASE: hyperf # Database name
-  #     MYSQL_USER: hyperf # Database user
-  #     MYSQL_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - dbdata:/var/lib/mysql # Persist database data
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306" # Map host port 3306 to container port 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_change_in_production # !! Change this in production !!
+      MYSQL_DATABASE: hypervel # Database name (matches config/database.php default)
+      MYSQL_USER: hyperf # Database user
+      MYSQL_PASSWORD: secret # !! Change this in production !!
+    volumes:
+      - dbdata:/var/lib/mysql # Persist database data
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_change_in_production"]
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    restart: unless-stopped
 
-  # # Example PostgreSQL Database Service (Uncomment to use)
-  # db:
-  #   image: postgres:13 # Use an official PostgreSQL image
+  # PostgreSQL Database Service (Alternative - uncomment to use instead of MySQL)
+  # postgres:
+  #   image: postgres:13
   #   ports:
   #     - "5432:5432" # Map host port 5432 to container port 5432
   #   environment:
@@ -71,6 +78,12 @@ services:
   #     POSTGRES_PASSWORD: secret # !! Change this in production !!
   #   volumes:
   #     - pgdata:/var/lib/postgresql/data # Persist database data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U hyperf -d hyperf"]
+  #     timeout: 5s
+  #     interval: 10s
+  #     retries: 5
+  #   restart: unless-stopped
 
   # Redis Service for caching, sessions, and queues
   redis:
@@ -86,9 +99,8 @@ services:
       retries: 5
     restart: unless-stopped
 
-# # Define volumes for data persistence (Uncomment if using database services)
-# volumes:
-#   dbdata: # Volume for MySQL data
-#   pgdata: # Volume for PostgreSQL data
+# Define volumes for data persistence
 volumes:
+  dbdata: # Volume for MySQL data
+  pgdata: # Volume for PostgreSQL data (alternative database)
   redisdata: # Volume for Redis data persistence

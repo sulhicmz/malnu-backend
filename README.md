@@ -36,6 +36,7 @@ For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.m
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Comprehensive onboarding and setup
 - **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Architecture and code organization
 - **[Contributing](docs/CONTRIBUTING.md)** - Contribution guidelines
+- **[Docker Database Setup](docs/DOCKER_DATABASE_SETUP.md)** - Database configuration for Docker Compose
 
 ### Core Documentation
 - **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design patterns

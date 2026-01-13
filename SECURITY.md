@@ -49,7 +49,15 @@ When contributing to Malnu Backend, please follow these security guidelines:
 - **Personal Data**: Real emails, phone numbers, addresses
 - **Secrets**: JWT secrets, encryption keys
 
-Use `.env.example` with placeholder values like `your-secret-key-here`.
+Use `.env.example` with **empty values** and clear warning comments. Never use placeholder values like `your-secret-key-here`, `change-me`, or `secret` in production.
+
+**Example:**
+```env
+# Generate a secure JWT secret using: openssl rand -hex 32
+# WARNING: NEVER use placeholder values in production!
+# Always generate a unique, random secret for each environment.
+JWT_SECRET=
+```
 
 ### Input Validation
 - Always validate and sanitize user input

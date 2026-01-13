@@ -196,25 +196,6 @@ JWT_SECRET=your-secret-key-here  # ❌ NOT SECURE!
 **Issue**: #347 (was CRITICAL)
 **Status**: ✅ FIXED - Token not exposed in API responses
 **Dependencies**: None
-**Status**: PR #383 exists, ready to merge
-
-### 4. Weak Password Validation
-**Issue**: #352 - HIGH
-**File**: `app/Http/Controllers/Api/AuthController.php:46, 216, 248`
-**Impact**: Brute force attacks on user accounts
-
-```php
-// CURRENT WEAK VALIDATION:
-if (isset($data['password']) && !$this->validateStringLength($data['password'], 6)) {
-    $errors['password'] = ['The password must be at least 6 characters.'];
-    // ❌ NO UPPERCASE, LOWERCASE, NUMBER, SPECIAL CHARACTER REQUIREMENTS!
-}
-```
-
-**Risk Level**: 🟠 **HIGH** - Account compromise
-**Fix Time**: 1-2 days
-**Dependencies**: None
-**Status**: PR #365 exists, ready to merge
 
 ### 5. Database Connectivity - DISABLED
 **Issue**: #283 - HIGH

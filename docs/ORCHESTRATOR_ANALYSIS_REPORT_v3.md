@@ -1,5 +1,7 @@
 # Repository Orchestrator Analysis Report v3
 
+> **⚠️ DEPRECATED**: This report has been superseded by [ORCHESTRATOR_ANALYSIS_REPORT_v4.md](ORCHESTRATOR_ANALYSIS_REPORT_v4.md) with the latest analysis as of January 13, 2026. Please refer to v4 for current information.
+
 **Analysis Date**: January 11, 2026
 **Orchestrator**: OpenCode Agent
 **Repository**: sulhicmz/malnu-backend

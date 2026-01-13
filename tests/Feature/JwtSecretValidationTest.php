@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class JwtSecretValidationTest extends TestCase
 {
-    public function test_jwt_secret_validation_rejects_empty_in_production()
+    public function testJwtSecretValidationRejectsEmptyInProduction()
     {
         $this->markTestSkipped('Requires full framework bootstrap');
 
@@ -16,14 +21,14 @@ class JwtSecretValidationTest extends TestCase
         putenv('APP_ENV=' . $env);
         putenv('JWT_SECRET=');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('JWT_SECRET cannot be empty in production environment');
 
         $provider = new \App\Providers\AppServiceProvider();
         $provider->boot();
     }
 
-    public function test_jwt_secret_validation_rejects_placeholder_values()
+    public function testJwtSecretValidationRejectsPlaceholderValues()
     {
         $this->markTestSkipped('Requires full framework bootstrap');
 
@@ -43,7 +48,7 @@ class JwtSecretValidationTest extends TestCase
         foreach ($placeholders as $placeholder) {
             putenv('JWT_SECRET=' . $placeholder);
 
-            $this->expectException(\RuntimeException::class);
+            $this->expectException(RuntimeException::class);
             $this->expectExceptionMessage('JWT_SECRET is using a placeholder value which is insecure');
 
             $provider = new \App\Providers\AppServiceProvider();
@@ -51,7 +56,7 @@ class JwtSecretValidationTest extends TestCase
         }
     }
 
-    public function test_jwt_secret_validation_rejects_short_secrets()
+    public function testJwtSecretValidationRejectsShortSecrets()
     {
         $this->markTestSkipped('Requires full framework bootstrap');
 
@@ -59,14 +64,14 @@ class JwtSecretValidationTest extends TestCase
         putenv('APP_ENV=' . $env);
         putenv('JWT_SECRET=short');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('JWT_SECRET must be at least 32 characters long for security');
 
         $provider = new \App\Providers\AppServiceProvider();
         $provider->boot();
     }
 
-    public function test_jwt_secret_validation_allows_local_environment()
+    public function testJwtSecretValidationAllowsLocalEnvironment()
     {
         $this->markTestSkipped('Requires full framework bootstrap');
 
@@ -79,7 +84,7 @@ class JwtSecretValidationTest extends TestCase
         $this->assertNull($provider->boot());
     }
 
-    public function test_jwt_secret_validation_allows_testing_environment()
+    public function testJwtSecretValidationAllowsTestingEnvironment()
     {
         $this->markTestSkipped('Requires full framework bootstrap');
 

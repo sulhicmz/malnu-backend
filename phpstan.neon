@@ -8,4 +8,5 @@ parameters:
     - config
   reportUnmatchedIgnoredErrors: false
   excludePaths:
-  ignoreErrors:
+    - vendor
+  ignoreErrors: []

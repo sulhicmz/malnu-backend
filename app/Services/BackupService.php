@@ -4,12 +4,30 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Hyperf\Contract\ConfigInterface;
+use Psr\Container\ContainerInterface;
+
 /**
  * Backup Service
  * Provides a centralized service for backup operations and management
  */
 class BackupService
 {
+    protected ContainerInterface $container;
+
+    protected ConfigInterface $config;
+
+    protected string $encryptionKey;
+
+    protected bool $encryptionEnabled;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+        $this->config = $container->get(ConfigInterface::class);
+        $this->encryptionEnabled = $this->config->get('backup.encryption_enabled', false);
+        $this->encryptionKey = $this->config->get('backup.encryption_key', '');
+    }
     /**
      * Create a backup based on the specified type
      *
@@ -373,5 +391,136 @@ class BackupService
             'message' => 'Configuration backup completed successfully',
             'options' => $options
         ];
+    }
+
+    /**
+     * Encrypt a file using AES-256-GCM
+     *
+     * @param string $filePath Path to the file to encrypt
+     * @return string Path to encrypted file
+     * @throws \Exception If encryption fails
+     */
+    public function encryptFile(string $filePath): string
+    {
+        if (!$this->encryptionEnabled) {
+            return $filePath;
+        }
+
+        if (!$this->encryptionKey || strlen($this->encryptionKey) < 32) {
+            throw new \Exception('Encryption key must be at least 32 characters');
+        }
+
+        $encryptedPath = $filePath . '.encrypted';
+        $fileContent = file_get_contents($filePath);
+
+        if ($fileContent === false) {
+            throw new \Exception('Failed to read file for encryption: ' . $filePath);
+        }
+
+        $cipher = 'aes-256-gcm';
+        $ivLength = openssl_cipher_iv_length($cipher);
+        $iv = random_bytes($ivLength);
+        $tag = '';
+
+        $encryptedContent = openssl_encrypt(
+            $fileContent,
+            $cipher,
+            $this->encryptionKey,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+
+        if ($encryptedContent === false) {
+            throw new \Exception('Encryption failed for file: ' . $filePath);
+        }
+
+        $combined = $iv . $tag . $encryptedContent;
+
+        if (file_put_contents($encryptedPath, $combined) === false) {
+            throw new \Exception('Failed to write encrypted file: ' . $encryptedPath);
+        }
+
+        unlink($filePath);
+
+        return $encryptedPath;
+    }
+
+    /**
+     * Decrypt a file using AES-256-GCM
+     *
+     * @param string $filePath Path to the encrypted file
+     * @return string Path to decrypted file
+     * @throws \Exception If decryption fails
+     */
+    public function decryptFile(string $filePath): string
+    {
+        if (!$this->encryptionEnabled || !str_ends_with($filePath, '.encrypted')) {
+            return $filePath;
+        }
+
+        if (!$this->encryptionKey || strlen($this->encryptionKey) < 32) {
+            throw new \Exception('Encryption key must be at least 32 characters');
+        }
+
+        $decryptedPath = str_replace('.encrypted', '', $filePath);
+        $fileContent = file_get_contents($filePath);
+
+        if ($fileContent === false) {
+            throw new \Exception('Failed to read encrypted file: ' . $filePath);
+        }
+
+        $cipher = 'aes-256-gcm';
+        $ivLength = openssl_cipher_iv_length($cipher);
+
+        if (strlen($fileContent) < $ivLength + 16) {
+            throw new \Exception('Invalid encrypted file format');
+        }
+
+        $iv = substr($fileContent, 0, $ivLength);
+        $tag = substr($fileContent, $ivLength, 16);
+        $encryptedContent = substr($fileContent, $ivLength + 16);
+
+        $decryptedContent = openssl_decrypt(
+            $encryptedContent,
+            $cipher,
+            $this->encryptionKey,
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+
+        if ($decryptedContent === false) {
+            throw new \Exception('Decryption failed for file: ' . $filePath);
+        }
+
+        if (file_put_contents($decryptedPath, $decryptedContent) === false) {
+            throw new \Exception('Failed to write decrypted file: ' . $decryptedPath);
+        }
+
+        return $decryptedPath;
+    }
+
+    /**
+     * Check if encryption is enabled and valid
+     *
+     * @return bool True if encryption is properly configured
+     */
+    public function isEncryptionReady(): bool
+    {
+        return $this->encryptionEnabled && 
+               !empty($this->encryptionKey) && 
+               strlen($this->encryptionKey) >= 32;
+    }
+
+    /**
+     * Validate encryption key
+     *
+     * @param string $key The encryption key to validate
+     * @return bool True if key is valid
+     */
+    public function validateEncryptionKey(string $key): bool
+    {
+        return !empty($key) && strlen($key) >= 32;
     }
 }

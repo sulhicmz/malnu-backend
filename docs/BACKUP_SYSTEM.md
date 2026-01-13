@@ -102,6 +102,187 @@ Options:
 - `--alert-email`: Email address for alerts
 - `--webhook-url`: Webhook URL for alerts
 
+## Backup Encryption
+
+### Overview
+
+The backup system supports AES-256-GCM encryption for backup files at rest. This provides military-grade protection for sensitive data in backup archives.
+
+### Enabling Encryption
+
+1. Generate a secure encryption key:
+   ```bash
+   openssl rand -hex 32
+   ```
+
+2. Add to `.env` file:
+   ```bash
+   BACKUP_ENCRYPTION_KEY=your-32-character-or-more-encryption-key
+   BACKUP_ENCRYPTION_ENABLED=true
+   ```
+
+3. Restart the application to apply changes.
+
+### Encryption Behavior
+
+- **Automatic**: When encryption is enabled, all backups are automatically encrypted
+- **Transparent**: Encrypted backups are automatically decrypted during restore operations
+- **File Naming**: Encrypted files have `.encrypted` extension appended
+- **Key Requirements**: Encryption key must be at least 32 characters
+
+### Using Encryption
+
+Create encrypted backup:
+```bash
+php artisan backup:all --encrypt
+```
+
+Restore encrypted backup:
+```bash
+php artisan restore:backup /path/to/backup.tar.gz.encrypted
+```
+
+Note: The system automatically detects encrypted files and decrypts them during restoration.
+
+### Security Considerations
+
+- Store `BACKUP_ENCRYPTION_KEY` in environment variables, never in code
+- Rotate encryption keys quarterly for enhanced security
+- Never commit encryption keys to version control
+- Consider using a secrets management service for production environments
+
+## REST API
+
+The backup system provides a comprehensive REST API for backup management and monitoring.
+
+### Authentication
+
+All backup API endpoints require:
+- JWT authentication via `Authorization: Bearer {token}` header
+- Super Admin role authorization
+- Rate limiting
+
+### Endpoints
+
+#### List Backups
+
+```http
+GET /api/backups?type=all
+```
+
+Query Parameters:
+- `type`: Filter by backup type (database, filesystem, config, all)
+
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "timestamp": "2026-01-13T10:30:00Z",
+    "backup_locations": {...},
+    "statistics": {...},
+    "latest_backups": {...}
+  }
+}
+```
+
+#### Get Backup Details
+
+```http
+GET /api/backups/{id}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "path": "/storage/backups/database/db_backup_2026-01-13-10-30-00.sql",
+    "size": 5242880,
+    "size_formatted": "5.00 MB",
+    "modified": "2026-01-13T10:30:00Z",
+    "checksum": {
+      "md5": "a1b2c3d4e5f6...",
+      "sha256": "abc123..."
+    }
+  }
+}
+```
+
+#### Create Backup
+
+```http
+POST /api/backups
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "type": "all",
+  "encrypt": true
+}
+```
+
+Types: database, filesystem, config, all
+
+#### Restore Backup
+
+```http
+POST /api/backups/{id}/restore
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "type": "all"
+}
+```
+
+#### Verify Backup
+
+```http
+POST /api/backups/{id}/verify
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "type": "all"
+}
+```
+
+#### Delete Backup
+
+```http
+DELETE /api/backups/{id}
+```
+
+#### Get System Status
+
+```http
+GET /api/backups/status
+```
+
+Response includes disk space, backup directory status, and statistics.
+
+#### Clean Old Backups
+
+```http
+POST /api/backups/clean
+Content-Type: application/json
+```
+
+Request Body:
+```json
+{
+  "type": "all",
+  "keep": 5
+}
+```
+
 ## Backup Storage Locations
 
 By default, backups are stored in:

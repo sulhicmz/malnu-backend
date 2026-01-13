@@ -60,12 +60,14 @@ DB_DATABASE=malnu_backend
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
+ REDIS_HOST=127.0.0.1
+ REDIS_PASSWORD=null
+ REDIS_PORT=6379
 
-# CRITICAL: Generate your own secure JWT secret
-JWT_SECRET=your-secure-jwt-secret-key-here
+# CRITICAL: Generate a secure JWT secret using: openssl rand -hex 32
+# WARNING: NEVER use placeholder values in production!
+# Always generate a unique, random secret for each environment.
+JWT_SECRET=
 ```
 
 #### 5. Start Docker Services

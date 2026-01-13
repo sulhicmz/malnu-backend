@@ -20,12 +20,23 @@ class JWTService implements JWTServiceInterface
         
         // Validate that JWT_SECRET is properly set in production environments
         $appEnv = config('app.env', 'production');
-        if (empty($this->secret) && $appEnv !== 'testing') {
-            throw new \Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
+        
+        // Define known placeholder/insecure values
+        $insecureValues = [
+            '',
+            'your-secret-key-here',
+            'your-jwt-secret',
+            'change-this-secret',
+            'secret',
+        ];
+        
+        // Check if secret is empty or uses a placeholder value
+        if (in_array($this->secret, $insecureValues, true) && $appEnv !== 'testing') {
+            throw new \RuntimeException('JWT_SECRET is not configured properly. Generate a secure secret using: openssl rand -hex 32');
         }
         
         // For testing environments, use a default secret if not set
-        if (empty($this->secret) && $appEnv === 'testing') {
+        if (in_array($this->secret, $insecureValues, true) && $appEnv === 'testing') {
             $this->secret = 'test_secret_key_for_testing_purposes_only';
         }
     }

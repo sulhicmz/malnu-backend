@@ -48,15 +48,9 @@ php artisan key:generate
 Edit `.env` file with your configuration:
 
 ```env
-APP_NAME="Malnu Backend"
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:9501
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=localhost
 DB_PORT=3306
-DB_DATABASE=malnu_backend
+DB_DATABASE=hypervel
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
@@ -65,7 +59,10 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 # CRITICAL: Generate your own secure JWT secret
-JWT_SECRET=your-secure-jwt-secret-key-here
+# Generate a secure JWT secret using: openssl rand -hex 32
+# WARNING: NEVER use placeholder values in production!
+# Always generate a unique, random secret for each environment.
+JWT_SECRET=
 ```
 
 #### 5. Start Docker Services

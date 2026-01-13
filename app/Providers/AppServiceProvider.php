@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-class AppServiceProvider
+use Hyperf\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         $this->validateJwtSecret();
+    }
+
+    public function register(): void
+    {
     }
 
     private function validateJwtSecret(): void

@@ -65,7 +65,10 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 # CRITICAL: Generate your own secure JWT secret
-JWT_SECRET=your-secure-jwt-secret-key-here
+# WARNING: NEVER use placeholder values in production!
+# Always generate a unique, random secret for each environment.
+# Generate a secure JWT secret using: openssl rand -hex 32
+JWT_SECRET=
 ```
 
 #### 5. Start Docker Services

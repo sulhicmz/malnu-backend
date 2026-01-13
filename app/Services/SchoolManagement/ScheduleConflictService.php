@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\SchoolManagement;
 
-use App\Models\SchoolManagement\Schedule;
 use App\Models\SchoolManagement\ClassSubject;
+use App\Models\SchoolManagement\Schedule;
 
 class ScheduleConflictService
 {
@@ -19,12 +19,12 @@ class ScheduleConflictService
 
         $conflicts = [];
 
-        if (!$classSubjectId || !$startTime || !$endTime) {
+        if (! $classSubjectId || ! $startTime || ! $endTime) {
             return $conflicts;
         }
 
         $classSubject = ClassSubject::find($classSubjectId);
-        if (!$classSubject) {
+        if (! $classSubject) {
             return ['class_subject_id' => ['Class subject not found']];
         }
 

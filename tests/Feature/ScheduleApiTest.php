@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\Api\SchoolManagement\ScheduleController;
-use App\Models\SchoolManagement\Schedule;
-use App\Models\SchoolManagement\ClassSubject;
 use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\ClassSubject;
+use App\Models\SchoolManagement\Schedule;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
-use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Testing\Client;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class ScheduleApiTest extends Client
 {
     protected ?string $classSubjectId = null;
+
     protected ?string $teacherId = null;
+
     protected ?string $subjectId = null;
+
     protected ?string $classId = null;
 
     protected function setUp(): void
@@ -28,7 +33,7 @@ class ScheduleApiTest extends Client
         $this->subjectId = Subject::create(['code' => 'MATH101', 'name' => 'Mathematics', 'credit_hours' => 4])->id;
         $this->teacherId = Teacher::create([
             'nip' => '12345',
-            'status' => 'active'
+            'status' => 'active',
         ])->id;
         $this->classSubjectId = ClassSubject::create([
             'class_id' => $this->classId,
@@ -37,7 +42,7 @@ class ScheduleApiTest extends Client
         ])->id;
     }
 
-    public function test_index_schedules()
+    public function testIndexSchedules()
     {
         $response = $this->get('/api/schedules');
         $response->assertStatus(200);
@@ -46,7 +51,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_index_with_class_filter()
+    public function testIndexWithClassFilter()
     {
         $response = $this->get('/api/schedules?class_id=' . $this->classId);
         $response->assertStatus(200);
@@ -55,7 +60,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_index_with_day_filter()
+    public function testIndexWithDayFilter()
     {
         $response = $this->get('/api/schedules?day_of_week=1');
         $response->assertStatus(200);
@@ -64,7 +69,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_show_schedule()
+    public function testShowSchedule()
     {
         $schedule = Schedule::create([
             'class_subject_id' => $this->classSubjectId,
@@ -84,7 +89,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_show_nonexistent_schedule()
+    public function testShowNonexistentSchedule()
     {
         $response = $this->get('/api/schedules/nonexistent-id');
         $response->assertStatus(404);
@@ -94,7 +99,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_store_schedule()
+    public function testStoreSchedule()
     {
         $data = [
             'class_subject_id' => $this->classSubjectId,
@@ -117,7 +122,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_store_missing_required_fields()
+    public function testStoreMissingRequiredFields()
     {
         $data = [
             'day_of_week' => 2,
@@ -130,7 +135,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_store_with_teacher_conflict()
+    public function testStoreWithTeacherConflict()
     {
         Schedule::create([
             'class_subject_id' => $this->classSubjectId,
@@ -157,7 +162,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_store_with_room_conflict()
+    public function testStoreWithRoomConflict()
     {
         Schedule::create([
             'class_subject_id' => $this->classSubjectId,
@@ -188,7 +193,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_update_schedule()
+    public function testUpdateSchedule()
     {
         $schedule = Schedule::create([
             'class_subject_id' => $this->classSubjectId,
@@ -210,7 +215,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_update_with_conflict()
+    public function testUpdateWithConflict()
     {
         $schedule = Schedule::create([
             'class_subject_id' => $this->classSubjectId,
@@ -247,7 +252,7 @@ class ScheduleApiTest extends Client
         ]);
     }
 
-    public function test_destroy_schedule()
+    public function testDestroySchedule()
     {
         $schedule = Schedule::create([
             'class_subject_id' => $this->classSubjectId,

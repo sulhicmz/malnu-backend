@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\SchoolManagement;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Schedule;
 use App\Services\SchoolManagement\ScheduleConflictService;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -60,7 +61,7 @@ class ScheduleController extends BaseController
             $schedules = $query->orderBy('day_of_week')->orderBy('start_time')->paginate($limit, ['*'], 'page', $page);
 
             return $this->successResponse($schedules, 'Schedules retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -71,12 +72,12 @@ class ScheduleController extends BaseController
             $schedule = Schedule::with(['classSubject', 'classSubject.class', 'classSubject.subject', 'classSubject.teacher'])
                 ->find($id);
 
-            if (!$schedule) {
+            if (! $schedule) {
                 return $this->notFoundResponse('Schedule not found');
             }
 
             return $this->successResponse($schedule, 'Schedule retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -95,13 +96,13 @@ class ScheduleController extends BaseController
                 }
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $conflicts = $this->conflictService->detectConflicts($data);
-            if (!empty($conflicts)) {
-                return $this->errorResponse('Schedule conflicts detected', 409, ['conflicts' => $conflicts], 'SCHEDULE_CONFLICT');
+            if (! empty($conflicts)) {
+                return $this->errorResponse('Schedule conflicts detected', 'SCHEDULE_CONFLICT', ['conflicts' => $conflicts], 409);
             }
 
             $schedule = new Schedule();
@@ -113,7 +114,7 @@ class ScheduleController extends BaseController
             $schedule->save();
 
             return $this->successResponse($schedule->load(['classSubject', 'classSubject.class', 'classSubject.subject', 'classSubject.teacher']), 'Schedule created successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -122,7 +123,7 @@ class ScheduleController extends BaseController
     {
         try {
             $schedule = Schedule::find($id);
-            if (!$schedule) {
+            if (! $schedule) {
                 return $this->notFoundResponse('Schedule not found');
             }
 
@@ -145,14 +146,14 @@ class ScheduleController extends BaseController
             }
 
             $conflicts = $this->conflictService->detectConflicts(array_merge($schedule->toArray(), $data), $id);
-            if (!empty($conflicts)) {
-                return $this->errorResponse('Schedule conflicts detected', 409, ['conflicts' => $conflicts], 'SCHEDULE_CONFLICT');
+            if (! empty($conflicts)) {
+                return $this->errorResponse('Schedule conflicts detected', 'SCHEDULE_CONFLICT', ['conflicts' => $conflicts], 409);
             }
 
             $schedule->save();
 
             return $this->successResponse($schedule->load(['classSubject', 'classSubject.class', 'classSubject.subject', 'classSubject.teacher']), 'Schedule updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -161,14 +162,14 @@ class ScheduleController extends BaseController
     {
         try {
             $schedule = Schedule::find($id);
-            if (!$schedule) {
+            if (! $schedule) {
                 return $this->notFoundResponse('Schedule not found');
             }
 
             $schedule->delete();
 
             return $this->successResponse(null, 'Schedule deleted successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }

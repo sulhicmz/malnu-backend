@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
-use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
-use App\Traits\InputValidationTrait;
+use App\Services\FormValidationHelper;
 
 class LeaveRequestController extends BaseController
 {
-    use InputValidationTrait;
+    public function __construct(
+        \Hyperf\HttpServer\Contract\RequestInterface $request,
+        \Hyperf\HttpServer\Contract\ResponseInterface $response,
+        \Psr\Container\ContainerInterface $container
+    ) {
+        parent::__construct($request, $response, $container);
+    }
     
     /**
      * Display a listing of the leave requests.
@@ -53,71 +60,34 @@ class LeaveRequestController extends BaseController
     /**
      * Store a newly created leave request.
      */
-    public function store()
+     public function store(StoreLeaveRequest $request)
     {
         try {
-            $input = $this->request->all();
+            $validated = $request->validated();
             
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
-            // Validate required fields
-            $requiredFields = ['staff_id', 'leave_type_id', 'start_date', 'end_date', 'reason'];
-            $errors = $this->validateRequired($input, $requiredFields);
-            
-            // Additional validation
-            if (isset($input['staff_id']) && !$this->validateInteger($input['staff_id'])) {
-                $errors['staff_id'] = ["Invalid staff_id"];
-            }
-            
-            if (isset($input['leave_type_id']) && !$this->validateInteger($input['leave_type_id'])) {
-                $errors['leave_type_id'] = ["Invalid leave_type_id"];
-            }
-            
-            if (isset($input['start_date']) && !$this->validateDate($input['start_date'])) {
-                $errors['start_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['end_date']) && !$this->validateDate($input['end_date'])) {
-                $errors['end_date'] = ["Invalid date format"];
-            }
-            
-            if (isset($input['start_date']) && isset($input['end_date']) && 
-                !$this->validateDateRange($input['start_date'], $input['end_date'])) {
-                $errors['start_date'] = ["Start date must be before or equal to end date"];
-            }
-
-            if (isset($input['reason']) && !$this->validateStringLength($input['reason'], null, 500)) {
-                $errors['reason'] = ["Reason must not exceed 500 characters"];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
             // Calculate total days
-            $startDate = new \DateTime($input['start_date']);
-            $endDate = new \DateTime($input['end_date']);
-            $totalDays = $startDate->diff($endDate)->days + 1; // +1 to include both start and end date
-
+            $startDate = new \DateTime($validated['start_date']);
+            $endDate = new \DateTime($validated['end_date']);
+            $totalDays = $startDate->diff($endDate)->days + 1;
+            
             // Check if staff has sufficient leave balance
-            $leaveType = LeaveType::find($input['leave_type_id']);
+            $leaveType = LeaveType::find($validated['leave_type_id']);
             if ($leaveType && $leaveType->requires_approval) {
-                $leaveBalance = LeaveBalance::where('staff_id', $input['staff_id'])
-                    ->where('leave_type_id', $input['leave_type_id'])
+                $leaveBalance = LeaveBalance::where('staff_id', $validated['staff_id'])
+                    ->where('leave_type_id', $validated['leave_type_id'])
                     ->where('year', date('Y'))
                     ->first();
-
+                
                 if ($leaveBalance && $leaveBalance->current_balance < $totalDays) {
                     return $this->errorResponse('Insufficient leave balance for this request', 'INSUFFICIENT_BALANCE');
                 }
             }
-
+            
             $leaveRequest = LeaveRequest::create(array_merge(
-                $input,
+                $validated,
                 ['total_days' => $totalDays, 'status' => 'pending']
             ));
-
+            
             return $this->successResponse($leaveRequest, 'Leave request submitted successfully', 201);
         } catch (\Exception $e) {
             return $this->serverErrorResponse('Failed to create leave request');

@@ -40,25 +40,28 @@ services:
     #   - .env
 
     # Uncomment the lines below to link the app service to a database service
-    # depends_on:
-    #   - db # Link to the database service defined below
-
-    # Link to the Redis service (uncomment database service above and add to list if needed)
     depends_on:
+      - db # Link to the database service defined below
       - redis # Link to the Redis service defined below
 
-  # # Example MySQL Database Service (Uncomment to use)
-  # db:
-  #   image: mysql:8.0 # Use an official MySQL image
-  #   ports:
-  #     - "3306:3306" # Map host port 3306 to container port 3306
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: your_root_password # !! Change this in production !!
-  #     MYSQL_DATABASE: hyperf # Database name
-  #     MYSQL_USER: hyperf # Database user
-  #     MYSQL_PASSWORD: secret # !! Change this in production !!
-  #   volumes:
-  #     - dbdata:/var/lib/mysql # Persist database data
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-hypervel}
+      MYSQL_USER: ${MYSQL_USER:-hypervel}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   # # Example PostgreSQL Database Service (Uncomment to use)
   # db:
@@ -86,9 +89,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-# # Define volumes for data persistence (Uncomment if using database services)
-# volumes:
-#   dbdata: # Volume for MySQL data
-#   pgdata: # Volume for PostgreSQL data
+# Define volumes for data persistence
 volumes:
+  dbdata: # Volume for MySQL data
   redisdata: # Volume for Redis data persistence

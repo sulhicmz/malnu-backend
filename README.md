@@ -11,6 +11,8 @@ Malnu Backend is a comprehensive school management system built with **HyperVel*
 
 ## 🚀 Quick Start
 
+### Standard Setup
+
 ```bash
 # Install dependencies
 composer install
@@ -25,6 +27,28 @@ php artisan migrate
 # Start the server
 php artisan start
 ```
+
+### Docker Setup (Recommended for Development)
+
+```bash
+# Copy Docker environment configuration
+cp .env.docker.example .env
+
+# Start all services (nginx, app, mysql, redis)
+docker compose up -d
+
+# Run migrations
+docker compose exec app php artisan migrate
+
+# Generate application key
+docker compose exec app php artisan key:generate
+
+# Access the application
+# API: http://localhost
+# Hyperf Server: http://localhost:9501
+```
+
+For detailed Docker instructions, see [DOCKER_DEVELOPMENT.md](docs/DOCKER_DEVELOPMENT.md).
 
 For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
 

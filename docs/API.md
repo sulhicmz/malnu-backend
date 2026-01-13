@@ -4,7 +4,7 @@
 
 This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
-**Implementation Status:** 27 of 54 endpoints implemented (50%)
+**Implementation Status:** 35 of 54 endpoints implemented (65%)
 
 ## 🔐 Authentication
 
@@ -392,6 +392,200 @@ Content-Type: application/json
 ```http
 DELETE /school/teachers/{id}
 Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Schedules ✅
+```http
+GET /school/schedules
+Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `class_id` (optional): Filter by class
+- `day_of_week` (optional): Filter by day of week (1-7)
+- `teacher_id` (optional): Filter by teacher
+- `room` (optional): Filter by room
+- `page` (optional, default: 1): Page number for pagination
+- `limit` (optional, default: 15): Items per page
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "schedules": [
+      {
+        "id": "uuid-string",
+        "class_subject_id": "uuid-string",
+        "day_of_week": 1,
+        "start_time": "08:00",
+        "end_time": "09:00",
+        "room": "Room 101",
+        "class_subject": {
+          "id": "uuid-string",
+          "class": {
+            "id": "uuid-string",
+            "name": "Class 10A"
+          },
+          "subject": {
+            "id": "uuid-string",
+            "name": "Mathematics",
+            "code": "MATH101"
+          },
+          "teacher": {
+            "id": "uuid-string",
+            "user": {
+              "name": "John Smith"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "timestamp": "2026-01-13T00:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Get Schedule ✅
+```http
+GET /school/schedules/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid-string",
+    "class_subject_id": "uuid-string",
+    "day_of_week": 1,
+    "start_time": "08:00",
+    "end_time": "09:00",
+    "room": "Room 101",
+    "class_subject": {
+      "id": "uuid-string",
+      "class": {
+        "id": "uuid-string",
+        "name": "Class 10A"
+      },
+      "subject": {
+        "id": "uuid-string",
+        "name": "Mathematics",
+        "code": "MATH101"
+      },
+      "teacher": {
+        "id": "uuid-string",
+        "user": {
+          "name": "John Smith"
+        }
+      }
+    }
+  },
+  "timestamp": "2026-01-13T00:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Create Schedule ✅
+```http
+POST /school/schedules
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "class_subject_id": "uuid-string",
+  "day_of_week": 1,
+  "start_time": "08:00",
+  "end_time": "09:00",
+  "room": "Room 101"
+}
+```
+
+**Error Response (Conflict):**
+```json
+{
+  "success": false,
+  "message": "Schedule conflicts detected",
+  "error_code": "SCHEDULE_CONFLICT",
+  "details": {
+    "conflicts": [
+      {
+        "type": "teacher_conflict",
+        "message": "Teacher John Smith is already scheduled during this time slot on day 1",
+        "conflicting_schedule_id": "uuid-string"
+      }
+    ]
+  },
+  "timestamp": "2026-01-13T00:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Update Schedule ✅
+```http
+PUT /school/schedules/{id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "start_time": "10:00",
+  "end_time": "11:00",
+  "room": "Room 201"
+}
+```
+
+**Error Response (Conflict):**
+```json
+{
+  "success": false,
+  "message": "Schedule conflicts detected",
+  "error_code": "SCHEDULE_CONFLICT",
+  "details": {
+    "conflicts": [
+      {
+        "type": "room_conflict",
+        "message": "Room Room 201 is already booked during this time slot on day 1",
+        "conflicting_schedule_id": "uuid-string"
+      }
+    ]
+  },
+  "timestamp": "2026-01-13T00:00:00Z"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+### Delete Schedule ✅
+```http
+DELETE /school/schedules/{id}
+Authorization: Bearer <jwt_token>
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Schedule deleted successfully",
+  "data": null,
+  "timestamp": "2026-01-13T00:00:00Z"
+}
 ```
 
 **Implementation Status:** ✅ Implemented
@@ -898,7 +1092,7 @@ When rate limit is exceeded, a `429 Too Many Requests` response is returned:
 | Section | Implemented | Total | Status |
 |---------|-------------|-------|--------|
 | Authentication | 8 | 8 | ✅ 100% |
-| School Management | 8 | 8 | ✅ 100% |
+| School Management | 13 | 13 | ✅ 100% |
 | Attendance Management | 10 | 10 | ✅ 100% |
 | Calendar Management | 11 | 11 | ✅ 100% |
 | User Management | 0 | 3 | ❌ 0% |

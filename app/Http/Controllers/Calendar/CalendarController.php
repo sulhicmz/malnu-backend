@@ -62,6 +62,30 @@ class CalendarController extends AbstractController
     }
 
     /**
+     * Get all calendars
+     * @GetMapping(path="calendars")
+     */
+    public function getCalendars(): ResponseInterface
+    {
+        try {
+            $userId = $this->request->getAttribute('user_id');
+            $type = $this->request->query('type');
+            
+            $calendars = $this->calendarService->getCalendarsForUser($userId, $type);
+            
+            return $this->response->json([
+                'success' => true,
+                'data' => $calendars
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->json([
+                'success' => false,
+                'message' => 'Failed to retrieve calendars: ' . $e->getMessage()
+            ])->withStatus(500);
+        }
+    }
+
+    /**
      * Get calendar by ID
      * @GetMapping(path="calendars/{id}")
      */

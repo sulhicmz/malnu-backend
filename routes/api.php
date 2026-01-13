@@ -69,6 +69,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
         // Calendar Management - Write operations require specific roles
+        Route::get('calendars', [CalendarController::class, 'getCalendars']);
         Route::post('calendars', [CalendarController::class, 'createCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
         Route::get('calendars/{id}', [CalendarController::class, 'getCalendar']);
         Route::put('calendars/{id}', [CalendarController::class, 'updateCalendar'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);

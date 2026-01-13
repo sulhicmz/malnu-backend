@@ -104,21 +104,99 @@ class JwtAuthenticationTest extends TestCase
     public function test_jwt_token_refresh()
     {
         $jwtService = new JWTService();
-        
+
         // Generate initial token
         $payload = ['user_id' => 1, 'email' => 'test@example.com'];
         $token = $jwtService->generateToken($payload);
-        
+
         // Refresh the token
         $refreshedToken = $jwtService->refreshToken($token);
-        
+
         $this->assertIsString($refreshedToken);
         $this->assertNotEquals($token, $refreshedToken);
-        
+
         // Decode the refreshed token to verify it contains the same data
         $decoded = $jwtService->decodeToken($refreshedToken);
         $this->assertIsArray($decoded);
         $this->assertArrayHasKey('data', $decoded);
         $this->assertEquals($payload, $decoded['data']);
+    }
+
+    public function test_jwt_secret_rejects_empty_string_in_non_testing_environment()
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('CRITICAL SECURITY ERROR: JWT_SECRET is using an insecure placeholder value');
+
+        putenv('APP_ENV=production');
+        putenv('JWT_SECRET=');
+
+        $provider = new \App\Providers\AppServiceProvider();
+        $provider->boot();
+    }
+
+    public function test_jwt_secret_rejects_placeholder_value()
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('CRITICAL SECURITY ERROR: JWT_SECRET is using an insecure placeholder value');
+
+        putenv('APP_ENV=production');
+        putenv('JWT_SECRET=your-secret-key-here');
+
+        $provider = new \App\Providers\AppServiceProvider();
+        $provider->boot();
+    }
+
+    public function test_jwt_secret_rejects_common_insecure_values()
+    {
+        $insecureValues = ['secret', 'password', 'test-secret', 'jwt-secret'];
+
+        foreach ($insecureValues as $value) {
+            putenv('APP_ENV=production');
+            putenv('JWT_SECRET=' . $value);
+
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('CRITICAL SECURITY ERROR: JWT_SECRET is using an insecure placeholder value');
+
+            $provider = new \App\Providers\AppServiceProvider();
+            $provider->boot();
+        }
+    }
+
+    public function test_jwt_secret_rejects_short_secrets()
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('CRITICAL SECURITY ERROR: JWT_SECRET is too short');
+
+        putenv('APP_ENV=production');
+        putenv('JWT_SECRET=short');
+
+        $provider = new \App\Providers\AppServiceProvider();
+        $provider->boot();
+    }
+
+    public function test_jwt_secret_allows_empty_in_testing_environment()
+    {
+        putenv('APP_ENV=testing');
+        putenv('JWT_SECRET=');
+
+        $provider = new \App\Providers\AppServiceProvider();
+        $provider->boot();
+
+        // Should not throw exception in testing environment
+        $this->assertTrue(true);
+    }
+
+    public function test_jwt_secret_allows_secure_value()
+    {
+        $secureSecret = openssl_random_pseudo_bytes(32);
+
+        putenv('APP_ENV=production');
+        putenv('JWT_SECRET=' . bin2hex($secureSecret));
+
+        $provider = new \App\Providers\AppServiceProvider();
+        $provider->boot();
+
+        // Should not throw exception for secure value
+        $this->assertTrue(true);
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Calendar\CalendarController;
+use App\Http\Controllers\Api\SystemManagement\BackupController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -89,5 +90,24 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+});
+
+// Backup and Disaster Recovery Routes (protected with strict role check - admin only)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin']], function () {
+    Route::prefix('backups')->group(function () {
+        // Backup Listing - Admin only
+        Route::get('/', [BackupController::class, 'index']);
+        Route::get('/status', [BackupController::class, 'status']);
+
+        // Backup Creation - Admin only
+        Route::post('/', [BackupController::class, 'store']);
+
+        // Backup Management - Admin only
+        Route::get('/{id}', [BackupController::class, 'show']);
+        Route::post('/{id}/restore', [BackupController::class, 'restore']);
+        Route::post('/{id}/verify', [BackupController::class, 'verify']);
+        Route::post('/clean', [BackupController::class, 'clean']);
+        Route::delete('/{id}', [BackupController::class, 'destroy']);
     });
 });

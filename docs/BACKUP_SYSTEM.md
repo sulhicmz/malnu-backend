@@ -94,13 +94,282 @@ Options:
 
 ### Monitor Backup Status
 ```bash
-php artisan backup:monitor --last-hours=24 --alert-email=admin@example.com --webhook-url=https://webhook.example.com
+php artisan backup:health --alert-on-fail
 ```
 
 Options:
-- `--last-hours`: Check backups from last N hours (default: 24)
-- `--alert-email`: Email address for alerts
-- `--webhook-url`: Webhook URL for alerts
+- `--alert-on-fail`: Send alert if health check fails
+
+### Schedule Automated Backups
+```bash
+php artisan backup:schedule --type=comprehensive --encrypt
+```
+
+Options:
+- `--type`: Type of backup: database, filesystem, config, comprehensive, or scheduled
+- `--connection`: Database connection name
+- `--encrypt`: Encrypt backup file
+
+## API Management
+
+The backup system now provides REST API endpoints for remote backup management. All API endpoints require JWT authentication and admin role.
+
+### Backup Management API
+
+**Base URL**: `/api/backups`
+
+#### List All Backups
+```http
+GET /api/backups
+Authorization: Bearer {JWT_TOKEN}
+```
+
+Query Parameters:
+- `type`: Filter by type (database, filesystem, config, all)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "backups": [
+      {
+        "id": "abc123...",
+        "filename": "full_backup_2026-01-13-10-30-00.tar.gz",
+        "size": 10485760,
+        "size_human": "100.00 MB",
+        "created_at": "2026-01-13T10:30:00Z",
+        "modified_at": "2026-01-13T10:30:00Z",
+        "type": "comprehensive",
+        "is_compressed": true
+      }
+    ],
+    "statistics": {
+      "database_backups": 7,
+      "filesystem_backups": 7,
+      "config_backups": 5,
+      "comprehensive_backups": 5
+    },
+    "latest_backups": {
+      "database": "...",
+      "filesystem": "...",
+      "config": "...",
+      "comprehensive": "..."
+    },
+    "timestamp": "2026-01-13T10:30:45Z"
+  },
+  "message": "Backup list retrieved successfully"
+}
+```
+
+#### Create Backup
+```http
+POST /api/backups
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+
+{
+  "type": "comprehensive",
+  "compress": true,
+  "connection": "mysql",
+  "description": "Weekly backup"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "timestamp": "2026-01-13T10:30:00Z",
+    "type": "comprehensive",
+    "encrypted": false,
+    "encryption_method": "AES-256-GCM"
+  },
+  "message": "Backup created successfully"
+}
+```
+
+#### Get Backup Details
+```http
+GET /api/backups/{backup_id}
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "filename": "full_backup_2026-01-13-10-30-00.tar.gz",
+    "path": "/storage/backups/full_backup_2026-01-13-10-30-00.tar.gz",
+    "size": 10485760,
+    "size_human": "100.00 MB",
+    "created_at": "2026-01-13T10:30:00Z",
+    "modified_at": "2026-01-13T10:30:00Z",
+    "type": "comprehensive",
+    "is_compressed": true,
+    "is_readable": true
+  },
+  "message": "Backup details retrieved successfully"
+}
+```
+
+#### Delete Backup
+```http
+DELETE /api/backups/{backup_id}
+Authorization: Bearer {JWT_TOKEN}
+```
+
+#### Restore Backup
+```http
+POST /api/backups/{backup_id}/restore
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+
+{
+  "type": "all",
+  "connection": "mysql",
+  "force": false
+}
+```
+
+#### Verify Backup
+```http
+POST /api/backups/{backup_id}/verify
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+
+{
+  "type": "all"
+}
+```
+
+#### Get Backup Status
+```http
+GET /api/backups/status
+Authorization: Bearer {JWT_TOKEN}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "system_status": "operational",
+    "status": "operational",
+    "issues": [],
+    "backup_locations": {
+      "database": "/storage/backups/database",
+      "filesystem": "/storage/backups/filesystem",
+      "config": "/storage/backups/config",
+      "comprehensive": "/storage/backups"
+    },
+    "statistics": {
+      "database_backups": 7,
+      "filesystem_backups": 7,
+      "config_backups": 5,
+      "comprehensive_backups": 5
+    },
+    "latest_backups": {...},
+    "disk_space": {
+      "free": "50.00 GB",
+      "total": "100.00 GB",
+      "usage_percent": 50.0
+    }
+  },
+  "message": "Backup status retrieved successfully"
+}
+```
+
+#### Clean Old Backups
+```http
+POST /api/backups/clean
+Authorization: Bearer {JWT_TOKEN}
+Content-Type: application/json
+
+{
+  "type": "all",
+  "keep": 5
+}
+```
+
+## Encryption Configuration
+
+Backup files can be encrypted using AES-256-GCM for enhanced security.
+
+### Encryption Settings (.env)
+```bash
+BACKUP_ENCRYPTION_KEY=your-32-character-encryption-key
+BACKUP_ENCRYPTION_ENABLED=true
+```
+
+### Generate Encryption Key
+```bash
+openssl rand -hex 32
+```
+
+### Encryption Process
+
+1. Generate secure 32-character key
+2. Enable encryption in configuration
+3. Backups are automatically encrypted during creation
+4. Encrypted files use `.enc` extension
+5. Decryption happens automatically during restore
+6. Keys are validated to ensure minimum 32 characters
+
+### Security Benefits
+
+- Backups encrypted at rest
+- AES-256-GCM provides authenticated encryption
+- Protection against unauthorized access to backup files
+- Compliance with data protection regulations
+
+## Alerting Configuration
+
+The backup system supports multiple alert channels for monitoring and notifications.
+
+### Email Alerts
+```bash
+BACKUP_ALERT_EMAIL=admin@example.com
+```
+
+### Webhook Alerts
+```bash
+BACKUP_WEBHOOK_URL=https://monitoring.example.com/webhook
+```
+
+### Slack Alerts
+```bash
+BACKUP_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK
+```
+
+### Alert Triggers
+
+Alerts are sent for:
+- Backup creation success
+- Backup restoration completed
+- Backup failures (database, filesystem, configuration)
+- Backup verification failures
+- Health check failures
+- Low disk space warnings
+
+### Alert Payload
+
+Webhook alerts include:
+```json
+{
+  "event": "backup_alert",
+  "message": "Backup created successfully",
+  "timestamp": "2026-01-13T10:30:00Z",
+  "context": {
+    "backup_type": "comprehensive",
+    "encrypted": true,
+    "size_bytes": 10485760
+  }
+}
+```
 
 ## Backup Storage Locations
 

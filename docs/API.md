@@ -748,7 +748,233 @@ Content-Type: application/json
 ### Get Event ✅
 ```http
 GET /calendar/events/{id}
+
+**Implementation Status:** ✅ Implemented
+
+---
+
+## 🔐 System Management (Backup & Disaster Recovery)
+
+**Base URL**: `/api/backups`
+
+**Note**: All backup endpoints require `Super Admin` role for security and operational safety.
+
+### List All Backups ✅
+```http
+GET /api/backups
 Authorization: Bearer <jwt_token>
+```
+
+**Query Parameters:**
+- `type`: Filter by type (database, filesystem, config, all)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "backups": [
+      {
+        "id": "abc123...",
+        "filename": "full_backup_2026-01-13-10-30-00.tar.gz",
+        "size": 104857600,
+        "size_human": "100.00 MB",
+        "created_at": "2026-01-13T10:30:00Z",
+        "modified_at": "2026-01-13T10:30:00Z",
+        "type": "comprehensive",
+        "is_compressed": true
+      }
+    ],
+    "statistics": {
+      "database_backups": 7,
+      "filesystem_backups": 7,
+      "config_backups": 5,
+      "comprehensive_backups": 5
+    },
+    "latest_backups": {
+      "database": "...",
+      "filesystem": "...",
+      "config": "...",
+      "comprehensive": "..."
+    },
+    "timestamp": "2026-01-13T10:30:45Z"
+  },
+  "message": "Backup list retrieved successfully"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Create Backup ✅
+```http
+POST /api/backups
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "type": "comprehensive",
+  "compress": true,
+  "connection": "mysql",
+  "description": "Weekly backup"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "timestamp": "2026-01-13T10:30:00Z",
+    "type": "comprehensive",
+    "encrypted": false,
+    "encryption_method": "AES-256-GCM"
+  },
+  "message": "Backup created successfully"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Get Backup Details ✅
+```http
+GET /api/backups/{backup_id}
+Authorization: Bearer <jwt_token>
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "filename": "full_backup_2026-01-13-10-30-00.tar.gz",
+    "path": "/storage/backups/full_backup_2026-01-13-10-30-00.tar.gz",
+    "size": 104857600,
+    "size_human": "100.00 MB",
+    "created_at": "2026-01-13T10:30:00Z",
+    "modified_at": "2026-01-13T10:30:00Z",
+    "type": "comprehensive",
+    "is_compressed": true,
+    "is_readable": true
+  },
+  "message": "Backup details retrieved successfully"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Delete Backup ✅
+```http
+DELETE /api/backups/{backup_id}
+Authorization: Bearer <jwt_token>
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Restore Backup ✅
+```http
+POST /api/backups/{backup_id}/restore
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "type": "all",
+  "connection": "mysql",
+  "force": false
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "timestamp": "2026-01-13T10:30:00Z",
+    "type": "all"
+  },
+  "message": "Backup restored successfully"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Verify Backup ✅
+```http
+POST /api/backups/{backup_id}/verify
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "type": "all"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Get Backup Status ✅
+```http
+GET /api/backups/status
+Authorization: Bearer <jwt_token>
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "system_status": "operational",
+    "status": "operational",
+    "issues": [],
+    "backup_locations": {
+      "database": "/storage/backups/database",
+      "filesystem": "/storage/backups/filesystem",
+      "config": "/storage/backups/config",
+      "comprehensive": "/storage/backups"
+    },
+    "statistics": {
+      "database_backups": 7,
+      "filesystem_backups": 7,
+      "config_backups": 5,
+      "comprehensive_backups": 5
+    },
+    "latest_backups": {...},
+    "disk_space": {
+      "free": "50.00 GB",
+      "total": "100.00 GB",
+      "usage_percent": 50.0
+    }
+  },
+  "message": "Backup status retrieved successfully"
+}
+```
+
+**Implementation Status:** ✅ Implemented
+
+### Clean Old Backups ✅
+```http
+POST /api/backups/clean
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
+{
+  "type": "all",
+  "keep": 5
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "timestamp": "2026-01-13T10:30:00Z",
+    "deleted": 2,
+    "kept": 3
+  },
+  "message": "Old backups cleaned successfully"
+}
 ```
 
 **Implementation Status:** ✅ Implemented

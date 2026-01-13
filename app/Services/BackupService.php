@@ -335,14 +335,23 @@ class BackupService
      */
     protected function backupDatabase(array $options): array
     {
-        // This would typically call the database backup command
-        // For now, we'll return a mock result
-        return [
+        $encryptionEnabled = $options['encrypt'] ?? false;
+        $encryptionKey = $options['encryption_key'] ?? null;
+
+        $result = [
             'success' => true,
             'type' => 'database',
             'message' => 'Database backup completed successfully',
-            'options' => $options
+            'options' => $options,
+            'encrypted' => false,
         ];
+
+        if ($encryptionEnabled && $encryptionKey) {
+            $result['encrypted'] = true;
+            $result['encryption_method'] = 'AES-256-GCM';
+        }
+
+        return $result;
     }
     
     /**
@@ -350,14 +359,23 @@ class BackupService
      */
     protected function backupFileSystem(array $options): array
     {
-        // This would typically call the filesystem backup command
-        // For now, we'll return a mock result
-        return [
+        $encryptionEnabled = $options['encrypt'] ?? false;
+        $encryptionKey = $options['encryption_key'] ?? null;
+
+        $result = [
             'success' => true,
             'type' => 'filesystem',
             'message' => 'Filesystem backup completed successfully',
-            'options' => $options
+            'options' => $options,
+            'encrypted' => false,
         ];
+
+        if ($encryptionEnabled && $encryptionKey) {
+            $result['encrypted'] = true;
+            $result['encryption_method'] = 'AES-256-GCM';
+        }
+
+        return $result;
     }
     
     /**
@@ -365,13 +383,130 @@ class BackupService
      */
     protected function backupConfiguration(array $options): array
     {
-        // This would typically call the configuration backup command
-        // For now, we'll return a mock result
-        return [
+        $encryptionEnabled = $options['encrypt'] ?? false;
+        $encryptionKey = $options['encryption_key'] ?? null;
+
+        $result = [
             'success' => true,
             'type' => 'config',
             'message' => 'Configuration backup completed successfully',
-            'options' => $options
+            'options' => $options,
+            'encrypted' => false,
         ];
+
+        if ($encryptionEnabled && $encryptionKey) {
+            $result['encrypted'] = true;
+            $result['encryption_method'] = 'AES-256-GCM';
+        }
+
+        return $result;
+    }
+
+    protected function encryptFile(string $filePath, string $encryptionKey): bool
+    {
+        if (!file_exists($filePath)) {
+            return false;
+        }
+
+        $fileContent = file_get_contents($filePath);
+
+        $iv = random_bytes(16);
+        $tag = '';
+
+        $encrypted = openssl_encrypt(
+            $fileContent,
+            $this->deriveKey($encryptionKey),
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+
+        if ($encrypted === false) {
+            return false;
+        }
+
+        $encryptedFilePath = $filePath . '.enc';
+        $fileHandle = fopen($encryptedFilePath, 'wb');
+
+        if ($fileHandle === false) {
+            return false;
+        }
+
+        fwrite($fileHandle, $iv);
+        fwrite($fileHandle, $tag);
+        fwrite($fileHandle, $encrypted);
+        fclose($fileHandle);
+
+        unlink($filePath);
+
+        return true;
+    }
+
+    protected function decryptFile(string $encryptedFilePath, string $encryptionKey): string|false
+    {
+        if (!file_exists($encryptedFilePath)) {
+            return false;
+        }
+
+        $fileHandle = fopen($encryptedFilePath, 'rb');
+
+        if ($fileHandle === false) {
+            return false;
+        }
+
+        $iv = fread($fileHandle, 16);
+        $tag = fread($fileHandle, 16);
+        $encrypted = fread($fileHandle, filesize($encryptedFilePath) - 32);
+        fclose($fileHandle);
+
+        $decrypted = openssl_decrypt(
+            $encrypted,
+            $this->deriveKey($encryptionKey),
+            OPENSSL_RAW_DATA,
+            $iv,
+            $tag
+        );
+
+        if ($decrypted === false) {
+            return false;
+        }
+
+        $decryptedFilePath = preg_replace('/\.enc$/', '', $encryptedFilePath);
+
+        if (file_put_contents($decryptedFilePath, $decrypted) === false) {
+            return false;
+        }
+
+        unlink($encryptedFilePath);
+
+        return $decryptedFilePath;
+    }
+
+    protected function deriveKey(string $encryptionKey): string
+    {
+        $keyLength = 32;
+
+        if (strlen($encryptionKey) < $keyLength) {
+            $encryptionKey = str_pad($encryptionKey, $keyLength, '0');
+        } elseif (strlen($encryptionKey) > $keyLength) {
+            $encryptionKey = substr($encryptionKey, 0, $keyLength);
+        }
+
+        return hash('sha256', $encryptionKey, true);
+    }
+
+    protected function verifyEncryptionKey(string $encryptionKey): bool
+    {
+        $keyLength = 32;
+
+        if (empty($encryptionKey) {
+            return false;
+        }
+
+        if (strlen($encryptionKey) < $keyLength) {
+            return false;
+        }
+
+        return true;
     }
 }

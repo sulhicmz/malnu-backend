@@ -810,5 +810,69 @@ These fixes address critical vulnerabilities that could allow:
 
 ---
 
-*Last Updated: January 7, 2026*
+## DevOps Tasks
+
+### [TASK-300] Fix workflow-monitor CI Permissions
+
+**Feature**: CI/CD
+**Status**: Documented (Pending Manual Fix)
+**Agent**: 09 DevOps
+**Priority**: P0
+**Estimated**: 1 hour
+**Completed**: January 14, 2026
+
+#### Description
+
+The workflow-monitor workflow was failing with HTTP 403 error when attempting to trigger on-pull workflow. This was caused by insufficient GitHub Actions permissions.
+
+#### Completed Work
+
+**Investigation**:
+- Analyzed workflow-monitor.yml failure logs
+- Identified root cause: `actions: read` insufficient for `gh workflow run`
+- Verified other workflow permissions for consistency
+- Confirmed GitHub Actions documentation requirements
+
+**Fix Implementation**:
+- Created local fix changing `actions: read` to `actions: write` in workflow-monitor.yml
+- Verified fix follows GitHub Actions best practices
+- Documented security assessment (LOW risk)
+
+**Documentation**:
+- Created `.github/CI_FIXES_REQUIRED.md` with complete fix details
+- Documented why GITHUB_TOKEN cannot apply this fix itself
+- Provided manual application steps for maintainers
+
+#### Acceptance Criteria
+
+- [x] Identify root cause of workflow-monitor failures
+- [x] Create fix for permissions issue
+- [x] Document fix with security assessment
+- [x] Create manual application guide for maintainers
+- [ ] Manually apply fix to workflow-monitor.yml (requires maintainer permissions)
+- [ ] Verify workflow-monitor runs successfully after fix
+
+#### Technical Details
+
+**File Modified**: `.github/workflows/workflow-monitor.yml`
+**Line**: 9
+**Change**: `actions: read` → `actions: write`
+
+**Local Commit**: `fix: Add write permissions for actions to fix workflow-monitor CI failure`
+
+**Why Manual Application Required**:
+- GITHUB_TOKEN doesn't have `workflows: write` permission
+- Modifying workflow files requires elevated permissions
+- This prevents unauthorized workflow modifications
+- Repository maintainer must manually apply the fix
+
+#### Related Issues
+
+- CRITICAL CI failure affecting workflow-monitor
+- 6 consecutive failures in recent runs
+- Runs every 30 minutes via cron schedule
+
+---
+
+*Last Updated: January 14, 2026*
 *Owner: Principal Product Strategist*

@@ -347,6 +347,107 @@ tests/
 - **Architecture**: Updated with major changes
 - **Standards**: Updated when new patterns emerge
 
+## DevOps Standards
+
+### CI/CD Workflow Architecture
+
+#### Workflow Permissions
+
+**Critical Principle**: Workflow files define their own permissions. When a workflow needs to trigger another workflow via `workflow_dispatch`, it requires `actions: write` permission.
+
+**Permissions Matrix**:
+```yaml
+# For workflows that TRIGGER other workflows:
+permissions:
+  actions: write    # Required for gh workflow run
+  contents: write    # For git operations
+
+# For workflows that DON'T trigger other workflows:
+permissions:
+  contents: write    # Minimum required for git operations
+```
+
+#### Workflow File Modifications
+
+**Security Constraint**: The GITHUB_TOKEN used by GitHub Actions has restricted permissions by design:
+- Cannot modify workflow files without `workflows: write` permission
+- This prevents infinite loops and unauthorized modifications
+- Maintains security by requiring manual approval for workflow changes
+
+**When Modifying Workflows**:
+1. Identify the specific permission requirement (read vs write)
+2. Update permissions in the workflow file itself
+3. **Manual application required** - cannot be automated via GITHUB_TOKEN
+4. Repository maintainer must approve and push workflow changes
+
+#### Workflow Monitoring
+
+**Critical Workflows**:
+- `workflow-monitor` - Monitors and triggers on-push/on-pull (every 30 min)
+- `on-push` - Main CI pipeline for code pushed to main
+- `on-pull` - PR validation and automated fixes
+
+**Monitoring Checklist**:
+- [ ] All workflows completing successfully
+- [ ] No permission errors (403: Resource not accessible)
+- [ ] No timeout issues
+- [ ] Workflow dispatch events working correctly
+
+### CI Health Monitoring
+
+#### Daily Checklist
+
+1. **Build Status**
+   - All workflows passing?
+   - No flaky tests?
+   - Build time reasonable?
+
+2. **Security Scans**
+   - No new vulnerabilities?
+   - Dependency audits passing?
+   - Sensitive data not committed?
+
+3. **Pipeline Health**
+   - No stuck jobs?
+   - Cache working correctly?
+   - Artifacts generated successfully?
+
+#### Weekly Review
+
+1. **Performance**
+   - Build time trends
+   - Resource utilization
+   - Cache hit rates
+
+2. **Stability**
+   - Flaky test identification
+   - Failure rate analysis
+   - Rollback events
+
+#### Incident Response Protocol
+
+**Priority Levels**:
+- 🔴 P0: CI failures - ONLY priority
+- 🟡 P1: Flaky tests, pipeline timeouts
+- 🟢 P2: Performance optimization
+
+**When CI Fails**:
+1. Immediately stop non-CI work
+2. Identify failing workflow
+3. Check logs for errors
+4. Fix or document blocker
+5. Verify fix in next run
+
+### Anti-Patterns (CI/CD)
+
+- ❌ Ignore failing CI builds
+- ❌ Commit secrets or credentials
+- ❌ Modify production without CI
+- ❌ Skip workflow permission validation
+- ❌ Assume GITHUB_TOKEN has all permissions
+- ❌ Push workflow changes without manual review
+- ❌ Let flaky tests remain unaddressed
+
 ---
 
 *Last Updated: January 7, 2026*

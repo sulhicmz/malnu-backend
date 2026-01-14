@@ -635,6 +635,60 @@ Extended interface-based design to core business services (AttendanceService and
 
 ---
 
+### [SEC-001] Patch Critical Security Vulnerabilities
+
+**Feature**: Security Hardening
+**Status**: Completed
+**Agent**: 04 Security
+**Priority**: P0
+**Completed**: January 14, 2026
+
+#### Description
+
+Fixed 3 critical and high-severity security vulnerabilities in backend and frontend dependencies.
+
+#### Completed Work
+
+**Backend (PHP):**
+- Updated `symfony/http-foundation` from v6.4.18 to v6.4.31 (fixes CVE-2025-64500 - HIGH)
+  - Vulnerability: Incorrect parsing of PATH_INFO can lead to limited authorization bypass
+- Updated `league/commonmark` from 2.6.2 to 2.8.0 (fixes CVE-2025-46734 - MEDIUM)
+  - Vulnerability: XSS vulnerability in Attributes extension
+- Updated `hyperf/http-message` from v3.1.48 to v3.1.65 (includes latest security patches)
+
+**Frontend (JavaScript):**
+- Fixed all 9 npm security vulnerabilities via `npm audit fix`
+- Updated `@remix-run/router` from <=1.23.1 to 1.23.2 (fixes GHSA-2w69-qvjg-hvjx - HIGH)
+  - Vulnerability: XSS via Open Redirects
+- Updated `react-router-dom` and `react-router` to 6.30.3
+
+#### Security Impact
+
+These fixes address critical vulnerabilities that could allow:
+- Unauthorized access via PATH_INFO manipulation (CVE-2025-64500)
+- Cross-site scripting attacks through markdown rendering (CVE-2025-46734)
+- Open redirect attacks in routing (GHSA-2w69-qvjg-hvjx)
+
+#### Testing
+
+- ✅ Composer audit: No security vulnerabilities found
+- ✅ NPM audit: 0 vulnerabilities
+- ✅ Static analysis: No new errors introduced
+- Note: Full integration tests require Swoole extension in production environment
+
+#### Files Modified
+
+- `composer.json` - Updated package version requirements
+- `composer.lock` - Updated dependency versions
+- `frontend/package-lock.json` - Updated npm dependencies
+
+#### Pull Request
+
+- PR #393: https://github.com/sulhicmz/malnu-backend/pull/393
+- Commit: `fix: Patch critical security vulnerabilities`
+
+---
+
 ## Task Assignment Matrix
 
 | Task Type | Agent | Tasks Assigned |

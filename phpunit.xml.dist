@@ -20,16 +20,22 @@
              <directory>tests/Feature</directory>
          </testsuite>
      </testsuites>
-     <coverage processUncoveredFiles="true">
-         <include>
-             <directory suffix=".php">app</directory>
-         </include>
-         <report>
-             <html outputDirectory="build/coverage/html"/>
-             <clover outputFile="build/coverage/clover.xml"/>
-             <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="true"/>
-         </report>
-     </coverage>
+      <coverage processUncoveredFiles="true">
+          <include>
+              <directory suffix=".php">app</directory>
+          </include>
+          <report>
+              <html outputDirectory="build/coverage/html"/>
+              <clover outputFile="build/coverage/clover.xml"/>
+              <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="true"/>
+          </report>
+          <threshold>
+              <global>
+                  <line title="Code Coverage" minimum="60"/>
+                  <method title="Method Coverage" minimum="60"/>
+              </global>
+          </threshold>
+      </coverage>
      <source>
          <include>
              <directory suffix=".php">app</directory>

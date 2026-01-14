@@ -7,13 +7,12 @@ namespace App\Services;
 use App\Contracts\AttendanceServiceInterface;
 use App\Models\Attendance\StudentAttendance;
 use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\ClassModel;
-use App\Models\User;
 use App\Models\SchoolManagement\Teacher;
 
 class AttendanceService implements AttendanceServiceInterface
 {
     private int $chronicAbsenceThreshold;
+
     private int $attendanceCutoffHour;
 
     public function __construct()
@@ -172,17 +171,6 @@ class AttendanceService implements AttendanceServiceInterface
         return $chronicAbsentees;
     }
 
-    private function calculateAttendancePercentage(string $studentId, string $sinceDate): float
-    {
-        $query = StudentAttendance::byStudent($studentId)
-            ->whereDate('attendance_date', '>=', $sinceDate);
-
-        $total = $query->count();
-        $present = $query->present()->count();
-
-        return $total > 0 ? round(($present / $total) * 100, 2) : 0;
-    }
-
     public function generateAttendanceReport(string $classId, string $startDate, string $endDate): array
     {
         $attendances = StudentAttendance::byClass($classId)
@@ -203,7 +191,7 @@ class AttendanceService implements AttendanceServiceInterface
         foreach ($attendances as $attendance) {
             $dateKey = $attendance->attendance_date;
 
-            if (!isset($dailyData[$dateKey])) {
+            if (! isset($dailyData[$dateKey])) {
                 $dailyData[$dateKey] = [
                     'date' => $attendance->attendance_date,
                     'present' => 0,
@@ -214,8 +202,8 @@ class AttendanceService implements AttendanceServiceInterface
                 ];
             }
 
-            $dailyData[$dateKey]['total']++;
-            $dailyData[$dateKey][$attendance->status]++;
+            ++$dailyData[$dateKey]['total'];
+            ++$dailyData[$dateKey][$attendance->status];
         }
 
         $report['daily_attendance'] = array_values($dailyData);
@@ -230,5 +218,16 @@ class AttendanceService implements AttendanceServiceInterface
             ->first();
 
         return $teacher !== null;
+    }
+
+    private function calculateAttendancePercentage(string $studentId, string $sinceDate): float
+    {
+        $query = StudentAttendance::byStudent($studentId)
+            ->whereDate('attendance_date', '>=', $sinceDate);
+
+        $total = $query->count();
+        $present = $query->present()->count();
+
+        return $total > 0 ? round(($present / $total) * 100, 2) : 0;
     }
 }

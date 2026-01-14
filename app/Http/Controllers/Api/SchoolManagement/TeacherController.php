@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
@@ -14,11 +16,17 @@ class TeacherController extends BaseController
     use CrudOperationsTrait;
 
     protected string $model = Teacher::class;
+
     protected string $resourceName = 'Teacher';
+
     protected array $relationships = ['subject', 'class'];
+
     protected array $uniqueFields = ['nip', 'email'];
+
     protected array $allowedFilters = ['subject_id', 'class_id', 'status'];
+
     protected array $searchFields = ['name', 'nip'];
+
     protected array $validationRules = [
         'required' => ['name', 'nip', 'subject_id', 'join_date'],
         'email' => 'email',

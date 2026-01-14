@@ -16,7 +16,7 @@ return [
     'backup' => [
         // Default backup disk/directory
         'default_disk' => 'local',
-        
+
         // Backup directories configuration
         'directories' => [
             'database' => storage_path('backups/database'),
@@ -24,7 +24,7 @@ return [
             'config' => storage_path('backups/config'),
             'comprehensive' => storage_path('backups'),
         ],
-        
+
         // Default retention policy - keep last N backups
         'retention' => [
             'database' => 7,      // Keep 7 days of database backups
@@ -32,7 +32,7 @@ return [
             'config' => 5,        // Keep 5 days of config backups
             'comprehensive' => 5, // Keep 5 days of comprehensive backups
         ],
-        
+
         // Default backup options
         'options' => [
             'compress' => true,
@@ -40,7 +40,7 @@ return [
             'encrypt' => false,
             'password' => env('BACKUP_PASSWORD', null),
         ],
-        
+
         // Schedule configuration
         'schedule' => [
             'database' => '0 2 * * *',        // Daily at 2 AM
@@ -48,14 +48,14 @@ return [
             'verification' => '0 4 * * *',    // Daily at 4 AM
             'monitoring' => '0 5 * * *',      // Daily at 5 AM
         ],
-        
+
         // Alert configuration
         'alerts' => [
             'email' => env('BACKUP_ALERT_EMAIL', null),
             'webhook' => env('BACKUP_WEBHOOK_URL', null),
             'slack_webhook_url' => env('BACKUP_SLACK_WEBHOOK_URL', null),
         ],
-        
+
         // Filesystem backup configuration
         'filesystem' => [
             'include' => [
@@ -76,7 +76,7 @@ return [
                 BASE_PATH . '/storage/temp',
             ],
         ],
-        
+
         // Database backup configuration
         'database' => [
             'connections' => [
@@ -91,7 +91,7 @@ return [
                 ],
             ],
         ],
-        
+
         // Cloud storage configuration (for offsite backup)
         'cloud' => [
             'enabled' => env('CLOUD_BACKUP_ENABLED', false),

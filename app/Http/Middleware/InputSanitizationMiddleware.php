@@ -16,9 +16,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 class InputSanitizationMiddleware implements MiddlewareInterface
 {
     use InputValidationTrait;
-    
+
     protected ContainerInterface $container;
+
     protected RequestInterface $request;
+
     protected HttpResponse $response;
 
     public function __construct(ContainerInterface $container)
@@ -32,23 +34,23 @@ class InputSanitizationMiddleware implements MiddlewareInterface
     {
         // Get the request body data
         $parsedBody = $request->getParsedBody();
-        
-        if (is_array($parsedBody) && !empty($parsedBody)) {
+
+        if (is_array($parsedBody) && ! empty($parsedBody)) {
             // Sanitize the parsed body
             $sanitizedBody = $this->sanitizeInput($parsedBody);
             $request = $request->withParsedBody($sanitizedBody);
         }
-        
+
         // Also sanitize query parameters if needed
         $queryParams = $request->getQueryParams();
-        if (!empty($queryParams)) {
+        if (! empty($queryParams)) {
             $sanitizedQueryParams = $this->sanitizeInput($queryParams);
             $request = $request->withQueryParams($sanitizedQueryParams);
         }
-        
+
         // Sanitize uploaded files metadata if present
         $uploadedFiles = $request->getUploadedFiles();
-        if (!empty($uploadedFiles)) {
+        if (! empty($uploadedFiles)) {
             // Process uploaded files for security validation
             foreach ($uploadedFiles as $key => $file) {
                 if ($file->getError() === UPLOAD_ERR_OK) {
@@ -59,9 +61,9 @@ class InputSanitizationMiddleware implements MiddlewareInterface
                             'success' => false,
                             'error' => [
                                 'message' => 'File size exceeds maximum allowed size',
-                                'code' => 'FILE_SIZE_EXCEEDED'
+                                'code' => 'FILE_SIZE_EXCEEDED',
                             ],
-                            'timestamp' => date('c')
+                            'timestamp' => date('c'),
                         ])->withStatus(400);
                     }
                 }

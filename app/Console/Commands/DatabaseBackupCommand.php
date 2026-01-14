@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
+use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -34,12 +34,12 @@ class DatabaseBackupCommand extends Command
         $cleanOld = $this->input->getOption('clean-old');
 
         // Ensure backup directory exists
-        if (!is_dir($backupPath)) {
+        if (! is_dir($backupPath)) {
             mkdir($backupPath, 0755, true);
         }
 
         $databaseConfig = $this->config->get("database.connections.{$connection}", []);
-        
+
         if (empty($databaseConfig)) {
             $this->output->writeln('<error>Database connection \'' . $connection . '\' not found in configuration.</error>');
             return 1;
@@ -79,10 +79,9 @@ class DatabaseBackupCommand extends Command
             }
 
             return 0;
-        } else {
-            $this->output->writeln('<error>Database backup failed for connection: ' . $connection . '</error>');
-            return 1;
         }
+        $this->output->writeln('<error>Database backup failed for connection: ' . $connection . '</error>');
+        return 1;
     }
 
     protected function backupMysql(array $config, string $backupPath, string $filename): bool
@@ -96,7 +95,7 @@ class DatabaseBackupCommand extends Command
         $command = sprintf(
             'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers %s > %s',
             escapeshellarg($host),
-            escapeshellarg((string)$port),
+            escapeshellarg((string) $port),
             escapeshellarg($username),
             escapeshellarg($password),
             escapeshellarg($database),
@@ -104,7 +103,7 @@ class DatabaseBackupCommand extends Command
         );
 
         $this->output->write('Executing mysqldump... ');
-        
+
         $exitCode = 0;
         $output = [];
         exec($command, $output, $exitCode);
@@ -112,49 +111,47 @@ class DatabaseBackupCommand extends Command
         if ($exitCode === 0) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function backupSqlite(array $config, string $backupPath, string $filename): bool
     {
         $databasePath = $config['database'];
 
-        if (!file_exists($databasePath)) {
+        if (! file_exists($databasePath)) {
             $this->output->writeln('<error>SQLite database file does not exist: ' . $databasePath . '</error>');
             return false;
         }
 
         $this->output->write('Copying SQLite database... ');
-        
+
         $success = copy($databasePath, "{$backupPath}/{$filename}");
 
         if ($success) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function generateFilename(string $connection, string $driver): string
     {
         $timestamp = date('Y-m-d-H-i-s');
         $extension = $driver === 'mysql' ? 'sql' : 'db';
-        
+
         return "backup_{$connection}_{$timestamp}.{$extension}";
     }
 
     protected function compressBackup(string $backupPath, string $filename): void
     {
         $this->output->write('Compressing backup... ');
-        
+
         $tarFile = $backupPath . '/' . str_replace('.sql', '.tar.gz', $filename);
         $tarFile = str_replace('.db', '.tar.gz', $tarFile);
-        
+
         $command = sprintf(
             'tar -czf %s -C %s %s',
             escapeshellarg($tarFile),
@@ -178,32 +175,32 @@ class DatabaseBackupCommand extends Command
     protected function cleanOldBackups(string $backupPath, string $connection): void
     {
         $this->output->writeln('<info>Cleaning old backups...</info>');
-        
+
         // Find all backup files for this connection
         $pattern = $backupPath . '/backup_' . $connection . '_*.sql';
         $sqlFiles = glob($pattern);
-        
+
         $pattern = $backupPath . '/backup_' . $connection . '_*.db';
         $dbFiles = glob($pattern);
-        
+
         $pattern = $backupPath . '/backup_' . $connection . '_*.tar.gz';
         $tarFiles = glob($pattern);
-        
+
         $allFiles = array_merge($sqlFiles, $dbFiles, $tarFiles);
-        
+
         // Sort by modification time (newest first)
         usort($allFiles, function ($a, $b) {
             return filemtime($b) - filemtime($a);
         });
-        
+
         // Keep only the 5 most recent backups
         $filesToDelete = array_slice($allFiles, 5);
-        
+
         foreach ($filesToDelete as $file) {
             unlink($file);
             $this->output->writeln('<info>Deleted old backup: ' . $file . '</info>');
         }
-        
+
         $this->output->writeln('<info>Old backup cleanup completed.</info>');
     }
 

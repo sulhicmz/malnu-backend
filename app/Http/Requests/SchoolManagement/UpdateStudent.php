@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\SchoolManagement;
 
-use App\Models\SchoolManagement\Student;
 use Hyperf\Foundation\Http\FormRequest;
 
 class UpdateStudent extends FormRequest
@@ -17,11 +16,11 @@ class UpdateStudent extends FormRequest
     public function rules(): array
     {
         $id = $this->route('id');
-        
+
         return [
             'name' => 'sometimes|string|max:255',
-            'nisn' => 'sometimes|string|max:50|unique:students,nisn,'.$id,
-            'email' => 'nullable|email|max:255|unique:students,email,'.$id,
+            'nisn' => 'sometimes|string|max:50|unique:students,nisn,' . $id,
+            'email' => 'nullable|email|max:255|unique:students,email,' . $id,
             'status' => 'sometimes|in:active,inactive,graduated',
         ];
     }

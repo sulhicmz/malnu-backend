@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Api\BaseController;
@@ -59,7 +61,7 @@ class LeaveTypeController extends BaseController
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return $this->notFoundResponse('Leave type not found');
         }
 
@@ -73,7 +75,7 @@ class LeaveTypeController extends BaseController
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return $this->notFoundResponse('Leave type not found');
         }
 
@@ -89,7 +91,7 @@ class LeaveTypeController extends BaseController
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
+        if (! $leaveType) {
             return $this->notFoundResponse('Leave type not found');
         }
 

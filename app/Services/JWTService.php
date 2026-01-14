@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\JWTServiceInterface;
+use Exception;
 
 class JWTService implements JWTServiceInterface
 {
     private string $secret;
+
     private int $ttl;
+
     private int $refreshTtl;
 
     public function __construct()
@@ -17,13 +20,13 @@ class JWTService implements JWTServiceInterface
         $this->secret = config('jwt.secret', '');
         $this->ttl = config('jwt.ttl', 120); // in minutes
         $this->refreshTtl = config('jwt.refresh_ttl', 20160); // in minutes
-        
+
         // Validate that JWT_SECRET is properly set in production environments
         $appEnv = config('app.env', 'production');
         if (empty($this->secret) && $appEnv !== 'testing') {
-            throw new \Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
+            throw new Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
         }
-        
+
         // For testing environments, use a default secret if not set
         if (empty($this->secret) && $appEnv === 'testing') {
             $this->secret = 'test_secret_key_for_testing_purposes_only';
@@ -31,7 +34,7 @@ class JWTService implements JWTServiceInterface
     }
 
     /**
-     * Generate a new JWT token manually
+     * Generate a new JWT token manually.
      */
     public function generateToken(array $payload): string
     {
@@ -42,7 +45,7 @@ class JWTService implements JWTServiceInterface
         $claims = json_encode([
             'iat' => $issuedAt,          // Issued at
             'exp' => $expire,            // Expiration time
-            'data' => $payload           // User data
+            'data' => $payload,           // User data
         ]);
 
         $base64Header = $this->base64UrlEncode($header);
@@ -55,7 +58,7 @@ class JWTService implements JWTServiceInterface
     }
 
     /**
-     * Decode and validate token manually
+     * Decode and validate token manually.
      */
     public function decodeToken(string $token): ?array
     {
@@ -71,35 +74,35 @@ class JWTService implements JWTServiceInterface
             hash_hmac('sha256', $header . '.' . $claims, $this->secret, true)
         );
 
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (! hash_equals($expectedSignature, $signature)) {
             return null;
         }
 
         $decodedClaims = json_decode($this->base64UrlDecode($claims), true);
-        
+
         // Check if token is expired
         if (isset($decodedClaims['exp']) && time() > $decodedClaims['exp']) {
             return null;
         }
-        
+
         return $decodedClaims;
     }
 
     /**
-     * Refresh token
+     * Refresh token.
      */
     public function refreshToken(string $token): string
     {
         $payload = $this->decodeToken($token);
-        
-        if (!$payload) {
-            throw new \Exception('Invalid token');
+
+        if (! $payload) {
+            throw new Exception('Invalid token');
         }
 
         // Check if refresh is still valid
         $refreshExpire = $payload['iat'] + ($this->refreshTtl * 60);
         if (time() > $refreshExpire) {
-            throw new \Exception('Token refresh period expired');
+            throw new Exception('Token refresh period expired');
         }
 
         // Generate new token with same payload data
@@ -107,7 +110,7 @@ class JWTService implements JWTServiceInterface
     }
 
     /**
-     * Get token expiration time
+     * Get token expiration time.
      */
     public function getExpirationTime(): int
     {

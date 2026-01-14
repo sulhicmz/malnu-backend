@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\CareerDevelopment;
 
@@ -10,9 +10,11 @@ use App\Models\SchoolManagement\Teacher;
 
 class CounselingSession extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'student_id',
@@ -25,11 +27,11 @@ class CounselingSession extends Model
     ];
 
     protected $casts = [
-        'session_date'   => 'date',
-        'session_time'   => 'datetime:H:i',
+        'session_date' => 'date',
+        'session_time' => 'datetime:H:i',
         'follow_up_date' => 'date',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships

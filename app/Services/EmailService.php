@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
 use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;
@@ -11,7 +12,9 @@ use Swift_SmtpTransport;
 class EmailService
 {
     private Swift_Mailer $mailer;
+
     private string $fromAddress;
+
     private string $fromName;
 
     public function __construct()
@@ -50,7 +53,7 @@ class EmailService
                 'result' => $result,
             ]);
             return $result > 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             \Hyperf\Support\make(\Psr\Log\LoggerInterface::class)->error('Failed to send password reset email', [
                 'email' => $email,
                 'error' => $e->getMessage(),

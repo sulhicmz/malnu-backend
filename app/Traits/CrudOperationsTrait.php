@@ -4,19 +4,29 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use Exception;
 use Hyperf\Database\Model\Model;
 
 trait CrudOperationsTrait
 {
     protected string $resourceName = 'Resource';
+
     protected ?string $model = null;
+
     protected array $relationships = [];
+
     protected array $validationRules = [];
+
     protected array $uniqueFields = [];
+
     protected array $allowedFilters = [];
+
     protected array $searchFields = [];
+
     protected string $defaultOrderBy = 'id';
+
     protected string $defaultOrderDirection = 'asc';
+
     protected int $defaultPerPage = 15;
 
     public function index()
@@ -31,7 +41,7 @@ trait CrudOperationsTrait
                 ->paginate($limit, ['*'], 'page', $page);
 
             return $this->successResponse($results, "{$this->resourceName} retrieved successfully");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -57,8 +67,8 @@ trait CrudOperationsTrait
             $this->afterStore($result);
 
             return $this->successResponse($result, "{$this->resourceName} created successfully", 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_CREATION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_CREATION_ERROR', null, 400);
         }
     }
 
@@ -78,7 +88,7 @@ trait CrudOperationsTrait
             }
 
             return $this->successResponse($model, "{$this->resourceName} retrieved successfully");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -109,8 +119,8 @@ trait CrudOperationsTrait
             $this->afterUpdate($model);
 
             return $this->successResponse($model, "{$this->resourceName} updated successfully");
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_UPDATE_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_UPDATE_ERROR', null, 400);
         }
     }
 
@@ -134,8 +144,8 @@ trait CrudOperationsTrait
             $this->afterDestroy($model);
 
             return $this->successResponse(null, "{$this->resourceName} deleted successfully");
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_DELETION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_DELETION_ERROR', null, 400);
         }
     }
 
@@ -187,7 +197,7 @@ trait CrudOperationsTrait
             }
         }
 
-        if (isset($this->validationRules['email']) && isset($data[$this->validationRules['email']]) && ! filter_var($data[$this->validationRules['email']], FILTER_VALIDATE_EMAIL)) {
+        if (isset($this->validationRules['email'], $data[$this->validationRules['email']]) && ! filter_var($data[$this->validationRules['email']], FILTER_VALIDATE_EMAIL)) {
             $errors[$this->validationRules['email']] = ['The email must be a valid email address.'];
         }
 
@@ -211,7 +221,7 @@ trait CrudOperationsTrait
 
                 $exists = $query->first();
                 if ($exists) {
-                    throw new \Exception("The {$field} has already been taken.");
+                    throw new Exception("The {$field} has already been taken.");
                 }
             }
         }
@@ -252,7 +262,7 @@ trait CrudOperationsTrait
     protected function getModelInstance()
     {
         if (! $this->model) {
-            throw new \Exception('Model class not specified. Set $model property in your controller.');
+            throw new Exception('Model class not specified. Set $model property in your controller.');
         }
 
         return new $this->model();

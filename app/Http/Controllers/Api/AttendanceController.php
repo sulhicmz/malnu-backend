@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Contracts\AttendanceServiceInterface;
-use App\Http\Controllers\Api\BaseController;
 use Hyperf\HttpServer\Contract\RequestInterface;
 
 class AttendanceController extends BaseController
@@ -37,7 +36,7 @@ class AttendanceController extends BaseController
             return $this->validationErrorResponse($validator->errors());
         }
 
-        if (!$this->attendanceService->validateTeacherAccess($data['marked_by'], $data['class_id'])) {
+        if (! $this->attendanceService->validateTeacherAccess($data['marked_by'], $data['class_id'])) {
             return $this->forbiddenResponse('Teacher is not authorized to mark attendance for this class');
         }
 
@@ -67,7 +66,7 @@ class AttendanceController extends BaseController
             return $this->validationErrorResponse($validator->errors());
         }
 
-        if (!$this->attendanceService->validateTeacherAccess($data['teacher_id'], $data['class_id'])) {
+        if (! $this->attendanceService->validateTeacherAccess($data['teacher_id'], $data['class_id'])) {
             return $this->forbiddenResponse('Teacher is not authorized to mark attendance for this class');
         }
 

@@ -42,6 +42,29 @@
 - Controllers and middleware depend on interfaces, not concrete implementations
 - Enables dependency injection and testability
 - Follows Dependency Inversion Principle
+- **Interface Implementation Pattern**:
+  ```php
+  // 1. Create interface in app/Contracts/
+  interface AttendanceServiceInterface {
+      public function markAttendance(array $data): StudentAttendance;
+      public function getStudentAttendance(string $studentId): object;
+  }
+
+  // 2. Implement interface in service
+  class AttendanceService implements AttendanceServiceInterface {
+      public function markAttendance(array $data): StudentAttendance {
+          // Implementation
+      }
+  }
+
+  // 3. Inject interface in controller
+  class AttendanceController extends BaseController {
+      private AttendanceServiceInterface $attendanceService;
+      public function __construct(AttendanceServiceInterface $service) {
+          $this->attendanceService = $service;
+      }
+  }
+  ```
 
 #### Domain Organization
 ```

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\AttendanceServiceInterface;
 use App\Models\Attendance\StudentAttendance;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\ClassModel;
 use App\Models\User;
 use App\Models\SchoolManagement\Teacher;
 
-class AttendanceService
+class AttendanceService implements AttendanceServiceInterface
 {
     private int $chronicAbsenceThreshold;
     private int $attendanceCutoffHour;

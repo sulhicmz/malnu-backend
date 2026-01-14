@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Notification;
 
+use App\Contracts\NotificationServiceInterface;
 use App\Http\Controllers\Api\BaseController;
-use App\Services\NotificationService;
 use App\Models\Notification\NotificationTemplate;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 class NotificationController extends BaseController
 {
     #[Inject]
-    private NotificationService $notificationService;
+    private NotificationServiceInterface $notificationService;
 
     #[Inject]
     private NotificationTemplate $notificationTemplateModel;

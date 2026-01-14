@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\AttendanceServiceInterface;
 use App\Http\Controllers\Api\BaseController;
-use App\Services\AttendanceService;
 use Hyperf\HttpServer\Contract\RequestInterface;
 
 class AttendanceController extends BaseController
 {
-    private AttendanceService $attendanceService;
+    private AttendanceServiceInterface $attendanceService;
 
-    public function __construct(RequestInterface $request, AttendanceService $attendanceService)
+    public function __construct(RequestInterface $request, AttendanceServiceInterface $attendanceService)
     {
         parent::__construct($request);
         $this->attendanceService = $attendanceService;

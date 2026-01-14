@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\NotificationServiceInterface;
 use App\Models\Notification\Notification;
 use App\Models\Notification\NotificationTemplate;
 use App\Models\Notification\NotificationRecipient;
@@ -12,7 +13,7 @@ use App\Models\Notification\NotificationUserPreference;
 use App\Models\User;
 use Hyperf\Di\Annotation\Inject;
 
-class NotificationService
+class NotificationService implements NotificationServiceInterface
 {
     #[Inject]
     private Notification $notificationModel;

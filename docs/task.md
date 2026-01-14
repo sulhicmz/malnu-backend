@@ -540,6 +540,51 @@ Created interface contracts for all authentication-related services to follow De
 
 ---
 
+### [ARCH-002] Implement Interface-Based Design for Core Business Services
+
+**Feature**: Architecture Improvement
+**Status**: Completed
+**Agent**: 01 Architect
+**Priority**: P0
+**Completed**: January 14, 2026
+
+#### Description
+
+Extended interface-based design to core business services (AttendanceService and NotificationService) to follow Dependency Inversion Principle and improve testability.
+
+#### Completed Work
+
+- Created `AttendanceServiceInterface` with 9 public method signatures
+- Created `NotificationServiceInterface` with 9 public method signatures
+- Refactored `AttendanceService` to implement `AttendanceServiceInterface`
+- Refactored `NotificationService` to implement `NotificationServiceInterface`
+- Updated `AttendanceController` to depend on `AttendanceServiceInterface`
+- Updated `NotificationController` to depend on `NotificationServiceInterface`
+- Updated `docs/blueprint.md` with interface implementation pattern examples
+
+#### Benefits
+
+- **Testability**: Services can be mocked easily for unit tests
+- **Flexibility**: Implementations can be swapped without breaking dependent code
+- **Maintainability**: Clear contracts define expected behavior
+- **Dependency Inversion**: High-level modules don't depend on low-level implementations
+- **Consistency**: All services now follow the same interface-based pattern
+
+#### Files Created
+
+- `app/Contracts/AttendanceServiceInterface.php`
+- `app/Contracts/NotificationServiceInterface.php`
+
+#### Files Modified
+
+- `app/Services/AttendanceService.php`
+- `app/Services/NotificationService.php`
+- `app/Http/Controllers/Api/AttendanceController.php`
+- `app/Http/Controllers/Api/Notification/NotificationController.php`
+- `docs/blueprint.md`
+
+---
+
 ## Task Assignment Matrix
 
 | Task Type | Agent | Tasks Assigned |

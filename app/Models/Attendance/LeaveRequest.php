@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
@@ -7,8 +9,6 @@ use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\User;
 use App\Traits\UsesUuid;
-use App\Models\Attendance\LeaveType;
-use App\Models\Attendance\SubstituteAssignment;
 
 /**
  * @property string $id
@@ -18,12 +18,12 @@ use App\Models\Attendance\SubstituteAssignment;
  * @property string $end_date
  * @property int $total_days
  * @property string $reason
- * @property string|null $comments
+ * @property null|string $comments
  * @property string $status
- * @property string|null $approved_by
- * @property string|null $approved_at
- * @property string|null $approval_comments
- * @property string|null $substitute_assigned_id
+ * @property null|string $approved_by
+ * @property null|string $approved_at
+ * @property null|string $approval_comments
+ * @property null|string $substitute_assigned_id
  */
 class LeaveRequest extends Model
 {

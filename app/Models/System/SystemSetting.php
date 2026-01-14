@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\System;
 
@@ -8,9 +8,11 @@ use App\Models\Model;
 
 class SystemSetting extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'setting_key',
@@ -20,7 +22,7 @@ class SystemSetting extends Model
     ];
 
     protected $casts = [
-        'is_public'  => 'boolean',
+        'is_public' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -1,21 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\ClassModel;
-use App\Models\SchoolManagement\Subject;
 use App\Models\Grading\Grade;
+use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\Student;
+use App\Models\SchoolManagement\Subject;
 use App\Models\User;
+use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class AcademicRecordsTest extends TestCase
 {
     protected $user;
+
     protected $student;
+
     protected $class;
+
     protected $subject;
+
     protected $token;
 
     protected function setUp(): void
@@ -58,7 +68,7 @@ class AcademicRecordsTest extends TestCase
         ]);
     }
 
-    public function test_calculate_gpa_endpoint()
+    public function testCalculateGpaEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -87,7 +97,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_get_academic_performance_endpoint()
+    public function testGetAcademicPerformanceEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -120,7 +130,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_generate_transcript_endpoint()
+    public function testGenerateTranscriptEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -148,7 +158,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_generate_report_card_endpoint()
+    public function testGenerateReportCardEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -174,7 +184,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_get_subject_grades_endpoint()
+    public function testGetSubjectGradesEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -201,7 +211,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_get_grades_history_endpoint()
+    public function testGetGradesHistoryEndpoint()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -225,7 +235,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_gpa_calculation_with_no_grades()
+    public function testGpaCalculationWithNoGrades()
     {
         $studentUser = User::factory()->create();
         $studentWithoutGrades = Student::create([
@@ -250,7 +260,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_transcript_for_nonexistent_student()
+    public function testTranscriptForNonexistentStudent()
     {
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
 
@@ -264,7 +274,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_report_card_with_query_parameters()
+    public function testReportCardWithQueryParameters()
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
@@ -280,7 +290,7 @@ class AcademicRecordsTest extends TestCase
             ]);
     }
 
-    public function test_unauthorized_access()
+    public function testUnauthorizedAccess()
     {
         $response = $this->getJson("/api/school/students/{$this->student->id}/gpa");
 

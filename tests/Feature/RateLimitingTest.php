@@ -7,10 +7,10 @@ namespace Tests\Feature;
 use Tests\TestCase;
 
 /**
- * Rate Limiting Middleware Tests
- * 
+ * Rate Limiting Middleware Tests.
+ *
  * Tests for the rate limiting functionality applied to API endpoints.
- * 
+ *
  * @internal
  * @coversNothing
  */

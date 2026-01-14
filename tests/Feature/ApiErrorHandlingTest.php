@@ -1,20 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Http\Controllers\Api\BaseController;
+use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class ApiErrorHandlingTest extends TestCase
 {
-    public function test_success_response_format()
+    public function testSuccessResponseFormat()
     {
         // Create a mock controller that extends BaseController
         $controller = $this->getMockForAbstractClass(BaseController::class);
-        
+
         // Test success response format
         $response = $controller->successResponse(['test' => 'data'], 'Test message', 200);
-        
+
         $this->assertIsArray($response);
         $this->assertTrue($response['data']['success']);
         $this->assertEquals(['test' => 'data'], $response['data']['data']);
@@ -22,14 +28,14 @@ class ApiErrorHandlingTest extends TestCase
         $this->assertArrayHasKey('timestamp', $response['data']);
     }
 
-    public function test_error_response_format()
+    public function testErrorResponseFormat()
     {
         // Create a mock controller that extends BaseController
         $controller = $this->getMockForAbstractClass(BaseController::class);
-        
+
         // Test error response format
         $response = $controller->errorResponse('Test error message', 'TEST_ERROR', ['field' => 'error'], 400);
-        
+
         $this->assertIsArray($response);
         $this->assertFalse($response['data']['success']);
         $this->assertEquals('Test error message', $response['data']['error']['message']);
@@ -38,14 +44,14 @@ class ApiErrorHandlingTest extends TestCase
         $this->assertArrayHasKey('timestamp', $response['data']);
     }
 
-    public function test_not_found_response()
+    public function testNotFoundResponse()
     {
         // Create a mock controller that extends BaseController
         $controller = $this->getMockForAbstractClass(BaseController::class);
-        
+
         // Test not found response
         $response = $controller->notFoundResponse();
-        
+
         $this->assertIsArray($response);
         $this->assertFalse($response['data']['success']);
         $this->assertEquals('Resource not found', $response['data']['error']['message']);
@@ -53,15 +59,15 @@ class ApiErrorHandlingTest extends TestCase
         $this->assertEquals(404, $response['status']);
     }
 
-    public function test_validation_error_response()
+    public function testValidationErrorResponse()
     {
         // Create a mock controller that extends BaseController
         $controller = $this->getMockForAbstractClass(BaseController::class);
-        
+
         // Test validation error response
         $errors = ['email' => ['The email field is required.']];
         $response = $controller->validationErrorResponse($errors);
-        
+
         $this->assertIsArray($response);
         $this->assertFalse($response['data']['success']);
         $this->assertEquals('Validation failed', $response['data']['error']['message']);

@@ -22,6 +22,9 @@ import './index.css';
 function App() {
   return (
     <Router>
+      <a href="#main-content" className="skip-to-main">
+        Skip to main content
+      </a>
       <Routes>
         {/* Authentication Routes (Public - No Layout) */}
         <Route path="/login" element={<LoginPage />} />

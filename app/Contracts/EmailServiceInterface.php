@@ -7,7 +7,7 @@ namespace App\Contracts;
 interface EmailServiceInterface
 {
     /**
-     * Send an email
+     * Send an email.
      *
      * @param string $to Recipient email address
      * @param string $subject Email subject

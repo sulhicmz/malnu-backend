@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Notification\NotificationTemplate;
-use Hyperf\DbConnection\Db;
 
 class NotificationTemplateSeeder extends Seeder
 {

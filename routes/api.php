@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\IndexController;
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
+use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\SchoolManagement\StudentController;
+use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
-use App\Http\Controllers\Api\SchoolManagement\StudentController;
-use App\Http\Controllers\Api\SchoolManagement\TeacherController;
-use App\Http\Controllers\Api\SchoolManagement\InventoryController;
-use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
-use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\IndexController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)

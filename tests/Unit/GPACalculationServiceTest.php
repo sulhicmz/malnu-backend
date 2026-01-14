@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use App\Services\GPACalculationService;
 use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class GPACalculationServiceTest extends TestCase
 {
     private GPACalculationService $gpaService;
@@ -15,37 +21,37 @@ class GPACalculationServiceTest extends TestCase
         $this->gpaService = new GPACalculationService();
     }
 
-    public function test_convert_to_numeric_with_a_grade()
+    public function testConvertToNumericWithAGrade()
     {
         $result = $this->gpaService->convertToNumeric(95);
         $this->assertEquals(4.0, $result);
     }
 
-    public function test_convert_to_numeric_with_b_grade()
+    public function testConvertToNumericWithBGrade()
     {
         $result = $this->gpaService->convertToNumeric(85);
         $this->assertEquals(3.3, $result);
     }
 
-    public function test_convert_to_numeric_with_c_grade()
+    public function testConvertToNumericWithCGrade()
     {
         $result = $this->gpaService->convertToNumeric(75);
         $this->assertEquals(3.0, $result);
     }
 
-    public function test_convert_to_numeric_with_d_grade()
+    public function testConvertToNumericWithDGrade()
     {
         $result = $this->gpaService->convertToNumeric(55);
         $this->assertEquals(1.3, $result);
     }
 
-    public function test_convert_to_numeric_with_f_grade()
+    public function testConvertToNumericWithFGrade()
     {
         $result = $this->gpaService->convertToNumeric(40);
         $this->assertEquals(0.0, $result);
     }
 
-    public function test_convert_to_numeric_grade_boundaries()
+    public function testConvertToNumericGradeBoundaries()
     {
         $this->assertEquals(4.0, $this->gpaService->convertToNumeric(90));
         $this->assertEquals(3.7, $this->gpaService->convertToNumeric(89));
@@ -55,7 +61,7 @@ class GPACalculationServiceTest extends TestCase
         $this->assertEquals(1.0, $this->gpaService->convertToNumeric(45));
     }
 
-    public function test_convert_letter_to_numeric_with_valid_grades()
+    public function testConvertLetterToNumericWithValidGrades()
     {
         $this->assertEquals(4.0, $this->gpaService->convertLetterToNumeric('A'));
         $this->assertEquals(3.7, $this->gpaService->convertLetterToNumeric('A-'));
@@ -65,20 +71,20 @@ class GPACalculationServiceTest extends TestCase
         $this->assertEquals(0.0, $this->gpaService->convertLetterToNumeric('F'));
     }
 
-    public function test_convert_letter_to_numeric_with_case_insensitivity()
+    public function testConvertLetterToNumericWithCaseInsensitivity()
     {
         $this->assertEquals(4.0, $this->gpaService->convertLetterToNumeric('a'));
         $this->assertEquals(4.0, $this->gpaService->convertLetterToNumeric('A'));
         $this->assertEquals(3.7, $this->gpaService->convertLetterToNumeric('a-'));
     }
 
-    public function test_convert_letter_to_numeric_with_invalid_grade()
+    public function testConvertLetterToNumericWithInvalidGrade()
     {
         $result = $this->gpaService->convertLetterToNumeric('X');
         $this->assertEquals(0.0, $result);
     }
 
-    public function test_convert_numeric_to_letter()
+    public function testConvertNumericToLetter()
     {
         $this->assertEquals('A', $this->gpaService->convertNumericToLetter(4.0));
         $this->assertEquals('A-', $this->gpaService->convertNumericToLetter(3.7));
@@ -89,7 +95,7 @@ class GPACalculationServiceTest extends TestCase
         $this->assertEquals('F', $this->gpaService->convertNumericToLetter(0.5));
     }
 
-    public function test_set_custom_grade_scale()
+    public function testSetCustomGradeScale()
     {
         $customScale = [
             'A' => 5.0,
@@ -103,7 +109,7 @@ class GPACalculationServiceTest extends TestCase
         $this->assertEquals(4.0, $this->gpaService->convertLetterToNumeric('B'));
     }
 
-    public function test_custom_grade_scale_persists()
+    public function testCustomGradeScalePersists()
     {
         $originalScale = $this->gpaService->convertLetterToNumeric('A');
 

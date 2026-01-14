@@ -28,9 +28,9 @@ return [
      |
      */
 
-     'secret' => env('JWT_SECRET'),
+    'secret' => env('JWT_SECRET'),
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | JWT Authentication Keys
      |--------------------------------------------------------------------------
@@ -47,8 +47,8 @@ return [
      |
      */
 
-     'keys' => [
-         /*
+    'keys' => [
+        /*
          |--------------------------------------------------------------------------
          | Public Key
          |--------------------------------------------------------------------------
@@ -59,9 +59,9 @@ return [
          |
          */
 
-         'public' => env('JWT_PUBLIC_KEY'),
+        'public' => env('JWT_PUBLIC_KEY'),
 
-         /*
+        /*
          |--------------------------------------------------------------------------
          | Private Key
          |--------------------------------------------------------------------------
@@ -72,9 +72,9 @@ return [
          |
          */
 
-         'private' => env('JWT_PRIVATE_KEY'),
+        'private' => env('JWT_PRIVATE_KEY'),
 
-         /*
+        /*
          |--------------------------------------------------------------------------
          | Passphrase
          |--------------------------------------------------------------------------
@@ -83,10 +83,10 @@ return [
          |
          */
 
-         'passphrase' => env('JWT_PASSPHRASE'),
-     ],
+        'passphrase' => env('JWT_PASSPHRASE'),
+    ],
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | JWT time to live
      |--------------------------------------------------------------------------
@@ -102,9 +102,9 @@ return [
      |
      */
 
-      'ttl' => env('JWT_TTL', 30),
+    'ttl' => env('JWT_TTL', 30),
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Refresh time to live
      |--------------------------------------------------------------------------
@@ -121,9 +121,9 @@ return [
      |
      */
 
-      'refresh_ttl' => env('JWT_REFRESH_TTL', 1440),
+    'refresh_ttl' => env('JWT_REFRESH_TTL', 1440),
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | JWT hashing algorithm
      |--------------------------------------------------------------------------
@@ -132,9 +132,9 @@ return [
      |
      */
 
-     'algo' => env('JWT_ALGO', Hyperf\JWT\Providers\Provider::ALGO_HS256),
+    'algo' => env('JWT_ALGO', Hyperf\JWT\Providers\Provider::ALGO_HS256),
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Validations
      |--------------------------------------------------------------------------
@@ -142,14 +142,14 @@ return [
      | Sepcify default validations that jwt tokens.
      |
      */
-     'validations' => [
-         \Hyperf\JWT\Validations\RequiredClaims::class,
-         \Hyperf\JWT\Validations\ExpiredClaim::class,
-         // \Hyperf\JWT\Validations\IssuedAtClaim::class,
-         // \Hyperf\JWT\Validations\NotBeforeCliam::class,
-     ],
+    'validations' => [
+        \Hyperf\JWT\Validations\RequiredClaims::class,
+        \Hyperf\JWT\Validations\ExpiredClaim::class,
+        // \Hyperf\JWT\Validations\IssuedAtClaim::class,
+        // \Hyperf\JWT\Validations\NotBeforeCliam::class,
+    ],
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Required Claims
      |--------------------------------------------------------------------------
@@ -160,16 +160,16 @@ return [
      |
      */
 
-      'required_claims' => [
-          'iss',
-          'iat',
-          'exp',
-          'nbf',
-          'sub',
-          'jti',
-      ],
+    'required_claims' => [
+        'iss',
+        'iat',
+        'exp',
+        'nbf',
+        'sub',
+        'jti',
+    ],
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Persistent Claims
      |--------------------------------------------------------------------------
@@ -182,12 +182,12 @@ return [
      |
      */
 
-     'persistent_claims' => [
-         // 'foo',
-         // 'bar',
-     ],
+    'persistent_claims' => [
+        // 'foo',
+        // 'bar',
+    ],
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Leeway
      |--------------------------------------------------------------------------
@@ -202,7 +202,7 @@ return [
      |
      */
 
-     'leeway' => env('JWT_LEEWAY', 0),
+    'leeway' => env('JWT_LEEWAY', 0),
 
     /*
     |--------------------------------------------------------------------------
@@ -220,7 +220,7 @@ return [
 
     'blacklist_enabled' => env('JWT_BLACKLIST_ENABLED', true),
 
-     /*
+    /*
      | -------------------------------------------------------------------------
      | Blacklist Grace Period
      | -------------------------------------------------------------------------
@@ -233,9 +233,9 @@ return [
      |
      */
 
-     'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+    'blacklist_grace_period' => env('JWT_BLACKLIST_GRACE_PERIOD', 0),
 
-     /*
+    /*
      | -------------------------------------------------------------------------
      | Refresh time to live of blacklist
      | -------------------------------------------------------------------------
@@ -244,9 +244,9 @@ return [
      |
      */
 
-      'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 1440),
+    'blacklist_refresh_ttl' => env('JWT_BLACKLIST_REFRESH_TTL', 1440),
 
-     /*
+    /*
      |--------------------------------------------------------------------------
      | Providers
      |--------------------------------------------------------------------------
@@ -255,8 +255,8 @@ return [
      |
      */
 
-      'providers' => [
-          /*
+    'providers' => [
+        /*
           |--------------------------------------------------------------------------
           | JWT Provider
           |--------------------------------------------------------------------------
@@ -265,9 +265,9 @@ return [
           |
           */
 
-          'jwt' => Hyperf\JWT\Providers\Lcobucci::class,
+        'jwt' => Hyperf\JWT\Providers\Lcobucci::class,
 
-          /*
+        /*
           |--------------------------------------------------------------------------
           | Storage Provider
           |--------------------------------------------------------------------------
@@ -276,8 +276,6 @@ return [
           |
           */
 
-          'storage' => Hyperf\JWT\Storage\TaggedCache::class,
-      ],
+        'storage' => Hyperf\JWT\Storage\TaggedCache::class,
+    ],
 ];
-
-

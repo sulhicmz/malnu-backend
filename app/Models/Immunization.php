@@ -51,16 +51,16 @@ class Immunization extends Model
     public function scopeOverdue($query)
     {
         return $query->whereNotNull('due_date')
-                      ->where('due_date', '<', now()->format('Y-m-d'));
+            ->where('due_date', '<', now()->format('Y-m-d'));
     }
 
     public function scopeDueSoon($query, int $days = 30)
     {
         return $query->whereNotNull('due_date')
-                      ->whereBetween('due_date', [
-                          now()->format('Y-m-d'),
-                          now()->addDays($days)->format('Y-m-d')
-                      ]);
+            ->whereBetween('due_date', [
+                now()->format('Y-m-d'),
+                now()->addDays($days)->format('Y-m-d'),
+            ]);
     }
 
     public function getIsOverdueAttribute(): bool
@@ -70,8 +70,8 @@ class Immunization extends Model
 
     public function getIsDueSoonAttribute(): bool
     {
-        return $this->due_date !== null && 
-               $this->due_date >= now()->format('Y-m-d') &&
-               $this->due_date <= now()->addDays(30)->format('Y-m-d');
+        return $this->due_date !== null
+               && $this->due_date >= now()->format('Y-m-d')
+               && $this->due_date <= now()->addDays(30)->format('Y-m-d');
     }
 }

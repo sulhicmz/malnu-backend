@@ -2,7 +2,7 @@
 # Fortunately, You can ignore it by the following config.
 #
 parameters:
-  level: 5
+  level: 4
   paths:
     - app
     - config

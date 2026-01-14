@@ -1,5 +1,39 @@
 # Developer Guide
 
+## Quick Start (New to the Project?)
+
+Welcome to Malnu Backend! If you're new to this project, start here:
+
+1. **Read the Project Overview** - 5 minutes
+   - [Project Structure](PROJECT_STRUCTURE.md) - High-level overview
+   - [Architecture](ARCHITECTURE.md) - System design and patterns
+
+2. **Understand the Framework** - 10 minutes
+   - [HyperVel Framework Guide](HYPERVEL_FRAMEWORK_GUIDE.md) - Learn HyperVel concepts
+   - Key differences from Laravel: Swoole coroutines, annotations, async operations
+
+3. **Explore Business Domains** - 15 minutes
+   - [Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md) - 11 domain overview
+   - Understand how domains interact and which one you'll work on
+
+4. **Set Up Your Environment** - 20 minutes
+   - Follow the [Prerequisites](#prerequisites) below
+   - Complete the [Setup Development Environment](#setup-development-environment) steps
+
+5. **Learn the Workflow** - 10 minutes
+   - Review [Development Workflow](#development-workflow)
+   - Understand [Coding Standards](#coding-standards)
+
+6. **Start Coding!** 🚀
+   - Pick an issue from GitHub Issues
+   - Create a feature branch
+   - Follow [Best Practices](#best-practices)
+   - Submit a Pull Request
+
+**Need help?** See [Getting Help](#getting-help) section below.
+
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -536,12 +570,103 @@ php artisan tinker
 
 ### Security
 
+**Critical Security Requirements:**
+
 1. **Never commit secrets** - Always use environment variables
+   - Never commit `.env` files
+   - Use `.env.example` for template
+   - Generate secure secrets with `php artisan key:generate` and `php artisan jwt:secret`
+   - Review [Security Analysis](SECURITY_ANALYSIS.md) for security best practices
+
 2. **Validate all input** - Use Form Request validation
+   - Always validate user input on the server side
+   - Use Form Request classes for complex validation
+   - Never trust client-side validation alone
+   - Sanitize and escape output to prevent XSS
+
 3. **Sanitize output** - Prevent XSS attacks
+   - Use proper encoding when rendering user content
+   - Never output untrusted data without sanitization
+   - Use Content Security Policy headers
+   - Escape HTML, JavaScript, and CSS contexts
+
 4. **Use HTTPS** - In production environments
+   - Force HTTPS redirects
+   - Use secure cookies (HttpOnly, Secure, SameSite)
+   - Configure proper TLS certificates
+   - Disable old TLS versions and weak ciphers
+
 5. **Implement rate limiting** - Prevent abuse
-6. **Keep dependencies updated** - Run security audits regularly
+   - Use `RateLimitingMiddleware` on API endpoints
+   - Configure appropriate limits per endpoint type
+   - Implement IP-based and user-based limits
+   - Log rate limit violations
+
+6. **Authentication & Authorization**
+   - Always use JWT for API authentication
+   - Validate tokens on every protected request
+   - Use Role-Based Access Control (RBAC) properly
+   - Never rely on client-side role checks
+   - Implement proper session management
+
+7. **SQL Injection Prevention**
+   - Use Eloquent ORM or parameterized queries
+   - Never concatenate user input into SQL queries
+   - Use query builder methods with binding
+   - Sanitize all database inputs
+
+8. **Password Security**
+   - Always hash passwords using `bcrypt` or `Argon2`
+   - Never store passwords in plain text
+   - Implement password complexity requirements
+   - Use secure password reset flows (no token exposure)
+   - Enforce password expiration policies
+
+9. **File Upload Security**
+   - Validate file types and sizes
+   - Sanitize filenames
+   - Store uploads outside web root
+   - Use virus scanning if possible
+   - Implement access controls for uploaded files
+
+10. **Cross-Site Request Forgery (CSRF)**
+    - Use CSRF tokens for state-changing operations
+    - Validate tokens on every POST/PUT/DELETE request
+    - Use SameSite cookie attribute
+    - Implement referrer checking
+
+11. **Logging and Monitoring**
+    - Log all authentication attempts (success and failure)
+    - Log authorization failures
+    - Monitor suspicious activities
+    - Set up alerts for security events
+    - Regularly review access logs
+
+12. **Keep dependencies updated** - Run security audits regularly
+    - Regularly update Composer dependencies
+    - Use `composer audit` to check for vulnerabilities
+    - Monitor security advisories for dependencies
+    - Apply security patches promptly
+    - Review dependency licenses
+
+**Additional Security Guidelines:**
+
+- See [Security Analysis](SECURITY_ANALYSIS.md) for comprehensive security assessment
+- Review [API Error Handling](API_ERROR_HANDLING.md) for secure error responses
+- Follow [Rate Limiting](RATE_LIMITING.md) configuration guidelines
+- Review [Deployment Guide](DEPLOYMENT.md) for production security setup
+
+**Common Security Mistakes to Avoid:**
+
+- ❌ Hardcoding credentials in code
+- ❌ Trusting client-side validation
+- ❌ Returning sensitive data in API responses
+- ❌ Using `md5()` or `sha1()` for password hashing
+- ❌ Concatenating user input into SQL queries
+- ❌ Exposing stack traces in production
+- ❌ Storing sensitive data in URLs
+- ❌ Using default or weak passwords
+- ❌ Disabling security features for convenience
 
 ### Performance
 
@@ -571,10 +696,52 @@ php artisan tinker
 
 ## Getting Help
 
-- **Documentation:** Check `docs/` folder
+- **Documentation:**
+  - [Developer Guide](DEVELOPER_GUIDE.md) - This guide
+  - [HyperVel Framework Guide](HYPERVEL_FRAMEWORK_GUIDE.md) - Framework-specific concepts
+  - [Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md) - Domain overview
+  - [Architecture](ARCHITECTURE.md) - System architecture
+  - [API Documentation](API.md) - API reference
+  - [Security Analysis](SECURITY_ANALYSIS.md) - Security best practices
 - **Issues:** Search GitHub issues
 - **Discussions:** Ask in GitHub Discussions
 - **Team:** Contact team members for help
+
+## Next Steps for New Developers
+
+After completing the Quick Start, you're ready to:
+
+1. **Choose Your First Issue**
+   - Browse [GitHub Issues](https://github.com/sulhicmz/malnu-backend/issues)
+   - Look for issues labeled `good first issue` or with domain expertise
+   - Comment on the issue that you're taking it
+
+2. **Join Team Discussions**
+   - Participate in GitHub Discussions
+   - Review pull requests to learn patterns
+   - Ask questions in Slack/Discord (if available)
+
+3. **Read Domain-Specific Documentation**
+   - Identify the domain you'll work on
+   - Read the [Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md)
+   - Review domain-specific models and services
+
+4. **Start with Small Contributions**
+   - Fix bugs or add small features
+   - Improve documentation
+   - Add tests
+
+5. **Graduate to Complex Features**
+   - Take on larger features
+   - Work across multiple domains
+   - Participate in architectural discussions
+
+6. **Become a Domain Expert**
+   - Master one or more domains
+   - Review PRs in your domain
+   - Mentor new developers
+
+Remember: Every contribution counts! Start small, learn continuously, and don't hesitate to ask questions.
 
 ---
 

@@ -51,15 +51,9 @@ docker-compose down -v
 
 The Docker Compose setup includes three database options:
 
-1. **SQLite (Default)** - No additional configuration needed
+1. **MySQL (Default for Docker)** - Full-featured relational database
    ```bash
-   # In .env
-   DB_CONNECTION=sqlite
-   ```
-
-2. **MySQL** - Full-featured relational database
-   ```bash
-   # In .env
+   # In .env (already configured for Docker)
    DB_CONNECTION=mysql
    DB_HOST=mysql
    DB_PORT=3306
@@ -68,7 +62,7 @@ The Docker Compose setup includes three database options:
    DB_PASSWORD=malnu_password_change_in_production
    ```
 
-3. **PostgreSQL** - Advanced open-source database
+2. **PostgreSQL** - Advanced open-source database
    ```bash
    # In .env
    DB_CONNECTION=postgres
@@ -77,6 +71,15 @@ The Docker Compose setup includes three database options:
    DB_DATABASE=malnu
    DB_USERNAME=malnu_user
    DB_PASSWORD=malnu_password_change_in_production
+   ```
+
+3. **SQLite** - Lightweight file-based database (development only)
+   ```bash
+   # To use SQLite instead of MySQL/PostgreSQL:
+   # 1. Set DB_CONNECTION=sqlite
+   # 2. Comment out all database host/port/user/password settings
+   # 3. SQLite will use database/database.sqlite file in project root
+   DB_CONNECTION=sqlite
    ```
 
 **⚠️ Important**: Change default database passwords in `docker-compose.yml` and `.env` before deploying to production.

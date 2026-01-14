@@ -1,0 +1,114 @@
+name: Security Scanning
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  push:
+    branches: [ main, develop, dev ]
+  pull_request:
+    branches: [ main, develop, dev ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  composer-audit:
+    name: Composer Security Audit
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Composer audit
+        run: composer audit --format=json > composer-audit.json || true
+
+      - name: Display audit results
+        run: cat composer-audit.json
+
+      - name: Fail if vulnerabilities found
+        run: |
+          if [ -s composer-audit.json ] && [ "$(cat composer-audit.json | jq '.advisories | length')" -gt 0 ]; then
+            echo "Security vulnerabilities found!"
+            cat composer-audit.json | jq '.advisories[]'
+            exit 1
+          fi
+        env:
+          COMPOSER_AUDIT_FAIL_ON_WARN: true
+
+  dependabot-alerts:
+    name: Dependabot Alerts Summary
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Dependabot alerts
+        uses: actions/github-script@v7
+        id: alerts
+        with:
+          script: |
+            const alerts = await github.rest.dependabot.listAlertsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+            console.log(`Found ${alerts.data.length} open Dependabot alerts`);
+            return alerts.data;
+
+      - name: Create issue if critical alerts found
+        uses: actions/github-script@v7
+        if: steps.alerts.outputs.result.length > 0
+        with:
+          script: |
+            const alerts = ${{ steps.alerts.outputs.result }};
+            const criticalAlerts = alerts.filter(a => a.security_vulnerability.severity === 'critical');
+            
+            if (criticalAlerts.length > 0) {
+              const title = '🚨 Critical Security Vulnerabilities Detected';
+              const body = `The following critical security vulnerabilities have been detected:\n\n${criticalAlerts.map(a => `- ${a.security_advisory.summary} (package: ${a.dependency.package.name})`).join('\n')}`;
+              
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                per_page: 10
+              });
+              
+              const exists = issues.some(i => i.title.includes('Critical Security Vulnerabilities'));
+              
+              if (!exists) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: title,
+                  body: body,
+                  labels: ['security', 'critical']
+                });
+              }
+            }

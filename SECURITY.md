@@ -42,14 +42,21 @@ We follow responsible disclosure practices to protect our users while acknowledg
 
 ## Security Best Practices for Contributors
 
-When contributing to Malnu Backend, please follow these security guidelines:
+ When contributing to Malnu Backend, please follow these security guidelines:
 
 ### Never Commit Sensitive Data
 - **Credentials**: API keys, passwords, tokens, certificates
 - **Personal Data**: Real emails, phone numbers, addresses
 - **Secrets**: JWT secrets, encryption keys
 
-Use `.env.example` with placeholder values like `your-secret-key-here`.
+Use `.env.example` with empty values and clear warning comments instead of placeholder values. For example:
+```env
+# Generate a secure secret using: openssl rand -hex 32
+# WARNING: NEVER use placeholder values in production!
+JWT_SECRET=
+```
+
+This prevents developers from accidentally copying insecure placeholder values to production.
 
 ### Input Validation
 - Always validate and sanitize user input

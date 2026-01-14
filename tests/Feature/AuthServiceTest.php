@@ -7,6 +7,9 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Services\AuthService;
 use App\Services\TokenBlacklistService;
+use App\Services\PasswordValidator;
+use App\Services\JWTService;
+use App\Services\EmailService;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 
@@ -19,8 +22,18 @@ class AuthServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->authService = new AuthService();
-        $this->tokenBlacklistService = new TokenBlacklistService();
+        $jwtService = new JWTService();
+        $tokenBlacklistService = new TokenBlacklistService();
+        $emailService = new EmailService();
+        $passwordValidator = new PasswordValidator();
+
+        $this->authService = new AuthService(
+            $jwtService,
+            $tokenBlacklistService,
+            $emailService,
+            $passwordValidator
+        );
+        $this->tokenBlacklistService = $tokenBlacklistService;
     }
 
     public function test_user_registration_with_database_persistence()
@@ -265,7 +278,7 @@ class AuthServiceTest extends TestCase
     public function test_reset_password_with_weak_password()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must be at least 8 characters long');
+        $this->expectExceptionMessage('must be at least 8 characters');
 
         $this->authService->resetPassword(
             str_repeat('a', 64),
@@ -306,7 +319,7 @@ class AuthServiceTest extends TestCase
         $userId = $registerResult['user']['id'];
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('New password must be at least 8 characters long');
+        $this->expectExceptionMessage('must be at least 8 characters');
 
         $this->authService->changePassword($userId, 'OriginalPass123!', 'Weak1!');
     }
@@ -381,7 +394,7 @@ class AuthServiceTest extends TestCase
     public function test_password_complexity_requires_minimum_length()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must be at least 8 characters long');
+        $this->expectExceptionMessage('must be at least 8 characters');
 
         $this->authService->resetPassword(str_repeat('a', 64), 'Short1!');
     }
@@ -389,7 +402,7 @@ class AuthServiceTest extends TestCase
     public function test_password_complexity_requires_uppercase()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must contain at least 1 uppercase letter');
+        $this->expectExceptionMessage('must contain at least one uppercase letter');
 
         $this->authService->resetPassword(str_repeat('a', 64), 'lowercase123!');
     }
@@ -397,7 +410,7 @@ class AuthServiceTest extends TestCase
     public function test_password_complexity_requires_lowercase()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must contain at least 1 lowercase letter');
+        $this->expectExceptionMessage('must contain at least one lowercase letter');
 
         $this->authService->resetPassword(str_repeat('a', 64), 'UPPERCASE123!');
     }
@@ -405,7 +418,7 @@ class AuthServiceTest extends TestCase
     public function test_password_complexity_requires_number()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must contain at least 1 number');
+        $this->expectExceptionMessage('must contain at least one number');
 
         $this->authService->resetPassword(str_repeat('a', 64), 'NoNumbers!');
     }
@@ -413,7 +426,7 @@ class AuthServiceTest extends TestCase
     public function test_password_complexity_requires_special_character()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Password must contain at least 1 special character');
+        $this->expectExceptionMessage('must contain at least one special character');
 
         $this->authService->resetPassword(str_repeat('a', 64), 'NoSpecialChar123');
     }
@@ -426,12 +439,106 @@ class AuthServiceTest extends TestCase
             'password' => 'Password123!',
         ];
 
-        $this->authService->register($userData);
-        $userId = $this->authService->register($userData)['user']['id'];
-
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Password is too common');
 
-        $this->authService->changePassword($userId, 'Password123!', 'Password123!');
+        $this->authService->register($userData);
+    }
+
+    public function test_registration_fails_with_password_missing_uppercase()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'nouppercase@example.com',
+            'password' => 'nouppercase123!',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one uppercase letter');
+
+        $this->authService->register($userData);
+    }
+
+    public function test_registration_fails_with_password_missing_lowercase()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'nolowercase@example.com',
+            'password' => 'NOLOWERCASE123!',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one lowercase letter');
+
+        $this->authService->register($userData);
+    }
+
+    public function test_registration_fails_with_password_missing_number()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'nonumber@example.com',
+            'password' => 'NoNumberPass!',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one number');
+
+        $this->authService->register($userData);
+    }
+
+    public function test_registration_fails_with_password_missing_special_character()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'nospecial@example.com',
+            'password' => 'NoSpecialChar123',
+        ];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one special character');
+
+        $this->authService->register($userData);
+    }
+
+    public function test_reset_password_fails_with_password_missing_uppercase()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'resetnouppercase@example.com',
+            'password' => 'OriginalPass123!',
+        ];
+
+        $this->authService->register($userData);
+        $user = User::where('email', 'resetnouppercase@example.com')->first();
+
+        $resetToken = bin2hex(random_bytes(32));
+        PasswordResetToken::create([
+            'user_id' => $user->id,
+            'token' => password_hash($resetToken, PASSWORD_DEFAULT),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one uppercase letter');
+
+        $this->authService->resetPassword($resetToken, 'nouppercase123!');
+    }
+
+    public function test_change_password_fails_with_password_missing_lowercase()
+    {
+        $userData = [
+            'name' => 'Test User',
+            'email' => 'changenolowercase@example.com',
+            'password' => 'OriginalPass123!',
+        ];
+
+        $registerResult = $this->authService->register($userData);
+        $userId = $registerResult['user']['id'];
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('must contain at least one lowercase letter');
+
+        $this->authService->changePassword($userId, 'OriginalPass123!', 'NOLOWERCASE123!');
     }
 }

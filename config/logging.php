@@ -14,12 +14,28 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option defines the default log channel that gets used when writing
-    | messages to the logs. The name specified in this option should match
+    | messages to logs. The name specified in this option should match
     | one of the channels defined in the "channels" configuration array.
     |
     */
 
     'default' => env('LOG_CHANNEL', 'stack'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Request Logging Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for request/response logging middleware
+    |
+    */
+
+    'request' => [
+        'enabled' => env('REQUEST_LOGGING_ENABLED', true),
+        'level' => env('REQUEST_LOGGING_LEVEL', 'info'),
+        'include_body' => env('REQUEST_LOGGING_INCLUDE_BODY', false),
+        'exclude_paths' => array_filter(explode(',', env('REQUEST_LOGGING_EXCLUDE_PATHS', '/health,/metrics,/favicon.ico'))),
+    ],
 
     /*
     |--------------------------------------------------------------------------

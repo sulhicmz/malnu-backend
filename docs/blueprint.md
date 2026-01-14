@@ -127,6 +127,121 @@ app/Models/
 - Database queries: <50ms (p95)
 - Static assets: <100ms (p95)
 
+### Integration & Resilience Standards
+
+#### Core Principles
+- **Resilience First**: External services WILL fail; handle gracefully
+- **No Cascading Failures**: Circuit breakers prevent failure propagation
+- **Predictable Patterns**: Consistent integration patterns everywhere
+- **Backward Compatibility**: Never break consumers without versioning
+- **Self-Documenting**: Intuitive, well-documented integrations
+- **Idempotency**: Safe operations produce same result
+
+#### Timeout Standards
+All external service calls must have timeouts:
+- **HTTP Requests**: 30s default, 10s connect timeout
+- **Email Sending**: 30s timeout
+- **Database Queries**: 50ms timeout (p95 target)
+- **Cache Operations**: 100ms timeout
+- **External APIs**: Configurable per service
+
+#### Retry Pattern
+- Use `RetryService` for all retryable operations
+- **Exponential backoff**: Multiply delay by 2 after each attempt
+- **Jitter**: Add ±10% random variation to prevent thundering herd
+- **Maximum attempts**: 3 by default (configurable)
+- **Maximum delay**: Cap at 10s to prevent excessive waiting
+- **Initial delay**: 500ms - 2s depending on service type
+
+**Retry Configuration**:
+```php
+$retryService->execute(
+    $operation,
+    [
+        'max_attempts' => 3,
+        'initial_delay' => 1000,
+        'max_delay' => 10000,
+        'multiplier' => 2,
+        'jitter' => true,
+        'retry_on' => [ConnectException::class],
+    ]
+);
+```
+
+#### Circuit Breaker Pattern
+- Use `CircuitBreakerService` for all external service dependencies
+- **States**: CLOSED (normal), OPEN (failing), HALF_OPEN (testing recovery)
+- **Failure threshold**: 3-5 failures before opening (configurable)
+- **Recovery timeout**: 30-120s before attempting half-open (configurable)
+- **Half-open attempts**: 1-3 successful attempts to close circuit
+- **Fallback**: Required for all circuit-breaker-protected calls
+
+**Circuit Breaker Usage**:
+```php
+$circuitBreaker->call(
+    'email-service',
+    function () use ($email, $token) {
+        return $emailService->sendPasswordReset($email, $token);
+    },
+    function () use ($email) {
+        return $fallbackService->queueEmail($email);
+    }
+);
+```
+
+#### Resilient HTTP Client
+- Use `ResilientHttpClientService` for all external HTTP calls
+- **Combined protection**: Timeouts + Retries + Circuit Breaker
+- **Standard methods**: GET, POST, PUT, PATCH, DELETE
+- **Async support**: Request methods for async operations
+- **Health monitoring**: `getHealthStatus()` for circuit breaker state
+
+#### Anti-Patterns (NEVER Do)
+- ❌ External calls without timeouts
+- ❌ Infinite retries without limits
+- ❌ No error handling for external services
+- ❌ Exposing internal implementation details
+- ❌ Breaking changes without versioning
+- ❌ Letting external failures cascade to users
+- ❌ Inconsistent naming/response formats
+- ❌ Ignoring service health status
+
+#### Configuration Files
+- `config/circuit-breaker.php` - Circuit breaker settings
+- `config/retry.php` - Retry strategy settings
+- `config/resilient_http.php` - HTTP client timeouts
+- `config/resilient_email.php` - Email service settings
+
+#### Service-Specific Configurations
+```php
+'email' => [
+    'failure_threshold' => 3,
+    'recovery_timeout' => 120,
+    'retry_attempts' => 3,
+    'timeout' => 30,
+],
+'http' => [
+    'failure_threshold' => 5,
+    'recovery_timeout' => 60,
+    'retry_attempts' => 3,
+    'timeout' => 30,
+    'connect_timeout' => 10,
+],
+```
+
+#### Monitoring & Observability
+- **Circuit breaker state logging**: All state transitions logged
+- **Retry attempt logging**: Every retry logged with delay and error
+- **Failure context**: Include service, operation, error details
+- **Health endpoints**: `/health` endpoint with circuit breaker states
+- **Metrics**: Track failure rates, circuit opens, retry counts
+
+#### Error Codes for Integrations
+- `SERVICE_UNAVAILABLE` (503): Circuit breaker open
+- `TIMEOUT_ERROR` (504): Service timeout
+- `CONNECTION_ERROR` (502): Connection failure
+- `MAX_RETRIES_EXCEEDED` (429): Retry limit reached
+
 ### Testing Standards
 
 #### Test Coverage

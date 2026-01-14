@@ -10,6 +10,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
 use Hyperf\Support\Facades\Route;
@@ -63,6 +64,17 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
         Route::post('inventory/{id}/maintenance', [InventoryController::class, 'maintenance']);
         Route::get('inventory/{id}/assignments', [InventoryController::class, 'getAssignments']);
         Route::get('inventory/{id}/maintenance', [InventoryController::class, 'getMaintenanceRecords']);
+
+        // Academic Records Routes
+        Route::prefix('students/{studentId}')->group(function () {
+            Route::get('gpa', [AcademicRecordsController::class, 'calculateGPA']);
+            Route::get('academic-performance', [AcademicRecordsController::class, 'getAcademicPerformance']);
+            Route::get('class-rank/{classId}', [AcademicRecordsController::class, 'getClassRank']);
+            Route::get('transcript', [AcademicRecordsController::class, 'generateTranscript']);
+            Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
+            Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
+            Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
+        });
     });
 });
 

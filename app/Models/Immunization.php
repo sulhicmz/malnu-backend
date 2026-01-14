@@ -6,6 +6,10 @@ namespace App\Models;
 
 class Immunization extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $fillable = [
         'student_id',
         'health_record_id',

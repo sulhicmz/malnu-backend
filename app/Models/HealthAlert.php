@@ -6,6 +6,10 @@ namespace App\Models;
 
 class HealthAlert extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     const STATUS_PENDING = 'pending';
     const STATUS_SENT = 'sent';
     const STATUS_ACKNOWLEDGED = 'acknowledged';

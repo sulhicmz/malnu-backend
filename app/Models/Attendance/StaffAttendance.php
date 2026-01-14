@@ -19,6 +19,10 @@ use App\Traits\UsesUuid;
  */
 class StaffAttendance extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     use UsesUuid;
 
     protected $table = 'staff_attendances';

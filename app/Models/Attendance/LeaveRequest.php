@@ -27,6 +27,10 @@ use App\Models\Attendance\SubstituteAssignment;
  */
 class LeaveRequest extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     use UsesUuid;
 
     protected $table = 'leave_requests';

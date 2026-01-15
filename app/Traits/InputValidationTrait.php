@@ -213,4 +213,236 @@ trait InputValidationTrait
 
         return $errors;
     }
+
+    /**
+     * Validate URL format and protocol.
+     *
+     * @param string $url URL to validate
+     * @return bool True if URL is valid and uses allowed protocol
+     */
+    protected function validateUrl(string $url): bool
+    {
+        $result = filter_var($url, FILTER_VALIDATE_URL);
+        if ($result === false) {
+            return false;
+        }
+
+        // Only allow http and https protocols
+        $parsed = parse_url($url);
+        if ($parsed === false) {
+            return false;
+        }
+
+        $scheme = strtolower($parsed['scheme'] ?? '');
+        return in_array($scheme, ['http', 'https'], true);
+    }
+
+    /**
+     * Validate phone number format.
+     * Supports international format with optional country code prefix.
+     *
+     * @param string $phone Phone number to validate
+     * @return bool True if phone number is valid
+     */
+    protected function validatePhone(string $phone): bool
+    {
+        // Remove all non-digit characters except +
+        $cleaned = preg_replace('/[^0-9+]/', '', $phone);
+
+        // Check length: 10-15 digits (including optional + prefix)
+        $length = strlen($cleaned);
+
+        return $length >= 10 && $length <= 15;
+    }
+
+    /**
+     * Validate IP address (IPv4 or IPv6).
+     *
+     * @param string $ip IP address to validate
+     * @return bool True if IP address is valid
+     */
+    protected function validateIp(string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false;
+    }
+
+    /**
+     * Validate JSON structure.
+     *
+     * @param string $json JSON string to validate
+     * @return bool True if JSON is valid
+     */
+    protected function validateJson(string $json): bool
+    {
+        json_decode($json);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+     * Validate input against custom regex pattern.
+     *
+     * @param string $value Value to validate
+     * @param string $pattern Regex pattern to match
+     * @return bool True if value matches pattern
+     */
+    protected function validateRegex(string $value, string $pattern): bool
+    {
+        return preg_match($pattern, $value) === 1;
+    }
+
+    /**
+     * Sanitize shell command to prevent injection.
+     *
+     * @param string $command Command to sanitize
+     * @return string Sanitized command
+     */
+    protected function sanitizeCommand(string $command): string
+    {
+        return escapeshellcmd($command);
+    }
+
+    /**
+     * Sanitize shell command argument to prevent injection.
+     *
+     * @param string $arg Argument to sanitize
+     * @return string Sanitized argument
+     */
+    protected function sanitizeCommandArg(string $arg): string
+    {
+        return escapeshellarg($arg);
+    }
+
+    /**
+     * Escape SQL identifier to prevent SQL injection.
+     * Note: This is a last resort. Use parameterized queries via ORM whenever possible.
+     *
+     * @param string $identifier SQL identifier (table/column name)
+     * @return string Escaped identifier wrapped in backticks
+     */
+    protected function escapeSqlIdentifier(string $identifier): string
+    {
+        return '`' . str_replace('`', '``', $identifier) . '`';
+    }
+
+    /**
+     * Sanitize filename to prevent path traversal and command injection.
+     *
+     * @param string $filename Original filename
+     * @return string Sanitized safe filename
+     */
+    protected function sanitizeFilename(string $filename): string
+    {
+        // Remove path traversal sequences
+        $sanitized = str_replace(['../', '..\\', './', '.\\'], '', $filename);
+
+        // Remove dangerous characters
+        $sanitized = preg_replace('/[^a-zA-Z0-9._-]/', '', $sanitized);
+
+        // Remove leading/trailing dots and spaces
+        $sanitized = trim($sanitized, '. ');
+
+        return $sanitized;
+    }
+
+    /**
+     * Validate secure file upload with enhanced security checks.
+     *
+     * @param mixed $file File array from $_FILES
+     * @param array $allowedMimes Allowed MIME types (empty = allow all)
+     * @param int|null $maxSizeBytes Maximum file size in bytes (null = no limit)
+     * @return array<string, string> Array of error messages (empty if valid)
+     */
+    protected function validateSecureFileUpload(mixed $file, array $allowedMimes = [], ?int $maxSizeBytes = null): array
+    {
+        $errors = [];
+
+        if ($file === null || !is_array($file)) {
+            $errors[] = 'File is required';
+            return $errors;
+        }
+
+        if (!isset($file['tmp_name']) || !isset($file['name'])) {
+            $errors[] = 'Invalid file upload structure';
+            return $errors;
+        }
+
+        // Check for actual file upload
+        if (!is_uploaded_file($file['tmp_name'])) {
+            $errors[] = 'Invalid file upload';
+            return $errors;
+        }
+
+        // Check file size
+        if ($maxSizeBytes !== null && isset($file['size']) && $file['size'] > $maxSizeBytes) {
+            $errors[] = 'File size exceeds maximum allowed size of ' . $this->formatBytes($maxSizeBytes);
+        }
+
+        // Validate filename
+        $sanitizedFilename = $this->sanitizeFilename($file['name']);
+        if ($sanitizedFilename !== $file['name']) {
+            $errors[] = 'Filename contains invalid characters or path traversal sequences';
+        }
+
+        // Check for dangerous file extensions
+        $dangerousExtensions = ['.php', '.php5', '.phtml', '.sh', '.exe', '.bat', '.cmd', '.com', '.scr', '.cgi', '.pl', '.py'];
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (in_array('.' . $extension, $dangerousExtensions, true)) {
+            $errors[] = 'Dangerous file extension detected: ' . $extension;
+        }
+
+        // Validate MIME type (more secure than checking extension only)
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+
+            if ($mimeType === false) {
+                $errors[] = 'Unable to determine file type';
+            }
+
+            // Check MIME type against allowed list if specified
+            if (!empty($allowedMimes) && !in_array($mimeType, $allowedMimes, true)) {
+                $errors[] = 'File MIME type not allowed. Allowed types: ' . implode(', ', $allowedMimes);
+            }
+
+            // Check for MIME type mismatch (extension spoofing detection)
+            $extensionToMime = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'pdf' => 'application/pdf',
+                'doc' => 'application/msword',
+                'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'xls' => 'application/vnd.ms-excel',
+                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ];
+
+            $expectedMime = $extensionToMime[$extension] ?? null;
+            if ($expectedMime !== null && !str_starts_with($mimeType, explode('/', $expectedMime)[0])) {
+                $errors[] = 'File extension does not match actual content type';
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Format bytes to human-readable format.
+     *
+     * @param int $bytes File size in bytes
+     * @return string Formatted size (e.g., "5 MB")
+     */
+    private function formatBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
 }

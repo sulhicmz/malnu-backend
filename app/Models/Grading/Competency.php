@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\Grading;
 
@@ -11,9 +11,11 @@ use App\Models\User;
 
 class Competency extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'student_id',
@@ -27,7 +29,7 @@ class Competency extends Model
     ];
 
     protected $casts = [
-        'semester'   => 'integer',
+        'semester' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -1,14 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Models\User;
 use App\Models\ParentPortal\ParentOrtu;
-use App\Models\SchoolManagement\Teacher;
-use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Staff;
+use App\Models\SchoolManagement\Student;
+use App\Models\SchoolManagement\Teacher;
+use App\Models\User;
 use Hyperf\Foundation\Testing\TestCase;
 
 /**
@@ -24,7 +24,7 @@ class UserRelationshipsTest extends TestCase
     {
         $user = new User();
         $relation = $user->parent();
-        
+
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -36,7 +36,7 @@ class UserRelationshipsTest extends TestCase
     {
         $user = new User();
         $relation = $user->teacher();
-        
+
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -48,7 +48,7 @@ class UserRelationshipsTest extends TestCase
     {
         $user = new User();
         $relation = $user->student();
-        
+
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -60,7 +60,7 @@ class UserRelationshipsTest extends TestCase
     {
         $user = new User();
         $relation = $user->staff();
-        
+
         $this->assertEquals('user_id', $relation->getForeignKeyName());
         $this->assertEquals('id', $relation->getLocalKeyName());
     }
@@ -71,15 +71,15 @@ class UserRelationshipsTest extends TestCase
     public function testParentOrtuModelExists(): void
     {
         $parent = new ParentOrtu();
-        
+
         $this->assertEquals('id', $parent->getKeyName());
         $this->assertEquals('string', $parent->getKeyType());
         $this->assertFalse($parent->incrementing);
-        
+
         // Test user relationship
         $userRelation = $parent->user();
         $this->assertEquals('user_id', $userRelation->getForeignKeyName());
-        
+
         // Test students relationship
         $studentsRelation = $parent->students();
         $this->assertEquals('parent_id', $studentsRelation->getForeignKeyName());

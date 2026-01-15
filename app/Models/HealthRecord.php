@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Hyperf\Database\Eloquent\Model;
-use Hyperf\Database\Model\Events\Created;
-use Hyperf\Database\Model\Events\Deleted;
-use Hyperf\Database\Model\Events\Updated;
 
 class HealthRecord extends Model
 {

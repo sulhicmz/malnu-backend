@@ -1,15 +1,17 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Database\Schema\Schema;
+use Exception;
 use Hyperf\DbConnection\Db;
 use Hyperf\Foundation\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
 
+/**
+ * @internal
+ */
 #[CoversNothing]
 class DatabaseIndexTest extends TestCase
 {
@@ -141,7 +143,7 @@ class DatabaseIndexTest extends TestCase
             );
 
             return count($indexes) > 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

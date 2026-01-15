@@ -10,7 +10,7 @@ trait UsesUuid
 {
     /**
      * Initialize UUID for model.
-     * 
+     *
      * Uses MySQL 8.0+ UUID() function for optimized database-level UUID generation.
      * This is more performant than PHP-level Str::uuid() because:
      * - UUID is generated natively by MySQL
@@ -27,9 +27,9 @@ trait UsesUuid
 
     /**
      * Validate if a string is a valid UUID v4 format.
-     * 
+     *
      * Validates RFC 4122 UUID format (8-4-4-4-12 pattern).
-     * 
+     *
      * @param string $uuid The UUID string to validate
      * @return bool True if valid UUID v4, false otherwise
      */
@@ -43,7 +43,7 @@ trait UsesUuid
 
     /**
      * Normalize UUID to lowercase for consistent storage and comparison.
-     * 
+     *
      * @param string $uuid The UUID string to normalize
      * @return string The normalized UUID (lowercase)
      */
@@ -54,15 +54,15 @@ trait UsesUuid
 
     /**
      * Validate and normalize a UUID.
-     * 
+     *
      * Combines validation and normalization for convenience.
-     * 
+     *
      * @param string $uuid The UUID string to validate and normalize
-     * @return string|null Normalized UUID if valid, null otherwise
+     * @return null|string Normalized UUID if valid, null otherwise
      */
     public static function validateAndNormalizeUuid(string $uuid): ?string
     {
-        if (!self::isValidUuid($uuid)) {
+        if (! self::isValidUuid($uuid)) {
             return null;
         }
         return self::normalizeUuid($uuid);

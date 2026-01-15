@@ -11,15 +11,15 @@ Route::get('/', [HomeController::class, 'indexView']);
 Route::post('/csp-report', function () {
     // Log the CSP violation for analysis
     $cspReport = request()->getContent();
-    
+
     // In production, you might want to log this to a file or monitoring service
-    if (!empty($cspReport)) {
+    if (! empty($cspReport)) {
         $reportData = json_decode($cspReport, true);
         if ($reportData && isset($reportData['csp-report'])) {
             // Log the violation details
             \Hyperf\Support\Facades\Log::warning('CSP Violation', $reportData['csp-report']);
         }
     }
-    
+
     return response('CSP Report Received', 204);
 })->name('csp.report');

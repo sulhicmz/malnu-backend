@@ -4,29 +4,29 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\ParentPortal\ParentOrtu;
-use App\Models\SchoolManagement\Teacher;
-use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\Staff;
-use App\Models\SchoolManagement\ClassModel;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
-use App\Models\Grading\Grade;
-use App\Models\Grading\Report;
+use App\Models\DigitalLibrary\BookLoan;
 use App\Models\ELearning\Assignment;
 use App\Models\ELearning\Quiz;
+use App\Models\Grading\Grade;
+use App\Models\Grading\Report;
 use App\Models\OnlineExam\Exam;
-use App\Models\DigitalLibrary\BookLoan;
+use App\Models\ParentPortal\ParentOrtu;
+use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\Staff;
+use App\Models\SchoolManagement\Student;
+use App\Models\SchoolManagement\Teacher;
+use App\Models\User;
 use Tests\TestCase;
 
 /**
- * Comprehensive Model Relationship Tests
- * 
+ * Comprehensive Model Relationship Tests.
+ *
  * Note: This test suite is designed to work with the Hyperf framework.
  * The framework import issues (Hypervel -> Hyperf) are being fixed in PR #138.
  * Once those changes are merged, these tests will run properly.
- * 
+ *
  * @internal
  * @coversNothing
  */

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\SchoolManagement;
 
-use App\Models\SchoolManagement\Teacher;
 use Hyperf\Foundation\Http\FormRequest;
 
 class StoreTeacher extends FormRequest

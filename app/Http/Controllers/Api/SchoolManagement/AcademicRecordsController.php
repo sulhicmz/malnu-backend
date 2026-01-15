@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Models\SchoolManagement\Student;
 use App\Services\GPACalculationService;
 use App\Services\TranscriptGenerationService;
-use App\Models\SchoolManagement\Student;
+use Exception;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -13,6 +16,7 @@ use Psr\Container\ContainerInterface;
 class AcademicRecordsController extends BaseController
 {
     private GPACalculationService $gpaService;
+
     private TranscriptGenerationService $transcriptService;
 
     public function __construct(
@@ -32,7 +36,7 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
@@ -51,7 +55,7 @@ class AcademicRecordsController extends BaseController
             ];
 
             return $this->successResponse($response, 'GPA calculated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -61,14 +65,14 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
             $summary = $this->gpaService->getAcademicPerformanceSummary($studentId);
 
             return $this->successResponse($summary, 'Academic performance retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -78,7 +82,7 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
@@ -98,7 +102,7 @@ class AcademicRecordsController extends BaseController
                 'semester' => $semester ?? 'All Semesters',
                 'academic_year' => $academicYear ?? 'All Years',
             ], 'Class rank retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -108,7 +112,7 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
@@ -117,7 +121,7 @@ class AcademicRecordsController extends BaseController
             $transcript = $this->transcriptService->generateTranscript($studentId, $academicYear);
 
             return $this->successResponse($transcript, 'Transcript generated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse(
                 $e->getMessage(),
                 'TRANSCRIPT_GENERATION_ERROR',
@@ -132,14 +136,14 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
             $reportCard = $this->transcriptService->generateReportCard($studentId, $semester, $academicYear);
 
             return $this->successResponse($reportCard, 'Report card generated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse(
                 $e->getMessage(),
                 'REPORT_CARD_GENERATION_ERROR',
@@ -154,7 +158,7 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
@@ -167,7 +171,7 @@ class AcademicRecordsController extends BaseController
                 'subject_gpa' => $subjectGPA,
                 'academic_year' => $academicYear ?: 'All Years',
             ], 'Subject GPA retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -177,7 +181,7 @@ class AcademicRecordsController extends BaseController
         try {
             $student = Student::find($studentId);
 
-            if (!$student) {
+            if (! $student) {
                 return $this->notFoundResponse('Student not found');
             }
 
@@ -190,7 +194,7 @@ class AcademicRecordsController extends BaseController
                 ->paginate($limit, ['*'], 'page', $page);
 
             return $this->successResponse($grades, 'Grades history retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }

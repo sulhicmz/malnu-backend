@@ -4,34 +4,73 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use App\Services\CacheService;
+use Exception;
 use Hyperf\Database\Model\Model;
+use Throwable;
 
 trait CrudOperationsTrait
 {
     protected string $resourceName = 'Resource';
+
     protected ?string $model = null;
+
     protected array $relationships = [];
+
     protected array $validationRules = [];
+
     protected array $uniqueFields = [];
+
     protected array $allowedFilters = [];
+
     protected array $searchFields = [];
+
     protected string $defaultOrderBy = 'id';
+
     protected string $defaultOrderDirection = 'asc';
+
     protected int $defaultPerPage = 15;
+
+    protected ?CacheService $cache = null;
+
+    protected bool $useCache = true;
+
+    protected int $cacheTTL = 300;
 
     public function index()
     {
         try {
-            $query = $this->buildIndexQuery();
+            $cacheService = $this->getCacheService();
 
-            $page = (int) $this->request->query('page', 1);
-            $limit = (int) $this->request->query('limit', $this->defaultPerPage);
+            if ($cacheService) {
+                $cacheKey = $cacheService->generateKey($this->getCacheKeyPrefix() . ':index', [
+                    'page' => $this->request->query('page', 1),
+                    'limit' => $this->request->query('limit', $this->defaultPerPage),
+                    'filters' => array_intersect_key($this->request->query(), array_flip($this->allowedFilters)),
+                    'search' => $this->request->query('search'),
+                ]);
 
-            $results = $query->orderBy($this->defaultOrderBy, $this->defaultOrderDirection)
-                ->paginate($limit, ['*'], 'page', $page);
+                $results = $cacheService->remember($cacheKey, $this->cacheTTL, function () {
+                    $query = $this->buildIndexQuery();
+
+                    $page = (int) $this->request->query('page', 1);
+                    $limit = (int) $this->request->query('limit', $this->defaultPerPage);
+
+                    return $query->orderBy($this->defaultOrderBy, $this->defaultOrderDirection)
+                        ->paginate($limit, ['*'], 'page', $page);
+                });
+            } else {
+                $query = $this->buildIndexQuery();
+
+                $page = (int) $this->request->query('page', 1);
+                $limit = (int) $this->request->query('limit', $this->defaultPerPage);
+
+                $results = $query->orderBy($this->defaultOrderBy, $this->defaultOrderDirection)
+                    ->paginate($limit, ['*'], 'page', $page);
+            }
 
             return $this->successResponse($results, "{$this->resourceName} retrieved successfully");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -56,29 +95,49 @@ trait CrudOperationsTrait
 
             $this->afterStore($result);
 
+            $this->invalidateCache();
+
             return $this->successResponse($result, "{$this->resourceName} created successfully", 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_CREATION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_CREATION_ERROR', null, 400);
         }
     }
 
     public function show(string $id)
     {
         try {
-            $query = $this->getModelInstance()->query();
+            $cacheService = $this->getCacheService();
 
-            if (! empty($this->relationships)) {
-                $query->with($this->relationships);
+            if ($cacheService) {
+                $cacheKey = $cacheService->generateKey($this->getCacheKeyPrefix() . ':show', [
+                    'id' => $id,
+                ]);
+
+                $model = $cacheService->remember($cacheKey, $this->cacheTTL, function () use ($id) {
+                    $query = $this->getModelInstance()->query();
+
+                    if (! empty($this->relationships)) {
+                        $query->with($this->relationships);
+                    }
+
+                    return $query->find($id);
+                });
+            } else {
+                $query = $this->getModelInstance()->query();
+
+                if (! empty($this->relationships)) {
+                    $query->with($this->relationships);
+                }
+
+                $model = $query->find($id);
             }
-
-            $model = $query->find($id);
 
             if (! $model) {
                 return $this->notFoundResponse("{$this->resourceName} not found");
             }
 
             return $this->successResponse($model, "{$this->resourceName} retrieved successfully");
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -108,9 +167,11 @@ trait CrudOperationsTrait
 
             $this->afterUpdate($model);
 
+            $this->invalidateCache();
+
             return $this->successResponse($model, "{$this->resourceName} updated successfully");
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_UPDATE_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_UPDATE_ERROR', null, 400);
         }
     }
 
@@ -133,10 +194,35 @@ trait CrudOperationsTrait
 
             $this->afterDestroy($model);
 
+            $this->invalidateCache($model);
+
             return $this->successResponse(null, "{$this->resourceName} deleted successfully");
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_DELETION_ERROR', null, 400);
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)) . '_DELETION_ERROR', null, 400);
         }
+    }
+
+    protected function getCacheService(): ?CacheService
+    {
+        if (! $this->useCache) {
+            return null;
+        }
+
+        if ($this->cache === null) {
+            try {
+                $this->cache = \Hyperf\Context\ApplicationContext::getContainer()
+                    ->get(CacheService::class);
+            } catch (Throwable $e) {
+                return null;
+            }
+        }
+
+        return $this->cache;
+    }
+
+    protected function getCacheKeyPrefix(): string
+    {
+        return strtolower(str_replace('\\', ':', $this->model ?? 'resource'));
     }
 
     protected function buildIndexQuery()
@@ -187,7 +273,7 @@ trait CrudOperationsTrait
             }
         }
 
-        if (isset($this->validationRules['email']) && isset($data[$this->validationRules['email']]) && ! filter_var($data[$this->validationRules['email']], FILTER_VALIDATE_EMAIL)) {
+        if (isset($this->validationRules['email'], $data[$this->validationRules['email']]) && ! filter_var($data[$this->validationRules['email']], FILTER_VALIDATE_EMAIL)) {
             $errors[$this->validationRules['email']] = ['The email must be a valid email address.'];
         }
 
@@ -211,7 +297,7 @@ trait CrudOperationsTrait
 
                 $exists = $query->first();
                 if ($exists) {
-                    throw new \Exception("The {$field} has already been taken.");
+                    throw new Exception("The {$field} has already been taken.");
                 }
             }
         }
@@ -252,9 +338,27 @@ trait CrudOperationsTrait
     protected function getModelInstance()
     {
         if (! $this->model) {
-            throw new \Exception('Model class not specified. Set $model property in your controller.');
+            throw new Exception('Model class not specified. Set $model property in your controller.');
         }
 
         return new $this->model();
+    }
+
+    protected function invalidateCache(?Model $model = null): void
+    {
+        $cacheService = $this->getCacheService();
+
+        if (! $cacheService) {
+            return;
+        }
+
+        $prefix = $this->getCacheKeyPrefix();
+
+        $cacheService->forgetByPrefix($prefix . ':index');
+        $cacheService->forgetByPrefix($prefix . ':show');
+
+        if ($model) {
+            $cacheService->forget($cacheService->generateKey($prefix . ':show', ['id' => $model->id]));
+        }
     }
 }

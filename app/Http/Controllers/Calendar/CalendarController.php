@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Calendar;
 
 use App\Http\Controllers\AbstractController;
+use App\Http\Middleware\JWTMiddleware;
 use App\Services\CalendarService;
+use DateTime;
+use Exception;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\DeleteMapping;
 use Hyperf\HttpServer\Annotation\GetMapping;
+use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\PutMapping;
-use Hyperf\HttpServer\Annotation\DeleteMapping;
-use Hyperf\HttpServer\Annotation\Middleware;
-use App\Http\Middleware\JWTMiddleware;
-use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -30,7 +31,7 @@ class CalendarController extends AbstractController
     }
 
     /**
-     * Create a new calendar
+     * Create a new calendar.
      * @PostMapping(path="calendars")
      */
     public function createCalendar(): ResponseInterface
@@ -44,13 +45,13 @@ class CalendarController extends AbstractController
         try {
             $calendar = $this->calendarService->createCalendar($data);
             return $this->successResponse($calendar, 'Calendar created successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to create calendar: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get calendar by ID
+     * Get calendar by ID.
      * @GetMapping(path="calendars/{id}")
      */
     public function getCalendar(string $id): ResponseInterface
@@ -58,18 +59,18 @@ class CalendarController extends AbstractController
         try {
             $calendar = $this->calendarService->getCalendar($id);
 
-            if (!$calendar) {
+            if (! $calendar) {
                 return $this->notFoundResponse('Calendar not found');
             }
 
             return $this->successResponse($calendar);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to retrieve calendar: ' . $e->getMessage());
         }
     }
 
     /**
-     * Update calendar
+     * Update calendar.
      * @PutMapping(path="calendars/{id}")
      */
     public function updateCalendar(string $id): ResponseInterface
@@ -79,19 +80,19 @@ class CalendarController extends AbstractController
         try {
             $result = $this->calendarService->updateCalendar($id, $data);
 
-            if (!$result) {
+            if (! $result) {
                 return $this->notFoundResponse('Calendar not found');
             }
 
             $calendar = $this->calendarService->getCalendar($id);
             return $this->successResponse($calendar, 'Calendar updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to update calendar: ' . $e->getMessage());
         }
     }
 
     /**
-     * Delete calendar
+     * Delete calendar.
      * @DeleteMapping(path="calendars/{id}")
      */
     public function deleteCalendar(string $id): ResponseInterface
@@ -99,18 +100,18 @@ class CalendarController extends AbstractController
         try {
             $result = $this->calendarService->deleteCalendar($id);
 
-            if (!$result) {
+            if (! $result) {
                 return $this->notFoundResponse('Calendar not found');
             }
 
             return $this->successResponse(null, 'Calendar deleted successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to delete calendar: ' . $e->getMessage());
         }
     }
 
     /**
-     * Create a new event
+     * Create a new event.
      * @PostMapping(path="events")
      */
     public function createEvent(): ResponseInterface
@@ -124,13 +125,13 @@ class CalendarController extends AbstractController
         try {
             $event = $this->calendarService->createEvent($data);
             return $this->successResponse($event, 'Event created successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to create event: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get event by ID
+     * Get event by ID.
      * @GetMapping(path="events/{id}")
      */
     public function getEvent(string $id): ResponseInterface
@@ -138,18 +139,18 @@ class CalendarController extends AbstractController
         try {
             $event = $this->calendarService->getEvent($id);
 
-            if (!$event) {
+            if (! $event) {
                 return $this->notFoundResponse('Event not found');
             }
 
             return $this->successResponse($event);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to retrieve event: ' . $e->getMessage());
         }
     }
 
     /**
-     * Update event
+     * Update event.
      * @PutMapping(path="events/{id}")
      */
     public function updateEvent(string $id): ResponseInterface
@@ -159,19 +160,19 @@ class CalendarController extends AbstractController
         try {
             $result = $this->calendarService->updateEvent($id, $data);
 
-            if (!$result) {
+            if (! $result) {
                 return $this->notFoundResponse('Event not found');
             }
 
             $event = $this->calendarService->getEvent($id);
             return $this->successResponse($event, 'Event updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to update event: ' . $e->getMessage());
         }
     }
 
     /**
-     * Delete event
+     * Delete event.
      * @DeleteMapping(path="events/{id}")
      */
     public function deleteEvent(string $id): ResponseInterface
@@ -179,18 +180,18 @@ class CalendarController extends AbstractController
         try {
             $result = $this->calendarService->deleteEvent($id);
 
-            if (!$result) {
+            if (! $result) {
                 return $this->notFoundResponse('Event not found');
             }
 
             return $this->successResponse(null, 'Event deleted successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to delete event: ' . $e->getMessage());
         }
     }
 
     /**
-     * Get events by date range
+     * Get events by date range.
      * @GetMapping(path="calendars/{calendarId}/events")
      */
     public function getEventsByDateRange(string $calendarId): ResponseInterface
@@ -205,22 +206,26 @@ class CalendarController extends AbstractController
         }
 
         try {
-            $startDateObj = new \DateTime($startDate);
-            $endDateObj = new \DateTime($endDate);
+            $startDateObj = new DateTime($startDate);
+            $endDateObj = new DateTime($endDate);
 
             $filters = [];
-            if ($category) $filters['category'] = $category;
-            if ($priority) $filters['priority'] = $priority;
+            if ($category) {
+                $filters['category'] = $category;
+            }
+            if ($priority) {
+                $filters['priority'] = $priority;
+            }
 
             $events = $this->calendarService->getEventsByDateRange($calendarId, $startDateObj, $endDateObj, $filters);
             return $this->successResponse($events);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse('Failed to retrieve events: ' . $e->getMessage());
         }
     }
 
     /**
-     * Register for an event
+     * Register for an event.
      * @PostMapping(path="events/{eventId}/register")
      */
     public function registerForEvent(string $eventId): ResponseInterface
@@ -231,13 +236,13 @@ class CalendarController extends AbstractController
         try {
             $result = $this->calendarService->registerForEvent($eventId, $userId, $data);
             return $this->successResponse(null, 'Successfully registered for event');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), null, null, 400);
         }
     }
 
     /**
-     * Share calendar with user
+     * Share calendar with user.
      * @PostMapping(path="calendars/{calendarId}/share")
      */
     public function shareCalendar(string $calendarId): ResponseInterface
@@ -250,19 +255,19 @@ class CalendarController extends AbstractController
 
         try {
             $expiresAt = null;
-            if (!empty($data['expires_at'])) {
-                $expiresAt = new \DateTime($data['expires_at']);
+            if (! empty($data['expires_at'])) {
+                $expiresAt = new DateTime($data['expires_at']);
             }
 
             $result = $this->calendarService->shareCalendar($calendarId, $data['user_id'], $data['permission_type'], $expiresAt);
             return $this->successResponse(null, 'Calendar shared successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), null, null, 400);
         }
     }
 
     /**
-     * Book a resource
+     * Book a resource.
      * @PostMapping(path="resources/book")
      */
     public function bookResource(): ResponseInterface
@@ -276,7 +281,7 @@ class CalendarController extends AbstractController
         try {
             $booking = $this->calendarService->bookResource($data);
             return $this->successResponse($booking, 'Resource booked successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->errorResponse($e->getMessage(), null, null, 400);
         }
     }

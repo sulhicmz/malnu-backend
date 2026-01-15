@@ -6,13 +6,14 @@ namespace App\Models\ELearning;
 
 use App\Models\Model;
 use App\Models\User;
-use App\Models\ELearning\VirtualClass;
 
 class VideoConference extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'virtual_class_id',

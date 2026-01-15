@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
@@ -14,13 +14,14 @@ use App\Models\Model;
 use App\Models\OnlineExam\ExamResult;
 use App\Models\ParentPortal\ParentOrtu;
 use App\Models\User;
-use App\Models\SchoolManagement\ClassModel;
 
 class Student extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',
@@ -35,10 +36,10 @@ class Student extends Model
     ];
 
     protected $casts = [
-        'birth_date'      => 'date',
+        'birth_date' => 'date',
         'enrollment_date' => 'date',
-        'created_at'      => 'datetime',
-        'updated_at'      => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships
@@ -47,7 +48,7 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function class ()
+    public function class()
     {
         return $this->belongsTo(ClassModel::class);
     }

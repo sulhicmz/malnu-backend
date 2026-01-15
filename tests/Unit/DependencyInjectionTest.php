@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Contracts\AuthServiceInterface;
 use Hyperf\Di\Container;
 use HyperfTestFramework\TestCase;
-use App\Contracts\AuthServiceInterface;
+use ReflectionClass;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class DependencyInjectionTest extends TestCase
 {
     public function testAuthControllerUsesDependencyInjection()
@@ -15,7 +20,7 @@ class DependencyInjectionTest extends TestCase
         $container = new Container();
 
         $controller = $container->get(\App\Http\Controllers\Api\AuthController::class);
-        $reflection = new \ReflectionClass($controller);
+        $reflection = new ReflectionClass($controller);
 
         $constructor = $reflection->getConstructor();
 
@@ -38,7 +43,7 @@ class DependencyInjectionTest extends TestCase
         $container = new Container();
 
         $middleware = $container->get(\App\Http\Middleware\JWTMiddleware::class);
-        $reflection = new \ReflectionClass($middleware);
+        $reflection = new ReflectionClass($middleware);
 
         $constructor = $reflection->getConstructor();
 
@@ -61,7 +66,7 @@ class DependencyInjectionTest extends TestCase
         $container = new Container();
 
         $middleware = $container->get(\App\Http\Middleware\RoleMiddleware::class);
-        $reflection = new \ReflectionClass($middleware);
+        $reflection = new ReflectionClass($middleware);
 
         $constructor = $reflection->getConstructor();
 
@@ -84,7 +89,7 @@ class DependencyInjectionTest extends TestCase
         $container = new Container();
 
         $service = $container->get(\App\Services\AuthService::class);
-        $reflection = new \ReflectionClass($service);
+        $reflection = new ReflectionClass($service);
 
         $constructor = $reflection->getConstructor();
 
@@ -93,7 +98,7 @@ class DependencyInjectionTest extends TestCase
         $expectedParams = [
             \App\Contracts\JWTServiceInterface::class,
             \App\Contracts\TokenBlacklistServiceInterface::class,
-            \App\Contracts\EmailServiceInterface::class
+            \App\Contracts\EmailServiceInterface::class,
         ];
 
         $actualParams = [];

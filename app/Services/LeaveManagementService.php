@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
-use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
 
 class LeaveManagementService
@@ -15,19 +17,19 @@ class LeaveManagementService
     public function calculateLeaveBalance(string $staffId, string $leaveTypeId): array
     {
         $currentYear = date('Y');
-        
+
         // Get or create leave balance record
         $leaveBalance = LeaveBalance::firstOrCreate(
             [
                 'staff_id' => $staffId,
                 'leave_type_id' => $leaveTypeId,
-                'year' => $currentYear
+                'year' => $currentYear,
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
@@ -35,7 +37,7 @@ class LeaveManagementService
             'current_balance' => $leaveBalance->current_balance,
             'used_days' => $leaveBalance->used_days,
             'allocated_days' => $leaveBalance->allocated_days,
-            'carry_forward_days' => $leaveBalance->carry_forward_days
+            'carry_forward_days' => $leaveBalance->carry_forward_days,
         ];
     }
 
@@ -48,13 +50,13 @@ class LeaveManagementService
             [
                 'staff_id' => $leaveRequest->staff_id,
                 'leave_type_id' => $leaveRequest->leave_type_id,
-                'year' => date('Y')
+                'year' => date('Y'),
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
@@ -71,45 +73,45 @@ class LeaveManagementService
     public function validateLeaveBalance(string $staffId, string $leaveTypeId, int $requestedDays): bool
     {
         $leaveType = LeaveType::find($leaveTypeId);
-        
+
         // If the leave type doesn't require approval or doesn't have balance tracking, skip validation
-        if (!$leaveType || !$leaveType->requires_approval) {
+        if (! $leaveType || ! $leaveType->requires_approval) {
             return true;
         }
 
         $currentBalance = $this->calculateLeaveBalance($staffId, $leaveTypeId);
-        
+
         return $currentBalance['current_balance'] >= $requestedDays;
     }
 
     /**
      * Allocate annual leave for a staff member.
      */
-    public function allocateAnnualLeave(string $staffId, string $leaveTypeId, int $days, int $year = null): bool
+    public function allocateAnnualLeave(string $staffId, string $leaveTypeId, int $days, ?int $year = null): bool
     {
         $year = $year ?: date('Y');
-        
+
         $leaveBalance = LeaveBalance::firstOrCreate(
             [
                 'staff_id' => $staffId,
                 'leave_type_id' => $leaveTypeId,
-                'year' => $year
+                'year' => $year,
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 
         // Calculate new balance
         $newAllocatedDays = $leaveBalance->allocated_days + $days;
         $newCurrentBalance = $leaveBalance->current_balance + $days;
-        
+
         $leaveBalance->update([
             'allocated_days' => $newAllocatedDays,
-            'current_balance' => $newCurrentBalance
+            'current_balance' => $newCurrentBalance,
         ]);
 
         return true;
@@ -132,13 +134,13 @@ class LeaveManagementService
             [
                 'staff_id' => $leaveRequest->staff_id,
                 'leave_type_id' => $leaveRequest->leave_type_id,
-                'year' => date('Y')
+                'year' => date('Y'),
             ],
             [
                 'current_balance' => 0,
                 'used_days' => 0,
                 'allocated_days' => 0,
-                'carry_forward_days' => 0
+                'carry_forward_days' => 0,
             ]
         );
 

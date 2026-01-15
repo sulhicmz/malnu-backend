@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, School, Users, BookOpen, AlignCenterVertical as Certificate, PenTool, Library, Bot, Briefcase, UserCheck, ShoppingCart, BarChart, Settings, User } from 'lucide-react';
+import { LayoutDashboard, School, Users, BookOpen, AlignCenterVertical as Certificate, PenTool, Library, Bot, Briefcase, UserCheck, ShoppingCart, BarChart, Settings, User, X } from 'lucide-react';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  closeSidebar?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     dashboard: true,
@@ -32,43 +36,54 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white border-r">
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-center">
-          <School className="h-8 w-8 text-blue-600" />
+    <div className="h-full flex flex-col bg-white border-r" role="navigation" aria-label="Main navigation">
+      <div className="p-4 border-b flex items-center justify-between">
+        <div className="flex items-center">
+          <School className="h-8 w-8 text-blue-600" aria-hidden="true" />
           <h1 className="ml-2 text-xl font-bold text-gray-800">SchoolAdmin</h1>
         </div>
+        <button
+          onClick={closeSidebar}
+          className="lg:hidden p-1 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label="Close sidebar"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto py-2">
-        <nav className="space-y-1 px-2">
+        <nav className="space-y-1 px-2" aria-label="Main menu">
           {/* Dashboard Section */}
           <div>
             <button
               onClick={() => toggleMenu('dashboard')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.dashboard}
+              aria-controls="dashboard-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <LayoutDashboard className="h-5 w-5 text-gray-500" />
+                <LayoutDashboard className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Dashboard</span>
               </div>
               <svg
-                className={`${openMenus.dashboard ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`}
+                className={`${openMenus.dashboard ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.dashboard && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="dashboard-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="Dashboard submenu">
                 <Link
                   to="/"
-                  className={`${isActive('/') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700`}
+                  aria-current={isActive('/') ? 'page' : undefined}
+                  className={`${isActive('/') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset transition-colors`}
                 >
                   Overview Sekolah
                 </Link>

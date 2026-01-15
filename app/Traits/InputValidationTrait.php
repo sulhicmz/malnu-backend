@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use DateTime;
+
 trait InputValidationTrait
 {
     /**
@@ -12,13 +14,13 @@ trait InputValidationTrait
     protected function validateRequired(array $input, array $requiredFields): array
     {
         $errors = [];
-        
+
         foreach ($requiredFields as $field) {
-            if (!isset($input[$field]) || empty($input[$field])) {
+            if (! isset($input[$field]) || empty($input[$field])) {
                 $errors[$field] = ["The {$field} field is required."];
             }
         }
-        
+
         return $errors;
     }
 
@@ -30,7 +32,7 @@ trait InputValidationTrait
         if ($value === null) {
             return null;
         }
-        
+
         // Trim whitespace and sanitize HTML
         return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
     }
@@ -41,7 +43,7 @@ trait InputValidationTrait
     protected function sanitizeInput(array $input): array
     {
         $sanitized = [];
-        
+
         foreach ($input as $key => $value) {
             if (is_string($value)) {
                 $sanitized[$key] = $this->sanitizeString($value);
@@ -51,7 +53,7 @@ trait InputValidationTrait
                 $sanitized[$key] = $value;
             }
         }
-        
+
         return $sanitized;
     }
 
@@ -76,27 +78,27 @@ trait InputValidationTrait
      */
     protected function validateDate(string $date, string $format = 'Y-m-d'): bool
     {
-        $d = \DateTime::createFromFormat($format, $date);
+        $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) === $date;
     }
 
-     /**
-      * Validate string length.
-      */
-     protected function validateStringLength(string $value, ?int $min = null, ?int $max = null): bool
-     {
-         $length = strlen($value);
-         
-         if ($min !== null && $length < $min) {
-             return false;
-         }
-         
-         if ($max !== null && $length > $max) {
-             return false;
-         }
-         
-         return true;
-     }
+    /**
+     * Validate string length.
+     */
+    protected function validateStringLength(string $value, ?int $min = null, ?int $max = null): bool
+    {
+        $length = strlen($value);
+
+        if ($min !== null && $length < $min) {
+            return false;
+        }
+
+        if ($max !== null && $length > $max) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Validate that start date is before or equal to end date.
@@ -105,51 +107,51 @@ trait InputValidationTrait
     {
         $start = strtotime($startDate);
         $end = strtotime($endDate);
-        
+
         return $start !== false && $end !== false && $start <= $end;
     }
 
-     /**
-      * Validate file upload (basic validation).
-      */
-     protected function validateFileUpload(mixed $file, array $allowedTypes = [], ?int $maxSize = null): array
-     {
-         $errors = [];
-         
-         if ($file === null) {
-             $errors[] = 'File is required';
-             return $errors;
-         }
-         
-         // Basic validation for file uploads
-         if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
-             $errors[] = 'File size exceeds maximum allowed size';
-         }
-         
-         if (!empty($allowedTypes) && !in_array($file['type'] ?? '', $allowedTypes)) {
-             $errors[] = 'File type not allowed';
-         }
-         
-         return $errors;
-     }
+    /**
+     * Validate file upload (basic validation).
+     */
+    protected function validateFileUpload(mixed $file, array $allowedTypes = [], ?int $maxSize = null): array
+    {
+        $errors = [];
+
+        if ($file === null) {
+            $errors[] = 'File is required';
+            return $errors;
+        }
+
+        // Basic validation for file uploads
+        if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
+            $errors[] = 'File size exceeds maximum allowed size';
+        }
+
+        if (! empty($allowedTypes) && ! in_array($file['type'] ?? '', $allowedTypes)) {
+            $errors[] = 'File type not allowed';
+        }
+
+        return $errors;
+    }
 
     /**
      * Validate array of values.
      */
     protected function validateArray(mixed $value, array $rules = []): bool
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
-        
+
         if (isset($rules['min']) && count($value) < $rules['min']) {
             return false;
         }
-        
+
         if (isset($rules['max']) && count($value) > $rules['max']) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -184,19 +186,19 @@ trait InputValidationTrait
             $errors[] = 'Password must be at least 8 characters long.';
         }
 
-        if (!preg_match('/[A-Z]/', $password)) {
+        if (! preg_match('/[A-Z]/', $password)) {
             $errors[] = 'Password must contain at least 1 uppercase letter.';
         }
 
-        if (!preg_match('/[a-z]/', $password)) {
+        if (! preg_match('/[a-z]/', $password)) {
             $errors[] = 'Password must contain at least 1 lowercase letter.';
         }
 
-        if (!preg_match('/[0-9]/', $password)) {
+        if (! preg_match('/[0-9]/', $password)) {
             $errors[] = 'Password must contain at least 1 number.';
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
             $errors[] = 'Password must contain at least 1 special character (!@#$%^&*(),.?":{}|<>).';
         }
 
@@ -204,7 +206,7 @@ trait InputValidationTrait
             'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', 'master',
             'dragon', '111111', 'baseball', 'iloveyou', 'trustno1', 'sunshine', 'princess',
             'admin', 'welcome', 'shadow', 'ashley', 'football', 'jesus', 'michael',
-            'ninja', 'mustang', 'password1', 'password123', 'letmein', 'login', 'starwars'
+            'ninja', 'mustang', 'password1', 'password123', 'letmein', 'login', 'starwars',
         ];
 
         if (in_array(strtolower($password), $commonPasswords, true)) {

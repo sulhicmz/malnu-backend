@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\Model;
-use App\Models\Permission;
-use App\Models\ModelHasRole;
-use App\Models\User;
+use InvalidArgumentException;
 
 class Role extends Model
 {
-    protected string $primaryKey = 'id';
-    protected string $keyType = 'string';
     public bool $incrementing = false;
+
+    protected string $primaryKey = 'id';
+
+    protected string $keyType = 'string';
+
     protected array $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
     protected array $fillable = [
         'name',
         'guard_name',
@@ -33,6 +34,7 @@ class Role extends Model
 
     /**
      * Assign this role to a model (e.g., User).
+     * @param mixed $user
      */
     public function assignTo($user): void
     {
@@ -43,7 +45,7 @@ class Role extends Model
                 'model_id' => $user->id,
             ]);
         } else {
-            throw new \InvalidArgumentException('Expected instance of User');
+            throw new InvalidArgumentException('Expected instance of User');
         }
     }
 }

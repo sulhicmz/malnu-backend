@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
+use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
-use App\Models\ParentPortal\ParentOrtu;
 use App\Models\User;
 use Hyperf\Database\Seeders\Seeder;
 
@@ -72,7 +72,7 @@ class SchoolManagementSeeder extends Seeder
     private function createClasses(): void
     {
         $teacher = Teacher::first();
-        
+
         $classes = [
             ['name' => 'X-A', 'level' => '10', 'academic_year' => '2024/2025', 'capacity' => 30],
             ['name' => 'X-B', 'level' => '10', 'academic_year' => '2024/2025', 'capacity' => 30],

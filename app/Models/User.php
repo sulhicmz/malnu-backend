@@ -30,11 +30,77 @@ use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use Hyperf\Foundation\Auth\User as Authenticatable;
+use Hyperf\Redis\Redis;
+use Psr\Container\ContainerInterface;
 use App\Traits\UsesUuid;
 
 class User extends Authenticatable
 {
     use UsesUuid;
+
+    private ?Redis $redis = null;
+    private int $cacheTtl = 3600;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $container = \Hyperf\Context\ApplicationContext::getContainer();
+        $this->redis = $container->get(Redis::class);
+    }
+
+    public function getCached(string $id): ?self
+    {
+        $key = $this->getCacheKey($id);
+        $data = $this->redis->get($key);
+
+        if ($data) {
+            $user = new self();
+            $user->fill(json_decode($data, true));
+            $user->exists = true;
+            return $user;
+        }
+
+        return null;
+    }
+
+    public function getCachedByEmail(string $email): ?self
+    {
+        $key = 'user:email:' . md5($email);
+        $data = $this->redis->get($key);
+
+        if ($data) {
+            $user = new self();
+            $user->fill(json_decode($data, true));
+            $user->exists = true;
+            return $user;
+        }
+
+        return null;
+    }
+
+    public function setCached(): void
+    {
+        $key = $this->getCacheKey($this->id);
+        $emailKey = 'user:email:' . md5($this->email);
+
+        $data = json_encode($this->toArray());
+        $this->redis->setex($key, $this->cacheTtl, $data);
+        $this->redis->setex($emailKey, $this->cacheTtl, $data);
+    }
+
+    public function clearCache(): void
+    {
+        $key = $this->getCacheKey($this->id);
+        $emailKey = 'user:email:' . md5($this->email);
+
+        $this->redis->del($key);
+        $this->redis->del($emailKey);
+    }
+
+    protected function getCacheKey(string $id): string
+    {
+        return 'user:' . $id;
+    }
 
     protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
     protected string $keyType = 'string';

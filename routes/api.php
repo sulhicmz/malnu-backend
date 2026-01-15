@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\CacheController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +131,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Cache Management Routes (protected with admin role)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin']], function () {
+    Route::prefix('cache')->group(function () {
+        Route::get('/statistics', [CacheController::class, 'getStatistics']);
+        Route::get('/top-keys', [CacheController::class, 'getTopKeys']);
+        Route::get('/health', [CacheController::class, 'checkHealth']);
+        Route::post('/reset-statistics', [CacheController::class, 'resetStatistics']);
+        Route::post('/clear-all', [CacheController::class, 'clearAll']);
+        Route::post('/clear-pattern', [CacheController::class, 'clearByPattern']);
+        Route::post('/warm-up', [CacheController::class, 'warmUp']);
     });
 });

@@ -84,6 +84,23 @@ The Docker Compose setup includes three database options:
 
 **⚠️ Important**: Change default database passwords in `docker-compose.yml` and `.env` before deploying to production.
 
+#### Testing Database Connectivity
+
+After starting Docker services, you can verify database connectivity using the provided test script:
+
+```bash
+# Run database connectivity test
+bash test-docker-databases.sh
+```
+
+The test script will:
+- Verify Docker is running
+- Check all services (app, mysql, postgres, redis) are running
+- Test MySQL database connectivity and version
+- Test Redis connectivity
+- Validate `.env` configuration
+- Check Docker volumes for data persistence
+
 For detailed setup instructions, see [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md).
 
 ## 📚 Documentation

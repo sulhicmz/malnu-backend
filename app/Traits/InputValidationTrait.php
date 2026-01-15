@@ -162,20 +162,143 @@ trait InputValidationTrait
     }
 
     /**
-     * Validate boolean value.
-     */
+      * Validate boolean value.
+      */
     protected function validateBoolean(mixed $value): bool
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
     }
 
     /**
-     * Validate password complexity.
-     * Requires minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character,
-     * and not in common passwords list.
-     *
-     * @return array<string, string> Array of error messages (empty if valid)
-     */
+      * Validate URL format.
+      */
+    protected function validateUrl(string $url): bool
+    {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+
+    /**
+      * Validate phone number (supports international formats).
+      */
+    protected function validatePhone(string $phone): bool
+    {
+        $phone = preg_replace('/[^\d+]/', '', $phone);
+        return strlen($phone) >= 10 && strlen($phone) <= 15;
+    }
+
+    /**
+      * Validate IP address (IPv4 and IPv6).
+      */
+    protected function validateIp(string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false;
+    }
+
+    /**
+      * Validate JSON structure.
+      */
+    protected function validateJson(string $json): bool
+    {
+        json_decode($json);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+      * Validate input against custom regex pattern.
+      */
+    protected function validateRegex(string $value, string $pattern): bool
+    {
+        return preg_match($pattern, $value) === 1;
+    }
+
+    /**
+      * Sanitize command to prevent command injection.
+      */
+    protected function sanitizeCommand(string $command): string
+    {
+        return escapeshellcmd($command);
+    }
+
+    /**
+      * Sanitize command argument to prevent command injection.
+      */
+    protected function sanitizeCommandArg(string $arg): string
+    {
+        return escapeshellarg($arg);
+    }
+
+    /**
+      * Escape SQL identifier to prevent SQL injection.
+      */
+    protected function escapeSqlIdentifier(string $identifier): string
+    {
+        return str_replace('`', '``', $identifier);
+    }
+
+    /**
+      * Sanitize filename for safe file storage.
+      */
+    protected function sanitizeFilename(string $filename): string
+    {
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+        $filename = trim($filename, '.-');
+        return $filename ?: 'file';
+    }
+
+    /**
+      * Validate file upload with enhanced security checks.
+      */
+    protected function validateSecureFileUpload(mixed $file, array $allowedMimes = [], ?int $maxSizeBytes = null): array
+    {
+        $errors = [];
+
+        if ($file === null) {
+            $errors[] = 'File is required';
+            return $errors;
+        }
+
+        if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+            $errors[] = 'Invalid file upload';
+            return $errors;
+        }
+
+        if ($maxSizeBytes && isset($file['size']) && $file['size'] > $maxSizeBytes) {
+            $errors[] = 'File size exceeds maximum allowed size';
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $detectedMime = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+
+            if (!empty($allowedMimes) && !in_array($detectedMime, $allowedMimes)) {
+                $errors[] = 'File type not allowed';
+            }
+        }
+
+        if (isset($file['name'])) {
+            $sanitizedName = $this->sanitizeFilename($file['name']);
+            if ($sanitizedName !== $file['name']) {
+                $errors[] = 'Filename contains invalid characters';
+            }
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $dangerousExtensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phps', 'shtml', 'sh', 'cgi', 'pl', 'exe', 'dll', 'bat', 'cmd'];
+        if (in_array($ext, $dangerousExtensions)) {
+            $errors[] = 'File extension is not allowed';
+        }
+
+        return $errors;
+    }
+
+    /**
+      * Validate password complexity.
+      * Requires minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character,
+      * and not in common passwords list.
+      *
+      * @return array<string, string> Array of error messages (empty if valid)
+      */
     protected function validatePasswordComplexity(string $password): array
     {
         $errors = [];

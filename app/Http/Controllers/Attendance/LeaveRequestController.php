@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Attendance;
 
+use App\Http\Requests\Attendance\UpdateLeaveRequest;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
-use App\Services\FormValidationHelper;
 
 class LeaveRequestController extends BaseController
 {
@@ -115,7 +115,7 @@ class LeaveRequestController extends BaseController
     /**
      * Update the specified leave request.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -129,22 +129,9 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
             }
 
-            $input = $this->request->all();
+            $validated = $request->validated();
             
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
-            // Validate comments if provided
-            $errors = [];
-            if (isset($input['comments']) && !is_string($input['comments'])) {
-                $errors['comments'] = ["Comments must be a string"];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            $leaveRequest->update($input); // Only update provided fields
+            $leaveRequest->update($validated);
 
             return $this->successResponse($leaveRequest, 'Leave request updated successfully');
         } catch (\Exception $e) {

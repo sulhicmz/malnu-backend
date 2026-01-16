@@ -31,6 +31,7 @@ class SchoolInventory extends Model
         'assigned_to',
         'assigned_date',
         'notes',
+        'qr_code',
     ];
 
     protected $casts = [

@@ -92,9 +92,12 @@
         "post-autoload-dump": [
             "rm -rf runtime/container"
         ],
-        "test": "co-phpunit --prepend tests/bootstrap.php -c phpunit.xml.dist --colors=always",
+        "test": "vendor/bin/phpunit -c phpunit.xml.dist --colors=always",
+        "test-coverage": "vendor/bin/phpunit -c phpunit.xml.dist --colors=always --coverage-clover=coverage.xml",
+        "test-ci": "vendor/bin/phpunit -c phpunit.xml.dist --colors=always --coverage-clover=coverage.xml --coverage-text",
         "cs-diff": "php-cs-fixer fix --path-mode=intersection `git diff --name-only --diff-filter=ACMRTUXB origin/main..HEAD`",
         "cs-fix": "php-cs-fixer fix $1",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --show-progress=dots",
         "analyse": "phpstan analyse --memory-limit 300M -c phpstan.neon",
         "start": [
             "Composer\\Config::disableProcessTimeout",

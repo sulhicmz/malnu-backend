@@ -10,7 +10,6 @@ use App\Models\Notification\NotificationTemplate;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
-use Hyperf\Di\Annotation\Inject;
 use Psr\Container\ContainerInterface;
 
 class NotificationController extends BaseController

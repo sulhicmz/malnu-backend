@@ -4,17 +4,33 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\BaseController;
 use App\Services\AttendanceService;
 use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
+use Psr\Container\ContainerInterface;
+
+/**
+ * Helper function for validator (Laravel-style compatibility).
+ */
+function validator(array $data, array $rules)
+{
+    $container = \Hyperf\Context\ApplicationContext::getContainer();
+    $validatorFactory = $container->get(ValidatorFactoryInterface::class);
+    return $validatorFactory->make($data, $rules);
+}
 
 class AttendanceController extends BaseController
 {
     private AttendanceService $attendanceService;
 
-    public function __construct(RequestInterface $request, AttendanceService $attendanceService)
-    {
-        parent::__construct($request);
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container,
+        AttendanceService $attendanceService
+    ) {
+        parent::__construct($request, $response, $container);
         $this->attendanceService = $attendanceService;
     }
 
@@ -34,10 +50,10 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
-        if (!$this->attendanceService->validateTeacherAccess($data['marked_by'], $data['class_id'])) {
+        if (! $this->attendanceService->validateTeacherAccess($data['marked_by'], $data['class_id'])) {
             return $this->forbiddenResponse('Teacher is not authorized to mark attendance for this class');
         }
 
@@ -64,10 +80,10 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
-        if (!$this->attendanceService->validateTeacherAccess($data['teacher_id'], $data['class_id'])) {
+        if (! $this->attendanceService->validateTeacherAccess($data['teacher_id'], $data['class_id'])) {
             return $this->forbiddenResponse('Teacher is not authorized to mark attendance for this class');
         }
 
@@ -92,7 +108,7 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
         $startDate = $request->input('start_date');
@@ -110,7 +126,7 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
         $date = $request->input('date');
@@ -128,7 +144,7 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
         $startDate = $request->input('start_date');
@@ -148,7 +164,7 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
         $classId = $request->input('class_id');
@@ -167,7 +183,7 @@ class AttendanceController extends BaseController
         ]);
 
         if ($validator->fails()) {
-            return $this->validationErrorResponse($validator->errors());
+            return $this->validationErrorResponse($validator->errors()->all());
         }
 
         $days = $request->input('days', 30);

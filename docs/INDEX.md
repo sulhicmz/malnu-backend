@@ -61,6 +61,9 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **[API Error Handling](API_ERROR_HANDLING.md)** - Error handling patterns, status codes, and troubleshooting
 - **[Rate Limiting](RATE_LIMITING.md)** - Rate limiting configuration and usage guidelines
 
+### Performance & Caching
+- **[Redis Caching System](CACHING.md)** - Redis caching implementation, CacheService, middleware, and usage examples
+
 ---
 
 ## 🔧 Operations & Deployment
@@ -115,12 +118,13 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **Development**: [Developer Guide](DEVELOPER_GUIDE.md), [Contributing](CONTRIBUTING.md)
 - **Deployment**: [Deployment](DEPLOYMENT.md), [Backup System](BACKUP_SYSTEM.md)
 - **Security**: [Security Analysis](SECURITY_ANALYSIS.md), [API Error Handling](API_ERROR_HANDLING.md)
+- **Performance**: [Redis Caching](CACHING.md), [Rate Limiting](RATE_LIMITING.md)
 - **API**: [API Documentation](API.md), [Error Handling](API_ERROR_HANDLING.md)
 
 ### By Role
 - **New Developers**: [Quick Start](DEVELOPER_GUIDE.md#quick-start-new-to-the-project) → [HyperVel Framework Guide](HYPERVEL_FRAMEWORK_GUIDE.md) → [Business Domains Guide](BUSINESS_DOMAINS_GUIDE.md) → [Developer Guide](DEVELOPER_GUIDE.md)
-- **API Consumers**: [API Documentation](API.md) → [Error Handling](API_ERROR_HANDLING.md) → [Rate Limiting](RATE_LIMITING.md)
-- **DevOps Engineers**: [Deployment](DEPLOYMENT.md) → [Backup System](BACKUP_SYSTEM.md) → [Migration Plan](MIGRATION_PLAN.md)
+- **API Consumers**: [API Documentation](API.md) → [Error Handling](API_ERROR_HANDLING.md) → [Rate Limiting](RATE_LIMITING.md) → [Caching](CACHING.md)
+- **DevOps Engineers**: [Deployment](DEPLOYMENT.md) → [Backup System](BACKUP_SYSTEM.md) → [Migration Plan](MIGRATION_PLAN.md) → [Caching](CACHING.md)
 - **Project Managers**: [Application Status](APPLICATION_STATUS.md) → [Repository Status](REPOSITORY_STATUS.md) → [Roadmap](ROADMAP.md)
 - **Security Analysts**: [Security Analysis](SECURITY_ANALYSIS.md) → [API Error Handling](API_ERROR_HANDLING.md) → [Developer Guide Security](DEVELOPER_GUIDE.md#security)
 

@@ -6,16 +6,23 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\AuthServiceInterface;
 use App\Traits\InputValidationTrait;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Container\ContainerInterface;
 
 class AuthController extends BaseController
 {
     use InputValidationTrait;
-    
+
     private AuthServiceInterface $authService;
 
-    public function __construct(AuthServiceInterface $authService)
-    {
-        parent::__construct();
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container,
+        AuthServiceInterface $authService
+    ) {
+        parent::__construct($request, $response, $container);
         $this->authService = $authService;
     }
 

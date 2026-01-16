@@ -7,14 +7,20 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\BaseController;
 use App\Services\AttendanceService;
 use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Container\ContainerInterface;
 
 class AttendanceController extends BaseController
 {
     private AttendanceService $attendanceService;
 
-    public function __construct(RequestInterface $request, AttendanceService $attendanceService)
-    {
-        parent::__construct($request);
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container,
+        AttendanceService $attendanceService
+    ) {
+        parent::__construct($request, $response, $container);
         $this->attendanceService = $attendanceService;
     }
 

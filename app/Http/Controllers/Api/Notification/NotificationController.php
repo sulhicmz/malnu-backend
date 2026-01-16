@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Notification;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Services\NotificationService;
 use App\Models\Notification\NotificationTemplate;
+use App\Services\NotificationService;
+use Exception;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
-use Hyperf\Di\Annotation\Inject;
 use Psr\Container\ContainerInterface;
 
 class NotificationController extends BaseController
@@ -43,18 +43,18 @@ class NotificationController extends BaseController
             }
             if (empty($data['type'])) {
                 $errors['type'] = ['The type field is required.'];
-            } elseif (!in_array($data['type'], ['info', 'high', 'medium', 'low', 'critical'])) {
+            } elseif (! in_array($data['type'], ['info', 'high', 'medium', 'low', 'critical'])) {
                 $errors['type'] = ['The type must be one of: info, high, medium, low, critical.'];
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $notification = $this->notificationService->create($data);
 
             return $this->successResponse($notification, 'Notification created successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'NOTIFICATION_CREATION_ERROR');
         }
     }
@@ -68,18 +68,18 @@ class NotificationController extends BaseController
             if (empty($data['notification_id'])) {
                 $errors['notification_id'] = ['The notification_id field is required.'];
             }
-            if (!empty($data['user_ids']) && !is_array($data['user_ids'])) {
+            if (! empty($data['user_ids']) && ! is_array($data['user_ids'])) {
                 $errors['user_ids'] = ['The user_ids field must be an array.'];
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $this->notificationService->send($data['notification_id'], $data['user_ids'] ?? null);
 
             return $this->successResponse(null, 'Notification sent successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'NOTIFICATION_SEND_ERROR');
         }
     }
@@ -96,7 +96,7 @@ class NotificationController extends BaseController
             if (empty($data['message'])) {
                 $errors['message'] = ['The message field is required for emergency notifications.'];
             }
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
@@ -108,7 +108,7 @@ class NotificationController extends BaseController
             $this->notificationService->send($notification->id, null);
 
             return $this->successResponse($notification, 'Emergency notification sent successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'EMERGENCY_NOTIFICATION_ERROR');
         }
     }
@@ -138,7 +138,7 @@ class NotificationController extends BaseController
             }
 
             return $this->successResponse($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -148,12 +148,12 @@ class NotificationController extends BaseController
         try {
             $recipient = \App\Models\Notification\NotificationRecipient::with('notification')->where('id', $id)->first();
 
-            if (!$recipient) {
+            if (! $recipient) {
                 return $this->notFoundResponse('Notification not found');
             }
 
             return $this->successResponse($recipient);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -164,12 +164,12 @@ class NotificationController extends BaseController
             $userId = $this->request->getAttribute('jwt_user_id');
             $result = $this->notificationService->markAsRead($id, $userId);
 
-            if (!$result) {
+            if (! $result) {
                 return $this->notFoundResponse('Notification not found');
             }
 
             return $this->successResponse(null, 'Notification marked as read');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'MARK_READ_ERROR');
         }
     }
@@ -190,7 +190,7 @@ class NotificationController extends BaseController
             }
 
             return $this->successResponse(null, 'All notifications marked as read');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'MARK_ALL_READ_ERROR');
         }
     }
@@ -200,12 +200,12 @@ class NotificationController extends BaseController
         try {
             $stats = $this->notificationService->getDeliveryStatistics($id);
 
-            if (!$stats) {
+            if (! $stats) {
                 return $this->notFoundResponse('Notification not found');
             }
 
             return $this->successResponse($stats);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -229,14 +229,14 @@ class NotificationController extends BaseController
                 $errors['body'] = ['The body field is required.'];
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
             $template = $this->notificationTemplateModel::create($data);
 
             return $this->successResponse($template, 'Template created successfully', 201);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'TEMPLATE_CREATION_ERROR');
         }
     }
@@ -248,7 +248,7 @@ class NotificationController extends BaseController
             $templates = $this->notificationService->getNotificationTemplates($type);
 
             return $this->successResponse($templates);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }
@@ -264,7 +264,7 @@ class NotificationController extends BaseController
                 $errors['type'] = ['The type field is required.'];
             }
 
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 return $this->validationErrorResponse($errors);
             }
 
@@ -281,7 +281,7 @@ class NotificationController extends BaseController
             $this->notificationService->updateUserPreference($userId, [$preferences]);
 
             return $this->successResponse(null, 'Preferences updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage(), 'PREFERENCE_UPDATE_ERROR');
         }
     }
@@ -293,7 +293,7 @@ class NotificationController extends BaseController
             $preference = $this->notificationService->getUserPreference($userId, $this->request->query('type'));
 
             return $this->successResponse($preference);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }
     }

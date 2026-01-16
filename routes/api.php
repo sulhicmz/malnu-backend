@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Analytics\LearningAnalyticsController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -85,6 +86,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
         });
+    });
+});
+
+// Learning Analytics Routes (protected with JWT)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('analytics')->group(function () {
+        Route::get('/student/{id}/performance', [LearningAnalyticsController::class, 'getStudentPerformance']);
+        Route::get('/class/{id}/performance', [LearningAnalyticsController::class, 'getClassPerformance']);
+        Route::get('/learning-patterns/{id}', [LearningAnalyticsController::class, 'getLearningPatterns']);
+        Route::get('/early-warnings', [LearningAnalyticsController::class, 'getEarlyWarnings']);
+        Route::get('/knowledge-gaps', [LearningAnalyticsController::class, 'getKnowledgeGaps']);
+        Route::get('/teaching-effectiveness', [LearningAnalyticsController::class, 'getTeachingEffectiveness']);
     });
 });
 

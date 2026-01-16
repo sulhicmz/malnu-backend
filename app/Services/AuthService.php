@@ -10,21 +10,25 @@ use App\Contracts\TokenBlacklistServiceInterface;
 use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use App\Services\PasswordValidator;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
     private TokenBlacklistServiceInterface $tokenBlacklistService;
     private EmailService $emailService;
+    private PasswordValidator $passwordValidator;
 
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
-        EmailService $emailService
+        EmailService $emailService,
+        PasswordValidator $passwordValidator
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
         $this->emailService = $emailService;
+        $this->passwordValidator = $passwordValidator;
     }
 
     /**
@@ -35,6 +39,11 @@ class AuthService implements AuthServiceInterface
         $existingUser = User::where('email', $data['email'])->first();
         if ($existingUser) {
             throw new \Exception('User with this email already exists');
+        }
+
+        $errors = $this->passwordValidator->validate($data['password']);
+        if (!empty($errors)) {
+            throw new \Exception(implode(' ', $errors));
         }
 
         $user = User::create([
@@ -178,25 +187,9 @@ class AuthService implements AuthServiceInterface
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // Validate password strength (backend validation as safety net)
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters long');
-        }
-
-        if (!preg_match('/[A-Z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 uppercase letter');
-        }
-
-        if (!preg_match('/[a-z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 lowercase letter');
-        }
-
-        if (!preg_match('/[0-9]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 number');
-        }
-
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 special character');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception(implode(' ', $errors));
         }
 
         // Get all valid tokens from database
@@ -257,6 +250,16 @@ class AuthService implements AuthServiceInterface
 
         if (!$user) {
             throw new \Exception('User not found');
+        }
+
+        // Verify current password
+        if (!password_verify($currentPassword, $user->password)) {
+            throw new \Exception('Current password is incorrect');
+        }
+
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (!empty($errors)) {
+            throw new \Exception('New password: ' . implode(' ', $errors));
         }
 
         // Verify current password

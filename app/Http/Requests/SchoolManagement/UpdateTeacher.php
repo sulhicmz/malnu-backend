@@ -18,25 +18,27 @@ class UpdateTeacher extends FormRequest
         $id = $this->route('id');
 
         return [
-            'name' => 'sometimes|string|max:255',
-            'nip' => 'sometimes|string|max:50|unique:teachers,nip,' . $id,
-            'email' => 'nullable|email|max:255|unique:teachers,email,' . $id,
-            'status' => 'sometimes|in:active,inactive',
+            'nip' => 'sometimes|string|max:20|unique:teachers,nip,' . $id,
+            'user_id' => 'sometimes|string|exists:users,id',
+            'expertise' => 'sometimes|nullable|string|max:100',
+            'join_date' => 'sometimes|date',
+            'status' => 'sometimes|string|max:20',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.string' => 'The name must be a string.',
-            'name.max' => 'The name must not exceed 255 characters.',
             'nip.string' => 'The NIP must be a string.',
-            'nip.max' => 'The NIP must not exceed 50 characters.',
+            'nip.max' => 'The NIP must not exceed 20 characters.',
             'nip.unique' => 'The NIP has already been taken.',
-            'email.email' => 'The email must be a valid email address.',
-            'email.max' => 'The email must not exceed 255 characters.',
-            'email.unique' => 'The email has already been taken.',
-            'status.in' => 'The status must be one of: active, inactive.',
+            'user_id.string' => 'The user_id must be a valid UUID.',
+            'user_id.exists' => 'The selected user does not exist.',
+            'expertise.string' => 'The expertise must be a string.',
+            'expertise.max' => 'The expertise must not exceed 100 characters.',
+            'join_date.date' => 'The join date must be a valid date.',
+            'status.string' => 'The status must be a string.',
+            'status.max' => 'The status must not exceed 20 characters.',
         ];
     }
 }

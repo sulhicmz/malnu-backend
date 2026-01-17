@@ -18,25 +18,37 @@ class UpdateStudent extends FormRequest
         $id = $this->route('id');
 
         return [
-            'name' => 'sometimes|string|max:255',
-            'nisn' => 'sometimes|string|max:50|unique:students,nisn,' . $id,
-            'email' => 'nullable|email|max:255|unique:students,email,' . $id,
-            'status' => 'sometimes|in:active,inactive,graduated',
+            'nisn' => 'sometimes|string|max:20|unique:students,nisn,' . $id,
+            'user_id' => 'sometimes|string|exists:users,id',
+            'class_id' => 'sometimes|string|exists:classes,id',
+            'birth_date' => 'sometimes|nullable|date',
+            'birth_place' => 'sometimes|nullable|string|max:50',
+            'address' => 'sometimes|nullable|string',
+            'parent_id' => 'sometimes|nullable|string|exists:parents,id',
+            'enrollment_date' => 'sometimes|date',
+            'status' => 'sometimes|string|max:20',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.string' => 'The name must be a string.',
-            'name.max' => 'The name must not exceed 255 characters.',
             'nisn.string' => 'The NISN must be a string.',
-            'nisn.max' => 'The NISN must not exceed 50 characters.',
+            'nisn.max' => 'The NISN must not exceed 20 characters.',
             'nisn.unique' => 'The NISN has already been taken.',
-            'email.email' => 'The email must be a valid email address.',
-            'email.max' => 'The email must not exceed 255 characters.',
-            'email.unique' => 'The email has already been taken.',
-            'status.in' => 'The status must be one of: active, inactive, graduated.',
+            'user_id.string' => 'The user_id must be a valid UUID.',
+            'user_id.exists' => 'The selected user does not exist.',
+            'class_id.string' => 'The class_id must be a valid UUID.',
+            'class_id.exists' => 'The selected class does not exist.',
+            'birth_date.date' => 'The birth date must be a valid date.',
+            'birth_place.string' => 'The birth place must be a string.',
+            'birth_place.max' => 'The birth place must not exceed 50 characters.',
+            'address.string' => 'The address must be a string.',
+            'parent_id.string' => 'The parent_id must be a valid UUID.',
+            'parent_id.exists' => 'The selected parent does not exist.',
+            'enrollment_date.date' => 'The enrollment date must be a valid date.',
+            'status.string' => 'The status must be a string.',
+            'status.max' => 'The status must not exceed 20 characters.',
         ];
     }
 }

@@ -12,8 +12,13 @@ use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
+use App\Http\Controllers\Api\SchoolManagement\StudentController;
+use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\TransportationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -75,7 +80,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
         Route::get('inventory/{id}/assignments', [InventoryController::class, 'getAssignments']);
         Route::get('inventory/{id}/maintenance', [InventoryController::class, 'getMaintenanceRecords']);
 
-        // Academic Records Routes
+         // Academic Records Routes
         Route::prefix('students/{studentId}')->group(function () {
             Route::get('gpa', [AcademicRecordsController::class, 'calculateGPA']);
             Route::get('academic-performance', [AcademicRecordsController::class, 'getAcademicPerformance']);
@@ -84,6 +89,35 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
+        });
+
+        // Transportation Management Routes (protected with JWT authentication)
+        Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+            Route::prefix('transportation')->group(function () {
+                Route::get('routes', [TransportationController::class, 'index']);
+                Route::post('routes', [TransportationController::class, 'store']);
+                Route::get('routes/{id}', [TransportationController::class, 'show']);
+                Route::put('routes/{id}', [TransportationController::class, 'update']);
+                Route::delete('routes/{id}', [TransportationController::class, 'destroy']);
+                Route::post('routes/{id}/statistics', [TransportationController::class, 'getRouteStatistics']);
+
+                Route::post('registrations', [TransportationController::class, 'registerStudent']);
+                Route::get('registrations/{studentId}', [TransportationController::class, 'getStudentRegistrations']);
+                Route::post('registrations/{registrationId}/assign', [TransportationController::class, 'assignDriver']);
+
+                Route::get('vehicles', [TransportationController::class, 'vehicles']);
+                Route::post('vehicles', [TransportationController::class, 'storeVehicle']);
+
+                Route::get('drivers', [TransportationController::class, 'drivers']);
+                Route::post('drivers', [TransportationController::class, 'storeDriver']);
+
+                Route::post('fees', [TransportationController::class, 'createFee']);
+                Route::put('fees/{feeId}', [TransportationController::class, 'markFeePaid']);
+
+                Route::get('incidents', [TransportationController::class, 'incidents']);
+                Route::post('incidents', [TransportationController::class, 'storeIncident']);
+                Route::put('incidents/{id}', [TransportationController::class, 'updateIncident']);
+            });
         });
     });
 });

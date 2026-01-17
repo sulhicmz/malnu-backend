@@ -21,15 +21,16 @@
          </testsuite>
      </testsuites>
      <coverage processUncoveredFiles="true">
-         <include>
-             <directory suffix=".php">app</directory>
-         </include>
-         <report>
-             <html outputDirectory="build/coverage/html"/>
-             <clover outputFile="build/coverage/clover.xml"/>
-             <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="true"/>
-         </report>
-     </coverage>
+          <include>
+              <directory suffix=".php">app</directory>
+          </include>
+          <report>
+              <html outputDirectory="build/coverage/html"/>
+              <clover outputFile="build/coverage/clover.xml"/>
+              <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="true"/>
+              <php outputFile="build/coverage/coverage.php"/>
+          </report>
+      </coverage>
      <source>
          <include>
              <directory suffix=".php">app</directory>

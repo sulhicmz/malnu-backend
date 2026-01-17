@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Attendance;
 
+use App\Http\Requests\Attendance\ApproveLeaveRequest;
+use App\Http\Requests\Attendance\RejectLeaveRequest;
+use App\Http\Requests\Attendance\StoreLeaveRequest;
+use App\Http\Requests\Attendance\UpdateLeaveRequest;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
-use App\Models\SchoolManagement\Staff;
-use App\Services\FormValidationHelper;
 
 class LeaveRequestController extends BaseController
 {
@@ -115,7 +117,7 @@ class LeaveRequestController extends BaseController
     /**
      * Update the specified leave request.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -124,27 +126,11 @@ class LeaveRequestController extends BaseController
                 return $this->notFoundResponse('Leave request not found');
             }
 
-            // Only allow updates to comments and status if not approved/rejected yet
             if ($leaveRequest->status !== 'pending') {
                 return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
-            // Validate comments if provided
-            $errors = [];
-            if (isset($input['comments']) && !is_string($input['comments'])) {
-                $errors['comments'] = ["Comments must be a string"];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            $leaveRequest->update($input); // Only update provided fields
+            $leaveRequest->update($request->validated());
 
             return $this->successResponse($leaveRequest, 'Leave request updated successfully');
         } catch (\Exception $e) {
@@ -180,7 +166,7 @@ class LeaveRequestController extends BaseController
     /**
      * Approve a leave request.
      */
-    public function approve(string $id)
+    public function approve(string $id, ApproveLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -193,19 +179,13 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'APPROVAL_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
             $leaveRequest->update([
                 'status' => 'approved',
-                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_by' => null,
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null
+                'approval_comments' => $request->validated()['approval_comments'] ?? null
             ]);
 
-            // Update leave balance if applicable
             $leaveBalance = LeaveBalance::where('staff_id', $leaveRequest->staff_id)
                 ->where('leave_type_id', $leaveRequest->leave_type_id)
                 ->where('year', date('Y'))
@@ -225,7 +205,7 @@ class LeaveRequestController extends BaseController
     /**
      * Reject a leave request.
      */
-    public function reject(string $id)
+    public function reject(string $id, RejectLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -238,16 +218,11 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'REJECTION_ERROR');
             }
 
-            $input = $this->request->all();
-            
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-            
             $leaveRequest->update([
                 'status' => 'rejected',
-                'approved_by' => null, // Assuming user authentication is not implemented yet
+                'approved_by' => null,
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null
+                'approval_comments' => $request->validated()['approval_comments']
             ]);
 
             return $this->successResponse($leaveRequest, 'Leave request rejected successfully');

@@ -175,6 +175,12 @@ trait CrudOperationsTrait
         }
     }
 
+    /**
+     * Validate store data manually
+     *
+     * @deprecated Use Form Request classes instead (e.g., StoreStudent, StoreTeacher)
+     * @see https://laravel.com/docs/validation#form-request-validation
+     */
     protected function validateStoreData(array $data): array
     {
         $errors = [];
@@ -194,6 +200,12 @@ trait CrudOperationsTrait
         return $errors;
     }
 
+    /**
+     * Validate update data manually
+     *
+     * @deprecated Use Form Request classes instead (e.g., UpdateStudent, UpdateTeacher)
+     * @see https://laravel.com/docs/validation#form-request-validation
+     */
     protected function validateUpdateData(array $data): array
     {
         return $this->validateStoreData($data);

@@ -10,8 +10,11 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\ClassController;
+use App\Http\Controllers\Api\SchoolManagement\SubjectController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
+use App\Http\Controllers\Api\Grading\GradeController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
 use Hyperf\Support\Facades\Route;
@@ -67,6 +70,12 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
         // Teacher Management Routes
         Route::apiResource('teachers', TeacherController::class);
 
+        // Class Management Routes
+        Route::apiResource('classes', ClassController::class);
+
+        // Subject Management Routes
+        Route::apiResource('subjects', SubjectController::class);
+
         // Inventory Management Routes
         Route::apiResource('inventory', InventoryController::class);
         Route::post('inventory/{id}/assign', [InventoryController::class, 'assign']);
@@ -85,6 +94,14 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
         });
+    });
+});
+
+// Grading Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Guru']], function () {
+    Route::prefix('grades')->group(function () {
+        // Grade Management Routes
+        Route::apiResource('/', GradeController::class);
     });
 });
 

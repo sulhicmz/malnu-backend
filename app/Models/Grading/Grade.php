@@ -51,7 +51,7 @@ class Grade extends Model
         return $this->belongsTo(Subject::class);
     }
 
-    public function class ()
+    public function classModel()
     {
         return $this->belongsTo(ClassModel::class);
     }

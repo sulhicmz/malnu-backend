@@ -30,7 +30,8 @@
         "nunomaduro/collision": "^8.5",
         "phpstan/phpstan": "^1.11.5",
         "phpunit/phpunit": "10.5.45",
-        "swoole/ide-helper": "~5.1.0"
+        "swoole/ide-helper": "~5.1.0",
+        "zircote/swagger-php": "^4.9"
     },
     "autoload": {
         "psr-4": {

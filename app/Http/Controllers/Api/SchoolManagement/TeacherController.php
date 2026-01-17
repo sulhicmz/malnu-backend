@@ -1,14 +1,21 @@
 <?php
-
+ 
 namespace App\Http\Controllers\Api\SchoolManagement;
-
+ 
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Teacher;
 use App\Traits\CrudOperationsTrait;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Tag(
+ *     name="Teacher",
+ *     description="Teacher management endpoints"
+ * )
+ */
 class TeacherController extends BaseController
 {
     use CrudOperationsTrait;

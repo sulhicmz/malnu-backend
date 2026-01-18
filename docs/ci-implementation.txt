@@ -1,0 +1,8 @@
+Workflow files created but cannot be added to PR due to GitHub security restrictions.
+
+See issue #134 for complete CI/CD implementation:
+- ci.yml: Automated testing (PHPUnit 8.2/8.3), PHPStan analysis, PHP CS Fixer checks
+- security.yml: Security scanning (Composer audit, Dependency Review, CodeQL analysis)
+- deploy.yml: Deployment automation with pre-deployment checks
+
+These files need to be added manually by maintainers to .github/workflows/

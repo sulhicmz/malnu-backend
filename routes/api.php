@@ -14,6 +14,15 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\Health\HealthRecordController;
+use App\Http\Controllers\Api\Health\ImmunizationController;
+use App\Http\Controllers\Api\Health\MedicationController;
+use App\Http\Controllers\Api\Health\AllergyController;
+use App\Http\Controllers\Api\Health\HealthScreeningController;
+use App\Http\Controllers\Api\Health\EmergencyContactController;
+use App\Http\Controllers\Api\Health\MedicalIncidentController;
+use App\Http\Controllers\Api\Health\HealthEmergencyController;
+use App\Http\Controllers\Api\Health\HealthAlertController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +139,67 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Health Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Petugas Kesehatan']], function () {
+    Route::prefix('health')->group(function () {
+        // Health Records
+        Route::apiResource('records', HealthRecordController::class);
+        Route::get('records/student/{studentId}', [HealthRecordController::class, 'getByStudent']);
+        Route::get('records/student/{studentId}/alerts', [HealthRecordController::class, 'getMedicalAlerts']);
+
+        // Immunization Management
+        Route::apiResource('immunizations', ImmunizationController::class);
+        Route::get('immunizations/student/{studentId}', [ImmunizationController::class, 'getByStudent']);
+        Route::get('immunizations/overdue', [ImmunizationController::class, 'getOverdue']);
+        Route::get('immunizations/due-soon/{days}', [ImmunizationController::class, 'getDueSoon']);
+        Route::get('immunizations/student/{studentId}/compliance', [ImmunizationController::class, 'getComplianceReport']);
+
+        // Medication Management
+        Route::apiResource('medications', MedicationController::class);
+        Route::get('medications/student/{studentId}', [MedicationController::class, 'getByStudent']);
+        Route::get('medications/active', [MedicationController::class, 'getActive']);
+        Route::get('medications/refrigerated', [MedicationController::class, 'getRequiringRefrigeration']);
+        Route::post('medications/{id}/complete', [MedicationController::class, 'markAsCompleted']);
+
+        // Allergy Management
+        Route::apiResource('allergies', AllergyController::class);
+        Route::get('allergies/student/{studentId}', [AllergyController::class, 'getByStudent']);
+        Route::get('allergies/severe', [AllergyController::class, 'getSevere']);
+        Route::get('allergies/epipen', [AllergyController::class, 'getRequiringEpipen']);
+
+        // Health Screening Management
+        Route::apiResource('screenings', HealthScreeningController::class);
+        Route::get('screenings/student/{studentId}', [HealthScreeningController::class, 'getByStudent']);
+        Route::get('screenings/student/{studentId}/type/{type}', [HealthScreeningController::class, 'getByType']);
+        Route::get('screenings/abnormal', [HealthScreeningController::class, 'getAbnormalResults']);
+
+        // Emergency Contact Management
+        Route::apiResource('emergency-contacts', EmergencyContactController::class);
+        Route::get('emergency-contacts/student/{studentId}', [EmergencyContactController::class, 'getByStudent']);
+        Route::get('emergency-contacts/student/{studentId}/primary', [EmergencyContactController::class, 'getPrimary']);
+
+        // Medical Incident Management
+        Route::apiResource('incidents', MedicalIncidentController::class);
+        Route::get('incidents/student/{studentId}', [MedicalIncidentController::class, 'getByStudent']);
+        Route::get('incidents/recent/{days}', [MedicalIncidentController::class, 'getRecent']);
+        Route::get('incidents/unresolved', [MedicalIncidentController::class, 'getUnresolved']);
+        Route::post('incidents/{id}/resolve', [MedicalIncidentController::class, 'markAsResolved']);
+
+        // Health Emergency Management
+        Route::apiResource('emergencies', HealthEmergencyController::class);
+        Route::get('emergencies/student/{studentId}', [HealthEmergencyController::class, 'getByStudent']);
+        Route::get('emergencies/recent/{days}', [HealthEmergencyController::class, 'getRecent']);
+        Route::get('emergencies/critical', [HealthEmergencyController::class, 'getCritical']);
+
+        // Health Alert Management
+        Route::apiResource('alerts', HealthAlertController::class);
+        Route::get('alerts/student/{studentId}', [HealthAlertController::class, 'getByStudent']);
+        Route::get('alerts/active', [HealthAlertController::class, 'getActive']);
+        Route::get('alerts/priority/{priority}', [HealthAlertController::class, 'getByPriority']);
+        Route::get('alerts/critical', [HealthAlertController::class, 'getCritical']);
+        Route::post('alerts/{id}/resolve', [HealthAlertController::class, 'markAsResolved']);
     });
 });

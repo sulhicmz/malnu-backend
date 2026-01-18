@@ -67,6 +67,7 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Deployment & Configuration
 - **[Deployment](DEPLOYMENT.md)** - Production deployment procedures, environment configuration, and infrastructure setup
+- **[Environment Setup](ENVIRONMENT_SETUP.md)** - Environment variable configuration, security best practices, and troubleshooting
 
 ### Maintenance & Monitoring
 - **[Migration Plan](MIGRATION_PLAN.md)** - Migration strategies, version upgrades, and compatibility notes

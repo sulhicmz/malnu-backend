@@ -1,10 +1,14 @@
 <?php
- 
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\SchoolManagement;
- 
+
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
 use App\Traits\CrudOperationsTrait;
+use App\Http\Requests\SchoolManagement\StoreStudent;
+use App\Http\Requests\SchoolManagement\UpdateStudent;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -23,13 +27,9 @@ class StudentController extends BaseController
     protected string $model = Student::class;
     protected string $resourceName = 'Student';
     protected array $relationships = ['class'];
-    protected array $uniqueFields = ['nisn', 'email'];
+    protected array $uniqueFields = ['nisn'];
     protected array $allowedFilters = ['class_id', 'status'];
     protected array $searchFields = ['name', 'nisn'];
-    protected array $validationRules = [
-        'required' => ['name', 'nisn', 'class_id', 'enrollment_year', 'status'],
-        'email' => 'email',
-    ];
 
     public function __construct(
         RequestInterface $request,
@@ -38,4 +38,50 @@ class StudentController extends BaseController
     ) {
         parent::__construct($request, $response, $container);
     }
+
+    public function store(StoreStudent $request)
+    {
+        try {
+            $data = $request->validated();
+
+            $data = $this->beforeStore($data);
+
+            $this->checkUniqueFields($data, null);
+
+            $model = $this->getModelInstance();
+            $result = $model->create($data);
+
+            $this->afterStore($result);
+
+            return $this->successResponse($result, "{$this->resourceName} created successfully", 201);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_CREATION_ERROR', null, 400);
+        }
+    }
+
+    public function update(string $id, UpdateStudent $request)
+    {
+        try {
+            $model = $this->getModelInstance()->find($id);
+
+            if (!$model) {
+                return $this->notFoundResponse("{$this->resourceName} not found");
+            }
+
+            $data = $request->validated();
+
+            $data = $this->beforeUpdate($data, $model);
+
+            $this->checkUniqueFields($data, $model);
+
+            $model->update($data);
+
+            $this->afterUpdate($model);
+
+            return $this->successResponse($model, "{$this->resourceName} updated successfully");
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), strtoupper(str_replace(' ', '_', $this->resourceName)).'_UPDATE_ERROR', null, 400);
+        }
+    }
 }
+

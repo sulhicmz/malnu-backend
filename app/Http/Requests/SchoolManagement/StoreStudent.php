@@ -18,7 +18,6 @@ class StoreStudent extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:50|unique:students,nisn',
-            'email' => 'nullable|email|max:255|unique:students,email',
             'class_id' => 'required|integer|exists:classes,id',
             'enrollment_year' => 'required|integer|min:1900|max:2100',
             'status' => 'required|in:active,inactive,graduated',

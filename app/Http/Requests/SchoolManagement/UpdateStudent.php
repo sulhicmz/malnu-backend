@@ -20,7 +20,6 @@ class UpdateStudent extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'nisn' => 'sometimes|string|max:50|unique:students,nisn,' . $id,
-            'email' => 'nullable|email|max:255|unique:students,email,' . $id,
             'status' => 'sometimes|in:active,inactive,graduated',
         ];
     }

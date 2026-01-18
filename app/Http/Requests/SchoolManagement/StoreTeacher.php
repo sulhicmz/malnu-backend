@@ -18,7 +18,6 @@ class StoreTeacher extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'nip' => 'required|string|max:50|unique:teachers,nip',
-            'email' => 'nullable|email|max:255|unique:teachers,email',
             'subject_id' => 'required|integer|exists:subjects,id',
             'join_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:active,inactive',
@@ -33,9 +32,6 @@ class StoreTeacher extends FormRequest
             'nip.required' => 'The NIP field is required.',
             'nip.max' => 'The NIP must not exceed 50 characters.',
             'nip.unique' => 'The NIP has already been taken.',
-            'email.email' => 'The email must be a valid email address.',
-            'email.max' => 'The email must not exceed 255 characters.',
-            'email.unique' => 'The email has already been taken.',
             'subject_id.required' => 'The subject_id field is required.',
             'subject_id.integer' => 'The subject_id must be an integer.',
             'subject_id.exists' => 'The selected subject does not exist.',

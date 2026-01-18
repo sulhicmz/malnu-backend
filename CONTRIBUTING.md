@@ -326,6 +326,32 @@ Before submitting, ensure:
 - [ ] Documentation updated
 - [ ] No merge conflicts with main branch
 - [ ] Commit messages follow guidelines
+- [ ] **No duplicate PRs for the same issue** - check existing PRs before creating a new one
+
+### Duplicate PR Prevention
+
+**IMPORTANT**: Do not create duplicate PRs for the same issue. Before creating a new PR:
+
+1. **Check for existing PRs** that reference your issue:
+   ```bash
+   gh pr list --state open --search "issue-number"
+   ```
+
+2. **Use the validation script** (recommended):
+   ```bash
+   ./scripts/check-duplicate-pr.sh <issue_number>
+   ```
+
+3. **Review existing PRs** - if a PR already exists for your issue:
+   - Consider contributing to that PR instead
+   - If the existing PR is outdated or has issues, comment on it first
+   - Only create a new PR if absolutely necessary and clearly document why
+
+4. **For automated workflows**: Ensure the workflow checks for existing PRs before creating new ones to avoid duplicates.
+
+**Rationale**: Duplicate PRs waste review resources, create merge conflicts, and cause confusion. Maintaining a single PR per issue ensures focused review and faster resolution.
+
+See [Issue #545](https://github.com/sulhicmz/malnu-backend/issues/545) for background on duplicate PR prevention efforts.
 
 ### Review Process
 

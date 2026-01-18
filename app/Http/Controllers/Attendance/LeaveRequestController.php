@@ -9,15 +9,20 @@ use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\SchoolManagement\Staff;
 use App\Services\FormValidationHelper;
+use App\Services\NotificationService;
 
 class LeaveRequestController extends BaseController
 {
+    private NotificationService $notificationService;
+
     public function __construct(
         \Hyperf\HttpServer\Contract\RequestInterface $request,
         \Hyperf\HttpServer\Contract\ResponseInterface $response,
-        \Psr\Container\ContainerInterface $container
+        \Psr\Container\ContainerInterface $container,
+        NotificationService $notificationService
     ) {
         parent::__construct($request, $response, $container);
+        $this->notificationService = $notificationService;
     }
     
     /**
@@ -216,9 +221,34 @@ class LeaveRequestController extends BaseController
                 $leaveBalance->increment('used_days', $leaveRequest->total_days);
             }
 
+            $this->sendLeaveNotification($leaveRequest, 'approved');
+
             return $this->successResponse($leaveRequest, 'Leave request approved successfully');
         } catch (\Exception $e) {
             return $this->serverErrorResponse('Failed to approve leave request');
+        }
+    }
+
+    private function sendLeaveNotification(LeaveRequest $leaveRequest, string $status): void
+    {
+        try {
+            $title = $status === 'approved'
+                ? 'Leave Request Approved'
+                : 'Leave Request Rejected';
+
+            $message = $status === 'approved'
+                ? "Your leave request from {$leaveRequest->start_date->format('Y-m-d')} to {$leaveRequest->end_date->format('Y-m-d')} has been approved."
+                : "Your leave request from {$leaveRequest->start_date->format('Y-m-d')} to {$leaveRequest->end_date->format('Y-m-d')} has been rejected.";
+
+            $notification = $this->notificationService->create([
+                'title' => $title,
+                'message' => $message,
+                'type' => $status === 'approved' ? 'success' : 'warning',
+                'priority' => 'high',
+            ]);
+
+            $this->notificationService->send($notification->id, [$leaveRequest->staff_id]);
+        } catch (\Exception $e) {
         }
     }
 
@@ -249,6 +279,8 @@ class LeaveRequestController extends BaseController
                 'approved_at' => date('Y-m-d H:i:s'),
                 'approval_comments' => $input['approval_comments'] ?? null
             ]);
+
+            $this->sendLeaveNotification($leaveRequest, 'rejected');
 
             return $this->successResponse($leaveRequest, 'Leave request rejected successfully');
         } catch (\Exception $e) {

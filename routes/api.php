@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
+use App\Http\Controllers\Attendance\SubstituteTeacherController;
+use App\Http\Controllers\Attendance\SubstituteAssignmentController;
+use App\Http\Controllers\Attendance\LeaveBalanceController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
@@ -55,6 +58,22 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
         Route::apiResource('leave-requests', LeaveRequestController::class);
         Route::post('leave-requests/{id}/approve', [LeaveRequestController::class, 'approve']);
         Route::post('leave-requests/{id}/reject', [LeaveRequestController::class, 'reject']);
+
+        // Leave Balance Routes
+        Route::apiResource('leave-balances', LeaveBalanceController::class);
+        Route::get('leave-balances/staff/{staffId}', [LeaveBalanceController::class, 'getByStaff']);
+        Route::get('leave-balances/year/{year}', [LeaveBalanceController::class, 'getByYear']);
+        Route::post('leave-balances/{id}/adjust', [LeaveBalanceController::class, 'adjustBalance']);
+        Route::post('leave-balances/{id}/carry-forward', [LeaveBalanceController::class, 'carryForward']);
+
+        // Substitute Teacher Routes
+        Route::apiResource('substitute-teachers', SubstituteTeacherController::class);
+        Route::get('substitute-teachers/available', [SubstituteTeacherController::class, 'getAvailable']);
+
+        // Substitute Assignment Routes
+        Route::apiResource('substitute-assignments', SubstituteAssignmentController::class);
+        Route::get('substitute-assignments/leave-request/{leaveRequestId}', [SubstituteAssignmentController::class, 'getByLeaveRequest']);
+        Route::put('substitute-assignments/{id}/status', [SubstituteAssignmentController::class, 'updateStatus']);
     });
 });
 

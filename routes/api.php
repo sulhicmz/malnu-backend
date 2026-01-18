@@ -14,7 +14,22 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\HealthController;
+use App\Http\Controllers\MonitoringController;
 use Hyperf\Support\Facades\Route;
+
+// Health check routes (public, no authentication required)
+Route::get('/health', [HealthController::class, 'index']);
+Route::get('/health/detailed', [HealthController::class, 'detailed']);
+
+// Monitoring routes (protected, authentication required)
+Route::group(['middleware' => ['jwt', 'role:Super Admin']], function () {
+    Route::prefix('monitoring')->group(function () {
+        Route::get('/metrics', [MonitoringController::class, 'metrics']);
+        Route::get('/errors', [MonitoringController::class, 'errors']);
+        Route::get('/errors/stats', [MonitoringController::class, 'errorStats']);
+    });
+});
 
 // Public routes (no authentication required)
 Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {

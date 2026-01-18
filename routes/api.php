@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\HealthController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -112,6 +113,47 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+    });
+
+// Health Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru|Perawat']], function () {
+    Route::prefix('health')->group(function () {
+        Route::get('records/{studentId}', [HealthController::class, 'getRecords']);
+        Route::post('records', [HealthController::class, 'createRecord'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('records/{id}', [HealthController::class, 'updateRecord'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::delete('records/{id}', [HealthController::class, 'deleteRecord'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('immunizations/{studentId}', [HealthController::class, 'getImmunizations']);
+        Route::post('immunizations', [HealthController::class, 'createImmunization'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('immunizations/{id}', [HealthController::class, 'updateImmunization'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('immunizations/{id}', [HealthController::class, 'deleteImmunization'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('emergencies/{studentId}', [HealthController::class, 'getEmergencies']);
+        Route::post('emergencies', [HealthController::class, 'createEmergency'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('emergencies/{id}', [HealthController::class, 'updateEmergency'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('emergencies/{id}', [HealthController::class, 'deleteEmergency'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('medications/{studentId}', [HealthController::class, 'getMedications']);
+        Route::post('medications', [HealthController::class, 'createMedication'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('medications/{id}', [HealthController::class, 'updateMedication'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('medications/{id}', [HealthController::class, 'deleteMedication'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('screenings/{studentId}', [HealthController::class, 'getScreenings']);
+        Route::post('screenings', [HealthController::class, 'createScreening'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('screenings/{id}', [HealthController::class, 'updateScreening'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('screenings/{id}', [HealthController::class, 'deleteScreening'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('incidents/{studentId}', [HealthController::class, 'getIncidents']);
+        Route::post('incidents', [HealthController::class, 'createIncident'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('incidents/{id}', [HealthController::class, 'updateIncident'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('incidents/{id}', [HealthController::class, 'deleteIncident'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        Route::get('alerts/{studentId}', [HealthController::class, 'getAlerts']);
+        Route::post('alerts', [HealthController::class, 'createAlert'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::put('alerts/{id}', [HealthController::class, 'updateAlert'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::post('alerts/{id}/deactivate', [HealthController::class, 'deactivateAlert'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        Route::delete('alerts/{id}', [HealthController::class, 'deleteAlert'])->middleware(['role:Super Admin|Kepala Sekolah']);
     });
 });
 

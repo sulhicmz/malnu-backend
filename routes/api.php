@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\Transportation\TransportationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -84,8 +85,41 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
-        });
     });
+});
+
+// Transportation Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+    Route::prefix('transportation')->group(function () {
+        // Route Management
+        Route::post('routes', [TransportationController::class, 'createRoute']);
+        Route::put('routes/{id}', [TransportationController::class, 'updateRoute']);
+        Route::delete('routes/{id}', [TransportationController::class, 'deleteRoute']);
+
+        // Registration Management
+        Route::post('registrations', [TransportationController::class, 'createRegistration']);
+        Route::put('registrations/{id}', [TransportationController::class, 'updateRegistration']);
+
+        // Vehicle Management
+        Route::post('vehicles', [TransportationController::class, 'createVehicle']);
+        Route::put('vehicles/{id}', [TransportationController::class, 'updateVehicle']);
+
+        // Driver Management
+        Route::post('drivers', [TransportationController::class, 'createDriver']);
+        Route::put('drivers/{id}', [TransportationController::class, 'updateDriver']);
+
+        // Student Assignment
+        Route::post('assign-student', [TransportationController::class, 'assignStudent']);
+
+        // Fee Management
+        Route::post('fees', [TransportationController::class, 'createFee']);
+        Route::put('fees/{id}', [TransportationController::class, 'updateFee']);
+
+        // Incident Reporting
+        Route::post('incidents', [TransportationController::class, 'createIncident']);
+        Route::put('incidents/{id}', [TransportationController::class, 'updateIncident']);
+    });
+});
 });
 
 // Calendar and Event Management Routes (protected with role check)

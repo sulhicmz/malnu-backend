@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\Library\LibraryController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +131,33 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Library Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru|Student']], function () {
+    Route::prefix('library')->group(function () {
+        // Book Catalog Routes
+        Route::get('books/search', [LibraryController::class, 'search']);
+        Route::get('books/{id}', [LibraryController::class, 'getBook']);
+        
+        // Circulation Routes
+        Route::post('books/checkout', [LibraryController::class, 'checkout']);
+        Route::post('loans/{id}/return', [LibraryController::class, 'returnBook']);
+        Route::post('loans/{id}/renew', [LibraryController::class, 'renew']);
+        
+        // Hold Management Routes
+        Route::post('holds/place', [LibraryController::class, 'placeHold']);
+        Route::post('holds/{id}/cancel', [LibraryController::class, 'cancelHold']);
+        Route::post('books/{bookId}/holds/process', [LibraryController::class, 'processHolds']);
+        
+        // Library Card Routes
+        Route::post('cards/create', [LibraryController::class, 'createLibraryCard']);
+        
+        // Reading History Routes
+        Route::get('history', [LibraryController::class, 'getReadingHistory']);
+        
+        // Statistics Routes
+        Route::get('statistics', [LibraryController::class, 'getStatistics']);
     });
 });

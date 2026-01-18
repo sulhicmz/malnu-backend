@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Attendance;
 
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveBalance;

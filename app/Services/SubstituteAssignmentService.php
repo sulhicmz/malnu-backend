@@ -115,9 +115,7 @@ class SubstituteAssignmentService
     {
         $assignments = SubstituteAssignment::with([
             'substituteTeacher' => function ($q) {
-                $q->with('teacher' => function ($q) {
-                    $q->with('user');
-                });
+                $q->with(['teacher.user']);
             },
             'leaveRequest',
             'classSubject'

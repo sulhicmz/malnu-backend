@@ -87,7 +87,8 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Analysis Documents
 - **[Analysis Report](ANALYSIS_REPORT.md)** - Comprehensive analysis of system architecture and implementation
-- **[Orchestrator Analysis Report v6](ORCHESTRATOR_ANALYSIS_REPORT_v6.md)** - **Latest analysis - current status (Jan 18, 2026)** ⭐
+- **[Orchestrator Analysis Report v7](ORCHESTRATOR_ANALYSIS_REPORT_v7.md)** - **Latest analysis - current status (Jan 19, 2026)** ⭐
+- **[Orchestrator Analysis Report v6](ORCHESTRATOR_ANALYSIS_REPORT_v6.md)** - Archived - superseded by v7 (Jan 18, 2026)
 - **[Orchestrator Analysis Report v5](ORCHESTRATOR_ANALYSIS_REPORT_v5.md)** - Archived - superseded by v6 (Jan 17, 2026)
 - **[Orchestrator Analysis Report v4](archive/ORCHESTRATOR_ANALYSIS_REPORT_v4.md)** - Archived - superseded by v5 (Jan 13, 2026)
 - **[Orchestrator Analysis Report v3](ORCHESTRATOR_ANALYSIS_REPORT_v3.md)** - Archived - superseded by v4 (Jan 11, 2026)
@@ -95,10 +96,11 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **[Orchestrator Analysis Report v1](ORCHESTRATOR_ANALYSIS_REPORT.md)** - Archived - superseded by v2 (Jan 9, 2026)
 - **[Complex Issue Breakdown](COMPLEX_ISSUE_BREAKDOWN.md)** - Analysis of complex technical issues and solutions
 - **[Duplicate Issues Analysis](DUPLICATE_ISSUES_ANALYSIS.md)** - Identification and consolidation plan for duplicate issues
-- **[Duplicate Issues Consolidation Plan](DUPLICATE_ISSUES_CONSOLIDATION_PLAN.md)** - **New - Detailed plan for closing duplicate issues (Jan 18, 2026)**
+- **[Duplicate Issues Consolidation Plan](DUPLICATE_ISSUES_CONSOLIDATION_PLAN.md)** - Detailed plan for closing duplicate issues (Jan 18, 2026)
+- **[New Issues Summary](ORCHESTRATOR_NEW_ISSUES_SUMMARY.md)** - Summary of 7 new issues created by orchestrator (Jan 19, 2026) ⭐
 - **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP_GUIDE.md)** - GitHub Projects structure and configuration guide
-- **[GitHub Projects Setup Guide v2](GITHUB_PROJECTS_SETUP_GUIDE_v2.md)** - **New - Comprehensive setup guide for 7 GitHub Projects (Jan 18, 2026)**
-- **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - **New - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)**
+- **[GitHub Projects Setup Guide v2](GITHUB_PROJECTS_SETUP_GUIDE_v2.md)** - Comprehensive setup guide for 7 GitHub Projects (Jan 18, 2026)
+- **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)
 
 ### Security
 - **[Security Analysis](SECURITY_ANALYSIS.md)** - Security assessment, vulnerabilities, and best practices

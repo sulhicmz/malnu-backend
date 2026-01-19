@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\ImportController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -30,6 +32,23 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+});
+
+// Import and Export Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('import')->group(function () {
+        Route::post('students', [ImportController::class, 'importStudents']);
+        Route::post('teachers', [ImportController::class, 'importTeachers']);
+        Route::post('classes', [ImportController::class, 'importClasses']);
+        Route::post('students/validate', [ImportController::class, 'validateStudentImport']);
+    });
+
+    Route::prefix('export')->group(function () {
+        Route::get('students', [ExportController::class, 'exportStudents']);
+        Route::get('teachers', [ExportController::class, 'exportTeachers']);
+        Route::get('classes', [ExportController::class, 'exportClasses']);
+        Route::get('download/{filename}', [ExportController::class, 'downloadFile']);
+    });
 });
 
 // Attendance and Leave Management Routes (protected with role check)

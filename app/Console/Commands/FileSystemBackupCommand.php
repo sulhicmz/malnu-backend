@@ -8,6 +8,7 @@ use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class FileSystemBackupCommand extends Command
 {
@@ -70,13 +71,31 @@ class FileSystemBackupCommand extends Command
     {
         $includePaths = array_map('trim', explode(',', $include));
         $excludePaths = array_map('trim', explode(',', $exclude));
-        
-        $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $filename) . ' ';
-        
-        // Add exclude patterns
+
+        $arguments = ['-czf', $backupPath . '/' . $filename];
+
         foreach ($excludePaths as $excludePath) {
-            $tarCommand .= '--exclude=' . escapeshellarg($excludePath) . ' ';
+            $arguments[] = '--exclude=' . $excludePath;
         }
+
+        foreach ($includePaths as $includePath) {
+            $fullPath = base_path('/') . $includePath;
+            if (is_dir($fullPath) || file_exists($fullPath)) {
+                $arguments[] = $includePath;
+            }
+        }
+
+        $this->output->write('Creating file system backup... ');
+
+        $result = ProcessHelper::execute('tar', $arguments);
+
+        if ($result['successful']) {
+            $this->output->writeln('<info>OK</info>');
+            return true;
+        }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
+    }
         
         // Add include paths
         foreach ($includePaths as $includePath) {

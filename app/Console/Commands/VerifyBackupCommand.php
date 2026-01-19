@@ -215,11 +215,9 @@ class VerifyBackupCommand extends Command
             'details' => []
         ];
 
-        $md5 = md5_file($backupFile);
         $sha256 = hash_file('sha256', $backupFile);
         $size = filesize($backupFile);
 
-        $result['details']['md5'] = $md5;
         $result['details']['sha256'] = $sha256;
         $result['details']['size_bytes'] = $size;
         $result['details']['size_human'] = $this->formatBytes($size);
@@ -235,7 +233,7 @@ class VerifyBackupCommand extends Command
             }
         } else {
             $result['message'] = 'Checksums calculated (no stored checksums to compare)';
-            $this->saveChecksums($backupFile, $md5, $sha256);
+            $this->saveChecksums($backupFile, $sha256);
         }
 
         return $result;
@@ -288,12 +286,11 @@ class VerifyBackupCommand extends Command
         rmdir($dir);
     }
 
-    protected function saveChecksums(string $backupFile, string $md5, string $sha256): void
+    protected function saveChecksums(string $backupFile, string $sha256): void
     {
         $checksumFile = $backupFile . '.checksum';
         $data = [
             'backup_file' => basename($backupFile),
-            'md5' => $md5,
             'sha256' => $sha256,
             'timestamp' => date('Y-m-d H:i:s')
         ];

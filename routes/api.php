@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\FinancialManagement\FeeTypeController;
 use App\Http\Controllers\Api\FinancialManagement\FeeStructureController;
 use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
 use App\Http\Controllers\Api\FinancialManagement\PaymentController;
+use App\Http\Controllers\BehavioralTrackingController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -98,6 +99,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
+        });
     });
 });
 
@@ -158,6 +160,33 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'mobile']], function () {
     });
 });
 
+// Behavioral Tracking Routes (protected with role check and privacy controls)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru|Wali Murid']], function () {
+    Route::prefix('behavioral')->group(function () {
+        // Incident Management - Teachers and Admin can log
+        Route::post('incidents', [BehavioralTrackingController::class, 'logIncident'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('incidents', [BehavioralTrackingController::class, 'getIncidents']);
+        Route::post('incidents/{id}/resolve', [BehavioralTrackingController::class, 'resolveIncident'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Assessment Management - Counselors can create
+        Route::post('assessments', [BehavioralTrackingController::class, 'createAssessment'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::get('assessments', [BehavioralTrackingController::class, 'getAssessments']);
+
+        // Session Management - Counselors can manage
+        Route::post('sessions', [BehavioralTrackingController::class, 'scheduleSession'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::get('sessions', [BehavioralTrackingController::class, 'getSessions']);
+
+        // Intervention Management - Teachers, Counselors, and Admin can manage
+        Route::post('interventions', [BehavioralTrackingController::class, 'recordIntervention'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('interventions', [BehavioralTrackingController::class, 'getInterventions']);
+
+        // Analytics - All roles can view trends
+        Route::get('trends', [BehavioralTrackingController::class, 'getTrends']);
+        Route::get('at-risk', [BehavioralTrackingController::class, 'getAtRiskStudents']);
+
+        // Student History - Students can view own, Parents can view children, Counselors/Admin can view all
+        Route::get('student/{studentId}/history', [BehavioralTrackingController::class, 'getStudentHistory']);
+    });
 });
 
 // Calendar and Event Management Routes (protected with role check)

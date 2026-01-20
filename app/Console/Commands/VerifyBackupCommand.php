@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
+use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputOption;
 
 class VerifyBackupCommand extends Command
@@ -34,7 +36,7 @@ class VerifyBackupCommand extends Command
         $detailed = $this->input->getOption('detailed');
         $outputFormat = $this->input->getOption('output') ?: 'text';
 
-        if (!file_exists($backupFile)) {
+        if (! file_exists($backupFile)) {
             $this->output->writeln('<error>Backup file does not exist: ' . $backupFile . '</error>');
             return 1;
         }
@@ -46,7 +48,7 @@ class VerifyBackupCommand extends Command
             'backup_file' => $backupFile,
             'verification_type' => $type,
             'timestamp' => date('Y-m-d H:i:s'),
-            'checks' => []
+            'checks' => [],
         ];
 
         $allPassed = true;
@@ -54,7 +56,7 @@ class VerifyBackupCommand extends Command
         if ($type === 'all' || $type === 'database') {
             $check = $this->verifyDatabaseBackup($backupFile, $detailed);
             $results['checks']['database'] = $check;
-            if (!$check['passed']) {
+            if (! $check['passed']) {
                 $allPassed = false;
             }
         }
@@ -62,7 +64,7 @@ class VerifyBackupCommand extends Command
         if ($type === 'all' || $type === 'filesystem') {
             $check = $this->verifyFileSystemBackup($backupFile, $detailed);
             $results['checks']['filesystem'] = $check;
-            if (!$check['passed']) {
+            if (! $check['passed']) {
                 $allPassed = false;
             }
         }
@@ -70,7 +72,7 @@ class VerifyBackupCommand extends Command
         if ($type === 'all' || $type === 'config') {
             $check = $this->verifyConfigBackup($backupFile, $detailed);
             $results['checks']['config'] = $check;
-            if (!$check['passed']) {
+            if (! $check['passed']) {
                 $allPassed = false;
             }
         }
@@ -78,7 +80,7 @@ class VerifyBackupCommand extends Command
         if ($checksum || $type === 'checksum') {
             $check = $this->verifyChecksums($backupFile);
             $results['checks']['checksum'] = $check;
-            if (!$check['passed']) {
+            if (! $check['passed']) {
                 $allPassed = false;
             }
         }
@@ -100,7 +102,7 @@ class VerifyBackupCommand extends Command
             'check' => 'database_integrity',
             'passed' => false,
             'message' => '',
-            'details' => []
+            'details' => [],
         ];
 
         $tempDir = $this->extractBackup($backupFile);
@@ -122,7 +124,7 @@ class VerifyBackupCommand extends Command
             'check' => 'filesystem_integrity',
             'passed' => false,
             'message' => '',
-            'details' => []
+            'details' => [],
         ];
 
         $tempDir = $this->extractBackup($backupFile);
@@ -149,7 +151,7 @@ class VerifyBackupCommand extends Command
         }
 
         $missingDirs = array_filter($requiredDirs, function ($dir) use ($tempDir) {
-            return !is_dir($tempDir . '/' . $dir);
+            return ! is_dir($tempDir . '/' . $dir);
         });
 
         $this->cleanup($tempDir);
@@ -170,7 +172,7 @@ class VerifyBackupCommand extends Command
             'check' => 'configuration_integrity',
             'passed' => false,
             'message' => '',
-            'details' => []
+            'details' => [],
         ];
 
         $tempDir = $this->extractBackup($backupFile);
@@ -191,7 +193,7 @@ class VerifyBackupCommand extends Command
         }
 
         $missingFiles = array_filter($requiredFiles, function ($file) use ($tempDir) {
-            return !file_exists($tempDir . '/' . $file);
+            return ! file_exists($tempDir . '/' . $file);
         });
 
         $this->cleanup($tempDir);
@@ -212,7 +214,7 @@ class VerifyBackupCommand extends Command
             'check' => 'checksum_verification',
             'passed' => true,
             'message' => '',
-            'details' => []
+            'details' => [],
         ];
 
         $sha256 = hash_file('sha256', $backupFile);
@@ -242,7 +244,7 @@ class VerifyBackupCommand extends Command
     protected function extractBackup(string $backupFile)
     {
         $tempDir = sys_get_temp_dir() . '/backup_verify_' . uniqid();
-        if (!mkdir($tempDir, 0755, true)) {
+        if (! mkdir($tempDir, 0755, true)) {
             return false;
         }
 
@@ -265,13 +267,13 @@ class VerifyBackupCommand extends Command
 
     protected function cleanup(string $dir): void
     {
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             return;
         }
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
         );
 
         foreach ($files as $fileinfo) {
@@ -292,7 +294,7 @@ class VerifyBackupCommand extends Command
         $data = [
             'backup_file' => basename($backupFile),
             'sha256' => $sha256,
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => date('Y-m-d H:i:s'),
         ];
 
         file_put_contents($checksumFile, json_encode($data, JSON_PRETTY_PRINT));

@@ -8,7 +8,12 @@ use App\Console\Commands\VerifyBackupCommand;
 use Hyperf\Contract\ConfigInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class VerifyBackupCommandTest extends TestCase
 {
     private ContainerInterface $container;
@@ -29,7 +34,7 @@ class VerifyBackupCommandTest extends TestCase
 
         $command = new VerifyBackupCommand($this->container);
 
-        $reflection = new \ReflectionClass($command);
+        $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('verifyChecksums');
         $method->setAccessible(true);
 
@@ -54,7 +59,7 @@ class VerifyBackupCommandTest extends TestCase
 
         $command = new VerifyBackupCommand($this->container);
 
-        $reflection = new \ReflectionClass($command);
+        $reflection = new ReflectionClass($command);
         $method = $reflection->getMethod('saveChecksums');
         $method->setAccessible(true);
 
@@ -81,7 +86,7 @@ class VerifyBackupCommandTest extends TestCase
 
         $command = new VerifyBackupCommand($this->container);
 
-        $reflection = new \ReflectionClass($command);
+        $reflection = new ReflectionClass($command);
         $saveMethod = $reflection->getMethod('saveChecksums');
         $saveMethod->setAccessible(true);
 
@@ -107,7 +112,7 @@ class VerifyBackupCommandTest extends TestCase
 
         $command = new VerifyBackupCommand($this->container);
 
-        $reflection = new \ReflectionClass($command);
+        $reflection = new ReflectionClass($command);
         $saveMethod = $reflection->getMethod('saveChecksums');
         $saveMethod->setAccessible(true);
 

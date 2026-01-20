@@ -10,6 +10,7 @@ use App\Models\Notification\NotificationRecipient;
 use App\Models\Notification\NotificationDeliveryLog;
 use App\Models\Notification\NotificationUserPreference;
 use App\Models\User;
+use App\Services\EmailService;
 use Hyperf\Di\Annotation\Inject;
 
 class NotificationService
@@ -28,6 +29,9 @@ class NotificationService
 
     #[Inject]
     private NotificationUserPreference $notificationUserPreferenceModel;
+
+    #[Inject]
+    private EmailService $emailService;
 
     private array $commonPasswords = [
         'password', '123456', 'qwerty', 'abc123', 'password123',
@@ -227,6 +231,28 @@ class NotificationService
 
     private function sendEmail(Notification $notification, string $userId): void
     {
+        $user = User::find($userId);
+        if (!$user) {
+            throw new \Exception('User not found');
+        }
+
+        $template = $notification->template;
+        if ($template) {
+            $subject = $template->subject ?? $notification->title;
+            $body = $template->body ?? $notification->message;
+        } else {
+            $subject = $notification->title;
+            $body = $notification->message;
+        }
+
+        $htmlContent = $this->emailService->renderTemplate($body, [
+            'subject' => $subject,
+            'content' => nl2br($body),
+        ]);
+
+        $plainText = strip_tags($body);
+
+        $this->emailService->sendNotificationEmail($user->email, $subject, $htmlContent, $plainText);
     }
 
     private function sendSMS(Notification $notification, string $userId): void

@@ -68,7 +68,7 @@ class EmailService
     private function getPasswordResetTemplate(string $resetLink): string
     {
         $appName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
-
+ 
         return "<!DOCTYPE html>
 <html>
 <head>
@@ -105,5 +105,87 @@ class EmailService
     </div>
 </body>
 </html>";
+    }
+
+    public function sendNotificationEmail(string $to, string $subject, string $htmlBody, ?string $plainText = null): bool
+    {
+        try {
+            $message = (new Swift_Message($subject))
+                ->setFrom([$this->fromAddress => $this->fromName])
+                ->setTo([$to])
+                ->setBody($htmlBody, 'text/html');
+
+            if ($plainText) {
+                $message->addPart($plainText, 'text/plain');
+            }
+
+            $result = $this->mailer->send($message);
+
+            \Hyperf\Support\make(\Psr\Log\LoggerInterface::class)->info('Notification email sent', [
+                'to' => $to,
+                'subject' => $subject,
+                'result' => $result,
+            ]);
+
+            return $result > 0;
+        } catch (\Exception $e) {
+            \Hyperf\Support\make(\Psr\Log\LoggerInterface::class)->error('Failed to send notification email', [
+                'to' => $to,
+                'subject' => $subject,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    private function getSchoolEmailTemplate(): string
+    {
+        $appName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
+
+        return "<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>{subject}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f9f9f9; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+        .footer { padding: 20px; text-align: center; color: #666; font-size: 12px; }
+        .info-box { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .success-box { background-color: #d4edda; padding: 15px; border-radius: 4px; margin: 15px 0; }
+        .warning-box { background-color: #fff3cd; padding: 15px; border-radius: 4px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>{$appName}</h1>
+        </div>
+        <div class='content'>
+            {content}
+        </div>
+        <div class='footer'>
+            <p>&copy; " . date('Y') . " {$appName}. All rights reserved.</p>
+            <p>This is an automated email. Please do not reply to this message.</p>
+        </div>
+    </div>
+</body>
+</html>";
+    }
+
+    public function renderTemplate(string $htmlTemplate, array $variables = []): string
+    {
+        $content = $htmlTemplate;
+
+        foreach ($variables as $key => $value) {
+            $content = str_replace('{' . $key . '}', $value, $content);
+        }
+
+        return $content;
     }
 }

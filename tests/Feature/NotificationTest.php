@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use Hyperf\DbConnection\Db;
 use App\Services\NotificationService;
+use App\Services\EmailService;
 use App\Models\Notification\Notification;
 use App\Models\Notification\NotificationTemplate;
 use App\Models\Notification\NotificationUserPreference;
@@ -273,5 +274,95 @@ class NotificationTest extends \Codeception\Test\Unit
         $result = $service->processTemplate($template, $variables);
 
         $this->assertEquals('Hello John, your A grade is 95.', $result);
+    }
+
+    public function testEmailServiceSendNotificationEmail()
+    {
+        $emailService = make(EmailService::class);
+
+        $result = $emailService->sendNotificationEmail(
+            'test@example.com',
+            'Test Subject',
+            '<h1>Test HTML Body</h1><p>Test content</p>',
+            'Test plain text body'
+        );
+
+        $this->assertTrue($result);
+    }
+
+    public function testEmailServiceRenderTemplate()
+    {
+        $emailService = make(EmailService::class);
+
+        $template = '<h1>{subject}</h1><div>{content}</div>';
+        $variables = [
+            'subject' => 'Test Subject',
+            'content' => 'Test Content',
+        ];
+
+        $result = $emailService->renderTemplate($template, $variables);
+
+        $this->assertEquals('<h1>Test Subject</h1><div>Test Content</div>', $result);
+    }
+
+    public function testNotificationServiceSendEmail()
+    {
+        $service = make(NotificationService::class);
+
+        $notification = $service->create([
+            'title' => 'Email Test',
+            'message' => 'This is a test email',
+            'type' => 'info',
+        ]);
+
+        $userId = 'test-user-email';
+
+        $this->expectNotToPerformAssertions();
+        $service->send($notification->id, [$userId]);
+    }
+
+    public function testNotificationSendWithTemplate()
+    {
+        $service = make(NotificationService::class);
+
+        $template = NotificationTemplate::create([
+            'name' => 'Email Test Template',
+            'type' => 'info',
+            'subject' => 'Template Subject',
+            'body' => 'Test template body for {name}',
+            'is_active' => true,
+        ]);
+
+        $notification = $service->create([
+            'title' => 'Template Email Test',
+            'message' => 'This is a template test',
+            'type' => 'info',
+            'template_id' => $template->id,
+        ]);
+
+        $userId = 'test-user-template';
+
+        $this->expectNotToPerformAssertions();
+        $service->send($notification->id, [$userId]);
+    }
+
+    public function testNotificationDeliveryStats()
+    {
+        $service = make(NotificationService::class);
+
+        $notification = $service->create([
+            'title' => 'Stats Test',
+            'message' => 'Testing delivery stats',
+            'type' => 'info',
+        ]);
+
+        $userId = 'test-user-stats';
+        $service->send($notification->id, [$userId]);
+
+        $stats = $service->getDeliveryStatistics($notification->id);
+
+        $this->assertArrayHasKey('total', $stats);
+        $this->assertArrayHasKey('in_app', $stats);
+        $this->assertEquals(1, $stats['total']);
     }
 }

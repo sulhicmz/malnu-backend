@@ -1,0 +1,100 @@
+services:
+  # Service for the Hyperf application
+  app:
+    # Use the official Hyperf image with a specific PHP and Swoole version
+    # Choose the image tag that matches your PHP version (e.g., 8.3) and desired Swoole version
+    # The alpine variant is generally smaller and recommended for production
+    image: hyperf/hyperf:8.3-alpine-v3.19-swoole-v6
+    # Use the hyperf/hyperf:8.3-alpine-v3.19-swoole-v6 image as suggested in the documentation.
+    # Ensure this matches your PHP version and Swoole requirements.
+
+    # Map the current directory (your Hyperf project root) to the project directory in the container
+    # This allows you to edit code on your host machine and have it reflected in the container
+    volumes:
+      - .:/data/project
+      # If you are on a system with SELinux enabled and encounter permission issues,
+      # you might need to add `:Z` or `:z` to the volume mount, e.g., `.:/data/project:Z`
+      # Or add the `--privileged -u root` flags as mentioned in the documentation,
+      # though using volumes with proper permissions is generally preferred.
+
+    # Expose the port Hyperf listens on (default is 9501)
+    ports:
+      - "9501:9501"
+      # Map host port 9501 to container port 9501
+
+    # Set the working directory inside the container
+    working_dir: /data/project
+
+    # Command to run when the container starts
+    # This starts the Hyperf development server with hot-reloading enabled
+    # For production, you might use `php artisan start` or a different command
+    command: sh -c "composer install && php artisan watch"
+    # `composer install` ensures dependencies are installed inside the container
+    # `php artisan watch` starts the server with hot-reload for development
+
+    # Environment variables (optional, can be read from .env file automatically by Hyperf)
+    # You can explicitly set variables here if needed, but relying on the .env file is standard.
+    # env_file:
+    #   - .env
+
+    # Link to the Redis service
+    depends_on:
+      - redis
+      - mysql
+      - postgres
+
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_change_in_production
+      MYSQL_DATABASE: malnu
+      MYSQL_USER: malnu_user
+      MYSQL_PASSWORD: malnu_password_change_in_production
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_change_in_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: malnu
+      POSTGRES_USER: malnu_user
+      POSTGRES_PASSWORD: malnu_password_change_in_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U malnu_user -d malnu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Service for caching, sessions, and queues
+  redis:
+    image: redis:7-alpine # Use Redis 7 Alpine image for better performance
+    ports:
+      - "6379:6379" # Map host port 6379 to container port 6379
+    volumes:
+      - redis_data:/data # Persist Redis data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  postgres_data:
+  redis_data:

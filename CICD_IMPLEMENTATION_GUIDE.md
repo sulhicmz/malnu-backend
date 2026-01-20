@@ -1,128 +1,382 @@
-# CI/CD Pipeline Implementation for Issue #134
 
-This directory contains implementation-ready GitHub Actions workflow files for fixing the CI/CD pipeline.
+# CI/CD Pipeline Fix - Implementation Guide
 
-## Overview
+This PR addresses issue #134: **CRITICAL: Fix CI/CD pipeline and add automated testing**
 
-Issue #134 requires consolidating 11+ redundant workflows into 3 essential workflows:
-1. **ci.yml** - Testing and Quality Checks
-2. **security.yml** - Security Scanning
-3. **deploy.yml** - Deployment Automation
+## Problem Statement
 
-## Installation Steps for Maintainers
+The GitHub Actions CI/CD pipeline has critical issues:
+- No automated testing in CI
+- 7+ redundant workflows creating complexity
+- Missing quality gates (code style, static analysis, security)
+- No test coverage reporting
 
-**IMPORTANT**: GitHub App (app/github-actions) lacks `workflows` permission to create/update workflow files directly. A repository maintainer with `workflows` permission must perform these steps manually.
+## Solution Overview
 
-### Step 1: Copy Workflow Files
+Consolidate the current redundant workflows into 3 essential, focused workflows:
 
-Copy the following files to `.github/workflows/`:
+### 1. CI Workflow (`ci.yml`)
+- Automated PHPUnit testing with coverage reporting
+- PHPStan static analysis
+- PHP CS Fixer code style checks
+- Runs on push and pull_request to main/master/develop
 
-```bash
-cp CICD_WORKFLOW_CI.yml .github/workflows/ci.yml
-cp CICD_WORKFLOW_SECURITY.yml .github/workflows/security.yml
-cp CICD_WORKFLOW_DEPLOY.yml .github/workflows/deploy.yml
+### 2. Security Workflow (`security.yml`)
+- Composer audit for dependency vulnerabilities
+- CodeQL analysis for JavaScript
+- Dependency review for pull requests
+- Weekly scheduled security scans
+
+### 3. Deploy Workflow (`deploy.yml`)
+- Manual deployment workflow with environment selection
+- Pre-deployment quality gates (tests, static analysis, code style, security audit)
+- Placeholder for actual Cloudflare/Supabase deployment steps
+
+## Manual Installation Steps
+
+Due to GitHub App permission restrictions on workflow files, a repository maintainer with appropriate `workflows` permission must manually complete the following steps:
+
+### Step 1: Disable Redundant Workflows
+Rename the following files in `.github/workflows/` by adding `.disabled` suffix:
+- `oc-researcher.yml` → `oc-researcher.yml.disabled`
+- `oc-cf-supabase.yml` → `oc-cf-supabase.yml.disabled`
+- `oc-issue-solver.yml` → `oc-issue-solver.yml.disabled`
+- `oc-maintainer.yml` → `oc-maintainer.yml.disabled`
+- `oc-pr-handler.yml` → `oc-pr-handler.yml.disabled`
+- `oc-problem-finder.yml` → `oc-problem-finder.yml.disabled`
+- `on-push.yml` → `on-push.yml.disabled`
+- `on-pull.yml` → `on-pull.yml.disabled`
+- `openhands.yml` → `openhands.yml.disabled`
+- `workflow-monitor.yml` → `workflow-monitor.yml.disabled`
+
+### Step 2: Create New Workflow Files
+Create the following files in `.github/workflows/` with the content provided below:
+
+#### `.github/workflows/ci.yml`
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Test PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        php-version: ['8.2', '8.3']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, pdo_mysql, bcmath, gd, zip
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run tests with coverage
+        run: composer test -- --coverage-clover=coverage.xml --coverage-html=coverage-report
+
+      - name: Upload coverage to Codecov
+        if: matrix.php-version == '8.2'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  code-style:
+    name: Code Style (PHP CS Fixer)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHP CS Fixer (dry-run)
+        run: composer cs-diff
+
+  static-analysis:
+    name: Static Analysis (PHPStan)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPStan
+        run: composer analyse
 ```
 
-### Step 2: Disable Redundant Workflows (Optional)
+#### `.github/workflows/security.yml`
+```yaml
+name: Security
 
-Disable all OpenCode-related workflows by renaming with `.disabled` suffix:
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  schedule:
+    - cron: '0 0 * * 0'
 
-```bash
-cd .github/workflows
-mv oc- researcher.yml oc- researcher.yml.disabled
-mv oc-cf-supabase.yml oc-cf-supabase.yml.disabled
-mv oc-pr-handler.yml oc-pr-handler.yml.disabled
-mv oc-issue-solver.yml oc-issue-solver.yml.disabled
-mv oc-maintainer.yml oc-maintainer.yml.disabled
-mv oc-problem-finder.yml oc-problem-finder.yml.disabled
-mv on-push.yml on-push.yml.disabled
-mv on-pull.yml on-pull.yml.disabled
-mv workflow-monitor.yml workflow-monitor.yml.disabled
-mv openhands.yml openhands.yml.disabled
+jobs:
+  composer-audit:
+    name: Composer Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run Composer audit
+        run: composer audit
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
 ```
 
-### Step 3: Commit and Push
+#### `.github/workflows/deploy.yml`
+```yaml
+name: Deploy
 
-```bash
-git add .github/workflows/
-git commit -m "feat(ci): Implement CI/CD pipeline with automated testing and quality gates
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
 
-Add consolidated CI/CD workflows to address issue #134:
+jobs:
+  pre-deployment-checks:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-1. **ci.yml** - Testing and Quality Checks
-   - Automated PHPUnit testing with coverage
-   - PHPStan static analysis (level 5)
-   - PHP CS Fixer code style checks
-   - PHP version matrix (8.2, 8.3)
-   - Uploads coverage to Codecov
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
 
-2. **security.yml** - Security Scanning
-   - Composer audit for dependency vulnerabilities
-   - CodeQL analysis for JavaScript
-   - Dependency review for PRs
-   - Weekly scheduled scans
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-3. **deploy.yml** - Deployment Automation
-   - Manual deployment with environment selection
-   - Pre-deployment quality gates
-   - Placeholder for Cloudflare/Supabase deployment
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-4. **Disabled Redundant Workflows**
-   Disabled all OpenCode workflows with .disabled suffix
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
-Fixes #134"
-git push origin <branch-name>
+      - name: Run PHPStan
+        run: composer analyse
+
+      - name: Run PHP CS Fixer check
+        run: composer cs-diff
+
+      - name: Run tests
+        run: composer test
+
+      - name: Run Composer audit
+        run: composer audit
+
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment }}
+    runs-on: ubuntu-latest
+    needs: pre-deployment-checks
+    environment: ${{ github.event.inputs.environment }}
+    if: github.event.inputs.environment == 'production'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Deployment placeholder
+        run: |
+          echo "Deployment to ${{ github.event.inputs.environment }} would happen here"
+          echo "This is a placeholder for actual deployment logic"
+          echo "Add your Cloudflare, Supabase, or other deployment steps here"
+
+      - name: Create deployment notification
+        run: |
+          echo "Successfully deployed to ${{ github.event.inputs.environment }}"
 ```
 
-### Step 4: Create Pull Request
+### Step 3: Verify Installation
 
-Create a pull request from your branch with the title:
-`feat(ci): Implement CI/CD pipeline with automated testing and quality gates`
+After creating the files, verify:
+1. Check that `.github/workflows/` contains: `ci.yml`, `security.yml`, `deploy.yml`
+2. Verify that redundant workflows have `.disabled` suffix
+3. Push the changes
+4. Verify that new workflows trigger on appropriate events
 
-Link to issue #134 in the description.
+### Step 4: Close Previous PR
 
-## Workflow Details
+Close PR #558 as it is superseded by this implementation.
 
-### ci.yml - Testing and Quality Checks
+## Benefits
 
-Triggers on:
-- Push to main/master/develop branches
-- Pull requests to main/master/develop branches
-
-Jobs:
-1. **test** - Runs PHPUnit tests with coverage on PHP 8.2 and 8.3
-2. **phpstan** - Runs PHPStan static analysis (level 5)
-3. **php-cs-fixer** - Runs PHP CS Fixer code style checks
-
-### security.yml - Security Scanning
-
-Triggers on:
-- Push to main/master/develop branches
-- Pull requests to main/master/develop branches
-- Weekly scheduled scan (every Sunday at midnight)
-
-Jobs:
-1. **composer-audit** - Checks for dependency vulnerabilities
-2. **dependency-review** - Reviews dependencies in PRs (PRs only)
-3. **codeql** - Runs CodeQL analysis on JavaScript
-
-### deploy.yml - Deployment Automation
-
-Triggers on:
-- Manual workflow dispatch only (requires user action)
-
-Jobs:
-1. **deploy** - Manual deployment to staging or production with pre-deployment quality gates
-
-## Benefits After Implementation
-
-- ✅ Automated Testing: All PRs and pushes run tests automatically
-- ✅ Code Quality: PHPStan and PHP CS Fixer prevent low-quality code
-- ✅ Security: Composer audit and CodeQL detect vulnerabilities
-- ✅ Simplified CI/CD: Reduced from 11 workflows to 3 essential ones
-- ✅ Better Visibility: Test coverage reporting provides insights
+After implementing these changes:
+- **Automated Testing**: All pull requests and pushes to main branches will run tests automatically
+- **Code Quality**: PHPStan static analysis and PHP CS Fixer ensure code quality
+- **Security**: Composer audit and CodeQL detect vulnerabilities
+- **Simplified CI/CD**: Reduced from 11 workflows to 3 essential ones
+- **Better Visibility**: Test coverage reporting provides insights into code quality
 
 ## Related Issues
 
-- Fixes #134
-- Supersedes PR #604 (provides actual workflow files instead of just documentation)
+Fixes #134

@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\AnalyticsController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +131,16 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Analytics Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('analytics')->group(function () {
+        Route::get('/dashboard', [AnalyticsController::class, 'dashboard']);
+        Route::get('/students/{id}/performance', [AnalyticsController::class, 'studentPerformance']);
+        Route::get('/classes/{id}/metrics', [AnalyticsController::class, 'classMetrics']);
+        Route::post('/reports/generate', [AnalyticsController::class, 'generateReport']);
+        Route::post('/metrics', [AnalyticsController::class, 'recordMetric']);
     });
 });

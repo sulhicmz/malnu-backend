@@ -25,7 +25,7 @@ class RoleMiddleware
             return $this->unauthorizedResponse('Authorization token required');
         }
 
-        $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
+        $token = substr($authHeader, 7);
 
         $user = $this->authService->getUserFromToken($token);
 
@@ -33,24 +33,32 @@ class RoleMiddleware
             return $this->unauthorizedResponse('Invalid or expired token');
         }
 
-        // Check if user has the required role
-        // In a real implementation, this would check the user's roles against the database
-        $hasRole = $this->userHasRole($user, $role);
-        
+        $userId = $user['id'] ?? null;
+        if (!$userId) {
+            return $this->unauthorizedResponse('Invalid user data');
+        }
+
+        $hasRole = $this->userHasRole($userId, $role);
+
         if (!$hasRole) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
         return $next($request);
     }
-    
-    private function userHasRole($user, $requiredRole)
+
+    private function userHasRole(string $userId, string $requiredRole): bool
     {
-        // Support multiple roles using pipe separator (e.g., 'Super Admin|Kepala Sekolah')
+        $user = User::find($userId);
+
+        if (!$user) {
+            return false;
+        }
+
         $requiredRoles = explode('|', $requiredRole);
         return $user->hasAnyRole($requiredRoles);
     }
-    
+
     private function unauthorizedResponse($message)
     {
         $response = new \Hyperf\HttpMessage\Server\Response();
@@ -64,7 +72,7 @@ class RoleMiddleware
                 'timestamp' => date('c')
             ])));
     }
-    
+
     private function forbiddenResponse($message)
     {
         $response = new \Hyperf\HttpMessage\Server\Response();

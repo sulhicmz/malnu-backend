@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\HealthCheckController;
+use App\Http\Controllers\Api\MetricsController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -15,6 +17,15 @@ use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
 use Hyperf\Support\Facades\Route;
+
+// Health and Monitoring routes (public, no authentication)
+Route::group(['middleware' => ['rate.limit']], function () {
+    Route::get('/health', [HealthCheckController::class, 'index']);
+    Route::get('/health/database', [HealthCheckController::class, 'database']);
+    Route::get('/health/redis', [HealthCheckController::class, 'redis']);
+    Route::get('/health/system', [HealthCheckController::class, 'system']);
+    Route::get('/metrics', [MetricsController::class, 'index']);
+});
 
 // Public routes (no authentication required)
 Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {

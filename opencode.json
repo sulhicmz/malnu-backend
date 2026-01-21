@@ -1,0 +1,261 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "opencode",
+  "model": "iflowcn/glm-4.6",
+  "small_model": "iflowcn/qwen3-coder",
+  "autoupdate": true,
+  "instructions": [
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md"
+  ],
+  "tools": {
+    "write": true,
+    "edit": true,
+    "bash": true,
+    "read": true,
+    "glob": true,
+    "grep": true,
+    "list": true,
+    "webfetch": true
+  },
+  "permission": {
+    "bash": {
+      "composer *": "allow",
+      "php artisan *": "allow",
+      "git status": "allow",
+      "git log": "allow",
+      "git diff": "allow",
+      "git add": "allow",
+      "git commit": "allow",
+      "git push": "allow",
+      "npm install": "allow",
+      "yarn install": "allow",
+      "pip install": "allow",
+      "gh *": "allow",
+      "*": "allow"
+    },
+    "edit": "allow",
+    "write": "allow",
+    "webfetch": "allow"
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "iflowcn/glm-4.6",
+      "description": "Full development agent for HyperVel/Laravel projects",
+      "temperature": 0.3,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": {
+          "composer *": "allow",
+          "php artisan *": "allow",
+          "git status": "allow",
+          "git log": "allow",
+          "git diff": "allow",
+          "git add": "allow",
+          "git commit": "allow",
+          "git push": "allow",
+          "*": "allow"
+        }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "iflowcn/glm-4.6",
+      "description": "Planning and analysis agent for code review and architecture",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny"
+      }
+    },
+    "php-specialist": {
+      "mode": "subagent",
+      "model": "iflowcn/glm-4.6",
+      "description": "PHP/HyperVel specialist for complex PHP tasks and optimization",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": {
+          "composer *": "allow",
+          "php artisan *": "allow",
+          "phpstan": "allow",
+          "php-cs-fixer": "allow",
+          "*": "allow"
+        }
+      }
+    },
+    "database-specialist": {
+      "mode": "subagent",
+      "model": "iflowcn/glm-4.6",
+      "description": "Database specialist for migrations, queries, and optimization",
+      "temperature": 0.1,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": {
+          "php artisan migrate*": "allow",
+          "php artisan db:*": "allow",
+          "composer test": "allow",
+          "*": "allow"
+        }
+      }
+    },
+    "testing-specialist": {
+      "mode": "subagent",
+      "model": "iflowcn/glm-4.6",
+      "description": "Testing specialist for PHPUnit and feature tests",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": {
+          "composer test": "allow",
+          "php artisan test": "allow",
+          "phpunit": "allow",
+          "*": "allow"
+        }
+      }
+    },
+    "security-auditor": {
+      "mode": "subagent",
+      "model": "iflowcn/glm-4.6",
+      "description": "Security specialist for vulnerability assessment and security best practices",
+      "temperature": 0.1,
+      "tools": {
+        "write": false,
+        "edit": false,
+        "bash": false,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": "deny",
+        "edit": "deny",
+        "write": "deny"
+      }
+    },
+    "performance-optimizer": {
+      "mode": "subagent",
+      "model": "iflowcn/glm-4.6",
+      "description": "Performance optimization specialist for HyperVel/Swoole applications",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true
+      },
+      "permission": {
+        "bash": {
+          "composer analyse": "allow",
+          "php artisan start": "allow",
+          "composer test": "allow",
+          "*": "allow"
+        }
+      }
+    }
+  },
+  "command": {
+    "test": {
+      "template": "Run the full test suite with PHPUnit and show any failures. Focus on the failing tests and suggest fixes.",
+      "description": "Run tests with coverage",
+      "agent": "testing-specialist"
+    },
+    "analyse": {
+      "template": "Run PHPStan static analysis and fix any issues found. Provide suggestions for improving code quality.",
+      "description": "Run static analysis",
+      "agent": "php-specialist"
+    },
+    "migrate": {
+      "template": "Run database migrations and check for any issues. Also run seeders if needed.",
+      "description": "Run database migrations",
+      "agent": "database-specialist"
+    },
+    "cs-fix": {
+      "template": "Run PHP CS Fixer to fix code style issues and ensure PSR-12 compliance.",
+      "description": "Fix code style",
+      "agent": "php-specialist"
+    },
+    "security-check": {
+      "template": "Perform a security audit of the codebase. Check for common vulnerabilities, authentication issues, and security best practices.",
+      "description": "Security audit",
+      "agent": "security-auditor"
+    },
+    "performance-check": {
+      "template": "Analyze the application for performance bottlenecks. Check database queries, coroutine usage, and Swoole optimizations.",
+      "description": "Performance analysis",
+      "agent": "performance-optimizer"
+    },
+    "api-endpoint": {
+      "template": "Create a new API endpoint with proper validation, error handling, and documentation. Include unit tests.",
+      "description": "Create API endpoint",
+      "agent": "php-specialist"
+    },
+    "model": {
+      "template": "Create a new Eloquent model with proper relationships, fillable fields, and factory. Include migration.",
+      "description": "Create model with migration",
+      "agent": "database-specialist"
+    }
+  },
+  "formatter": {
+    "php": {
+      "command": ["composer", "cs-fix", "$FILE"],
+      "extensions": [".php"]
+    }
+  },
+  "share": "manual"
+}

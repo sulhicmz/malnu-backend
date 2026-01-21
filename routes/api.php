@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\LMSController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +131,33 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Learning Management System Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('lms')->group(function () {
+        // Course Management Routes
+        Route::post('courses', [LMSController::class, 'createCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('courses', [LMSController::class, 'getCourses']);
+        Route::get('courses/{id}', [LMSController::class, 'getCourse']);
+        Route::put('courses/{id}', [LMSController::class, 'updateCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Learning Path Management Routes
+        Route::post('learning-paths', [LMSController::class, 'createLearningPath'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('learning-paths', [LMSController::class, 'getLearningPaths']);
+        Route::get('learning-paths/{id}', [LMSController::class, 'getLearningPath']);
+
+        // Enrollment Management Routes
+        Route::post('courses/{courseId}/enroll', [LMSController::class, 'enrollStudent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('enrollments', [LMSController::class, 'getEnrollments']);
+
+        // Progress Tracking Routes
+        Route::get('courses/{courseId}/progress', [LMSController::class, 'getCourseProgress']);
+        Route::put('progress/{enrollmentId}', [LMSController::class, 'updateProgress']);
+        Route::post('progress/{enrollmentId}/complete', [LMSController::class, 'completeCourse']);
+
+        // Certificate Management Routes
+        Route::get('certificates', [LMSController::class, 'getCertificates']);
     });
 });

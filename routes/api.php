@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\LMS\LmsController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -130,5 +131,32 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Learning Management System Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('lms')->group(function () {
+        // Course Management Routes - Write operations require specific roles
+        Route::get('courses', [LmsController::class, 'index']);
+        Route::post('courses', [LmsController::class, 'store'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('courses/{id}', [LmsController::class, 'show']);
+        Route::put('courses/{id}', [LmsController::class, 'update'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('courses/{id}/publish', [LmsController::class, 'publish'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('courses/{id}/archive', [LmsController::class, 'archive'])->middleware(['role:Super Admin|Kepala Sekolah']);
+        
+        // Course Enrollment Routes
+        Route::post('enroll', [LmsController::class, 'enroll']);
+        Route::post('enrollments/{id}/activate', [LmsController::class, 'activateEnrollment'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('enrollments/{id}/drop', [LmsController::class, 'dropEnrollment']);
+        Route::post('enrollments/{id}/complete', [LmsController::class, 'completeCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('students/{studentId}/enrollments', [LmsController::class, 'studentEnrollments']);
+        
+        // Learning Progress Routes
+        Route::post('enrollments/{id}/progress', [LmsController::class, 'recordProgress']);
+        Route::get('enrollments/{id}/progress', [LmsController::class, 'studentProgress']);
+        
+        // Analytics Routes - Require admin or teacher roles
+        Route::get('courses/{id}/analytics', [LmsController::class, 'courseAnalytics'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
     });
 });

@@ -39,6 +39,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Monitoring Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for application monitoring and error tracking
+    |
+    */
+
+    'monitoring' => [
+        'enabled' => env('MONITORING_ENABLED', true),
+        'slow_request_threshold_ms' => env('MONITORING_SLOW_REQUEST_THRESHOLD_MS', 1000),
+        'error_retention_days' => env('MONITORING_ERROR_RETENTION_DAYS', 7),
+        'alert_enabled' => env('MONITORING_ALERT_ENABLED', false),
+        'alert_email' => env('MONITORING_ALERT_EMAIL'),
+        'alert_webhook_url' => env('MONITORING_ALERT_WEBHOOK_URL'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Deprecations Log Channel
     |--------------------------------------------------------------------------
     |

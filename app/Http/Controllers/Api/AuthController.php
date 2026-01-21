@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
  
 use App\Contracts\AuthServiceInterface;
-use App\Traits\InputValidationTrait;
+use App\Http\Requests\Auth\ChangePasswordRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RequestPasswordResetRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 
 /**
  * @OA\Info(
@@ -89,37 +93,10 @@ class AuthController extends BaseController
      *     )
      * )
      */
-    public function register()
+    public function register(RegisterRequest $request)
     {
         try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['name', 'email', 'password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
-            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-            
-            if (isset($data['name']) && !$this->validateStringLength($data['name'], 3)) {
-                $errors['name'] = ['The name must be at least 3 characters.'];
-            }
-
-            if (isset($data['password'])) {
-                $passwordErrors = $this->validatePasswordComplexity($data['password']);
-                if (!empty($passwordErrors)) {
-                    $errors['password'] = $passwordErrors;
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             // Register user
             $result = $this->authService->register($data);
@@ -168,26 +145,10 @@ class AuthController extends BaseController
      *     )
      * )
      */
-    public function login()
+    public function login(LoginRequest $request)
     {
         try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['email', 'password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
-            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             // Authenticate user
             $result = $this->authService->login($data['email'], $data['password']);
@@ -384,28 +345,13 @@ class AuthController extends BaseController
      *     )
      * )
      */
-    public function requestPasswordReset()
+    public function requestPasswordReset(RequestPasswordResetRequest $request)
     {
         try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $errors = $this->validateRequired($data, ['email']);
-            
-            // Additional validation
-            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             $result = $this->authService->requestPasswordReset($data['email']);
-            
+
             return $this->successResponse($result, $result['message']);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -456,32 +402,13 @@ class AuthController extends BaseController
      *     )
      * )
      */
-    public function resetPassword()
+    public function resetPassword(ResetPasswordRequest $request)
     {
         try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['token', 'password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-
-            // Password complexity validation
-            if (isset($data['password'])) {
-                $passwordErrors = $this->validatePasswordComplexity($data['password']);
-                if (!empty($passwordErrors)) {
-                    $errors['password'] = $passwordErrors;
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             $result = $this->authService->resetPassword($data['token'], $data['password']);
-            
+
             return $this->successResponse($result, $result['message']);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());
@@ -533,45 +460,26 @@ class AuthController extends BaseController
      *     )
      * )
      */
-    public function changePassword()
+    public function changePassword(ChangePasswordRequest $request)
     {
         try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['current_password', 'new_password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-
-            // Password complexity validation
-            if (isset($data['new_password'])) {
-                $passwordErrors = $this->validatePasswordComplexity($data['new_password']);
-                if (!empty($passwordErrors)) {
-                    $errors['new_password'] = $passwordErrors;
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
+            $data = $request->validated();
 
             // Get user from token
             $authHeader = $this->request->getHeaderLine('Authorization');
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 return $this->unauthorizedResponse('Token not provided');
             }
-            
+
             $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
             $user = $this->authService->getUserFromToken($token);
-            
+
             if (!$user) {
                 return $this->unauthorizedResponse('User not authenticated');
             }
 
             $result = $this->authService->changePassword($user['id'], $data['current_password'], $data['new_password']);
-            
+
             return $this->successResponse($result, $result['message']);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage());

@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class VerifyBackupCommand extends Command
 {
@@ -248,16 +249,9 @@ class VerifyBackupCommand extends Command
             return false;
         }
 
-        $command = sprintf(
-            'tar -xzf %s -C %s',
-            escapeshellarg($backupFile),
-            escapeshellarg($tempDir)
-        );
+        $result = ProcessHelper::execute('tar', ['-xzf', $backupFile, '-C', $tempDir]);
 
-        $exitCode = 0;
-        exec($command, $output, $exitCode);
-
-        if ($exitCode !== 0) {
+        if (!$result['successful']) {
             $this->cleanup($tempDir);
             return false;
         }

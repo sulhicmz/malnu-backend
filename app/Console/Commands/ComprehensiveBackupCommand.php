@@ -9,6 +9,7 @@ use Hyperf\Contract\ConfigInterface;
 use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class ComprehensiveBackupCommand extends Command
 {
@@ -84,15 +85,12 @@ class ComprehensiveBackupCommand extends Command
 
         // Create main backup archive
         $finalFilename = "full_backup_{$timestamp}.tar.gz";
-        $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $finalFilename) . ' -C ' . escapeshellarg($mainBackupDir) . ' .';
 
         $this->output->write('Creating main backup archive... ');
 
-        $exitCode = 0;
-        $output = [];
-        exec($tarCommand, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', ['-czf', $backupPath . '/' . $finalFilename, '-C', $mainBackupDir]);
 
-        if ($exitCode === 0) {
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
 
             // Clean up temporary directory
@@ -104,6 +102,16 @@ class ComprehensiveBackupCommand extends Command
             if ($cleanOld) {
                 $this->cleanOldBackups($backupPath);
             }
+
+            return 0;
+        }
+        $this->output->writeln('<error>FAILED to create main backup archive</error>');
+
+        // Clean up temporary directory
+        $this->removeDirectory($mainBackupDir);
+
+        return 1;
+    }
 
             return 0;
         }
@@ -157,23 +165,24 @@ class ComprehensiveBackupCommand extends Command
         $username = $config['username'];
         $password = $config['password'];
 
-        $command = sprintf(
-            'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers %s > %s',
-            escapeshellarg($host),
-            escapeshellarg((string) $port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($database),
-            escapeshellarg("{$backupDir}/{$filename}")
-        );
+        $arguments = [
+            '--host=' . $host,
+            '--port=' . (string) $port,
+            '--user=' . $username,
+            '--password=' . $password,
+            '--single-transaction',
+            '--routines',
+            '--triggers',
+            $database,
+            '>',
+            "{$backupDir}/{$filename}"
+        ];
 
         $this->output->write('Executing mysqldump... ');
 
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
+        $result = ProcessHelper::execute('mysqldump', $arguments);
 
-        if ($exitCode === 0) {
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
             return true;
         }
@@ -210,28 +219,26 @@ class ComprehensiveBackupCommand extends Command
         $includePaths = ['app', 'config', 'database', 'resources', 'tests'];
         $excludePaths = ['node_modules', 'vendor', '.git', '.idea', '.vscode', 'storage/logs', 'storage/framework/cache'];
 
-        $tarCommand = 'tar -czf ' . escapeshellarg($fsBackupDir . '/filesystem_backup.tar.gz') . ' ';
+        $arguments = ['-czf', $fsBackupDir . '/filesystem_backup.tar.gz'];
 
         // Add exclude patterns
         foreach ($excludePaths as $excludePath) {
-            $tarCommand .= '--exclude=' . escapeshellarg($excludePath) . ' ';
+            $arguments[] = '--exclude=' . $excludePath;
         }
 
         // Add include paths
         foreach ($includePaths as $includePath) {
             $fullPath = base_path('/') . $includePath;
             if (is_dir($fullPath) || file_exists($fullPath)) {
-                $tarCommand .= escapeshellarg($includePath) . ' ';
+                $arguments[] = $includePath;
             }
         }
 
         $this->output->write('Creating file system backup... ');
 
-        $exitCode = 0;
-        $output = [];
-        exec($tarCommand, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', $arguments);
 
-        if ($exitCode === 0) {
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
             return true;
         }

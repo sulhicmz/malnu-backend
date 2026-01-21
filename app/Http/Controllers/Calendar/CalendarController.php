@@ -280,4 +280,324 @@ class CalendarController extends AbstractController
             return $this->errorResponse($e->getMessage(), null, null, 400);
         }
     }
+
+    /**
+     * Create a new academic term
+     * @PostMapping(path="academic-terms")
+     */
+    public function createAcademicTerm(): ResponseInterface
+    {
+        $data = $this->request->all();
+
+        if (empty($data['name']) || empty($data['academic_year']) || empty($data['start_date']) || empty($data['end_date'])) {
+            return $this->errorResponse('Name, academic year, start date, and end date are required', null, null, 400);
+        }
+
+        try {
+            $term = $this->calendarService->createAcademicTerm($data);
+            return $this->successResponse($term, 'Academic term created successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to create academic term: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get academic term by ID
+     * @GetMapping(path="academic-terms/{id}")
+     */
+    public function getAcademicTerm(string $id): ResponseInterface
+    {
+        try {
+            $term = $this->calendarService->getAcademicTerm($id);
+
+            if (!$term) {
+                return $this->notFoundResponse('Academic term not found');
+            }
+
+            return $this->successResponse($term);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve academic term: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get all academic terms
+     * @GetMapping(path="academic-terms")
+     */
+    public function getAllAcademicTerms(): ResponseInterface
+    {
+        try {
+            $terms = $this->calendarService->getAllAcademicTerms();
+            return $this->successResponse($terms);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve academic terms: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get current academic term
+     * @GetMapping(path="academic-terms/current")
+     */
+    public function getCurrentAcademicTerm(): ResponseInterface
+    {
+        try {
+            $term = $this->calendarService->getCurrentAcademicTerm();
+
+            if (!$term) {
+                return $this->notFoundResponse('No current academic term found');
+            }
+
+            return $this->successResponse($term);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve current academic term: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update academic term
+     * @PutMapping(path="academic-terms/{id}")
+     */
+    public function updateAcademicTerm(string $id): ResponseInterface
+    {
+        $data = $this->request->all();
+
+        try {
+            $result = $this->calendarService->updateAcademicTerm($id, $data);
+
+            if (!$result) {
+                return $this->notFoundResponse('Academic term not found');
+            }
+
+            $term = $this->calendarService->getAcademicTerm($id);
+            return $this->successResponse($term, 'Academic term updated successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to update academic term: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete academic term
+     * @DeleteMapping(path="academic-terms/{id}")
+     */
+    public function deleteAcademicTerm(string $id): ResponseInterface
+    {
+        try {
+            $result = $this->calendarService->deleteAcademicTerm($id);
+
+            if (!$result) {
+                return $this->notFoundResponse('Academic term not found');
+            }
+
+            return $this->successResponse(null, 'Academic term deleted successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to delete academic term: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create a new holiday
+     * @PostMapping(path="holidays")
+     */
+    public function createHoliday(): ResponseInterface
+    {
+        $data = $this->request->all();
+
+        if (empty($data['name']) || empty($data['start_date']) || empty($data['end_date'])) {
+            return $this->errorResponse('Name, start date, and end date are required', null, null, 400);
+        }
+
+        try {
+            $holiday = $this->calendarService->createHoliday($data);
+            return $this->successResponse($holiday, 'Holiday created successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to create holiday: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get holiday by ID
+     * @GetMapping(path="holidays/{id}")
+     */
+    public function getHoliday(string $id): ResponseInterface
+    {
+        try {
+            $holiday = $this->calendarService->getHoliday($id);
+
+            if (!$holiday) {
+                return $this->notFoundResponse('Holiday not found');
+            }
+
+            return $this->successResponse($holiday);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve holiday: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get holidays by date range
+     * @GetMapping(path="holidays")
+     */
+    public function getHolidays(): ResponseInterface
+    {
+        $startDate = $this->request->query('start_date');
+        $endDate = $this->request->query('end_date');
+        $type = $this->request->query('type');
+        $schoolWide = $this->request->query('school_wide');
+
+        if (empty($startDate) || empty($endDate)) {
+            return $this->errorResponse('Start date and end date are required', null, null, 400);
+        }
+
+        try {
+            $startDateObj = new \DateTime($startDate);
+            $endDateObj = new \DateTime($endDate);
+
+            $filters = [];
+            if ($type) $filters['type'] = $type;
+            if ($schoolWide !== null) $filters['school_wide'] = filter_var($schoolWide, FILTER_VALIDATE_BOOLEAN);
+
+            $holidays = $this->calendarService->getHolidaysByDateRange($startDateObj, $endDateObj, $filters);
+            return $this->successResponse($holidays);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve holidays: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get upcoming holidays
+     * @GetMapping(path="holidays/upcoming")
+     */
+    public function getUpcomingHolidays(): ResponseInterface
+    {
+        $days = $this->request->query('days', 90);
+
+        try {
+            $holidays = $this->calendarService->getUpcomingHolidays((int) $days);
+            return $this->successResponse($holidays);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve upcoming holidays: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update holiday
+     * @PutMapping(path="holidays/{id}")
+     */
+    public function updateHoliday(string $id): ResponseInterface
+    {
+        $data = $this->request->all();
+
+        try {
+            $result = $this->calendarService->updateHoliday($id, $data);
+
+            if (!$result) {
+                return $this->notFoundResponse('Holiday not found');
+            }
+
+            $holiday = $this->calendarService->getHoliday($id);
+            return $this->successResponse($holiday, 'Holiday updated successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to update holiday: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete holiday
+     * @DeleteMapping(path="holidays/{id}")
+     */
+    public function deleteHoliday(string $id): ResponseInterface
+    {
+        try {
+            $result = $this->calendarService->deleteHoliday($id);
+
+            if (!$result) {
+                return $this->notFoundResponse('Holiday not found');
+            }
+
+            return $this->successResponse(null, 'Holiday deleted successfully');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to delete holiday: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check in to event
+     * @PostMapping(path="events/{eventId}/checkin")
+     */
+    public function checkInEvent(string $eventId): ResponseInterface
+    {
+        $userId = $this->request->getAttribute('user_id');
+
+        try {
+            $attendance = $this->calendarService->checkInEvent($eventId, $userId);
+            return $this->successResponse($attendance, 'Checked in to event successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), null, null, 400);
+        }
+    }
+
+    /**
+     * Check out from event
+     * @PostMapping(path="events/{eventId}/checkout")
+     */
+    public function checkOutEvent(string $eventId): ResponseInterface
+    {
+        $userId = $this->request->getAttribute('user_id');
+
+        try {
+            $this->calendarService->checkOutEvent($eventId, $userId);
+            return $this->successResponse(null, 'Checked out from event successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), null, null, 400);
+        }
+    }
+
+    /**
+     * Mark event attendance
+     * @PostMapping(path="events/{eventId}/attendance")
+     */
+    public function markEventAttendance(string $eventId): ResponseInterface
+    {
+        $userId = $this->request->getAttribute('user_id');
+        $data = $this->request->all();
+
+        if (empty($data['status'])) {
+            return $this->errorResponse('Status is required', null, null, 400);
+        }
+
+        try {
+            $attendance = $this->calendarService->markEventAttendance($eventId, $userId, $data['status'], $data);
+            return $this->successResponse($attendance, 'Attendance marked successfully');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), null, null, 400);
+        }
+    }
+
+    /**
+     * Get event attendance
+     * @GetMapping(path="events/{eventId}/attendance")
+     */
+    public function getEventAttendance(string $eventId): ResponseInterface
+    {
+        try {
+            $attendance = $this->calendarService->getEventAttendance($eventId);
+            return $this->successResponse($attendance);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve event attendance: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get event attendance statistics
+     * @GetMapping(path="events/{eventId}/attendance-stats")
+     */
+    public function getEventAttendanceStats(string $eventId): ResponseInterface
+    {
+        try {
+            $stats = $this->calendarService->getEventAttendanceStats($eventId);
+            return $this->successResponse($stats);
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Failed to retrieve attendance statistics: ' . $e->getMessage());
+        }
+    }
 }

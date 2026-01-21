@@ -24,6 +24,18 @@ class InventoryController extends BaseController
         parent::__construct($request, $response, $container);
     }
 
+    protected function generateQrCode(string $assetInfo): string
+    {
+        $baseUrl = env('APP_URL', 'http://localhost:9501');
+        $assetData = base64_encode(json_encode([
+            'type' => 'asset',
+            'code' => $assetInfo,
+            'timestamp' => now()->toIso8601String(),
+        ]));
+        
+        return "{$baseUrl}/inventory/qr/{$assetData}";
+    }
+
     public function index()
     {
         try {
@@ -86,6 +98,8 @@ class InventoryController extends BaseController
 
             $data['status'] = $data['status'] ?? 'available';
 
+            $data['qr_code'] = $this->generateQrCode($data['asset_code'] ?? $data['name']);
+            
             $item = SchoolInventory::create($data);
 
             return $this->successResponse($item, 'Inventory item created successfully', 201);
@@ -312,6 +326,122 @@ class InventoryController extends BaseController
             $records = $item->maintenanceRecords()->orderBy('maintenance_date', 'desc')->get();
 
             return $this->successResponse($records, 'Maintenance records retrieved successfully');
+        } catch (Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
+
+    public function getValuation()
+    {
+        try {
+            $query = SchoolInventory::query();
+
+            $totalValue = $query->sum('purchase_cost');
+            $totalItems = $query->count();
+
+            $byCategory = $query->with('category')
+                ->get()
+                ->groupBy('category_id')
+                ->mapWithKeys(function ($item) {
+                    return [
+                        'category' => $item->category->name ?? 'Uncategorized',
+                        'total_value' => $item->sum('purchase_cost'),
+                        'item_count' => $item->count(),
+                    ];
+                });
+
+            return $this->successResponse([
+                'total_value' => $totalValue,
+                'total_items' => $totalItems,
+                'by_category' => $byCategory,
+            ], 'Asset valuation report generated successfully');
+        } catch (Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
+
+    public function getDepreciation()
+    {
+        try {
+            $items = SchoolInventory::with('category')->get();
+
+            $depreciationData = $items->map(function ($item) {
+                $purchaseCost = $item->purchase_cost ?? 0;
+                $purchaseDate = $item->purchase_date;
+
+                $yearsSincePurchase = $purchaseDate ? now()->diffInYears($purchaseDate) : 0;
+                $annualDepreciationRate = 0.1;
+                $accumulatedDepreciation = $yearsSincePurchase > 0 ? $purchaseCost * $annualDepreciationRate * $yearsSincePurchase : 0;
+                $currentValue = max(0, $purchaseCost - $accumulatedDepreciation);
+
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'category' => $item->category->name ?? 'Uncategorized',
+                    'purchase_cost' => $purchaseCost,
+                    'purchase_date' => $purchaseDate,
+                    'years_since_purchase' => $yearsSincePurchase,
+                    'depreciation_rate' => $annualDepreciationRate,
+                    'accumulated_depreciation' => $accumulatedDepreciation,
+                    'current_value' => $currentValue,
+                ];
+            });
+
+            $totalCurrentValue = $depreciationData->sum('current_value');
+            $totalDepreciation = $depreciationData->sum('accumulated_depreciation');
+
+            return $this->successResponse([
+                'depreciation_data' => $depreciationData,
+                'summary' => [
+                    'total_current_value' => $totalCurrentValue,
+                    'total_depreciation' => $totalDepreciation,
+                ],
+            ], 'Depreciation report generated successfully');
+        } catch (Exception $e) {
+            return $this->serverErrorResponse($e->getMessage());
+        }
+    }
+
+    public function getUsageStatistics()
+    {
+        try {
+            $query = SchoolInventory::query();
+
+            $byStatus = $query->get()
+                ->groupBy('status')
+                ->mapWithKeys(function ($group) {
+                    return [
+                        'status' => $group->first()->status ?? 'unknown',
+                        'count' => $group->count(),
+                    ];
+                });
+
+            $byCategory = $query->with('category')
+                ->get()
+                ->groupBy('category_id')
+                ->mapWithKeys(function ($group) {
+                    return [
+                        'category' => $group->first()->category->name ?? 'Uncategorized',
+                        'count' => $group->count(),
+                        'total_value' => $group->sum('purchase_cost'),
+                    ];
+                });
+
+            $assignedItems = $query->where('status', 'assigned')->count();
+            $availableItems = $query->where('status', 'available')->count();
+            $maintenanceItems = $query->where('status', 'maintenance')->count();
+            $totalItems = $query->count();
+
+            return $this->successResponse([
+                'by_status' => $byStatus,
+                'by_category' => $byCategory,
+                'summary' => [
+                    'total_items' => $totalItems,
+                    'assigned_items' => $assignedItems,
+                    'available_items' => $availableItems,
+                    'maintenance_items' => $maintenanceItems,
+                ],
+            ], 'Usage statistics retrieved successfully');
         } catch (Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
         }

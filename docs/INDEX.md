@@ -87,7 +87,8 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Analysis Documents
 - **[Analysis Report](ANALYSIS_REPORT.md)** - Comprehensive analysis of system architecture and implementation
-- **[Orchestrator Analysis Report v7](ORCHESTRATOR_ANALYSIS_REPORT_v7.md)** - **Latest analysis - current status (Jan 19, 2026)** ⭐
+- **[Orchestrator Analysis Report v8](ORCHESTRATOR_ANALYSIS_REPORT_v8.md)** - **Latest analysis - current status (Jan 21, 2026)** ⭐
+- **[Orchestrator Analysis Report v7](ORCHESTRATOR_ANALYSIS_REPORT_v7.md)** - Archived - superseded by v8 (Jan 19, 2026)
 - **[Orchestrator Analysis Report v6](ORCHESTRATOR_ANALYSIS_REPORT_v6.md)** - Archived - superseded by v7 (Jan 18, 2026)
 - **[Orchestrator Analysis Report v5](ORCHESTRATOR_ANALYSIS_REPORT_v5.md)** - Archived - superseded by v6 (Jan 17, 2026)
 - **[Orchestrator Analysis Report v4](archive/ORCHESTRATOR_ANALYSIS_REPORT_v4.md)** - Archived - superseded by v5 (Jan 13, 2026)
@@ -97,7 +98,8 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **[Complex Issue Breakdown](COMPLEX_ISSUE_BREAKDOWN.md)** - Analysis of complex technical issues and solutions
 - **[Duplicate Issues Analysis](DUPLICATE_ISSUES_ANALYSIS.md)** - Identification and consolidation plan for duplicate issues
 - **[Duplicate Issues Consolidation Plan](DUPLICATE_ISSUES_CONSOLIDATION_PLAN.md)** - Detailed plan for closing duplicate issues (Jan 18, 2026)
-- **[New Issues Summary](ORCHESTRATOR_NEW_ISSUES_SUMMARY.md)** - Summary of 7 new issues created by orchestrator (Jan 19, 2026) ⭐
+- **[New Issues Summary](ORCHESTRATOR_NEW_ISSUES_SUMMARY.md)** - Summary of 7 new issues created by orchestrator (Jan 19, 2026)
+- **[PR Consolidation Action Plan](PR_CONSOLIDATION_ACTION_PLAN.md)** - **NEW: Action plan for consolidating 20+ duplicate PRs (Jan 21, 2026)** ⭐
 - **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP_GUIDE.md)** - GitHub Projects structure and configuration guide
 - **[GitHub Projects Setup Guide v2](GITHUB_PROJECTS_SETUP_GUIDE_v2.md)** - Comprehensive setup guide for 7 GitHub Projects (Jan 18, 2026)
 - **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)
@@ -142,5 +144,5 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ---
 
-**Last Updated**: January 17, 2026
+**Last Updated**: January 21, 2026
 **Maintained By**: Malnu Backend Development Team

@@ -8,6 +8,9 @@ use App\Models\Calendar\Calendar;
 use App\Models\Calendar\CalendarEvent;
 use App\Models\Calendar\CalendarEventRegistration;
 use App\Models\Calendar\CalendarShare;
+use App\Models\Calendar\AcademicTerm;
+use App\Models\Calendar\Holiday;
+use App\Models\Calendar\EventAttendance;
 use App\Models\Calendar\ResourceBooking;
 use App\Models\User;
 use Carbon\Carbon;
@@ -302,5 +305,264 @@ class CalendarService
         $endDate = Carbon::now()->addDays($days);
 
         return $this->getEventsForUser($userId, $startDate, $endDate);
+    }
+
+    /**
+     * Create a new academic term
+     */
+    public function createAcademicTerm(array $data): AcademicTerm
+    {
+        if ($data['is_current'] ?? false) {
+            AcademicTerm::where('is_current', true)->update(['is_current' => false]);
+        }
+
+        return AcademicTerm::create($data);
+    }
+
+    /**
+     * Get academic term by ID
+     */
+    public function getAcademicTerm(string $id): ?AcademicTerm
+    {
+        return AcademicTerm::find($id);
+    }
+
+    /**
+     * Update academic term
+     */
+    public function updateAcademicTerm(string $id, array $data): bool
+    {
+        $term = AcademicTerm::find($id);
+        if (!$term) {
+            return false;
+        }
+
+        if (($data['is_current'] ?? $term->is_current) && !$term->is_current) {
+            AcademicTerm::where('is_current', true)->where('id', '!=', $id)->update(['is_current' => false]);
+        }
+
+        return $term->update($data);
+    }
+
+    /**
+     * Delete academic term
+     */
+    public function deleteAcademicTerm(string $id): bool
+    {
+        $term = AcademicTerm::find($id);
+        if (!$term) {
+            return false;
+        }
+
+        return $term->delete();
+    }
+
+    /**
+     * Get current academic term
+     */
+    public function getCurrentAcademicTerm(): ?AcademicTerm
+    {
+        return AcademicTerm::current()->first();
+    }
+
+    /**
+     * Get all academic terms
+     */
+    public function getAllAcademicTerms(): array
+    {
+        return AcademicTerm::orderBy('academic_year', 'desc')
+            ->orderBy('term_number', 'desc')
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Create a new holiday
+     */
+    public function createHoliday(array $data): Holiday
+    {
+        return Holiday::create($data);
+    }
+
+    /**
+     * Get holiday by ID
+     */
+    public function getHoliday(string $id): ?Holiday
+    {
+        return Holiday::find($id);
+    }
+
+    /**
+     * Update holiday
+     */
+    public function updateHoliday(string $id, array $data): bool
+    {
+        $holiday = Holiday::find($id);
+        if (!$holiday) {
+            return false;
+        }
+
+        return $holiday->update($data);
+    }
+
+    /**
+     * Delete holiday
+     */
+    public function deleteHoliday(string $id): bool
+    {
+        $holiday = Holiday::find($id);
+        if (!$holiday) {
+            return false;
+        }
+
+        return $holiday->delete();
+    }
+
+    /**
+     * Get holidays by date range
+     */
+    public function getHolidaysByDateRange(Carbon $startDate, Carbon $endDate, array $filters = []): array
+    {
+        $query = Holiday::where(function ($q) use ($startDate, $endDate) {
+            $q->whereBetween('start_date', [$startDate, $endDate])
+              ->orWhereBetween('end_date', [$startDate, $endDate])
+              ->orWhere(function ($q) use ($startDate, $endDate) {
+                  $q->where('start_date', '<=', $startDate)
+                    ->where('end_date', '>=', $endDate);
+              });
+        });
+
+        if (!empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        if (!empty($filters['school_wide'])) {
+            $query->where('is_school_wide', $filters['school_wide']);
+        }
+
+        return $query->orderBy('start_date', 'asc')->get()->toArray();
+    }
+
+    /**
+     * Get upcoming holidays
+     */
+    public function getUpcomingHolidays(int $days = 90): array
+    {
+        $startDate = Carbon::now();
+        $endDate = Carbon::now()->addDays($days);
+
+        return Holiday::upcoming()->where('end_date', '>=', $startDate)->orderBy('start_date', 'asc')->get()->toArray();
+    }
+
+    /**
+     * Check event attendance
+     */
+    public function checkInEvent(string $eventId, string $userId): EventAttendance
+    {
+        $event = CalendarEvent::find($eventId);
+        if (!$event) {
+            throw new Exception('Event not found');
+        }
+
+        $attendance = EventAttendance::where('event_id', $eventId)->where('user_id', $userId)->first();
+
+        if ($attendance) {
+            $attendance->update([
+                'check_in_time' => Carbon::now(),
+                'status' => 'present',
+            ]);
+            return $attendance;
+        }
+
+        return EventAttendance::create([
+            'event_id' => $eventId,
+            'user_id' => $userId,
+            'check_in_time' => Carbon::now(),
+            'status' => 'present',
+        ]);
+    }
+
+    /**
+     * Check out from event
+     */
+    public function checkOutEvent(string $eventId, string $userId): bool
+    {
+        $attendance = EventAttendance::where('event_id', $eventId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$attendance) {
+            throw new Exception('Attendance record not found');
+        }
+
+        return $attendance->update([
+            'check_out_time' => Carbon::now(),
+        ]);
+    }
+
+    /**
+     * Mark event attendance
+     */
+    public function markEventAttendance(string $eventId, string $userId, string $status, array $data = []): EventAttendance
+    {
+        $event = CalendarEvent::find($eventId);
+        if (!$event) {
+            throw new Exception('Event not found');
+        }
+
+        $attendance = EventAttendance::where('event_id', $eventId)
+            ->where('user_id', $userId)
+            ->first();
+
+        $attendanceData = array_merge([
+            'event_id' => $eventId,
+            'user_id' => $userId,
+            'status' => $status,
+        ], $data);
+
+        if ($attendance) {
+            $attendance->update($attendanceData);
+            return $attendance;
+        }
+
+        return EventAttendance::create($attendanceData);
+    }
+
+    /**
+     * Get event attendance
+     */
+    public function getEventAttendance(string $eventId): array
+    {
+        return EventAttendance::byEvent($eventId)
+            ->with(['user'])
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Get user's event attendance
+     */
+    public function getUserEventAttendance(string $userId): array
+    {
+        return EventAttendance::byUser($userId)
+            ->with(['event'])
+            ->orderBy('check_in_time', 'desc')
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Get attendance statistics for an event
+     */
+    public function getEventAttendanceStats(string $eventId): array
+    {
+        $attendances = EventAttendance::byEvent($eventId)->get();
+
+        return [
+            'total' => $attendances->count(),
+            'present' => $attendances->where('status', 'present')->count(),
+            'absent' => $attendances->where('status', 'absent')->count(),
+            'late' => $attendances->where('status', 'late')->count(),
+        ];
     }
 }

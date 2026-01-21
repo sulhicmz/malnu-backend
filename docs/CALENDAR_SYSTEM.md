@@ -7,11 +7,14 @@ The Calendar and Event Management System provides comprehensive scheduling, even
 
 ### Core Features
 - **Calendar Management**: Create and manage multiple calendars (academic, staff, student, etc.)
+- **Academic Term Management**: Manage academic terms, semesters, and enrollment periods
+- **Holiday Management**: Track school holidays, breaks, and special dates
 - **Event Creation**: Schedule one-time and recurring events with detailed information
 - **Resource Booking**: Book rooms, equipment, and facilities with conflict detection
 - **Multi-calendar Support**: Separate calendars for different departments and roles
 - **Calendar Sharing**: Share calendars with specific permissions (view, edit, admin)
 - **Event Registration**: Allow users to register for events with capacity limits
+- **Event Attendance Tracking**: Check-in/check-out and attendance marking for events
 - **Conflict Detection**: Automatic detection of scheduling conflicts
 - **Event Reminders**: Integration with notification system for automated reminders
 
@@ -72,14 +75,49 @@ The Calendar and Event Management System provides comprehensive scheduling, even
 ### Resource Bookings Table
 - `id`: UUID primary key
 - `resource_type`: Type of resource (room, equipment, facility)
-- `resource_id`: ID of the actual resource
+- `resource_id`: ID of actual resource
 - `event_id`: Foreign key to calendar_events table (nullable)
-- `booked_by`: User who made the booking
+- `booked_by`: User who made booking
 - `start_time`: Booking start time
 - `end_time`: Booking end time
-- `purpose`: Purpose of the booking
+- `purpose`: Purpose of booking
 - `status`: Booking status (pending, confirmed, cancelled, completed)
 - `booking_data`: Additional booking information in JSON
+
+### Academic Terms Table
+- `id`: UUID primary key
+- `name`: Term name
+- `academic_year`: Academic year
+- `term_number`: Term number (1, 2, 3, etc.)
+- `start_date`: Term start date
+- `end_date`: Term end date
+- `is_current`: Whether this is the current active term
+- `is_enrollment_open`: Whether enrollment is open for this term
+- `notes`: Additional term information
+- `created_by`: User who created the term
+- `updated_by`: User who last updated the term
+
+### Holidays Table
+- `id`: UUID primary key
+- `academic_term_id`: Foreign key to academic_terms table (nullable)
+- `name`: Holiday name
+- `start_date`: Holiday start date
+- `end_date`: Holiday end date
+- `type`: Holiday type (public, staff, school, etc.)
+- `is_school_wide`: Whether holiday applies to entire school
+- `description`: Holiday description
+- `created_by`: User who created the holiday
+- `updated_by`: User who last updated the holiday
+
+### Event Attendance Table
+- `id`: UUID primary key
+- `event_id`: Foreign key to calendar_events table
+- `user_id`: Foreign key to users table
+- `check_in_time`: When user checked in to event
+- `check_out_time`: When user checked out from event
+- `status`: Attendance status (present, absent, late, not_attended)
+- `notes`: Additional attendance notes
+- `additional_data`: Additional attendance data in JSON
 
 ## API Endpoints
 
@@ -104,6 +142,29 @@ The Calendar and Event Management System provides comprehensive scheduling, even
 
 ### Resource Booking
 - `POST /api/calendar/resources/book` - Book a resource
+
+### Academic Term Management
+- `POST /api/calendar/academic-terms` - Create a new academic term
+- `GET /api/calendar/academic-terms` - Get all academic terms
+- `GET /api/calendar/academic-terms/current` - Get current active academic term
+- `GET /api/calendar/academic-terms/{id}` - Get academic term by ID
+- `PUT /api/calendar/academic-terms/{id}` - Update academic term
+- `DELETE /api/calendar/academic-terms/{id}` - Delete academic term
+
+### Holiday Management
+- `POST /api/calendar/holidays` - Create a new holiday
+- `GET /api/calendar/holidays` - Get holidays by date range
+- `GET /api/calendar/holidays/upcoming` - Get upcoming holidays
+- `GET /api/calendar/holidays/{id}` - Get holiday by ID
+- `PUT /api/calendar/holidays/{id}` - Update holiday
+- `DELETE /api/calendar/holidays/{id}` - Delete holiday
+
+### Event Attendance
+- `POST /api/calendar/events/{eventId}/checkin` - Check in to event
+- `POST /api/calendar/events/{eventId}/checkout` - Check out from event
+- `POST /api/calendar/events/{eventId}/attendance` - Mark event attendance
+- `GET /api/calendar/events/{eventId}/attendance` - Get event attendance records
+- `GET /api/calendar/events/{eventId}/attendance-stats` - Get attendance statistics
 
 ## Usage Examples
 

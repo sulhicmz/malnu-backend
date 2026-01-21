@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\AuthenticationException;
+use App\Exceptions\BusinessLogicException;
+use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -15,6 +19,7 @@ use Throwable;
 class ApiErrorHandlingMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected ResponseInterface $response;
 
     public function __construct(ContainerInterface $container)
@@ -27,6 +32,62 @@ class ApiErrorHandlingMiddleware implements MiddlewareInterface
     {
         try {
             return $handler->handle($request);
+        } catch (AuthenticationException $e) {
+            error_log('Authentication Error: ' . $e->getMessage());
+
+            $errorResponse = [
+                'success' => false,
+                'error' => [
+                    'message' => $e->getMessage(),
+                    'code' => 'AUTHENTICATION_ERROR',
+                    'details' => null,
+                ],
+                'timestamp' => date('c'),
+            ];
+
+            return $this->response->json($errorResponse)->withStatus(401);
+        } catch (ValidationException $e) {
+            error_log('Validation Error: ' . $e->getMessage());
+
+            $errorResponse = [
+                'success' => false,
+                'error' => [
+                    'message' => $e->getMessage(),
+                    'code' => 'VALIDATION_ERROR',
+                    'details' => null,
+                ],
+                'timestamp' => date('c'),
+            ];
+
+            return $this->response->json($errorResponse)->withStatus(422);
+        } catch (NotFoundException $e) {
+            error_log('Not Found Error: ' . $e->getMessage());
+
+            $errorResponse = [
+                'success' => false,
+                'error' => [
+                    'message' => $e->getMessage(),
+                    'code' => 'NOT_FOUND',
+                    'details' => null,
+                ],
+                'timestamp' => date('c'),
+            ];
+
+            return $this->response->json($errorResponse)->withStatus(404);
+        } catch (BusinessLogicException $e) {
+            error_log('Business Logic Error: ' . $e->getMessage());
+
+            $errorResponse = [
+                'success' => false,
+                'error' => [
+                    'message' => $e->getMessage(),
+                    'code' => 'BUSINESS_LOGIC_ERROR',
+                    'details' => null,
+                ],
+                'timestamp' => date('c'),
+            ];
+
+            return $this->response->json($errorResponse)->withStatus(400);
         } catch (Throwable $throwable) {
             error_log('API Error: ' . $throwable->getMessage());
 

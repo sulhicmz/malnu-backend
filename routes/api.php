@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Alumni\AlumniController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -84,8 +85,55 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
-        });
+     });
+});
+
+// Alumni Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('alumni')->group(function () {
+        // Alumni Profile Routes
+        Route::post('profiles', [AlumniController::class, 'createProfile'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('profiles/{id}', [AlumniController::class, 'getProfile']);
+        Route::put('profiles/{id}', [AlumniController::class, 'updateProfile'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::delete('profiles/{id}', [AlumniController::class, 'deleteProfile'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('directory', [AlumniController::class, 'getDirectory']);
+
+        // Career Routes
+        Route::post('profiles/{id}/careers', [AlumniController::class, 'addCareer']);
+        Route::put('careers/{id}', [AlumniController::class, 'updateCareer']);
+        Route::delete('careers/{id}', [AlumniController::class, 'deleteCareer']);
+
+        // Achievement Routes
+        Route::post('profiles/{id}/achievements', [AlumniController::class, 'addAchievement']);
+        Route::put('achievements/{id}', [AlumniController::class, 'updateAchievement']);
+        Route::delete('achievements/{id}', [AlumniController::class, 'deleteAchievement']);
+
+        // Mentorship Routes
+        Route::post('mentorships', [AlumniController::class, 'createMentorship']);
+        Route::put('mentorships/{id}', [AlumniController::class, 'updateMentorship']);
+        Route::get('profiles/{id}/mentorships', [AlumniController::class, 'getAlumniMentorships']);
+        Route::get('mentorships/student/{id}', [AlumniController::class, 'getStudentMentorships']);
+
+        // Donation Routes
+        Route::post('profiles/{id}/donations', [AlumniController::class, 'recordDonation']);
+        Route::get('profiles/{id}/donations', [AlumniController::class, 'getDonations']);
+
+        // Event Routes
+        Route::post('events', [AlumniController::class, 'createEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('events/{id}', [AlumniController::class, 'getEvent']);
+        Route::put('events/{id}', [AlumniController::class, 'updateEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::delete('events/{id}', [AlumniController::class, 'deleteEvent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('events/upcoming', [AlumniController::class, 'getUpcomingEvents']);
+
+        // Event Registration Routes
+        Route::post('events/{id}/register', [AlumniController::class, 'registerForEvent']);
+        Route::put('registrations/{id}', [AlumniController::class, 'updateRegistration']);
+        Route::post('registrations/{id}/cancel', [AlumniController::class, 'cancelRegistration']);
+
+        // Statistics Routes
+        Route::get('statistics', [AlumniController::class, 'getStatistics']);
     });
+});
 });
 
 // Calendar and Event Management Routes (protected with role check)

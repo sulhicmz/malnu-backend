@@ -20,3 +20,7 @@ Envoy.blade.php
 /.phpunit.cache
 .phpactor.json
 .phpunit.result.cache
+
+# Minified assets (should be built, not committed)
+*.min.css
+*.min.js

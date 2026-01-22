@@ -10,6 +10,10 @@ use Hyperf\Database\Model\SoftDeletes;
 
 class CalendarEvent extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     use SoftDeletes;
 
     protected $table = 'calendar_events';

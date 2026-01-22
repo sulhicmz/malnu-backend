@@ -6,6 +6,10 @@ namespace App\Models;
 
 class Medication extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     const STATUS_ACTIVE = 'active';
     const STATUS_COMPLETED = 'completed';
     const STATUS_DISCONTINUED = 'discontinued';

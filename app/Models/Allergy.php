@@ -6,6 +6,10 @@ namespace App\Models;
 
 class Allergy extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     const SEVERITY_MILD = 'mild';
     const SEVERITY_MODERATE = 'moderate';
     const SEVERITY_SEVERE = 'severe';

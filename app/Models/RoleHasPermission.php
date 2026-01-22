@@ -8,6 +8,9 @@ use App\Models\Model;
 
 class RoleHasPermission extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
     protected array $fillable = [
         'permission_id',
         'role_id',

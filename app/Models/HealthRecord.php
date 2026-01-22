@@ -10,6 +10,10 @@ use Hyperf\Database\Model\Relations\HasMany;
 
 class HealthRecord extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $fillable = [
         'student_id',
         'blood_type',

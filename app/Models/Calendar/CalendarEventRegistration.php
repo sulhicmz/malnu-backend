@@ -9,6 +9,9 @@ use App\Models\Model;
 
 class CalendarEventRegistration extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
     protected $table = 'calendar_event_registrations';
 
     protected $fillable = [

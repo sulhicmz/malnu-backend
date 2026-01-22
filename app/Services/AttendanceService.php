@@ -149,24 +149,28 @@ class AttendanceService
     {
         $cutoffDate = date('Y-m-d', strtotime('-30 days'));
 
-        $students = Student::with(['attendances' => function ($query) use ($cutoffDate) {
+        $chronicAbsentees = Student::whereHas('attendances', function ($query) use ($cutoffDate) {
             $query->whereDate('attendance_date', '>=', $cutoffDate);
-        }])->get();
-
-        $chronicAbsentees = [];
-
-        foreach ($students as $student) {
-            $absentDays = $student->attendances->where('status', 'absent')->count();
-
-            if ($absentDays >= $this->chronicAbsenceThreshold) {
-                $chronicAbsentees[] = [
-                    'student_id' => $student->id,
-                    'student_name' => $student->user->full_name ?? $student->user->name,
-                    'absent_days' => $absentDays,
-                    'attendance_percentage' => $this->calculateAttendancePercentage($student->id, $cutoffDate),
-                ];
-            }
-        }
+        })
+        ->with(['user:id,name,full_name'])
+        ->withCount(['attendances as total_days' => function ($query) use ($cutoffDate) {
+            $query->whereDate('attendance_date', '>=', $cutoffDate);
+        }])
+        ->withCount(['attendances as absent_days' => function ($query) use ($cutoffDate) {
+            $query->whereDate('attendance_date', '>=', $cutoffDate)
+                  ->where('status', 'absent');
+        }])
+        ->having('absent_days', '>=', $this->chronicAbsenceThreshold)
+        ->get()
+        ->map(function ($student) use ($cutoffDate) {
+            return [
+                'student_id' => $student->id,
+                'student_name' => $student->user->full_name ?? $student->user->name,
+                'absent_days' => $student->absent_days,
+                'attendance_percentage' => $this->calculateAttendancePercentage($student->id, $cutoffDate),
+            ];
+        })
+        ->toArray();
 
         return $chronicAbsentees;
     }

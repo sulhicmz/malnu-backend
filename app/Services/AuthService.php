@@ -61,28 +61,23 @@ class AuthService implements AuthServiceInterface
      */
     public function login(string $email, string $password): array
     {
-        $users = $this->getAllUsers();
-        $user = null;
-        
-        foreach ($users as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                $user = $u;
-                break;
-            }
-        }
-        
+        $user = User::where('email', $email)->first();
+
         if (!$user) {
             throw new \Exception('Invalid credentials');
         }
 
-        // Generate JWT token
+        if (!password_verify($password, $user->password)) {
+            throw new \Exception('Invalid credentials');
+        }
+
         $token = $this->jwtService->generateToken([
-            'id' => $user['id'],
-            'email' => $user['email']
+            'id' => $user->id,
+            'email' => $user->email
         ]);
 
         return [
-            'user' => $user,
+            'user' => $user->toArray(),
             'token' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -102,19 +97,14 @@ class AuthService implements AuthServiceInterface
         }
         
         $payload = $this->jwtService->decodeToken($token);
-        
+
         if (!$payload) {
             return null;
         }
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['id'] === $payload['data']['id']) {
-                return $user;
-            }
-        }
-        
-        return null;
+        $user = User::find($payload['data']['id']);
+
+        return $user ? $user->toArray() : null;
     }
 
     /**
@@ -297,13 +287,5 @@ class AuthService implements AuthServiceInterface
             'success' => true,
             'message' => 'Password has been changed successfully'
         ];
-    }
-
-    /**
-     * Get all users from database
-     */
-    private function getAllUsers(): array
-    {
-        return User::all()->toArray();
     }
 }

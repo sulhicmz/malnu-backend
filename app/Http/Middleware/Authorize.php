@@ -29,7 +29,10 @@ class Authorize implements MiddlewareInterface
         if (!$user) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Authentication required',
+                'error' => [
+                    'message' => 'Authentication required',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }
@@ -44,7 +47,10 @@ class Authorize implements MiddlewareInterface
         if (!$userId) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Invalid user data',
+                'error' => [
+                    'message' => 'Invalid user data',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }
@@ -54,7 +60,10 @@ class Authorize implements MiddlewareInterface
         if (!$hasPermission) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Access denied - insufficient permissions',
+                'error' => [
+                    'message' => 'Access denied - insufficient permissions',
+                    'code' => 'FORBIDDEN'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(403);
         }

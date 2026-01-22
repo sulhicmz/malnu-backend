@@ -61,28 +61,24 @@ class AuthService implements AuthServiceInterface
      */
     public function login(string $email, string $password): array
     {
-        $users = $this->getAllUsers();
-        $user = null;
-        
-        foreach ($users as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                $user = $u;
-                break;
-            }
-        }
+        $user = User::where('email', $email)->first();
         
         if (!$user) {
+            throw new \Exception('Invalid credentials');
+        }
+        
+        if (!password_verify($password, $user->password)) {
             throw new \Exception('Invalid credentials');
         }
 
         // Generate JWT token
         $token = $this->jwtService->generateToken([
-            'id' => $user['id'],
-            'email' => $user['email']
+            'id' => $user->id,
+            'email' => $user->email
         ]);
 
         return [
-            'user' => $user,
+            'user' => $user->toArray(),
             'token' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -107,14 +103,9 @@ class AuthService implements AuthServiceInterface
             return null;
         }
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['id'] === $payload['data']['id']) {
-                return $user;
-            }
-        }
+        $user = User::find($payload['data']['id']);
         
-        return null;
+        return $user ? $user->toArray() : null;
     }
 
     /**
@@ -299,11 +290,4 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    /**
-     * Get all users from database
-     */
-    private function getAllUsers(): array
-    {
-        return User::all()->toArray();
-    }
 }

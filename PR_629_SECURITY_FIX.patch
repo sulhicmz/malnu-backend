@@ -1,0 +1,9 @@
+--- a/.github/workflows/on-pull.yml
++++ b/.github/workflows/on-pull.yml
+@@ -193,7 +193,7 @@
+                - No security-sensitive change without review
+  
+-               Use `gh pr merge --admin` to bypass branch protection when conditions are met.
++               Use `gh pr merge --squash --auto --delete-branch` (without --admin to enforce branch protection rules).
+  
+                NEVER delete branch if merge fails.

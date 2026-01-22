@@ -33,11 +33,14 @@ class JWTMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
+
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Authorization token required',
+                'error' => [
+                    'message' => 'Authorization token required',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }
@@ -49,7 +52,10 @@ class JWTMiddleware implements MiddlewareInterface
         if ($user === null) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Invalid or expired token',
+                'error' => [
+                    'message' => 'Invalid or expired token',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }

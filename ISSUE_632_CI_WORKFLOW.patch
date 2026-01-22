@@ -1,0 +1,118 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+new file mode 100644
+index 0000000..5323a58
+--- /dev/null
++++ b/.github/workflows/ci.yml
+@@ -0,0 +1,112 @@
++name: CI
++
++on:
++  push:
++    branches: [main]
++  pull_request:
++    branches: [main]
++
++permissions:
++  contents: read
++  pull-requests: write
++
++concurrency:
++  group: ${{ github.workflow }}-${{ github.ref }}
++  cancel-in-progress: false
++
++jobs:
++  test:
++    name: Run Tests
++    runs-on: ubuntu-latest
++
++    strategy:
++      matrix:
++        php-version: ['8.2']
++
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Setup PHP
++        uses: shivammathur/setup-php@v2
++        with:
++          php-version: ${{ matrix.php-version }}
++          extensions: mbstring, pdo, pdo_mysql, redis, json, bcmath
++          coverage: none
++
++      - name: Get Composer Cache Directory
++        id: composer-cache
++        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
++
++      - name: Cache Composer dependencies
++        uses: actions/cache@v4
++        with:
++          path: ${{ steps.composer-cache.outputs.dir }}
++          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
++          restore-keys: ${{ runner.os }}-composer-
++
++      - name: Install dependencies
++        run: composer install --prefer-dist --no-progress --no-suggest
++
++      - name: Setup SQLite test database
++        run: |
++          touch database/database.sqlite
++          php artisan migrate --graceful --force
++
++      - name: Run tests
++        run: composer test
++
++  code-quality:
++    name: Code Quality Checks
++    runs-on: ubuntu-latest
++
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Setup PHP
++        uses: shivammathur/setup-php@v2
++        with:
++          php-version: '8.2'
++          extensions: mbstring
++
++      - name: Get Composer Cache Directory
++        id: composer-cache
++        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
++
++      - name: Cache Composer dependencies
++        uses: actions/cache@v4
++        with:
++          path: ${{ steps.composer-cache.outputs.dir }}
++          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
++          restore-keys: ${{ runner.os }}-composer-
++
++      - name: Install dependencies
++        run: composer install --prefer-dist --no-progress
++
++      - name: PHP CS Fixer - Check style
++        run: vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no
++
++      - name: PHPStan - Static Analysis
++        run: composer analyse
++        continue-on-error: true
++
++  security:
++    name: Security Audit
++    runs-on: ubuntu-latest
++
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Setup PHP
++        uses: shivammathur/setup-php@v2
++        with:
++          php-version: '8.2'
++
++      - name: Install dependencies
++        run: composer install --prefer-dist --no-progress
++
++      - name: Composer Audit - Check for vulnerabilities
++        run: composer audit
++        continue-on-error: true

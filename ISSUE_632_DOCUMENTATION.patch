@@ -1,0 +1,150 @@
+diff --git a/WORKFLOW_CONSOLIDATION_STATUS.md b/WORKFLOW_CONSOLIDATION_STATUS.md
+new file mode 100644
+index 0000000..53c0fa7
+--- /dev/null
++++ b/WORKFLOW_CONSOLIDATION_STATUS.md
+@@ -0,0 +1,144 @@
++# GitHub Workflows Consolidation - Issue #632
++
++## Status: Partial Implementation
++
++This document tracks the progress of consolidating GitHub workflows from 11 files to 3-4 streamlined workflows as requested in issue #632.
++
++## Completed Work (This PR)
++
++### New Workflows Created
++
++1. **ci.yml** - Testing and Quality Checks
++   - Automated PHPUnit testing on push/PR to main
++   - PHP CS Fixer code style validation
++   - PHPStan static analysis
++   - Composer dependency caching
++   - Runs on multiple PHP versions (8.2)
++   - Permissions: `contents: read`, `pull-requests: write`
++
++2. **security.yml** - Security Scanning
++   - Composer audit for dependency vulnerabilities
++   - Dependabot alerts summary for PRs
++   - Weekly scheduled security scans (Sundays at midnight UTC)
++   - Automatic PR comments with security findings
++   - Permissions: `contents: read`, `security-events: write`, `pull-requests: write`
++
++## Current Workflow Files (11 total)
++
++### Existing Agent Automation Workflows (7 files)
++
++These workflows are primarily for OpenCode/OpenHands agent automation. Several are actively running:
++
++1. `on-push.yml` (737 lines) - Complex OpenCode automation with 12 repetitive code blocks
++2. `on-pull.yml` (327 lines) - OpenCode PR handler
++3. `oc-researcher.yml` - Research automation (scheduled daily at 1 AM)
++4. `oc-cf-supabase.yml` - Cloudflare/Supabase integration
++5. `oc-issue-solver.yml` - Issue solving (scheduled every 30 minutes) - **ACTIVELY RUNNING**
++6. `oc-maintainer.yml` - Repository maintenance (scheduled daily at 3 AM) - **RAN TODAY**
++7. `oc-pr-handler.yml` - PR handling (scheduled 3x daily, on PR events) - **RAN TODAY**
++
++### Other Workflows (4 files)
++
++8. `oc-problem-finder.yml` - Problem detection (scheduled daily at midnight)
++9. `openhands.yml` - OpenHands integration
++10. `workflow-monitor.yml` - Workflow monitoring (every 30 minutes) - **ACTIVELY RUNNING**
++11. (New) `ci.yml` - CI/CD testing and quality checks
++12. (New) `security.yml` - Security scanning
++
++## Why Not All Workflows Were Removed
++
++### Active Automation Discovery
++
++After checking workflow run history, I discovered that several agent automation workflows are actively in use:
++
++- `oc-issue-solver.yml`: Currently in_progress (as of 2026-01-22)
++- `oc-maintainer.yml`: Last run 2026-01-22T04:07:18Z (today)
++- `oc-pr-handler.yml`: Last run 2026-01-22T21:22:05Z (today)
++- `workflow-monitor.yml`: Actively running every 30 minutes
++
++Removing these active workflows would:
++1. **Disrupt ongoing automation** - Agents would lose ability to automatically solve issues, maintain repository, and handle PRs
++2. **Break current project workflows** - The project appears to rely on these automated agents
++3. **Cause immediate operational issues** - No guarantee that new workflows would replace agent functionality
++
++### Recommended Approach (For Maintainers)
++
++Instead of removing active agent automation, I recommend:
++
++#### Phase 1: Add Traditional CI/CD ✅ (DONE)
++- [x] Created `ci.yml` for automated testing and quality checks
++- [x] Created `security.yml` for security scanning
++- These provide proper CI/CD that was previously missing
++
++#### Phase 2: Analyze Agent Automation Needs
++- Document what each agent workflow actually does
++- Identify which agent workflows are essential vs redundant
++- Test if agents can be consolidated without losing functionality
++- Get consensus from maintainers on agent workflow strategy
++
++#### Phase 3: Consolidate Agent Workflows (If Needed)
++- Merge overlapping agent workflows (e.g., `oc-maintainer.yml` and `oc-problem-finder.yml`)
++- Reduce excessive permissions (`id-token: write`, `packages: write`, `pages: write`, `security-events: write`, `deployments: write`)
++- Remove `--admin` bypass flags (addressed separately in issue #629)
++- Add human approval requirements for sensitive operations
++
++#### Phase 4: Remove Redundant Workflows
++- Only remove workflows that are confirmed unused or duplicated
++- Disable first, monitor for 1 week, then delete
++- Update documentation
++
++## Benefits of This PR
++
++Even without removing all old workflows, this PR provides:
++
++1. ✅ **Traditional CI/CD** - The project now has proper automated testing and quality checks
++2. ✅ **Security Scanning** - Automated dependency vulnerability checks with PR comments
++3. ✅ **Better Documentation** - Clear explanation of workflow consolidation status
++4. ✅ **Reduced Confusion** - New workflows follow standard GitHub Actions patterns
++5. ✅ **No Disruption** - Active agent automation continues to work
++
++## Next Steps
++
++### For This PR
++1. Review and merge the new `ci.yml` and `security.yml` workflows
++2. Test that they trigger correctly on push/PR to main branch
++3. Verify all checks pass
++
++### For Issue #632
++1. Review this documentation and approach
++2. Decide on agent workflow consolidation strategy
++3. If consolidating agent workflows, create a follow-up issue/PR for that work
++4. Consider whether agent workflows should be preserved or replaced
++
++## Risk Assessment
++
++### Low Risk (This PR)
++- New CI/CD workflows are additive, don't change existing behavior
++- Active automation continues to work
++- Clear documentation of what was done and why
++
++### Medium Risk (Full Consolidation)
++- Removing active agent workflows could break project automation
++- Agent functionality might be lost
++- Requires careful testing and migration planning
++
++## Related Issues
++
++- **This PR**: Addresses #632 (GitHub workflow consolidation)
++- **Related**: #134 (CI/CD pipeline with automated testing)
++- **Related**: #629 (Remove admin merge bypass from on-pull.yml)
++- **Related**: #611 (GitHub workflow permission hardening)
++
++## Summary
++
++This PR partially addresses issue #632 by:
++- ✅ Creating proper CI/CD workflows that were missing
++- ✅ Adding security scanning capabilities
++- ✅ Documenting workflow consolidation status
++- ✅ Avoiding disruption to active agent automation
++
++Full consolidation of agent automation workflows (Phase 3-4) should be a separate effort after:
++1. Analyzing agent workflow dependencies
++2. Getting consensus on automation strategy
++3. Planning migration approach
++4. Testing thoroughly before removing active workflows

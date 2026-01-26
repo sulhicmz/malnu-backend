@@ -1,0 +1,117 @@
+diff --git a/.github/workflows/security.yml b/.github/workflows/security.yml
+new file mode 100644
+index 0000000..67e288e
+--- /dev/null
++++ b/.github/workflows/security.yml
+@@ -0,0 +1,111 @@
++name: Security
++
++on:
++  push:
++    branches: [main]
++  pull_request:
++    branches: [main]
++  schedule:
++    - cron: '0 0 * * 0' # Weekly on Sunday at midnight UTC
++
++permissions:
++  contents: read
++  security-events: write
++  pull-requests: write
++
++concurrency:
++  group: ${{ github.workflow }}-${{ github.ref }}
++  cancel-in-progress: false
++
++jobs:
++  security-audit:
++    name: Dependency Security Scan
++    runs-on: ubuntu-latest
++
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Setup PHP
++        uses: shivammathur/setup-php@v2
++        with:
++          php-version: '8.2'
++
++      - name: Install Composer dependencies
++        run: composer install --prefer-dist --no-progress
++
++      - name: Run Composer security audit
++        run: composer audit
++        continue-on-error: true
++
++      - name: Install jq for JSON parsing
++        run: sudo apt-get install -y jq
++
++      - name: Check for security vulnerabilities
++        id: audit
++        run: |
++          echo "audit_result=$(composer audit --format=json 2>&1 | jq -r '.advisories // [] | length')" >> $GITHUB_OUTPUT
++
++      - name: Comment on PR with security findings
++        if: github.event_name == 'pull_request' && steps.audit.outputs.audit_result != '0'
++        uses: actions/github-script@v7
++        with:
++          script: |
++            const output = `#### 🚨 Security Scan Results
++
++            \`${{ steps.audit.outputs.audit_result }}\` security vulnerability/vulnerabilities found in dependencies.
++
++            Please review the security audit output above and update dependencies if needed.
++            `;
++            github.rest.issues.createComment({
++              issue_number: context.issue.number,
++              owner: context.repo.owner,
++              repo: context.repo.repo,
++              body: output
++            })
++
++      - name: Upload SARIF file
++        if: always()
++        uses: github/codeql-action/upload-sarif@v3
++        with:
++          sarif_file: results.sarif
++
++  dependabot-alerts:
++    name: Summarize Dependabot Alerts
++    runs-on: ubuntu-latest
++    if: github.event_name == 'pull_request'
++
++    steps:
++      - name: Checkout
++        uses: actions/checkout@v4
++
++      - name: Get Dependabot alerts
++        id: alerts
++        uses: actions/github-script@v7
++        with:
++          script: |
++            const alerts = await github.rest.dependabot.listAlertsForRepo({
++              owner: context.repo.owner,
++              repo: context.repo.repo,
++              state: 'open'
++            });
++            const alertCount = alerts.data.length;
++            core.setOutput('count', alertCount);
++
++      - name: Comment Dependabot summary on PR
++        if: steps.alerts.outputs.count != '0'
++        uses: actions/github-script@v7
++        with:
++          script: |
++            const output = `#### 🔒 Dependabot Security Alerts
++
++            This repository currently has **${{ steps.alerts.outputs.count }}** open security alerts.
++
++            Please review and address these alerts to maintain security.
++            `;
++            github.rest.issues.createComment({
++              issue_number: context.issue.number,
++              owner: context.repo.owner,
++              repo: context.repo.repo,
++              body: output
++            })

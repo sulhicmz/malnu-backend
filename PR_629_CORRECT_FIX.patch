@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/on-pull.yml b/.github/workflows/on-pull.yml
+index d1d6b7d..2561660 100644
+--- a/.github/workflows/on-pull.yml
++++ b/.github/workflows/on-pull.yml
+@@ -193,7 +193,8 @@ jobs:
+               - All PR comments resolved
+               - No security-sensitive change without review
+ 
+-              Use `gh pr merge --admin` to bypass branch protection when conditions are met.
++              DO NOT use `gh pr merge --admin` or any other bypass mechanism.
++              All merges must respect branch protection rules and require human review.
+ 
+               NEVER delete branch if merge fails.

@@ -94,6 +94,7 @@ For comprehensive security analysis, see:
 
 The following critical security issues are being addressed:
 
+- 🔴 **Admin Merge Bypass** - OpenCode agent can bypass branch protection with `--admin` flag ([#629](https://github.com/sulhicmz/malnu-backend/issues/629))
 - 🔴 **RBAC Not Implemented** - RoleMiddleware bypasses authorization ([#359](https://github.com/sulhicmz/malnu-backend/issues/359))
 - 🔴 **CSRF Protection Broken** - Middleware extends non-existent class ([#358](https://github.com/sulhicmz/malnu-backend/issues/358))
 - 🔴 **MD5 Hashing** - Weak hashing in token blacklist ([#347](https://github.com/sulhicmz/malnu-backend/issues/347))

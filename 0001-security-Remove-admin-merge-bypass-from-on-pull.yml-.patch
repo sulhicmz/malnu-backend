@@ -1,0 +1,32 @@
+From 9cf59d9b9e24ef963f06f806cfc555650b65971e Mon Sep 17 00:00:00 2001
+From: "github-actions[bot]"
+ <41851495+github-actions[bot]@users.noreply.github.com>
+Date: Fri, 30 Jan 2026 11:05:49 +0000
+Subject: [PATCH] security: Remove admin merge bypass from on-pull.yml workflow
+
+Remove the critical security vulnerability where the workflow instructed
+the use of --admin flag to bypass branch protection rules. This ensures
+all merges respect branch protection and require human review.
+
+Fixes #629
+---
+ .github/workflows/on-pull.yml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/on-pull.yml b/.github/workflows/on-pull.yml
+index d1d6b7d..2561660 100644
+--- a/.github/workflows/on-pull.yml
++++ b/.github/workflows/on-pull.yml
+@@ -193,7 +193,8 @@ jobs:
+               - All PR comments resolved
+               - No security-sensitive change without review
+ 
+-              Use `gh pr merge --admin` to bypass branch protection when conditions are met.
++              DO NOT use `gh pr merge --admin` or any other bypass mechanism.
++              All merges must respect branch protection rules and require human review.
+ 
+               NEVER delete branch if merge fails.
+            
+-- 
+2.52.0
+

@@ -242,21 +242,6 @@ class AuthService implements AuthServiceInterface
             throw new \Exception('User not found');
         }
 
-        // Verify current password
-        if (!password_verify($currentPassword, $user->password)) {
-            throw new \Exception('Current password is incorrect');
-        }
-
-        $errors = $this->passwordValidator->validate($newPassword);
-        if (!empty($errors)) {
-            throw new \Exception('New password: ' . implode(' ', $errors));
-        }
-
-        // Verify current password
-        if (!password_verify($currentPassword, $user->password)) {
-            throw new \Exception('Current password is incorrect');
-        }
-
         // Validate new password strength (backend validation as safety net)
         if (strlen($newPassword) < 8) {
             throw new \Exception('New password must be at least 8 characters long');

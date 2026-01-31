@@ -112,6 +112,29 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Resource Booking - Write operation requires specific roles
         Route::post('resources/book', [CalendarController::class, 'bookResource'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Academic Term Management - Write operations require specific roles
+        Route::post('academic-terms', [CalendarController::class, 'createAcademicTerm'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::get('academic-terms', [CalendarController::class, 'getAllAcademicTerms']);
+        Route::get('academic-terms/current', [CalendarController::class, 'getCurrentAcademicTerm']);
+        Route::get('academic-terms/{id}', [CalendarController::class, 'getAcademicTerm']);
+        Route::put('academic-terms/{id}', [CalendarController::class, 'updateAcademicTerm'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::delete('academic-terms/{id}', [CalendarController::class, 'deleteAcademicTerm'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+
+        // Holiday Management - Write operations require specific roles
+        Route::post('holidays', [CalendarController::class, 'createHoliday'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::get('holidays', [CalendarController::class, 'getHolidays']);
+        Route::get('holidays/upcoming', [CalendarController::class, 'getUpcomingHolidays']);
+        Route::get('holidays/{id}', [CalendarController::class, 'getHoliday']);
+        Route::put('holidays/{id}', [CalendarController::class, 'updateHoliday'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+        Route::delete('holidays/{id}', [CalendarController::class, 'deleteHoliday'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+
+        // Event Attendance - All authenticated users can check in/out
+        Route::post('events/{eventId}/checkin', [CalendarController::class, 'checkInEvent']);
+        Route::post('events/{eventId}/checkout', [CalendarController::class, 'checkOutEvent']);
+        Route::post('events/{eventId}/attendance', [CalendarController::class, 'markEventAttendance'])->middleware(['role:Super Admin|Kepala Sekolah|Guru']);
+        Route::get('events/{eventId}/attendance', [CalendarController::class, 'getEventAttendance']);
+        Route::get('events/{eventId}/attendance-stats', [CalendarController::class, 'getEventAttendanceStats']);
     });
 });
 

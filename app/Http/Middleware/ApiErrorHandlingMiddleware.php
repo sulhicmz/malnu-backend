@@ -20,6 +20,7 @@ use Throwable;
 class ApiErrorHandlingMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected ResponseInterface $response;
 
     public function __construct(ContainerInterface $container)

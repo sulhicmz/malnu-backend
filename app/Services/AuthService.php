@@ -11,6 +11,10 @@ use App\Models\User;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
 use App\Services\PasswordValidator;
+use App\Exceptions\AuthenticationException;
+use App\Exceptions\BusinessLogicException;
+use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
 
 class AuthService implements AuthServiceInterface
 {
@@ -38,12 +42,12 @@ class AuthService implements AuthServiceInterface
     {
         $existingUser = User::where('email', $data['email'])->first();
         if ($existingUser) {
-            throw new \Exception('User with this email already exists');
+            throw new BusinessLogicException('User with this email already exists');
         }
 
         $errors = $this->passwordValidator->validate($data['password']);
         if (!empty($errors)) {
-            throw new \Exception(implode(' ', $errors));
+            throw new ValidationException(implode(' ', $errors));
         }
 
         $user = User::create([
@@ -64,11 +68,11 @@ class AuthService implements AuthServiceInterface
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            throw new \Exception('Invalid credentials');
+            throw new AuthenticationException('Invalid credentials');
         }
 
         if (!password_verify($password, $user->password)) {
-            throw new \Exception('Invalid credentials');
+            throw new AuthenticationException('Invalid credentials');
         }
 
         $token = $this->jwtService->generateToken([
@@ -114,7 +118,7 @@ class AuthService implements AuthServiceInterface
     {
         // Check if token is blacklisted
         if ($this->tokenBlacklistService->isTokenBlacklisted($token)) {
-            throw new \Exception('Token is blacklisted');
+            throw new AuthenticationException('Token is blacklisted');
         }
         
         $newToken = $this->jwtService->refreshToken($token);
@@ -179,14 +183,14 @@ class AuthService implements AuthServiceInterface
     {
         $errors = $this->passwordValidator->validate($newPassword);
         if (!empty($errors)) {
-            throw new \Exception(implode(' ', $errors));
+            throw new ValidationException(implode(' ', $errors));
         }
 
         // Get all valid tokens from database
         $validTokens = PasswordResetToken::valid()->get();
 
         if ($validTokens->isEmpty()) {
-            throw new \Exception('Invalid or expired reset token');
+            throw new AuthenticationException('Invalid or expired reset token');
         }
 
         // Find the matching token by verifying against all valid tokens
@@ -200,20 +204,20 @@ class AuthService implements AuthServiceInterface
 
         // Check if token was found and is valid
         if (!$resetTokenRecord) {
-            throw new \Exception('Invalid reset token');
+            throw new AuthenticationException('Invalid reset token');
         }
 
         // Check if token is expired
         if ($resetTokenRecord->isExpired()) {
             $resetTokenRecord->delete();
-            throw new \Exception('Reset token has expired');
+            throw new AuthenticationException('Reset token has expired');
         }
 
         // Get user
         $user = User::find($resetTokenRecord->user_id);
 
         if (!$user) {
-            throw new \Exception('User not found');
+            throw new NotFoundException('User not found');
         }
 
         // Update user password
@@ -239,43 +243,43 @@ class AuthService implements AuthServiceInterface
         $user = User::find($userId);
 
         if (!$user) {
-            throw new \Exception('User not found');
+            throw new NotFoundException('User not found');
         }
 
         // Verify current password
         if (!password_verify($currentPassword, $user->password)) {
-            throw new \Exception('Current password is incorrect');
+            throw new AuthenticationException('Current password is incorrect');
         }
 
         $errors = $this->passwordValidator->validate($newPassword);
         if (!empty($errors)) {
-            throw new \Exception('New password: ' . implode(' ', $errors));
+            throw new ValidationException('New password: ' . implode(' ', $errors));
         }
 
         // Verify current password
         if (!password_verify($currentPassword, $user->password)) {
-            throw new \Exception('Current password is incorrect');
+            throw new AuthenticationException('Current password is incorrect');
         }
 
         // Validate new password strength (backend validation as safety net)
         if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters long');
+            throw new ValidationException('New password must be at least 8 characters long');
         }
 
         if (!preg_match('/[A-Z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 uppercase letter');
+            throw new ValidationException('Password must contain at least 1 uppercase letter');
         }
 
         if (!preg_match('/[a-z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 lowercase letter');
+            throw new ValidationException('Password must contain at least 1 lowercase letter');
         }
 
         if (!preg_match('/[0-9]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 number');
+            throw new ValidationException('Password must contain at least 1 number');
         }
 
         if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 special character');
+            throw new ValidationException('Password must contain at least 1 special character');
         }
 
         // Update user password

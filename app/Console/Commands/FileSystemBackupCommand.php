@@ -96,29 +96,6 @@ class FileSystemBackupCommand extends Command
         $this->output->writeln('<error>FAILED</error>');
         return false;
     }
-        
-        // Add include paths
-        foreach ($includePaths as $includePath) {
-            $fullPath = base_path('/') .$includePath;
-            if (is_dir($fullPath) || file_exists($fullPath)) {
-                $tarCommand .= escapeshellarg($includePath) . ' ';
-            }
-        }
-        
-        $this->output->write('Creating file system backup... ');
-        
-        $exitCode = 0;
-        $output = [];
-        exec($tarCommand, $output, $exitCode);
-
-        if ($exitCode === 0) {
-            $this->output->writeln('<info>OK</info>');
-            return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
-        }
-    }
 
     protected function generateFilename(): string
     {

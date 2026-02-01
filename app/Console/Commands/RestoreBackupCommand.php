@@ -234,7 +234,6 @@ class RestoreBackupCommand extends Command
             if ($result['successful']) {
                 $fsBackupDir = $extractDir;
             }
-        }
         } elseif (is_dir($tempDir . '/app') || is_dir($tempDir . '/config')) {
             // The backup might be directly in the temp directory
             $fsBackupDir = $tempDir;

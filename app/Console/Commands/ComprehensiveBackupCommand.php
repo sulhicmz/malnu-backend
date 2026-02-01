@@ -113,16 +113,6 @@ class ComprehensiveBackupCommand extends Command
         return 1;
     }
 
-            return 0;
-        }
-        $this->output->writeln('<error>FAILED to create main backup archive</error>');
-
-        // Clean up temporary directory
-        $this->removeDirectory($mainBackupDir);
-
-        return 1;
-    }
-
     protected function backupDatabase(string $connection, string $backupDir): bool
     {
         $databaseConfig = $this->config->get("database.connections.{$connection}", []);

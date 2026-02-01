@@ -110,9 +110,6 @@ class ConfigurationBackupCommand extends Command
             }
             $this->output->writeln('<error>FAILED</error>');
             return false;
-        }
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         } catch (Exception $e) {
             // Clean up temporary directory in case of error
             $this->removeDirectory($tempDir);

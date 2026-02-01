@@ -118,7 +118,6 @@ class DatabaseBackupCommand extends Command
         $this->output->writeln('<error>FAILED</error>');
         return false;
     }
-    }
 
     protected function backupSqlite(array $config, string $backupPath, string $filename): bool
     {

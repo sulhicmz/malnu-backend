@@ -206,12 +206,7 @@ jobs:
           Make every PR safely mergable and merge it without conflicts.
 
           PROCESS:
-          1. Sort PRs by urgency:
-             a. Merge conflict present
-             b. CI failing
-             c. Ready to merge
-             d. Draft
-
+          1. Sort open pr by Created_at DESC (newest PR first)
           2. For each PR (one at a time):
              - Checkout PR branch
              - Fetch latest DEFAULT_BRANCH

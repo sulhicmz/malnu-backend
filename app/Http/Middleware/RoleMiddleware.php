@@ -20,8 +20,8 @@ class RoleMiddleware
     public function handle($request, $next, $role)
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return $this->unauthorizedResponse('Authorization token required');
         }
 
@@ -29,28 +29,28 @@ class RoleMiddleware
 
         $user = $this->authService->getUserFromToken($token);
 
-        if (!$user) {
+        if (! $user) {
             return $this->unauthorizedResponse('Invalid or expired token');
         }
 
         // Check if user has the required role
         // In a real implementation, this would check the user's roles against the database
         $hasRole = $this->userHasRole($user, $role);
-        
-        if (!$hasRole) {
+
+        if (! $hasRole) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
         return $next($request);
     }
-    
+
     private function userHasRole($user, $requiredRole)
     {
         // Support multiple roles using pipe separator (e.g., 'Super Admin|Kepala Sekolah')
         $requiredRoles = explode('|', $requiredRole);
         return $user->hasAnyRole($requiredRoles);
     }
-    
+
     private function unauthorizedResponse($message)
     {
         $response = new \Hyperf\HttpMessage\Server\Response();
@@ -59,12 +59,12 @@ class RoleMiddleware
                 'success' => false,
                 'error' => [
                     'message' => $message,
-                    'code' => 'UNAUTHORIZED'
+                    'code' => 'UNAUTHORIZED',
                 ],
-                'timestamp' => date('c')
+                'timestamp' => date('c'),
             ])));
     }
-    
+
     private function forbiddenResponse($message)
     {
         $response = new \Hyperf\HttpMessage\Server\Response();
@@ -73,9 +73,9 @@ class RoleMiddleware
                 'success' => false,
                 'error' => [
                     'message' => $message,
-                    'code' => 'FORBIDDEN'
+                    'code' => 'FORBIDDEN',
                 ],
-                'timestamp' => date('c')
+                'timestamp' => date('c'),
             ])));
     }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Users, GraduationCap, BookOpen, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import StatCard from '../components/ui/StatCard';
 
 const Dashboard: React.FC = () => {
   // Mock data for charts
@@ -23,49 +24,49 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-800">Dashboard Sekolah</h1>
-        <div className="flex items-center space-x-2">
-          <select className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <select className="w-full sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option>Tahun Ajaran 2024/2025</option>
             <option>Tahun Ajaran 2023/2024</option>
           </select>
-          <button className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
             Export Data
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total Siswa" 
-          value="1,245" 
-          change="+5.2%" 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Siswa"
+          value="1,245"
+          change="+5.2%"
           isIncrease={true}
           icon={<Users className="h-6 w-6 text-blue-500" />}
           color="blue"
         />
-        <StatCard 
-          title="Total Guru" 
-          value="78" 
-          change="+2.1%" 
+        <StatCard
+          title="Total Guru"
+          value="78"
+          change="+2.1%"
           isIncrease={true}
           icon={<GraduationCap className="h-6 w-6 text-purple-500" />}
           color="purple"
         />
-        <StatCard 
-          title="Kelas Aktif" 
-          value="42" 
-          change="+0.0%" 
+        <StatCard
+          title="Kelas Aktif"
+          value="42"
+          change="+0.0%"
           isIncrease={false}
           icon={<BookOpen className="h-6 w-6 text-green-500" />}
           color="green"
         />
-        <StatCard 
-          title="Kehadiran" 
-          value="97.3%" 
-          change="-1.2%" 
+        <StatCard
+          title="Kehadiran"
+          value="97.3%"
+          change="-1.2%"
           isIncrease={false}
           icon={<Calendar className="h-6 w-6 text-orange-500" />}
           color="orange"
@@ -75,20 +76,20 @@ const Dashboard: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-5 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <h2 className="text-lg font-medium text-gray-800">Kehadiran Bulanan</h2>
             <div className="flex items-center space-x-2">
               <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
+                <div className="w-3 h-3 rounded-full bg-blue-500 mr-1" aria-hidden="true"></div>
                 <span className="text-xs text-gray-600">Siswa</span>
               </div>
               <div className="flex items-center">
-                <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-1" aria-hidden="true"></div>
                 <span className="text-xs text-gray-600">Guru</span>
               </div>
             </div>
           </div>
-          <div className="h-64">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={attendanceData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -103,14 +104,14 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="bg-white p-5 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <h2 className="text-lg font-medium text-gray-800">Nilai Rata-Rata Kelas</h2>
-            <select className="bg-white border border-gray-300 rounded-md px-2 py-1 text-sm">
+            <select className="w-full sm:w-auto bg-white border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option>Semester Ganjil</option>
               <option>Semester Genap</option>
             </select>
           </div>
-          <div className="h-64">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={gradeData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -131,17 +132,17 @@ const Dashboard: React.FC = () => {
           <div className="space-y-4">
             {activities.map((activity, index) => (
               <div key={index} className="flex items-start">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-${activity.color}-100`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-${activity.color}-100`} aria-hidden="true">
                   {activity.icon}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-medium text-gray-800">{activity.title}</p>
                   <p className="text-xs text-gray-500">{activity.time}</p>
                 </div>
               </div>
             ))}
           </div>
-          <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800">
+          <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded py-1">
             Lihat Semua Aktivitas
           </button>
         </div>
@@ -149,58 +150,26 @@ const Dashboard: React.FC = () => {
         <div className="bg-white p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aksi Cepat</h2>
           <div className="space-y-3">
-            <button className="w-full py-2 px-4 bg-blue-50 text-blue-700 text-sm font-medium rounded hover:bg-blue-100 flex items-center">
-              <Users className="h-4 w-4 mr-2" />
+            <button className="w-full py-2 px-4 bg-blue-50 text-blue-700 text-sm font-medium rounded hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors flex items-center">
+              <Users className="h-4 w-4 mr-2" aria-hidden="true" />
               Tambah Siswa Baru
             </button>
-            <button className="w-full py-2 px-4 bg-purple-50 text-purple-700 text-sm font-medium rounded hover:bg-purple-100 flex items-center">
-              <GraduationCap className="h-4 w-4 mr-2" />
+            <button className="w-full py-2 px-4 bg-purple-50 text-purple-700 text-sm font-medium rounded hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors flex items-center">
+              <GraduationCap className="h-4 w-4 mr-2" aria-hidden="true" />
               Tambah Data Guru
             </button>
-            <button className="w-full py-2 px-4 bg-green-50 text-green-700 text-sm font-medium rounded hover:bg-green-100 flex items-center">
-              <BookOpen className="h-4 w-4 mr-2" />
+            <button className="w-full py-2 px-4 bg-green-50 text-green-700 text-sm font-medium rounded hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1 transition-colors flex items-center">
+              <BookOpen className="h-4 w-4 mr-2" aria-hidden="true" />
               Upload Materi Baru
             </button>
-            <button className="w-full py-2 px-4 bg-orange-50 text-orange-700 text-sm font-medium rounded hover:bg-orange-100 flex items-center">
-              <Calendar className="h-4 w-4 mr-2" />
+            <button className="w-full py-2 px-4 bg-orange-50 text-orange-700 text-sm font-medium rounded hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 transition-colors flex items-center">
+              <Calendar className="h-4 w-4 mr-2" aria-hidden="true" />
               Jadwalkan Acara
             </button>
           </div>
-          <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800">
+          <button className="w-full mt-4 text-center text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded py-1">
             Lihat Semua Aksi
           </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface StatCardProps {
-  title: string;
-  value: string;
-  change: string;
-  isIncrease: boolean;
-  icon: React.ReactNode;
-  color: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, icon, color }) => {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-800 my-1">{value}</h3>
-          <div className="flex items-center">
-            <span className={`text-xs ${isIncrease ? 'text-green-600' : 'text-red-600'} font-medium flex items-center`}>
-              {isIncrease ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-              {change}
-            </span>
-            <span className="text-xs text-gray-500 ml-1">vs bulan lalu</span>
-          </div>
-        </div>
-        <div className={`p-3 rounded-full bg-${color}-100`}>
-          {icon}
         </div>
       </div>
     </div>

@@ -16,8 +16,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 class JWTMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected RequestInterface $request;
+
     protected HttpResponse $response;
+
     protected AuthServiceInterface $authService;
 
     public function __construct(
@@ -33,12 +36,12 @@ class JWTMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return $this->response->json([
                 'success' => false,
                 'message' => 'Authorization token required',
-                'timestamp' => date('c')
+                'timestamp' => date('c'),
             ])->withStatus(401);
         }
 
@@ -50,7 +53,7 @@ class JWTMiddleware implements MiddlewareInterface
             return $this->response->json([
                 'success' => false,
                 'message' => 'Invalid or expired token',
-                'timestamp' => date('c')
+                'timestamp' => date('c'),
             ])->withStatus(401);
         }
 

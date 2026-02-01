@@ -23,6 +23,5 @@ class RunSpecificSeeder extends Command
      */
     public function handle()
     {
-        //
     }
 }

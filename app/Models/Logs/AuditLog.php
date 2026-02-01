@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\Logs;
 
@@ -9,9 +9,11 @@ use App\Models\User;
 
 class AuditLog extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',

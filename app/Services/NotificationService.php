@@ -275,6 +275,11 @@ class NotificationService implements NotificationServiceInterface
         $startTime = DateTime::createFromFormat('H:i:s', $preference->quiet_hours_start);
         $endTime = DateTime::createFromFormat('H:i:s', $preference->quiet_hours_end);
 
+        // Validate DateTime objects were created successfully
+        if (! $currentTimeObj || ! $startTime || ! $endTime) {
+            return false;
+        }
+
         if ($startTime > $endTime) {
             return ! ($currentTimeObj >= $startTime || $currentTimeObj <= $endTime);
         }

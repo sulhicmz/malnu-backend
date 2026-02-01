@@ -338,9 +338,15 @@ class TranscriptGenerationService
 
     private function saveTranscriptRecord(string $studentId, array $transcriptData): void
     {
-        $academicYear = $transcriptData['grades_by_semester'][0]['academic_year'] ?? '2024/2025';
-        $semester = $transcriptData['grades_by_semester'][0]['semester'] ?? 1;
-        $gpa = $transcriptData['academic_summary']['cumulative_gpa'];
+        $academicYear = '2024/2025';
+        $semester = 1;
+
+        if (! empty($transcriptData['grades_by_semester'])) {
+            $academicYear = $transcriptData['grades_by_semester'][0]['academic_year'] ?? '2024/2025';
+            $semester = $transcriptData['grades_by_semester'][0]['semester'] ?? 1;
+        }
+
+        $gpa = $transcriptData['academic_summary']['cumulative_gpa'] ?? 0.0;
 
         Report::updateOrCreate(
             [

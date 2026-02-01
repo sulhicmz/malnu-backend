@@ -5,6 +5,7 @@ import useWebSocket from '../../hooks/useWebSocket';
 import SearchFilter from '../../components/ui/SearchFilter';
 import ActionMenu, { ActionItem } from '../../components/ui/ActionMenu';
 import Pagination from '../../components/ui/Pagination';
+import type { Student } from '../../types/api';
 
 const StudentData: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -12,23 +13,20 @@ const StudentData: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Handle real-time updates via WebSocket
-  const handleWebSocketMessage = (data: any) => {
-    if (data.type === 'student_update') {
+  const handleWebSocketMessage = (data: unknown) => {
+    const message = data as { type: string; student?: Student; studentId?: string };
+    if (message.type === 'student_update' && message.student) {
       setStudents(prev => {
-        // Update or add the student based on the action
-        const existingIndex = prev.findIndex(s => s.id === data.student.id);
+        const existingIndex = prev.findIndex(s => s.id === message.student!.id);
         if (existingIndex !== -1) {
-          // Update existing student
           const updated = [...prev];
-          updated[existingIndex] = data.student;
+          updated[existingIndex] = message.student!;
           return updated;
-        } else {
-          // Add new student
-          return [...prev, data.student];
         }
+        return [...prev, message.student!];
       });
-    } else if (data.type === 'student_delete') {
-      setStudents(prev => prev.filter(s => s.id !== data.studentId));
+    } else if (message.type === 'student_delete' && message.studentId) {
+      setStudents(prev => prev.filter(s => s.id !== message.studentId));
     }
   };
 
@@ -40,9 +38,8 @@ const StudentData: React.FC = () => {
         setLoading(true);
         const response = await studentApi.getAll();
         setStudents(response.data.data.data || response.data.data); // Handle both paginated and non-paginated responses
-      } catch (err) {
+      } catch {
         setError('Failed to fetch students');
-        console.error('Error fetching students:', err);
       } finally {
         setLoading(false);
       }

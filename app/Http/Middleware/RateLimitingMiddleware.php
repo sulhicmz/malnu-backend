@@ -147,8 +147,10 @@ class RateLimitingMiddleware implements MiddlewareInterface
 
         foreach ($headers as $header) {
             if (isset($serverParams[$header])) {
-                $ip = explode(',', $serverParams[$header])[0];
-                return trim($ip);
+                $ipList = explode(',', $serverParams[$header]);
+                if (! empty($ipList)) {
+                    return trim($ipList[0]);
+                }
             }
         }
 

@@ -209,7 +209,7 @@ jobs:
           1. Sort open pr by Created_at DESC (newest PR first)
           2. For each PR (one at a time):
              - Checkout PR branch
-             - Fetch latest DEFAULT_BRANCH
+             - Branches Required to be up to date, So Fetch latest DEFAULT_BRANCH
              - Rebase or merge DEFAULT_BRANCH INTO PR branch
              - Resolve conflicts ONLY if trivial and deterministic
                - If not trivial → comment with explanation and STOP on that PR

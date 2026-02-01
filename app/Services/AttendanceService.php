@@ -93,16 +93,24 @@ class AttendanceService
     public function calculateAttendanceStatistics(string $studentId, ?string $startDate = null, ?string $endDate = null): array
     {
         $query = StudentAttendance::byStudent($studentId);
-
+        
         if ($startDate && $endDate) {
             $query->byDateRange($startDate, $endDate);
         }
-
-        $totalDays = $query->count();
-        $presentDays = $query->present()->count();
-        $absentDays = $query->absent()->count();
-        $lateDays = $query->late()->count();
-        $excusedDays = $query->excused()->count();
+        
+        $result = $query->selectRaw('
+            COUNT(*) as total_days,
+            SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present_days,
+            SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent_days,
+            SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late_days,
+            SUM(CASE WHEN status = "excused" THEN 1 ELSE 0 END) as excused_days
+        ')->first();
+        
+        $totalDays = (int) $result->total_days;
+        $presentDays = (int) $result->present_days;
+        $absentDays = (int) $result->absent_days;
+        $lateDays = (int) $result->late_days;
+        $excusedDays = (int) $result->excused_days;
 
         $percentage = $totalDays > 0 ? round(($presentDays / $totalDays) * 100, 2) : 0;
 
@@ -173,12 +181,16 @@ class AttendanceService
 
     private function calculateAttendancePercentage(string $studentId, string $sinceDate): float
     {
-        $query = StudentAttendance::byStudent($studentId)
-            ->whereDate('attendance_date', '>=', $sinceDate);
-
-        $total = $query->count();
-        $present = $query->present()->count();
-
+        $result = StudentAttendance::byStudent($studentId)
+            ->whereDate('attendance_date', '>=', $sinceDate)
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present
+            ')->first();
+        
+        $total = (int) $result->total;
+        $present = (int) $result->present;
+        
         return $total > 0 ? round(($present / $total) * 100, 2) : 0;
     }
 

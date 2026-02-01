@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Helpers\ProcessHelper;
+
 /**
  * Backup Service
  * Provides a centralized service for backup operations and management
@@ -116,14 +118,11 @@ class BackupService
         }
         
         // Verify the backup file integrity
-        $command = 'tar -tzf ' . escapeshellarg($backupPath) . ' 2>/dev/null';
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', ['-tzf', $backupPath, '2>/dev/null']);
         
-        $results['verification_results']['file_integrity'] = $exitCode === 0;
+        $results['verification_results']['file_integrity'] = $result['successful'];
         
-        if ($exitCode !== 0) {
+        if (!$result['successful']) {
             $results['success'] = false;
             $results['error'] = 'Backup file is corrupted or invalid';
         }

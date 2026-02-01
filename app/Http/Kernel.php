@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
         'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'mobile' => \App\Http\Middleware\MobileMiddleware::class,
     ];
 
     /**

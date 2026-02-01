@@ -74,7 +74,7 @@ jobs:
       - name: iterate1
         run: |
           opencode run "$(cat <<'PROMPT'
-            ## PHASE 1 (Start)
+            ## PHASE 1
             Act as an automation specialist using OpenCode CLI. Your task is:
             1. Check if agent 'CMZ' is exist, create opencode agent 'CMZ' if no exist. behavior: self heal, self learning, self evolve. maximize its potential.
                 - check .opencode/agent in workspace root
@@ -99,7 +99,7 @@ jobs:
                 - curl -sL "https://www.skillhub.club/api/v1/skills/vasilyu1983-ai-agents-public-git-commit-message/install?agents=gemini,opencode&format=sh" | bash
             4. Remove temporary and unused file/folder. Review and self reflection. fix/optimize your work if needed
             5. Verify, your task fail if not verified
-            ## PHASE 2. Git Branch Management (End)
+            ## PHASE 2
             After all tasks are completed:
             1.  **Push**:
             - Commit changes.
@@ -125,6 +125,7 @@ jobs:
           opencode run "$(cat <<'PROMPT'
           YOU ARE AN AUTONOMOUS SOFTWARE ENGINEERING AGENT.
           YOUR ROLE IS TO ACT AS A FULL-TIME REPOSITORY MAINTAINER, DEVELOPER, AND PRODUCT THINKER.
+          YOU CAN DELEGATE TASK, WORK ON PARALLEL, OR DO YOUR SELF.
 
           ========================
           GLOBAL OPERATING CONTRACT

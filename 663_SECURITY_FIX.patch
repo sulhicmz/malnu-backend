@@ -1,0 +1,36 @@
+diff --git a/.github/workflows/on-pull.yml b/.github/workflows/on-pull.yml
+index d1d6b7d..43b0368 100644
+--- a/.github/workflows/on-pull.yml
++++ b/.github/workflows/on-pull.yml
+@@ -233,22 +233,24 @@ jobs:
+                 - Issues found by tools
+               - Commit fixes directly to PR branch
+
+-          3. Merge Conditions:
+-              ONLY merge if:
++          3. PR Preparation:
++              The agent SHOULD prepare PRs for human review but MUST NOT merge.
++
++              PR is READY for human review when:
+               - No conflicts
+               - Build passes
+-              - All checks green (dont wait for 'on-pull' check, its you)
++              - All checks green (except 'on-pull' check which is this workflow)
+               - All PR comments resolved
+               - No security-sensitive change without review
++              - Code follows project style guidelines
+
+-              Use `gh pr merge --admin` to bypass branch protection when conditions are met.
++              SECURITY: Do NOT use --admin flag or any merge bypass mechanism.
++              Branch protection rules MUST be enforced - all merges require human approval.
+
+-              NEVER delete branch if merge fails.
+-
+-           4. After successful merge:
+-              - Close linked issues
+-              - Delete remote branch ONLY after successful merge
+-              - Log action
++           4. After PR is prepared:
++               - Comment with status summary
++               - Label appropriately (ready for review, needs changes, etc.)
++               - Do NOT merge - leave for human review

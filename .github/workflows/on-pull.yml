@@ -75,7 +75,7 @@ jobs:
         run: |
           opencode run "$(cat <<'PROMPT'
             ## PHASE 1
-            Act as an automation specialist using OpenCode CLI. Your task is:
+            Act as an automation specialist using OpenCode CLI. You work on current workspace, dont do machine configuration. Your task is:
             1. Check if agent 'CMZ' is exist, create opencode agent 'CMZ' if no exist. behavior: self heal, self learning, self evolve. maximize its potential.
                 - check .opencode/agent in workspace root
                 - verify if "CMZ" agent is exist, create if not exist.
@@ -87,7 +87,8 @@ jobs:
                 - https://github.com/obra/superpowers.git
                 - https://github.com/asgeirtj/system_prompts_leaks.git
                 - https://github.com/OpenBMB/UltraRAG.git
-            3. Check 'oh my opencode' configuration, create if no exist (analyze https://github.com/code-yeongyu/oh-my-opencode.git before creating). 
+            3. Check 'oh my opencode' configuration, create in current workspace if no exist (analyze https://github.com/code-yeongyu/oh-my-opencode.git before creating). 
+                - check if .opencode folder is exist
                 - configure all agents using models: opencode/glm-4.7-free, opencode/kimi-k2.5-free or opencode/minimax-m2.1-free
             3. Setup agent skill for opencode cli, read documentation https://www.skillhub.club/docs/cli:
                 - proffesor-for-testing-agentic-qe-skill-builder

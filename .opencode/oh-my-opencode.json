@@ -4,7 +4,7 @@
   "agents": {
     "sisyphus": {
       "model": "opencode/kimi-k2.5-free",
-      "temperature": 0.2
+      "temperature": 1.0
     },
     "oracle": {
       "model": "opencode/glm-4.7-free",
@@ -16,7 +16,7 @@
     },
     "librarian": {
       "model": "opencode/kimi-k2.5-free",
-      "temperature": 0.1
+      "temperature": 1.0
     },
     "explore": {
       "model": "opencode/glm-4.7-free",
@@ -24,7 +24,7 @@
     },
     "cmz": {
       "model": "opencode/kimi-k2.5-free",
-      "temperature": 0.2
+      "temperature": 1.0
     }
   },
   "skills": {

@@ -1,0 +1,65 @@
+From 60b84f3103d47331f6efbee151a58ac30deeec51 Mon Sep 17 00:00:00 2001
+From: GitHub Actions Bot <actions@github.com>
+Date: Sun, 1 Feb 2026 15:59:32 +0000
+Subject: [PATCH] security: Remove admin merge bypass from on-pull.yml workflow
+
+Critical security fix to remove the ability for the CI agent to bypass
+branch protection rules using admin merge privileges.
+
+The workflow previously instructed agents to use 'gh pr merge --admin' which
+allowed automated merging without human oversight, completely bypassing
+branch protection rules. This vulnerability has been removed.
+
+Changes:
+- Removed 'Merge Conditions' section with admin bypass logic
+- Added 'PR Preparation' section with explicit security controls
+- Added explicit warning: 'Do NOT use --admin flag or any merge bypass mechanism'
+- All merges now require human approval per branch protection rules
+
+Fixes #663
+Fixes #629
+---
+ .github/workflows/on-pull.yml | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/.github/workflows/on-pull.yml b/.github/workflows/on-pull.yml
+index cd2b71a..929c4a1 100644
+--- a/.github/workflows/on-pull.yml
++++ b/.github/workflows/on-pull.yml
+@@ -230,22 +230,24 @@ jobs:
+                 - Issues found by tools
+               - Commit fixes directly to PR branch
+ 
+-          3. Merge Conditions:
+-              ONLY merge if:
++          3. PR Preparation:
++              The agent SHOULD prepare PRs for human review but MUST NOT merge.
++
++              PR is READY for human review when:
+               - No conflicts
+               - Build passes
+               - All checks green (dont wait for 'on-pull' check, its you)
+               - All PR comments resolved
+               - No security-sensitive change without review
++              - Code follows project style guidelines
+ 
+-              Use `gh pr merge --admin` to bypass branch protection when conditions are met.
++              SECURITY: Do NOT use --admin flag or any merge bypass mechanism.
++              Branch protection rules MUST be enforced - all merges require human approval.
+ 
+-              NEVER delete branch if merge fails.
+-           
+-           4. After successful merge:
+-              - Close linked issues
+-              - Delete remote branch ONLY after successful merge
+-              - Log action
++           4. After PR is prepared:
++              - Comment with status summary
++              - Label appropriately (ready for review, needs changes, etc.)
++              - Do NOT merge - leave for human review
+                     
+           ========================
+           ISSUE MANAGER MODE
+-- 
+2.52.0
+

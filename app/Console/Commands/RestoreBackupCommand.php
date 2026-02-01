@@ -9,6 +9,7 @@ use Hyperf\Contract\ConfigInterface;
 use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class RestoreBackupCommand extends Command
 {
@@ -109,13 +110,9 @@ class RestoreBackupCommand extends Command
 
     protected function extractBackup(string $backupFile, string $tempDir): bool
     {
-        $command = 'tar -xzf ' . escapeshellarg($backupFile) . ' -C ' . escapeshellarg($tempDir);
+        $result = ProcessHelper::execute('tar', ['-xzf', $backupFile, '-C', $tempDir]);
 
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
-
-        return $exitCode === 0;
+        return $result['successful'];
     }
 
     protected function restoreDatabase(string $tempDir, string $connection): bool
@@ -200,21 +197,17 @@ class RestoreBackupCommand extends Command
         $username = $config['username'];
         $password = $config['password'];
 
-        $command = sprintf(
-            'mysql --host=%s --port=%s --user=%s --password=%s %s < %s',
-            escapeshellarg($host),
-            escapeshellarg((string) $port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($database),
-            escapeshellarg($backupFile)
-        );
+        $result = ProcessHelper::execute('mysql', [
+            '--host=' . $host,
+            '--port=' . (string) $port,
+            '--user=' . $username,
+            '--password=' . $password,
+            $database,
+            '<',
+            $backupFile
+        ]);
 
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
-
-        return $exitCode === 0;
+        return $result['successful'];
     }
 
     protected function restoreSqlite(string $backupFile, array $config): bool
@@ -233,15 +226,12 @@ class RestoreBackupCommand extends Command
         if (is_dir($tempDir . '/filesystem')) {
             $fsBackupDir = $tempDir . '/filesystem';
         } elseif (file_exists($tempDir . '/filesystem_backup.tar.gz')) {
-            // Extract the filesystem backup if it's in a tar.gz file
             $extractDir = $tempDir . '/extracted_fs';
             mkdir($extractDir, 0755, true);
 
-            $command = 'tar -xzf ' . escapeshellarg($tempDir . '/filesystem_backup.tar.gz') . ' -C ' . escapeshellarg($extractDir);
-            $exitCode = 0;
-            exec($command, $output, $exitCode);
+            $result = ProcessHelper::execute('tar', ['-xzf', $tempDir . '/filesystem_backup.tar.gz', '-C', $extractDir]);
 
-            if ($exitCode === 0) {
+            if ($result['successful']) {
                 $fsBackupDir = $extractDir;
             }
         } elseif (is_dir($tempDir . '/app') || is_dir($tempDir . '/config')) {

@@ -17,8 +17,7 @@
         "ext-redis": "*",
         "friendsofhyperf/tinker": "~3.1.0",
         "hypervel/framework": "^0.1",
-        "league/commonmark": "^2.7.0",
-        "symfony/http-foundation": "^6.4.29"
+        "symfony/process": "^6.4"
     },
     "require-dev": {
         "fakerphp/faker": "^2.0",
@@ -32,7 +31,8 @@
         "nunomaduro/collision": "^8.5",
         "phpstan/phpstan": "^1.11.5",
         "phpunit/phpunit": "10.5.45",
-        "swoole/ide-helper": "~5.1.0"
+        "swoole/ide-helper": "~5.1.0",
+        "zircote/swagger-php": "^4.9"
     },
     "autoload": {
         "psr-4": {

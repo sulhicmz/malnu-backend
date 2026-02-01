@@ -2,9 +2,27 @@
 
 ## 📡 Overview
 
-This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
+This document describes RESTful API endpoints for Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
 **Implementation Status:** 35 of 54 endpoints implemented (65%)
+
+## 📖 Interactive API Documentation
+
+For interactive API documentation with Swagger UI, see **[OpenAPI/Swagger Documentation](OPENAPI_SWAGGER.md)**.
+
+The OpenAPI specification allows you to:
+- Explore all available endpoints
+- Test API requests directly from the browser
+- View request/response examples
+- Understand authentication requirements
+
+To generate the OpenAPI specification:
+```bash
+# After installing zircote/swagger-php
+vendor/bin/openapi -o public/swagger.json app
+```
+
+Then open `public/swagger.json` in the [Swagger UI Editor](https://editor.swagger.io/).
 
 ## 🔐 Authentication
 

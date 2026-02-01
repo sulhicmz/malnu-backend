@@ -19,14 +19,18 @@ class AuthService implements AuthServiceInterface
 
     private EmailService $emailService;
 
+    private PasswordValidator $passwordValidator;
+
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
-        EmailService $emailService
+        EmailService $emailService,
+        PasswordValidator $passwordValidator
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
         $this->emailService = $emailService;
+        $this->passwordValidator = $passwordValidator;
     }
 
     /**
@@ -37,6 +41,11 @@ class AuthService implements AuthServiceInterface
         $existingUser = User::where('email', $data['email'])->first();
         if ($existingUser) {
             throw new Exception('User with this email already exists');
+        }
+
+        $errors = $this->passwordValidator->validate($data['password']);
+        if (! empty($errors)) {
+            throw new Exception(implode(' ', $errors));
         }
 
         $user = User::create([
@@ -54,28 +63,23 @@ class AuthService implements AuthServiceInterface
      */
     public function login(string $email, string $password): array
     {
-        $users = $this->getAllUsers();
-        $user = null;
-
-        foreach ($users as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                $user = $u;
-                break;
-            }
-        }
+        $user = User::where('email', $email)->first();
 
         if (! $user) {
             throw new Exception('Invalid credentials');
         }
 
-        // Generate JWT token
+        if (! password_verify($password, $user->password)) {
+            throw new Exception('Invalid credentials');
+        }
+
         $token = $this->jwtService->generateToken([
-            'id' => $user['id'],
-            'email' => $user['email'],
+            'id' => $user->id,
+            'email' => $user->email,
         ]);
 
         return [
-            'user' => $user,
+            'user' => $user->toArray(),
             'token' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -100,14 +104,9 @@ class AuthService implements AuthServiceInterface
             return null;
         }
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['id'] === $payload['data']['id']) {
-                return $user;
-            }
-        }
+        $user = User::find($payload['data']['id']);
 
-        return null;
+        return $user ? $user->toArray() : null;
     }
 
     /**
@@ -180,25 +179,9 @@ class AuthService implements AuthServiceInterface
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // Validate password strength (backend validation as safety net)
-        if (strlen($newPassword) < 8) {
-            throw new Exception('Password must be at least 8 characters long');
-        }
-
-        if (! preg_match('/[A-Z]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 uppercase letter');
-        }
-
-        if (! preg_match('/[a-z]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 lowercase letter');
-        }
-
-        if (! preg_match('/[0-9]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 number');
-        }
-
-        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 special character');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (! empty($errors)) {
+            throw new Exception(implode(' ', $errors));
         }
 
         // Get all valid tokens from database
@@ -266,25 +249,9 @@ class AuthService implements AuthServiceInterface
             throw new Exception('Current password is incorrect');
         }
 
-        // Validate new password strength (backend validation as safety net)
-        if (strlen($newPassword) < 8) {
-            throw new Exception('New password must be at least 8 characters long');
-        }
-
-        if (! preg_match('/[A-Z]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 uppercase letter');
-        }
-
-        if (! preg_match('/[a-z]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 lowercase letter');
-        }
-
-        if (! preg_match('/[0-9]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 number');
-        }
-
-        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new Exception('Password must contain at least 1 special character');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (! empty($errors)) {
+            throw new Exception('New password: ' . implode(' ', $errors));
         }
 
         // Update user password
@@ -296,13 +263,5 @@ class AuthService implements AuthServiceInterface
             'success' => true,
             'message' => 'Password has been changed successfully',
         ];
-    }
-
-    /**
-     * Get all users from database.
-     */
-    private function getAllUsers(): array
-    {
-        return User::all()->toArray();
     }
 }

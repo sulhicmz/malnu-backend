@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+  "google_auth": false,
+  "agents": {
+    "sisyphus": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 1.0
+    },
+    "oracle": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.1
+    },
+    "frontend-ui-ux-engineer": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.3
+    },
+    "librarian": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 1.0
+    },
+    "explore": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.1
+    },
+    "cmz": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 1.0
+    }
+  },
+  "skills": {
+    "git-master": true,
+    "playwright": false
+  },
+  "mcp": {
+    "websearch": true,
+    "context7": true,
+    "grep_app": true
+  },
+  "lsp": {
+    "enabled": true,
+    "refactor": true
+  },
+  "background_tasks": {
+    "enabled": true,
+    "concurrency": 3
+  },
+  "hooks": {
+    "todo_enforcer": true,
+    "comment_checker": true,
+    "ultrawork": true
+  }
+}

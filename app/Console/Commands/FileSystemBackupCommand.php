@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Contract\ConfigInterface;
 use Hypervel\Console\Command;
+use Hyperf\Contract\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class FileSystemBackupCommand extends Command
 {
@@ -35,7 +36,7 @@ class FileSystemBackupCommand extends Command
         $cleanOld = $this->input->getOption('clean-old');
 
         // Ensure backup directory exists
-        if (! is_dir($backupPath)) {
+        if (!is_dir($backupPath)) {
             mkdir($backupPath, 0755, true);
         }
 
@@ -60,9 +61,10 @@ class FileSystemBackupCommand extends Command
             }
 
             return 0;
+        } else {
+            $this->output->writeln('<error>File system backup failed</error>');
+            return 1;
         }
-        $this->output->writeln('<error>File system backup failed</error>');
-        return 1;
     }
 
     protected function createFileSystemBackup(string $include, string $exclude, string $backupPath, string $filename): bool
@@ -70,28 +72,24 @@ class FileSystemBackupCommand extends Command
         $includePaths = array_map('trim', explode(',', $include));
         $excludePaths = array_map('trim', explode(',', $exclude));
 
-        $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $filename) . ' ';
+        $arguments = ['-czf', $backupPath . '/' . $filename];
 
-        // Add exclude patterns
         foreach ($excludePaths as $excludePath) {
-            $tarCommand .= '--exclude=' . escapeshellarg($excludePath) . ' ';
+            $arguments[] = '--exclude=' . $excludePath;
         }
 
-        // Add include paths
         foreach ($includePaths as $includePath) {
             $fullPath = base_path('/') . $includePath;
             if (is_dir($fullPath) || file_exists($fullPath)) {
-                $tarCommand .= escapeshellarg($includePath) . ' ';
+                $arguments[] = $includePath;
             }
         }
 
         $this->output->write('Creating file system backup... ');
 
-        $exitCode = 0;
-        $output = [];
-        exec($tarCommand, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', $arguments);
 
-        if ($exitCode === 0) {
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
             return true;
         }
@@ -114,24 +112,24 @@ class FileSystemBackupCommand extends Command
     protected function cleanOldBackups(string $backupPath): void
     {
         $this->output->writeln('<info>Cleaning old backups...</info>');
-
+        
         // Find all filesystem backup files
         $pattern = $backupPath . '/filesystem_backup_*.tar.gz';
         $allFiles = glob($pattern);
-
+        
         // Sort by modification time (newest first)
         usort($allFiles, function ($a, $b) {
             return filemtime($b) - filemtime($a);
         });
-
+        
         // Keep only the 5 most recent backups
         $filesToDelete = array_slice($allFiles, 5);
-
+        
         foreach ($filesToDelete as $file) {
             unlink($file);
             $this->output->writeln('<info>Deleted old backup: ' . $file . '</info>');
         }
-
+        
         $this->output->writeln('<info>Old backup cleanup completed.</info>');
     }
 

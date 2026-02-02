@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/dev/assets/oh-my-opencode.schema.json",
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "google_auth": false,
   "agents": {
     "sisyphus": {
@@ -24,12 +24,15 @@
     },
     "cmz": {
       "model": "opencode/kimi-k2.5-free",
-      "temperature": 1.0
+      "temperature": 0.2
     }
   },
   "skills": {
     "git-master": true,
-    "playwright": false
+    "playwright": false,
+    "debugging-strategies": true,
+    "systematic-debugging": true,
+    "git-commit-message": true
   },
   "mcp": {
     "websearch": true,

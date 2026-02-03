@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\PasswordChangeController;
+use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
@@ -20,16 +23,16 @@ use Hyperf\Support\Facades\Route;
 Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);
-    Route::post('/auth/password/reset', [AuthController::class, 'resetPassword']);
+    Route::post('/auth/password/forgot', [PasswordResetController::class, 'requestPasswordReset']);
+    Route::post('/auth/password/reset', [PasswordResetController::class, 'resetPassword']);
 });
 
 // Protected routes (JWT authentication required)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
-    Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+    Route::get('/auth/me', [ProfileController::class, 'me']);
+    Route::post('/auth/password/change', [PasswordChangeController::class, 'changePassword']);
 });
 
 // Attendance and Leave Management Routes (protected with role check)

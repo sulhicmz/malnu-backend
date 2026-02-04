@@ -6,13 +6,12 @@ namespace App\Services;
 
 use App\Models\Attendance\StudentAttendance;
 use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\ClassModel;
-use App\Models\User;
 use App\Models\SchoolManagement\Teacher;
 
 class AttendanceService
 {
     private int $chronicAbsenceThreshold;
+
     private int $attendanceCutoffHour;
 
     public function __construct()
@@ -93,11 +92,11 @@ class AttendanceService
     public function calculateAttendanceStatistics(string $studentId, ?string $startDate = null, ?string $endDate = null): array
     {
         $query = StudentAttendance::byStudent($studentId);
-        
+
         if ($startDate && $endDate) {
             $query->byDateRange($startDate, $endDate);
         }
-        
+
         $result = $query->selectRaw('
             COUNT(*) as total_days,
             SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present_days,
@@ -105,7 +104,7 @@ class AttendanceService
             SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late_days,
             SUM(CASE WHEN status = "excused" THEN 1 ELSE 0 END) as excused_days
         ')->first();
-        
+
         $totalDays = (int) $result->total_days;
         $presentDays = (int) $result->present_days;
         $absentDays = (int) $result->absent_days;
@@ -157,41 +156,30 @@ class AttendanceService
     {
         $cutoffDate = date('Y-m-d', strtotime('-30 days'));
 
-        $students = Student::with(['attendances' => function ($query) use ($cutoffDate) {
+        $chronicAbsentees = Student::whereHas('attendances', function ($query) use ($cutoffDate) {
             $query->whereDate('attendance_date', '>=', $cutoffDate);
-        }])->get();
-
-        $chronicAbsentees = [];
-
-        foreach ($students as $student) {
-            $absentDays = $student->attendances->where('status', 'absent')->count();
-
-            if ($absentDays >= $this->chronicAbsenceThreshold) {
-                $chronicAbsentees[] = [
+        })
+            ->with(['user:id,name,full_name'])
+            ->withCount(['attendances as total_days' => function ($query) use ($cutoffDate) {
+                $query->whereDate('attendance_date', '>=', $cutoffDate);
+            }])
+            ->withCount(['attendances as absent_days' => function ($query) use ($cutoffDate) {
+                $query->whereDate('attendance_date', '>=', $cutoffDate)
+                    ->where('status', 'absent');
+            }])
+            ->having('absent_days', '>=', $this->chronicAbsenceThreshold)
+            ->get()
+            ->map(function ($student) use ($cutoffDate) {
+                return [
                     'student_id' => $student->id,
                     'student_name' => $student->user->full_name ?? $student->user->name,
-                    'absent_days' => $absentDays,
+                    'absent_days' => $student->absent_days,
                     'attendance_percentage' => $this->calculateAttendancePercentage($student->id, $cutoffDate),
                 ];
-            }
-        }
+            })
+            ->toArray();
 
         return $chronicAbsentees;
-    }
-
-    private function calculateAttendancePercentage(string $studentId, string $sinceDate): float
-    {
-        $result = StudentAttendance::byStudent($studentId)
-            ->whereDate('attendance_date', '>=', $sinceDate)
-            ->selectRaw('
-                COUNT(*) as total,
-                SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present
-            ')->first();
-        
-        $total = (int) $result->total;
-        $present = (int) $result->present;
-        
-        return $total > 0 ? round(($present / $total) * 100, 2) : 0;
     }
 
     public function generateAttendanceReport(string $classId, string $startDate, string $endDate): array
@@ -214,7 +202,7 @@ class AttendanceService
         foreach ($attendances as $attendance) {
             $dateKey = $attendance->attendance_date;
 
-            if (!isset($dailyData[$dateKey])) {
+            if (! isset($dailyData[$dateKey])) {
                 $dailyData[$dateKey] = [
                     'date' => $attendance->attendance_date,
                     'present' => 0,
@@ -225,8 +213,8 @@ class AttendanceService
                 ];
             }
 
-            $dailyData[$dateKey]['total']++;
-            $dailyData[$dateKey][$attendance->status]++;
+            ++$dailyData[$dateKey]['total'];
+            ++$dailyData[$dateKey][$attendance->status];
         }
 
         $report['daily_attendance'] = array_values($dailyData);
@@ -241,5 +229,20 @@ class AttendanceService
             ->first();
 
         return $teacher !== null;
+    }
+
+    private function calculateAttendancePercentage(string $studentId, string $sinceDate): float
+    {
+        $result = StudentAttendance::byStudent($studentId)
+            ->whereDate('attendance_date', '>=', $sinceDate)
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present
+            ')->first();
+
+        $total = (int) $result->total;
+        $present = (int) $result->present;
+
+        return $total > 0 ? round(($present / $total) * 100, 2) : 0;
     }
 }

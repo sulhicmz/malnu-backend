@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\TokenBlacklistServiceInterface;
+use App\Services\LoggingService;
 use Redis;
 use RedisException;
 
@@ -20,8 +21,12 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
 
     private string $redisDb;
 
-    public function __construct()
+    private LoggingService $loggingService;
+
+    public function __construct(LoggingService $loggingService)
     {
+        $this->loggingService = $loggingService;
+
         $this->redisHost = config('redis.default.host', 'localhost');
         $this->redisPort = config('redis.default.port', 6379);
         $this->redisDb = config('redis.default.db', 0);
@@ -31,8 +36,9 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
             $this->redis->connect($this->redisHost, $this->redisPort);
             $this->redis->select($this->redisDb);
         } catch (RedisException $e) {
-            error_log('Failed to connect to Redis for token blacklist: ' . $e->getMessage());
+            $this->loggingService->error('Failed to connect to Redis for token blacklist', ['exception' => $e->getMessage()]);
         }
+    }
     }
 
     /**
@@ -50,7 +56,7 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
         try {
             $this->redis->setex($cacheKey, 86400, $expiresAt);
         } catch (RedisException $e) {
-            error_log('Failed to blacklist token: ' . $e->getMessage());
+            $this->loggingService->logTokenBlacklistOperation('blacklist_token_failed', null, ['exception' => $e->getMessage()]);
         }
     }
 
@@ -68,7 +74,7 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
         try {
             return (bool) $this->redis->exists($cacheKey);
         } catch (RedisException $e) {
-            error_log('Failed to check token blacklist status: ' . $e->getMessage());
+            $this->loggingService->error('Failed to check token blacklist status', ['exception' => $e->getMessage()]);
             return false;
         }
     }

@@ -79,6 +79,21 @@ return [
     ],
 
     /*
+     |--------------------------------------------------------------------------
+     | Security Event Logging
+     |--------------------------------------------------------------------------
+     |
+     | Log levels for security-related events (logins, permissions, etc.)
+     |
+     */
+    'security_event_log_level' => [
+        LogLevel::ALERT,
+        LogLevel::CRITICAL,
+        LogLevel::ERROR,
+        LogLevel::INFO,
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Debug Mode for Command Errors
     |--------------------------------------------------------------------------

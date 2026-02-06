@@ -89,9 +89,28 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
         });
     });
-});
+    });
 
-// Calendar and Event Management Routes (protected with role check)
+    // Club and Extracurricular Activity Management Routes (protected with role check)
+    Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+        Route::prefix('clubs')->group(function () {
+            Route::apiResource('clubs', \App\Http\Controllers\Api\ClubManagement\ClubController::class);
+        });
+
+        Route::prefix('activities')->group(function () {
+            Route::apiResource('activities', \App\Http\Controllers\Api\ClubManagement\ActivityController::class);
+        });
+
+        Route::prefix('club-memberships')->group(function () {
+            Route::apiResource('club-memberships', \App\Http\Controllers\Api\ClubManagement\MembershipController::class);
+        });
+
+        Route::prefix('club-advisors')->group(function () {
+            Route::apiResource('club-advisors', \App\Http\Controllers\Api\ClubManagement\AdvisorController::class);
+        });
+    });
+
+    // Calendar and Event Management Routes (protected with role check)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('calendar')->group(function () {
         // Calendar Management - Write operations require specific roles

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Attendance;
 
+use App\Http\Requests\Attendance\ApproveLeaveRequest;
+use App\Http\Requests\Attendance\RejectLeaveRequest;
+use App\Http\Requests\Attendance\UpdateLeaveRequest;
 use App\Models\Attendance\LeaveBalance;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
@@ -116,7 +119,7 @@ class LeaveRequestController extends BaseController
     /**
      * Update the specified leave request.
      */
-    public function update(string $id)
+    public function update(string $id, UpdateLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -130,22 +133,9 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Cannot update leave request that is already processed', 'UPDATE_ERROR');
             }
 
-            $input = $this->request->all();
+            $validated = $request->validated();
 
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
-
-            // Validate comments if provided
-            $errors = [];
-            if (isset($input['comments']) && ! is_string($input['comments'])) {
-                $errors['comments'] = ['Comments must be a string'];
-            }
-
-            if (! empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            $leaveRequest->update($input); // Only update provided fields
+            $leaveRequest->update($validated);
 
             return $this->successResponse($leaveRequest, 'Leave request updated successfully');
         } catch (Exception $e) {
@@ -181,7 +171,7 @@ class LeaveRequestController extends BaseController
     /**
      * Approve a leave request.
      */
-    public function approve(string $id)
+    public function approve(string $id, ApproveLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -194,16 +184,13 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'APPROVAL_ERROR');
             }
 
-            $input = $this->request->all();
-
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
+            $validated = $request->validated();
 
             $leaveRequest->update([
                 'status' => 'approved',
                 'approved_by' => null, // Assuming user authentication is not implemented yet
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null,
+                'approval_comments' => $validated['approval_comments'] ?? null,
             ]);
 
             // Update leave balance if applicable
@@ -226,7 +213,7 @@ class LeaveRequestController extends BaseController
     /**
      * Reject a leave request.
      */
-    public function reject(string $id)
+    public function reject(string $id, RejectLeaveRequest $request)
     {
         try {
             $leaveRequest = LeaveRequest::find($id);
@@ -239,16 +226,13 @@ class LeaveRequestController extends BaseController
                 return $this->errorResponse('Leave request is not in pending status', 'REJECTION_ERROR');
             }
 
-            $input = $this->request->all();
-
-            // Sanitize input data
-            $input = $this->sanitizeInput($input);
+            $validated = $request->validated();
 
             $leaveRequest->update([
                 'status' => 'rejected',
                 'approved_by' => null, // Assuming user authentication is not implemented yet
                 'approved_at' => date('Y-m-d H:i:s'),
-                'approval_comments' => $input['approval_comments'] ?? null,
+                'approval_comments' => $validated['approval_comments'] ?? null,
             ]);
 
             return $this->successResponse($leaveRequest, 'Leave request rejected successfully');

@@ -148,4 +148,44 @@ class InputValidationTraitTest extends TestCase
         $this->assertTrue($this->validateIntegerRange(5, 1, 10));
         $this->assertFalse($this->validateIntegerRange(15, 1, 10));
     }
-}
+
+    public function testSanitizeForCommand()
+    {
+        $input = 'test; rm -rf /';
+        $sanitized = $this->sanitizeForCommand($input);
+
+        $this->assertNotEquals($input, $sanitized);
+        $this->assertTrue($sanitized !== '');
+        $this->assertNull($this->sanitizeForCommand(null));
+    }
+
+    public function testDetectInjectionPatterns()
+    {
+        $this->assertTrue($this->detectInjectionPatterns("'; DROP TABLE users; --"));
+        $this->assertTrue($this->detectInjectionPatterns('<script>alert("xss")</script>'));
+        $this->assertTrue($this->detectInjectionPatterns('test; cat /etc/passwd'));
+        $this->assertTrue($this->detectInjectionPatterns('../../../etc/passwd'));
+        $this->assertFalse($this->detectInjectionPatterns('normal text'));
+    }
+
+    public function testValidateFileUploadEnhanced()
+    {
+        $mockFile = [
+            'name' => 'test.jpg',
+            'type' => 'image/jpeg',
+            'tmp_name' => '/tmp/test.jpg',
+            'size' => 1024,
+        ];
+
+        $errors = $this->validateFileUploadEnhanced(null);
+        $this->assertNotEmpty($errors);
+        $this->assertContains('File is required', $errors);
+
+        $errors = $this->validateFileUploadEnhanced($mockFile);
+        $this->assertNotEmpty($errors);
+
+        $mockFile['tmp_name'] = __FILE__;
+        $errors = $this->validateFileUploadEnhanced($mockFile);
+        $this->assertNotEmpty($errors);
+    }
+ }

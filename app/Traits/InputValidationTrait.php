@@ -381,13 +381,146 @@ trait InputValidationTrait
     }
 
     /**
-     * Validate that array contains only expected keys.
-     */
+      * Validate that array contains only expected keys.
+      */
     protected function validateArrayKeys(array $array, array $expectedKeys): bool
     {
         $actualKeys = array_keys($array);
         $unexpectedKeys = array_diff($actualKeys, $expectedKeys);
 
         return empty($unexpectedKeys);
+    }
+
+    /**
+      * Sanitize input for safe command execution.
+      * Uses escapeshellarg() to properly escape shell arguments.
+      */
+    protected function sanitizeForCommand(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return escapeshellarg($value);
+    }
+
+    /**
+      * Detect potential injection patterns (SQL, XSS, Command, LDAP, Path).
+      * Provides comprehensive injection detection for security.
+      */
+    protected function detectInjectionPatterns(string $value): bool
+    {
+        $patterns = [
+            '/(\s|^)(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE)(\s|$)/i',
+            '/(\s|^)(UNION|JOIN|WHERE|OR|AND)(\s|$)/i',
+            '/[\'";\\]/',
+            '/--/',
+            '/\/\*/',
+            '/\*\//',
+            '/<script\b[^>]*>(.*?)<\/script>/is',
+            '/<iframe\b[^>]*>(.*?)<\/iframe>/is',
+            '/<object\b[^>]*>(.*?)<\/object>/is',
+            '/<embed\b[^>]*>(.*?)<\/embed>/is',
+            '/on\w+\s*=\s*["\']?[^"\'\s>]+/i',
+            '/javascript:/i',
+            '/vbscript:/i',
+            '/\|\||&|;/',
+            '/`/',
+            '/\$\(.*?\)/',
+            '/\.\.\//',
+            '/\\\\/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+      * Validate file upload with enhanced security checks.
+      * Verifies MIME type matches extension and detects malicious file patterns.
+      */
+    protected function validateFileUploadEnhanced(mixed $file, array $allowedTypes = [], ?int $maxSize = null): array
+    {
+        $errors = [];
+
+        if ($file === null) {
+            $errors[] = 'File is required';
+            return $errors;
+        }
+
+        $filePath = $file['tmp_name'] ?? '';
+        $fileName = $file['name'] ?? '';
+        $fileType = $file['type'] ?? '';
+
+        if (!is_uploaded_file($filePath)) {
+            $errors[] = 'Invalid file upload';
+            return $errors;
+        }
+
+        if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
+            $errors[] = 'File size exceeds maximum allowed size';
+        }
+
+        if (!empty($allowedTypes) && !in_array($fileType, $allowedTypes, true)) {
+            $errors[] = 'File type not allowed';
+        }
+
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $detectedType = finfo_file($finfo, $filePath);
+            finfo_close($finfo);
+
+            if ($detectedType && $fileType !== $detectedType) {
+                $typeByExtension = [
+                    'jpg' => 'image/jpeg',
+                    'jpeg' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'gif' => 'image/gif',
+                    'pdf' => 'application/pdf',
+                    'doc' => 'application/msword',
+                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'xls' => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ];
+
+                if (isset($typeByExtension[$extension]) && $detectedType !== $typeByExtension[$extension]) {
+                    $errors[] = 'File extension does not match actual file type';
+                }
+            }
+        }
+
+        $maliciousPatterns = [
+            '/<\?php/i',
+            '/<script/i',
+            '/<iframe/i',
+            '/<object/i',
+            '/<embed/i',
+            '/document\.write/i',
+            '/eval\s*\(/i',
+            '/exec\s*\(/i',
+            '/system\s*\(/i',
+            '/passthru\s*\(/i',
+            '/shell_exec\s*\(/i',
+        ];
+
+        if (filesize($filePath) < 1048576) {
+            $fileContent = file_get_contents($filePath);
+            if ($fileContent) {
+                foreach ($maliciousPatterns as $pattern) {
+                    if (preg_match($pattern, $fileContent)) {
+                        $errors[] = 'File contains potentially malicious content';
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $errors;
     }
  }

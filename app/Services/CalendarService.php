@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Calendar\Calendar;
-use App\Models\Calendar\CalendarEvent;
+use App\Contracts\CalendarRepositoryInterface;
 use App\Models\Calendar\CalendarEventRegistration;
 use App\Models\Calendar\CalendarShare;
 use App\Models\Calendar\ResourceBooking;
@@ -15,12 +14,19 @@ use Exception;
 
 class CalendarService
 {
+    private CalendarRepositoryInterface $calendarRepository;
+
+    public function __construct(CalendarRepositoryInterface $calendarRepository)
+    {
+        $this->calendarRepository = $calendarRepository;
+    }
+
     /**
      * Create a new calendar.
      */
     public function createCalendar(array $data): Calendar
     {
-        return Calendar::create($data);
+        return $this->calendarRepository->createCalendar($data);
     }
 
     /**
@@ -28,7 +34,7 @@ class CalendarService
      */
     public function getCalendar(string $id): ?Calendar
     {
-        return Calendar::find($id);
+        return $this->calendarRepository->findCalendar($id);
     }
 
     /**
@@ -36,12 +42,7 @@ class CalendarService
      */
     public function updateCalendar(string $id, array $data): bool
     {
-        $calendar = Calendar::find($id);
-        if (! $calendar) {
-            return false;
-        }
-
-        return $calendar->update($data);
+        return $this->calendarRepository->updateCalendar($id, $data);
     }
 
     /**
@@ -49,12 +50,7 @@ class CalendarService
      */
     public function deleteCalendar(string $id): bool
     {
-        $calendar = Calendar::find($id);
-        if (! $calendar) {
-            return false;
-        }
-
-        return $calendar->delete();
+        return $this->calendarRepository->deleteCalendar($id);
     }
 
     /**
@@ -62,7 +58,7 @@ class CalendarService
      */
     public function createEvent(array $data): CalendarEvent
     {
-        return CalendarEvent::create($data);
+        return $this->calendarRepository->createEvent($data);
     }
 
     /**
@@ -70,7 +66,7 @@ class CalendarService
      */
     public function getEvent(string $id): ?CalendarEvent
     {
-        return CalendarEvent::find($id);
+        return $this->calendarRepository->findEvent($id);
     }
 
     /**
@@ -78,12 +74,7 @@ class CalendarService
      */
     public function updateEvent(string $id, array $data): bool
     {
-        $event = CalendarEvent::find($id);
-        if (! $event) {
-            return false;
-        }
-
-        return $event->update($data);
+        return $this->calendarRepository->updateEvent($id, $data);
     }
 
     /**
@@ -91,12 +82,7 @@ class CalendarService
      */
     public function deleteEvent(string $id): bool
     {
-        $event = CalendarEvent::find($id);
-        if (! $event) {
-            return false;
-        }
-
-        return $event->delete();
+        return $this->calendarRepository->deleteEvent($id);
     }
 
     /**
@@ -104,25 +90,7 @@ class CalendarService
      */
     public function getEventsByDateRange(string $calendarId, Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
-        $query = CalendarEvent::where('calendar_id', $calendarId)
-            ->where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                    ->orWhereBetween('end_date', [$startDate, $endDate])
-                    ->orWhere(function ($q) use ($startDate, $endDate) {
-                        $q->where('start_date', '<=', $startDate)
-                            ->where('end_date', '>=', $endDate);
-                    });
-            });
-
-        if (! empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        if (! empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
-        }
-
-        return $query->orderBy('start_date', 'asc')->get()->toArray();
+        return $this->calendarRepository->getEventsByDateRange($calendarId, $startDate, $endDate, $filters);
     }
 
     /**
@@ -130,25 +98,16 @@ class CalendarService
      */
     public function getEventsForUser(string $userId, Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
-        $query = CalendarEvent::whereHas('calendar', function ($q) use ($userId) {
-            $q->where('is_public', true)
-                ->orWhereHas('shares', function ($q) use ($userId) {
-                    $q->where('user_id', $userId);
-                });
-        });
+        return $this->calendarRepository->getEventsForUser($userId, $startDate, $endDate, $filters);
+    }
 
-        $query->where(function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('start_date', [$startDate, $endDate])
-                ->orWhereBetween('end_date', [$startDate, $endDate])
-                ->orWhere(function ($q) use ($startDate, $endDate) {
-                    $q->where('start_date', '<=', $startDate)
-                        ->where('end_date', '>=', $endDate);
-                });
-        });
-
-        if (! empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
+    /**
+     * Get upcoming events for a user.
+     */
+    public function getUpcomingEvents(string $userId, int $days = 30): array
+    {
+        return $this->calendarRepository->getUpcomingEvents($userId, $days);
+    }
 
         if (! empty($filters['priority'])) {
             $query->where('priority', $filters['priority']);

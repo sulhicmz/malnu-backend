@@ -17,7 +17,10 @@ Malnu Backend is a comprehensive school management system built with **HyperVel*
 # Install dependencies
 composer install
 
-# Set up environment
+# Set up environment (with automatic secret generation)
+./scripts/setup-env.sh
+
+# Or manually: Set up environment
 cp .env.example .env
 # Edit .env with your configuration
 
@@ -26,6 +29,12 @@ php artisan migrate
 
 # Start the server
 php artisan start
+```
+
+**Note**: The `setup-env.sh` script automatically generates secure random values for `APP_KEY` and `JWT_SECRET`. For production, always regenerate these secrets using:
+```bash
+openssl rand -base64 32  # For APP_KEY
+openssl rand -hex 32     # For JWT_SECRET
 ```
 
 ### Using Docker Compose

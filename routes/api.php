@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\FinancialManagement\PaymentController;
 use App\Http\Controllers\BehavioralTrackingController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Alumni\AlumniController;
+use App\Http\Controllers\Api\ComplianceController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -222,6 +223,52 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'mobile']], function () {
             Route::put('/preferences', [PushNotificationController::class, 'updatePreferences']);
             Route::get('/preferences', [PushNotificationController::class, 'getPreferences']);
             Route::post('/test', [PushNotificationController::class, 'testPush']);
+        });
+    });
+
+    // Compliance Management Routes (protected with role check)
+    Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah']], function () {
+        Route::prefix('compliance')->group(function () {
+            // Dashboard and Statistics
+            Route::get('/dashboard', [ComplianceController::class, 'dashboard']);
+            Route::get('/compliance-score', [ComplianceController::class, 'getComplianceScore']);
+
+            // Policy Management
+            Route::get('/policies', [ComplianceController::class, 'getPolicies']);
+            Route::get('/policies/{id}', [ComplianceController::class, 'getPolicy']);
+            Route::post('/policies', [ComplianceController::class, 'createPolicy']);
+            Route::put('/policies/{id}', [ComplianceController::class, 'updatePolicy']);
+            Route::post('/policies/{id}/acknowledge', [ComplianceController::class, 'acknowledgePolicy']);
+            Route::get('/my-pending-policies', [ComplianceController::class, 'getMyPendingPolicies']);
+
+            // Training Management
+            Route::get('/training', [ComplianceController::class, 'getTraining']);
+            Route::get('/training/{id}', [ComplianceController::class, 'getTrainingItem']);
+            Route::post('/training', [ComplianceController::class, 'createTraining']);
+            Route::put('/training/{id}', [ComplianceController::class, 'updateTraining']);
+            Route::post('/training/{id}/complete', [ComplianceController::class, 'completeTraining']);
+            Route::get('/my-pending-training', [ComplianceController::class, 'getMyPendingTraining']);
+
+            // Audit Trail
+            Route::get('/audits', [ComplianceController::class, 'getAudits']);
+
+            // Risk Management
+            Route::get('/risks', [ComplianceController::class, 'getRisks']);
+            Route::get('/risks/{id}', [ComplianceController::class, 'getRisk']);
+            Route::post('/risks', [ComplianceController::class, 'createRisk']);
+            Route::put('/risks/{id}', [ComplianceController::class, 'updateRisk']);
+
+            // Incident Management
+            Route::get('/incidents', [ComplianceController::class, 'getIncidents']);
+            Route::get('/incidents/{id}', [ComplianceController::class, 'getIncident']);
+            Route::post('/incidents', [ComplianceController::class, 'createIncident']);
+            Route::put('/incidents/{id}', [ComplianceController::class, 'updateIncident']);
+
+            // Report Management
+            Route::get('/reports', [ComplianceController::class, 'getReports']);
+            Route::get('/reports/{id}', [ComplianceController::class, 'getReport']);
+            Route::post('/reports', [ComplianceController::class, 'createReport']);
+            Route::post('/reports/{id}/submit', [ComplianceController::class, 'submitReport']);
         });
     });
 });

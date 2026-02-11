@@ -7,8 +7,8 @@ namespace App\Services;
 use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
+use App\Contracts\UserRepositoryInterface;
 use App\Models\PasswordResetToken;
-use App\Models\User;
 use Exception;
 
 class AuthService implements AuthServiceInterface
@@ -21,16 +21,20 @@ class AuthService implements AuthServiceInterface
 
     private PasswordValidator $passwordValidator;
 
+    private UserRepositoryInterface $userRepository;
+
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
         EmailService $emailService,
-        PasswordValidator $passwordValidator
+        PasswordValidator $passwordValidator,
+        UserRepositoryInterface $userRepository
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
         $this->emailService = $emailService;
         $this->passwordValidator = $passwordValidator;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -38,7 +42,7 @@ class AuthService implements AuthServiceInterface
      */
     public function register(array $data): array
     {
-        $existingUser = User::where('email', $data['email'])->first();
+        $existingUser = $this->userRepository->findByEmail($data['email']);
         if ($existingUser) {
             throw new Exception('User with this email already exists');
         }
@@ -48,7 +52,7 @@ class AuthService implements AuthServiceInterface
             throw new Exception(implode(' ', $errors));
         }
 
-        $user = User::create([
+        $user = $this->userRepository->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
@@ -63,7 +67,7 @@ class AuthService implements AuthServiceInterface
      */
     public function login(string $email, string $password): array
     {
-        $user = User::where('email', $email)->first();
+        $user = $this->userRepository->findByEmail($email);
 
         if (! $user) {
             throw new Exception('Invalid credentials');
@@ -104,7 +108,7 @@ class AuthService implements AuthServiceInterface
             return null;
         }
 
-        $user = User::find($payload['data']['id']);
+        $user = $this->userRepository->findById($payload['data']['id']);
 
         return $user ? $user->toArray() : null;
     }
@@ -143,7 +147,7 @@ class AuthService implements AuthServiceInterface
      */
     public function requestPasswordReset(string $email): array
     {
-        $user = User::where('email', $email)->first();
+        $user = $this->userRepository->findByEmail($email);
 
         if (! $user) {
             // Don't reveal if email exists to prevent enumeration
@@ -212,7 +216,7 @@ class AuthService implements AuthServiceInterface
         }
 
         // Get user
-        $user = User::find($resetTokenRecord->user_id);
+        $user = $this->userRepository->findById($resetTokenRecord->user_id);
 
         if (! $user) {
             throw new Exception('User not found');
@@ -238,7 +242,7 @@ class AuthService implements AuthServiceInterface
     public function changePassword(string $userId, string $currentPassword, string $newPassword): array
     {
         // Fetch user from database
-        $user = User::find($userId);
+        $user = $this->userRepository->findById($userId);
 
         if (! $user) {
             throw new Exception('User not found');

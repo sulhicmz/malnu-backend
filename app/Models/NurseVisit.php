@@ -75,30 +75,30 @@ class NurseVisit extends Model
     {
         return $query->whereBetween('visit_time', [
             now()->startOfWeek()->format('Y-m-d'),
-            now()->endOfWeek()->format('Y-m-d')
+            now()->endOfWeek()->format('Y-m-d'),
         ]);
     }
 
     public function scopeThisMonth($query)
     {
         return $query->whereYear('visit_time', now()->year)
-                      ->whereMonth('visit_time', now()->month);
+            ->whereMonth('visit_time', now()->month);
     }
 
     public function getDurationAttribute(): ?string
     {
-        if (!$this->return_time || !$this->visit_time) {
+        if (! $this->return_time || ! $this->visit_time) {
             return null;
         }
-        
+
         $visitTime = strtotime($this->visit_time);
         $returnTime = strtotime($this->return_time);
-        
+
         if ($returnTime > $visitTime) {
             $minutes = round(($returnTime - $visitTime) / 60);
             return $minutes . ' minute' . ($minutes !== 1 ? 's' : '');
         }
-        
+
         return null;
     }
 }

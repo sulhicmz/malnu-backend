@@ -8,6 +8,7 @@ use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class FileSystemBackupCommand extends Command
 {
@@ -70,35 +71,30 @@ class FileSystemBackupCommand extends Command
     {
         $includePaths = array_map('trim', explode(',', $include));
         $excludePaths = array_map('trim', explode(',', $exclude));
-        
-        $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $filename) . ' ';
-        
-        // Add exclude patterns
+
+        $arguments = ['-czf', $backupPath . '/' . $filename];
+
         foreach ($excludePaths as $excludePath) {
-            $tarCommand .= '--exclude=' . escapeshellarg($excludePath) . ' ';
+            $arguments[] = '--exclude=' . $excludePath;
         }
-        
-        // Add include paths
+
         foreach ($includePaths as $includePath) {
-            $fullPath = base_path('/') .$includePath;
+            $fullPath = base_path('/') . $includePath;
             if (is_dir($fullPath) || file_exists($fullPath)) {
-                $tarCommand .= escapeshellarg($includePath) . ' ';
+                $arguments[] = $includePath;
             }
         }
-        
-        $this->output->write('Creating file system backup... ');
-        
-        $exitCode = 0;
-        $output = [];
-        exec($tarCommand, $output, $exitCode);
 
-        if ($exitCode === 0) {
+        $this->output->write('Creating file system backup... ');
+
+        $result = ProcessHelper::execute('tar', $arguments);
+
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function generateFilename(): string

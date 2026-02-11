@@ -1,0 +1,59 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+new file mode 100644
+index 0000000..21a28ca
+--- /dev/null
++++ b/.github/workflows/ci.yml
+@@ -0,0 +1,53 @@
++name: CI
++
++on:
++  pull_request:
++  push:
++    branches:
++      - main
++
++permissions:
++  contents: read
++
++jobs:
++  ci:
++    name: Essential CI Checks
++    runs-on: ubuntu-latest
++    timeout-minutes: 15
++
++    steps:
++      - name: Checkout Code
++        uses: actions/checkout@v4
++
++      - name: Setup PHP
++        uses: shivammathur/setup-php@v2
++        with:
++          php-version: '8.2'
++          coverage: none
++          tools: composer:v2
++
++      - name: Get Composer Cache Directory
++        id: composer-cache
++        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
++
++      - name: Cache Composer dependencies
++        uses: actions/cache@v4
++        with:
++          path: ${{ steps.composer-cache.outputs.dir }}
++          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
++          restore-keys: ${{ runner.os }}-composer-
++
++      - name: Install Dependencies
++        run: composer install --no-progress --prefer-dist --no-interaction
++
++      - name: Validate PHP Syntax
++        run: find app tests -name "*.php" -exec php -l {} \;
++
++      - name: Run Tests
++        run: composer test
++
++      - name: Check Code Style
++        run: composer cs-diff
++
++      - name: Static Analysis
++        run: composer analyse

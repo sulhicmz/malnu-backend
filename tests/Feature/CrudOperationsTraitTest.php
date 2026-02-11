@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
-use App\Traits\CrudOperationsTrait;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
-use Psr\Container\ContainerInterface;
+use App\Models\User;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Models\User;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class CrudOperationsTraitTest extends TestCase
 {
     protected $user;
@@ -49,18 +48,18 @@ class CrudOperationsTraitTest extends TestCase
         ])->getJson('/api/school/students');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'data',
-                         'per_page',
-                         'current_page',
-                         'last_page',
-                         'total',
-                     ],
-                     'message',
-                     'timestamp',
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'data',
+                    'per_page',
+                    'current_page',
+                    'last_page',
+                    'total',
+                ],
+                'message',
+                'timestamp',
+            ]);
     }
 
     public function testIndexWithFilters()
@@ -134,14 +133,14 @@ class CrudOperationsTraitTest extends TestCase
         ])->postJson('/api/school/students', []);
 
         $response->assertStatus(422)
-                 ->assertJsonStructure([
-                     'success',
-                     'error' => [
-                         'message',
-                         'code',
-                         'details',
-                     ],
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'error' => [
+                    'message',
+                    'code',
+                    'details',
+                ],
+            ]);
     }
 
     public function testStoreValidatesEmailFormat()
@@ -189,12 +188,12 @@ class CrudOperationsTraitTest extends TestCase
         ]);
 
         $response->assertStatus(400)
-                 ->assertJson([
-                     'success' => false,
-                     'error' => [
-                         'message' => 'The nisn has already been taken.',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'message' => 'The nisn has already been taken.',
+                ],
+            ]);
     }
 
     public function testStoreCreatesRecord()
@@ -215,10 +214,10 @@ class CrudOperationsTraitTest extends TestCase
         ])->postJson('/api/school/students', $studentData);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Student created successfully',
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Student created successfully',
+            ]);
 
         $this->assertDatabaseHas('students', [
             'name' => 'New Student',
@@ -243,14 +242,14 @@ class CrudOperationsTraitTest extends TestCase
         ])->getJson("/api/school/students/{$student->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Student retrieved successfully',
-                     'data' => [
-                         'id' => $student->id,
-                         'name' => 'Test Student',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Student retrieved successfully',
+                'data' => [
+                    'id' => $student->id,
+                    'name' => 'Test Student',
+                ],
+            ]);
     }
 
     public function testShowReturnsNotFoundForInvalidId()
@@ -262,12 +261,12 @@ class CrudOperationsTraitTest extends TestCase
         ])->getJson('/api/school/students/999999');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'success' => false,
-                     'error' => [
-                         'message' => 'Student not found',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'message' => 'Student not found',
+                ],
+            ]);
     }
 
     public function testUpdateModifiesRecord()
@@ -290,14 +289,14 @@ class CrudOperationsTraitTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Student updated successfully',
-                     'data' => [
-                         'name' => 'Updated Name',
-                         'status' => 'inactive',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Student updated successfully',
+                'data' => [
+                    'name' => 'Updated Name',
+                    'status' => 'inactive',
+                ],
+            ]);
 
         $this->assertDatabaseHas('students', [
             'id' => $student->id,
@@ -333,12 +332,12 @@ class CrudOperationsTraitTest extends TestCase
         ]);
 
         $response->assertStatus(422)
-                 ->assertJson([
-                     'success' => false,
-                     'error' => [
-                         'message' => 'The nisn has already been taken.',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'message' => 'The nisn has already been taken.',
+                ],
+            ]);
     }
 
     public function testDestroyDeletesRecord()
@@ -358,10 +357,10 @@ class CrudOperationsTraitTest extends TestCase
         ])->deleteJson("/api/school/students/{$student->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Student deleted successfully',
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Student deleted successfully',
+            ]);
 
         $this->assertDatabaseMissing('students', [
             'id' => $student->id,
@@ -377,11 +376,11 @@ class CrudOperationsTraitTest extends TestCase
         ])->deleteJson('/api/school/students/999999');
 
         $response->assertStatus(404)
-                 ->assertJson([
-                     'success' => false,
-                     'error' => [
-                         'message' => 'Student not found',
-                     ],
-                 ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'message' => 'Student not found',
+                ],
+            ]);
     }
 }

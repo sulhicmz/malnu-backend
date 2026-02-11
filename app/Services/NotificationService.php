@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\NotificationServiceInterface;
 use App\Models\Notification\Notification;
-use App\Models\Notification\NotificationTemplate;
-use App\Models\Notification\NotificationRecipient;
 use App\Models\Notification\NotificationDeliveryLog;
+use App\Models\Notification\NotificationRecipient;
+use App\Models\Notification\NotificationTemplate;
 use App\Models\Notification\NotificationUserPreference;
 use App\Models\User;
+use DateTime;
+use Exception;
 use Hyperf\Di\Annotation\Inject;
 
-class NotificationService
+class NotificationService implements NotificationServiceInterface
 {
     #[Inject]
     private Notification $notificationModel;
@@ -37,7 +40,7 @@ class NotificationService
 
     public function create(array $data): Notification
     {
-        $notification = $this->notificationModel::create([
+        return $this->notificationModel::create([
             'template_id' => $data['template_id'] ?? null,
             'title' => $data['title'] ?? '',
             'message' => $data['message'] ?? '',
@@ -46,15 +49,13 @@ class NotificationService
             'data' => $data['data'] ?? null,
             'scheduled_at' => $data['scheduled_at'] ?? null,
         ]);
-
-        return $notification;
     }
 
     public function send(string $notificationId, ?array $specificUserIds = null): void
     {
         $notification = $this->notificationModel::find($notificationId);
-        if (!$notification) {
-            throw new \Exception('Notification not found');
+        if (! $notification) {
+            throw new Exception('Notification not found');
         }
 
         $isEmergency = $notification->priority === 'critical';
@@ -86,155 +87,11 @@ class NotificationService
             $isQuietHours = $this->isInQuietHours($userPreference, $currentTime);
 
             foreach ($channels as $channel) {
-                if (!$isQuietHours || $isEmergency) {
+                if (! $isQuietHours || $isEmergency) {
                     $this->sendToChannel($channel, $notification, $userId);
                 }
             }
         }
-    }
-
-    private function getEligibleUserIds(Notification $notification): array
-    {
-        $userIds = [];
-
-        switch ($notification->type) {
-            case 'attendance':
-            case 'grade':
-            case 'event':
-            case 'exam':
-                $userIds = User::where('status', 'active')->pluck('id')->toArray();
-                break;
-            default:
-                $userIds = User::where('status', 'active')->pluck('id')->toArray();
-                break;
-        }
-
-        return $userIds;
-    }
-
-    private function getEnabledChannels(?NotificationUserPreference $preference, string $type): array
-    {
-        if (!$preference) {
-            return ['in_app'];
-        }
-
-        $preference = $this->notificationUserPreferenceModel
-            ->where('user_id', $preference->user_id)
-            ->where('type', $type)
-            ->first();
-
-        if (!$preference) {
-            return ['email', 'sms', 'push', 'in_app'];
-        }
-
-        $channels = [];
-        if ($preference->email_enabled) {
-            $channels[] = 'email';
-        }
-        if ($preference->sms_enabled) {
-            $channels[] = 'sms';
-        }
-        if ($preference->push_enabled) {
-            $channels[] = 'push';
-        }
-        if ($preference->in_app_enabled) {
-            $channels[] = 'in_app';
-        }
-
-        return $channels ?: ['in_app'];
-    }
-
-    private function isInQuietHours(?NotificationUserPreference $preference, string $currentTime): bool
-    {
-        if (!$preference || !$preference->quiet_hours_start || !$preference->quiet_hours_end) {
-            return false;
-        }
-
-        $currentTimeObj = \DateTime::createFromFormat('Y-m-d H:i:s', $currentTime);
-        $startTime = \DateTime::createFromFormat('H:i:s', $preference->quiet_hours_start);
-        $endTime = \DateTime::createFromFormat('H:i:s', $preference->quiet_hours_end);
-
-        if ($startTime > $endTime) {
-            return !($currentTimeObj >= $startTime || $currentTimeObj <= $endTime);
-        }
-
-        return $currentTimeObj >= $startTime && $currentTimeObj <= $endTime;
-    }
-
-    private function sendToChannel(string $channel, Notification $notification, string $userId): void
-    {
-        try {
-            switch ($channel) {
-                case 'email':
-                    $this->sendEmail($notification, $userId);
-                    $status = 'sent';
-                    break;
-                case 'sms':
-                    $this->sendSMS($notification, $userId);
-                    $status = 'sent';
-                    break;
-                case 'push':
-                    $this->sendPush($notification, $userId);
-                    $status = 'sent';
-                    break;
-                case 'in_app':
-                    $status = 'delivered';
-                    break;
-                default:
-                    $status = 'failed';
-                    break;
-            }
-
-            $recipient = $this->notificationRecipientModel
-                ->where('notification_id', $notification->id)
-                ->where('user_id', $userId)
-                ->first();
-
-            if ($recipient) {
-                $this->notificationDeliveryLogModel::create([
-                    'notification_id' => $notification->id,
-                    'recipient_id' => $recipient->id,
-                    'channel' => $channel,
-                    'status' => $status,
-                    'sent_at' => now(),
-                ]);
-
-                if ($channel === 'in_app' && $status === 'delivered') {
-                    $recipient->update([
-                        'read' => true,
-                        'read_at' => now(),
-                    ]);
-                }
-            }
-        } catch (\Exception $e) {
-            $recipient = $this->notificationRecipientModel
-                ->where('notification_id', $notification->id)
-                ->where('user_id', $userId)
-                ->first();
-
-            if ($recipient) {
-                $this->notificationDeliveryLogModel::create([
-                    'notification_id' => $notification->id,
-                    'recipient_id' => $recipient->id,
-                    'channel' => $channel,
-                    'status' => 'failed',
-                    'error_message' => $e->getMessage(),
-                    'sent_at' => now(),
-                ]);
-            }
-        }
-    }
-
-    private function sendEmail(Notification $notification, string $userId): void
-    {
-    }
-
-    private function sendSMS(Notification $notification, string $userId): void
-    {
-    }
-
-    private function sendPush(Notification $notification, string $userId): void
-    {
     }
 
     public function processTemplate(NotificationTemplate $template, array $variables = []): string
@@ -255,7 +112,7 @@ class NotificationService
             ->where('user_id', $userId)
             ->first();
 
-        if (!$recipient) {
+        if (! $recipient) {
             return false;
         }
 
@@ -302,7 +159,7 @@ class NotificationService
 
         foreach ($logs as $log) {
             if (isset($stats[$log->channel])) {
-                $stats[$log->channel][$log->status]++;
+                ++$stats[$log->channel][$log->status];
             }
         }
 
@@ -355,5 +212,154 @@ class NotificationService
         }
 
         return $query->orderBy('name', 'asc')->get();
+    }
+
+    private function getEligibleUserIds(Notification $notification): array
+    {
+        $userIds = [];
+
+        switch ($notification->type) {
+            case 'attendance':
+            case 'grade':
+            case 'event':
+            case 'exam':
+                $userIds = User::where('status', 'active')->pluck('id')->toArray();
+                break;
+            default:
+                $userIds = User::where('status', 'active')->pluck('id')->toArray();
+                break;
+        }
+
+        return $userIds;
+    }
+
+    private function getEnabledChannels(?NotificationUserPreference $preference, string $type): array
+    {
+        if (! $preference) {
+            return ['in_app'];
+        }
+
+        $preference = $this->notificationUserPreferenceModel
+            ->where('user_id', $preference->user_id)
+            ->where('type', $type)
+            ->first();
+
+        if (! $preference) {
+            return ['email', 'sms', 'push', 'in_app'];
+        }
+
+        $channels = [];
+        if ($preference->email_enabled) {
+            $channels[] = 'email';
+        }
+        if ($preference->sms_enabled) {
+            $channels[] = 'sms';
+        }
+        if ($preference->push_enabled) {
+            $channels[] = 'push';
+        }
+        if ($preference->in_app_enabled) {
+            $channels[] = 'in_app';
+        }
+
+        return $channels ?: ['in_app'];
+    }
+
+    private function isInQuietHours(?NotificationUserPreference $preference, string $currentTime): bool
+    {
+        if (! $preference || ! $preference->quiet_hours_start || ! $preference->quiet_hours_end) {
+            return false;
+        }
+
+        $currentTimeObj = DateTime::createFromFormat('Y-m-d H:i:s', $currentTime);
+        $startTime = DateTime::createFromFormat('H:i:s', $preference->quiet_hours_start);
+        $endTime = DateTime::createFromFormat('H:i:s', $preference->quiet_hours_end);
+
+        // Validate DateTime objects were created successfully
+        if (! $currentTimeObj || ! $startTime || ! $endTime) {
+            return false;
+        }
+
+        if ($startTime > $endTime) {
+            return ! ($currentTimeObj >= $startTime || $currentTimeObj <= $endTime);
+        }
+
+        return $currentTimeObj >= $startTime && $currentTimeObj <= $endTime;
+    }
+
+    private function sendToChannel(string $channel, Notification $notification, string $userId): void
+    {
+        try {
+            switch ($channel) {
+                case 'email':
+                    $this->sendEmail($notification, $userId);
+                    $status = 'sent';
+                    break;
+                case 'sms':
+                    $this->sendSMS($notification, $userId);
+                    $status = 'sent';
+                    break;
+                case 'push':
+                    $this->sendPush($notification, $userId);
+                    $status = 'sent';
+                    break;
+                case 'in_app':
+                    $status = 'delivered';
+                    break;
+                default:
+                    $status = 'failed';
+                    break;
+            }
+
+            $recipient = $this->notificationRecipientModel
+                ->where('notification_id', $notification->id)
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($recipient) {
+                $this->notificationDeliveryLogModel::create([
+                    'notification_id' => $notification->id,
+                    'recipient_id' => $recipient->id,
+                    'channel' => $channel,
+                    'status' => $status,
+                    'sent_at' => now(),
+                ]);
+
+                if ($channel === 'in_app' && $status === 'delivered') {
+                    $recipient->update([
+                        'read' => true,
+                        'read_at' => now(),
+                    ]);
+                }
+            }
+        } catch (Exception $e) {
+            $recipient = $this->notificationRecipientModel
+                ->where('notification_id', $notification->id)
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($recipient) {
+                $this->notificationDeliveryLogModel::create([
+                    'notification_id' => $notification->id,
+                    'recipient_id' => $recipient->id,
+                    'channel' => $channel,
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'sent_at' => now(),
+                ]);
+            }
+        }
+    }
+
+    private function sendEmail(Notification $notification, string $userId): void
+    {
+    }
+
+    private function sendSMS(Notification $notification, string $userId): void
+    {
+    }
+
+    private function sendPush(Notification $notification, string $userId): void
+    {
     }
 }

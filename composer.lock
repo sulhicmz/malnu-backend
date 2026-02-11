@@ -2023,16 +2023,16 @@
         },
         {
             "name": "hyperf/database",
-            "version": "v3.1.65",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/database.git",
-                "reference": "dc6cfae2edcee277a6eecffcdfa83014593f8899"
+                "reference": "1cd7d6e801c4c6141542e74a704622b1acf0d3a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/database/zipball/dc6cfae2edcee277a6eecffcdfa83014593f8899",
-                "reference": "dc6cfae2edcee277a6eecffcdfa83014593f8899",
+                "url": "https://api.github.com/repos/hyperf/database/zipball/1cd7d6e801c4c6141542e74a704622b1acf0d3a0",
+                "reference": "1cd7d6e801c4c6141542e74a704622b1acf0d3a0",
                 "shasum": ""
             },
             "require": {
@@ -2095,20 +2095,20 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-12-04T03:05:16+00:00"
+            "time": "2026-01-25T03:03:10+00:00"
         },
         {
             "name": "hyperf/database-sqlite",
-            "version": "v3.1.63",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/database-sqlite.git",
-                "reference": "aeefb325cf6fdfba741295db848cfbf2ea653062"
+                "reference": "d8b13291adca70ec55bc0c6e581dff55696f65b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/database-sqlite/zipball/aeefb325cf6fdfba741295db848cfbf2ea653062",
-                "reference": "aeefb325cf6fdfba741295db848cfbf2ea653062",
+                "url": "https://api.github.com/repos/hyperf/database-sqlite/zipball/d8b13291adca70ec55bc0c6e581dff55696f65b7",
+                "reference": "d8b13291adca70ec55bc0c6e581dff55696f65b7",
                 "shasum": ""
             },
             "require": {
@@ -2162,20 +2162,20 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-10-30T01:44:44+00:00"
+            "time": "2026-01-25T01:39:41+00:00"
         },
         {
             "name": "hyperf/db-connection",
-            "version": "v3.1.63",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/db-connection.git",
-                "reference": "9db060c0e53ff704ac65ef30d8c5088973ba5612"
+                "reference": "a5ad266c11c8229889f676b97a01a0c8cef63c25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/db-connection/zipball/9db060c0e53ff704ac65ef30d8c5088973ba5612",
-                "reference": "9db060c0e53ff704ac65ef30d8c5088973ba5612",
+                "url": "https://api.github.com/repos/hyperf/db-connection/zipball/a5ad266c11c8229889f676b97a01a0c8cef63c25",
+                "reference": "a5ad266c11c8229889f676b97a01a0c8cef63c25",
                 "shasum": ""
             },
             "require": {
@@ -2234,7 +2234,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-10-30T01:44:44+00:00"
+            "time": "2026-01-25T01:46:18+00:00"
         },
         {
             "name": "hyperf/di",
@@ -3225,16 +3225,16 @@
         },
         {
             "name": "hyperf/pool",
-            "version": "v3.1.63",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/pool.git",
-                "reference": "a4b763723103636cca3afb9f85c620ae02c1a33c"
+                "reference": "bb82ea9d7223649645ba27c2294403bd63ca4d80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/pool/zipball/a4b763723103636cca3afb9f85c620ae02c1a33c",
-                "reference": "a4b763723103636cca3afb9f85c620ae02c1a33c",
+                "url": "https://api.github.com/repos/hyperf/pool/zipball/bb82ea9d7223649645ba27c2294403bd63ca4d80",
+                "reference": "bb82ea9d7223649645ba27c2294403bd63ca4d80",
                 "shasum": ""
             },
             "require": {
@@ -3292,7 +3292,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-10-30T01:44:44+00:00"
+            "time": "2026-01-25T01:46:18+00:00"
         },
         {
             "name": "hyperf/process",
@@ -3368,16 +3368,16 @@
         },
         {
             "name": "hyperf/redis",
-            "version": "v3.1.63",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/redis.git",
-                "reference": "8487f72d8651d32e34201f8fb1770115501086f1"
+                "reference": "65350b3af33dc2698d28757a8edfcc6c7dd52251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/redis/zipball/8487f72d8651d32e34201f8fb1770115501086f1",
-                "reference": "8487f72d8651d32e34201f8fb1770115501086f1",
+                "url": "https://api.github.com/repos/hyperf/redis/zipball/65350b3af33dc2698d28757a8edfcc6c7dd52251",
+                "reference": "65350b3af33dc2698d28757a8edfcc6c7dd52251",
                 "shasum": ""
             },
             "require": {
@@ -3437,7 +3437,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-10-30T01:44:44+00:00"
+            "time": "2026-01-25T01:46:18+00:00"
         },
         {
             "name": "hyperf/resource",
@@ -4053,16 +4053,16 @@
         },
         {
             "name": "hyperf/validation",
-            "version": "v3.1.65",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/validation.git",
-                "reference": "fea3ffbf97e5b1f457b50706ef48741a0d715e0c"
+                "reference": "dfe12600c4e5360905dfd99c72959c81fbf7e002"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/validation/zipball/fea3ffbf97e5b1f457b50706ef48741a0d715e0c",
-                "reference": "fea3ffbf97e5b1f457b50706ef48741a0d715e0c",
+                "url": "https://api.github.com/repos/hyperf/validation/zipball/dfe12600c4e5360905dfd99c72959c81fbf7e002",
+                "reference": "dfe12600c4e5360905dfd99c72959c81fbf7e002",
                 "shasum": ""
             },
             "require": {
@@ -4113,7 +4113,7 @@
             ],
             "support": {
                 "issues": "https://github.com/hyperf/validation/issues",
-                "source": "https://github.com/hyperf/validation/tree/v3.1.65"
+                "source": "https://github.com/hyperf/validation/tree/v3.1.66"
             },
             "funding": [
                 {
@@ -4125,7 +4125,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-12-01T03:37:59+00:00"
+            "time": "2026-01-25T01:46:18+00:00"
         },
         {
             "name": "hyperf/view",
@@ -8339,16 +8339,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v7.4.3",
+            "version": "v7.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "732a9ca6cd9dfd940c639062d5edbde2f6727fb6"
+                "reference": "41e38717ac1dd7a46b6bda7d6a82af2d98a78894"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/732a9ca6cd9dfd940c639062d5edbde2f6727fb6",
-                "reference": "732a9ca6cd9dfd940c639062d5edbde2f6727fb6",
+                "url": "https://api.github.com/repos/symfony/console/zipball/41e38717ac1dd7a46b6bda7d6a82af2d98a78894",
+                "reference": "41e38717ac1dd7a46b6bda7d6a82af2d98a78894",
                 "shasum": ""
             },
             "require": {
@@ -8413,7 +8413,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v7.4.3"
+                "source": "https://github.com/symfony/console/tree/v7.4.4"
             },
             "funding": [
                 {
@@ -8433,7 +8433,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-23T14:50:43+00:00"
+            "time": "2026-01-13T11:36:38+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -8813,16 +8813,16 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v7.4.3",
+            "version": "v7.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "fffe05569336549b20a1be64250b40516d6e8d06"
+                "reference": "ad4daa7c38668dcb031e63bc99ea9bd42196a2cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/fffe05569336549b20a1be64250b40516d6e8d06",
-                "reference": "fffe05569336549b20a1be64250b40516d6e8d06",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/ad4daa7c38668dcb031e63bc99ea9bd42196a2cb",
+                "reference": "ad4daa7c38668dcb031e63bc99ea9bd42196a2cb",
                 "shasum": ""
             },
             "require": {
@@ -8857,7 +8857,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v7.4.3"
+                "source": "https://github.com/symfony/finder/tree/v7.4.5"
             },
             "funding": [
                 {
@@ -8877,7 +8877,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-23T14:50:43+00:00"
+            "time": "2026-01-26T15:07:59+00:00"
         },
         {
             "name": "symfony/mailer",
@@ -9712,16 +9712,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v7.4.0",
+            "version": "v7.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "d50e862cb0a0e0886f73ca1f31b865efbb795003"
+                "reference": "1c4b10461bf2ec27537b5f36105337262f5f5d6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/d50e862cb0a0e0886f73ca1f31b865efbb795003",
-                "reference": "d50e862cb0a0e0886f73ca1f31b865efbb795003",
+                "url": "https://api.github.com/repos/symfony/string/zipball/1c4b10461bf2ec27537b5f36105337262f5f5d6f",
+                "reference": "1c4b10461bf2ec27537b5f36105337262f5f5d6f",
                 "shasum": ""
             },
             "require": {
@@ -9779,7 +9779,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v7.4.0"
+                "source": "https://github.com/symfony/string/tree/v7.4.4"
             },
             "funding": [
                 {
@@ -9799,20 +9799,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-27T13:27:24+00:00"
+            "time": "2026-01-12T10:54:30+00:00"
         },
         {
             "name": "symfony/translation",
-            "version": "v6.4.31",
+            "version": "v6.4.32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "81579408ecf7dc5aa2d8462a6d5c3a430a80e6f2"
+                "reference": "d6cc8e2fdd484f2f41d25938b0e8e3915de3cfbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/81579408ecf7dc5aa2d8462a6d5c3a430a80e6f2",
-                "reference": "81579408ecf7dc5aa2d8462a6d5c3a430a80e6f2",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/d6cc8e2fdd484f2f41d25938b0e8e3915de3cfbc",
+                "reference": "d6cc8e2fdd484f2f41d25938b0e8e3915de3cfbc",
                 "shasum": ""
             },
             "require": {
@@ -9878,7 +9878,7 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/translation/tree/v6.4.31"
+                "source": "https://github.com/symfony/translation/tree/v6.4.32"
             },
             "funding": [
                 {
@@ -9898,7 +9898,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-18T11:37:55+00:00"
+            "time": "2026-01-12T19:15:33+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -10903,16 +10903,16 @@
         },
         {
             "name": "hyperf/devtool",
-            "version": "v3.1.63",
+            "version": "v3.1.66",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hyperf/devtool.git",
-                "reference": "cbcf9c16c07868a205435ac8aab54a7dc1a849a6"
+                "reference": "b0641e06ec748e27640cd035651b2820a6147455"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hyperf/devtool/zipball/cbcf9c16c07868a205435ac8aab54a7dc1a849a6",
-                "reference": "cbcf9c16c07868a205435ac8aab54a7dc1a849a6",
+                "url": "https://api.github.com/repos/hyperf/devtool/zipball/b0641e06ec748e27640cd035651b2820a6147455",
+                "reference": "b0641e06ec748e27640cd035651b2820a6147455",
                 "shasum": ""
             },
             "require": {
@@ -10969,7 +10969,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-10-30T01:44:44+00:00"
+            "time": "2026-01-25T03:40:06+00:00"
         },
         {
             "name": "hyperf/testing",

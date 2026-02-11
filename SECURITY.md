@@ -40,9 +40,91 @@ We follow responsible disclosure practices to protect our users while acknowledg
 - **Credit**: With your permission, we will credit you in our security advisories
 - **Timeline**: We aim to disclose vulnerabilities within 90 days of reporting, depending on severity and complexity
 
+## Workflow Security
+
+### Critical Vulnerability: Admin Merge Bypass
+
+The `on-pull.yml` workflow contains a **critical security vulnerability** that allows bypassing branch protection rules:
+
+**Location**: `.github/workflows/on-pull.yml:241`
+**Issue**: [#629](https://github.com/sulhicmz/malnu-backend/issues/629)
+
+The workflow explicitly uses `gh pr merge --admin` command to merge pull requests, which bypasses:
+- Required review approvals
+- Required status checks
+- Required conversations resolution
+- Branch protection rules
+
+**Impact**:
+- Pull requests can be merged without proper review
+- Automated quality checks can be skipped
+- Security-sensitive changes can bypass approval processes
+- Violates principle of least privilege
+
+**Status**: This vulnerability is documented but requires mitigation through workflow permission hardening (see [#611](https://github.com/sulhicmz/malnu-backend/issues/611)).
+
+### GitHub Workflow Permissions Matrix
+
+The repository has multiple OpenCode and maintenance workflows with varying permission levels:
+
+| Workflow | Purpose | Contents | Pull Requests | Issues | Actions | Deployments | id-token |
+|-----------|---------|-----------|---------------|----------|-------------|-----------|
+| `on-pull.yml` | PR automation | write | write | read | - | - |
+| `on-push.yml` | Push automation | write | - | read | - | - |
+| `oc-issue-solver.yml` | Issue resolution | write | write | write | write | write |
+| `oc-maintainer.yml` | Repository maintenance | write | write | write | write | write |
+| `oc-pr-handler.yml` | PR management | write | write | write | write | write |
+| `oc-problem-finder.yml` | Problem detection | read | write | - | write | - |
+| `oc-researcher.yml` | Research tasks | write | write | write | write | write |
+| `oc-cf-supabase.yml` | DevOps tasks | write | - | - | write | write |
+| `oc-iterate.yml` | Iteration tasks | write | write | write | write | write |
+
+**Excessive Permissions Identified**:
+- `id-token: write` - Not used by most workflows (OIDC only for Cloudflare)
+- `actions: write` - Only read access needed for most workflows
+- `deployments: write` - Only needed for Cloudflare workflow
+- Multiple workflows have job-level permission duplicates
+
+**Security Considerations**:
+- Approximately 60% larger attack surface than necessary
+- Workflow permissions should follow principle of least privilege
+- See [#611](https://github.com/sulhicmz/malnu-backend/issues/611) for ongoing hardening efforts
+
+### Workflow Security Checklist
+
+Before modifying or creating GitHub workflows:
+
+- [ ] **Minimize permissions** - Use only necessary permissions for each workflow
+- [ ] **Avoid admin merge** - Never use `gh pr merge --admin` in automation
+- [ ] **Remove duplicates** - Don't specify permissions at both workflow and job level
+- [ ] **Document rationale** - Comment on why each permission is needed
+- [ ] **Review quarterly** - Audit workflow permissions for creep
+- [ ] **Test in feature branch** - Validate workflow behavior before merging to main
+- [ ] **Use secrets correctly** - Never log or expose secret values
+- [ ] **Enable logging** - Track workflow actions for audit trail
+
+### Workflow Maintenance Best Practices
+
+1. **Automated Workflows**:
+   - Use `permissions: contents: read` for read-only operations
+   - Use `pull-requests: read` for PR monitoring only
+   - Avoid write permissions unless absolutely necessary
+   - Never use `deployments: write` for non-deployment workflows
+
+2. **Manual Workflows**:
+   - Use `workflow_dispatch` trigger with explicit approval
+   - Require human confirmation before destructive actions
+   - Implement safeguards for critical operations
+
+3. **Security Monitoring**:
+   - Regularly audit workflow runs in Actions tab
+   - Review workflow permissions monthly
+   - Monitor for suspicious activity
+   - Set up alerts for workflow failures
+
 ## Security Best Practices for Contributors
 
- When contributing to Malnu Backend, please follow these security guidelines:
+When contributing to Malnu Backend, please follow these security guidelines:
 
 ### Never Commit Sensitive Data
 - **Credentials**: API keys, passwords, tokens, certificates
@@ -94,6 +176,7 @@ For comprehensive security analysis, see:
 
 The following critical security issues are being addressed:
 
+- 🔴 **Workflow Admin Merge Bypass** - `on-pull.yml` uses `gh pr merge --admin` to bypass branch protection ([#629](https://github.com/sulhicmz/malnu-backend/issues/629))
 - 🔴 **RBAC Not Implemented** - RoleMiddleware bypasses authorization ([#359](https://github.com/sulhicmz/malnu-backend/issues/359))
 - 🔴 **CSRF Protection Broken** - Middleware extends non-existent class ([#358](https://github.com/sulhicmz/malnu-backend/issues/358))
 - 🔴 **MD5 Hashing** - Weak hashing in token blacklist ([#347](https://github.com/sulhicmz/malnu-backend/issues/347))

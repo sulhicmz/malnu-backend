@@ -8,6 +8,7 @@ use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
 use App\Contracts\UserRepositoryInterface;
+use App\Services\LoggingService;
 use App\Models\PasswordResetToken;
 use Exception;
 
@@ -16,6 +17,8 @@ class AuthService implements AuthServiceInterface
     private JWTServiceInterface $jwtService;
 
     private TokenBlacklistServiceInterface $tokenBlacklistService;
+
+    private LoggingService $loggingService;
 
     private EmailService $emailService;
 
@@ -26,12 +29,14 @@ class AuthService implements AuthServiceInterface
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
+        LoggingService $loggingService,
         EmailService $emailService,
         PasswordValidator $passwordValidator,
         UserRepositoryInterface $userRepository
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
+        $this->loggingService = $loggingService;
         $this->emailService = $emailService;
         $this->passwordValidator = $passwordValidator;
         $this->userRepository = $userRepository;
@@ -70,10 +75,16 @@ class AuthService implements AuthServiceInterface
         $user = $this->userRepository->findByEmail($email);
 
         if (! $user) {
+            // Log failed login attempt (user not found)
+            $this->loggingService->logFailedLogin($email);
+
             throw new Exception('Invalid credentials');
         }
 
         if (! password_verify($password, $user->password)) {
+            // Log failed login attempt (wrong password)
+            $this->loggingService->logFailedLogin($email);
+
             throw new Exception('Invalid credentials');
         }
 
@@ -81,6 +92,9 @@ class AuthService implements AuthServiceInterface
             'id' => $user->id,
             'email' => $user->email,
         ]);
+
+        // Log successful login
+        $this->loggingService->logSuccessfulLogin($email);
 
         return [
             'user' => $user->toArray(),

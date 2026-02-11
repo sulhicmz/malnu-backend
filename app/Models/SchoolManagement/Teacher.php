@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
@@ -8,15 +8,14 @@ use App\Models\CareerDevelopment\CounselingSession;
 use App\Models\ELearning\VirtualClass;
 use App\Models\Model;
 use App\Models\User;
-use App\Models\SchoolManagement\ClassModel;
-use App\Models\SchoolManagement\ClassSubject;
 
 class Teacher extends Model
 {
+    public $incrementing = false;
 
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',
@@ -27,7 +26,7 @@ class Teacher extends Model
     ];
 
     protected $casts = [
-        'join_date'  => 'date',
+        'join_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

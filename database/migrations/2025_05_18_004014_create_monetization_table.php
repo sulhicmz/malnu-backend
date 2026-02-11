@@ -1,20 +1,18 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-
         // Marketplace Products
         Schema::create('marketplace_products', function (Blueprint $table) {
             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));

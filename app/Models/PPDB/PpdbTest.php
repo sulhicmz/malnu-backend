@@ -7,11 +7,17 @@ namespace App\Models\PPDB;
 use App\Models\Model;
 use App\Models\User;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class PpdbTest extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'registration_id',

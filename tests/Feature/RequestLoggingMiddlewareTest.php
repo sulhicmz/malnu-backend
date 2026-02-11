@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\RequestLoggingMiddleware;
 use Hyperf\Config\Config;
-use Hyperf\Contract\ConfigInterface;
 use Hyperf\Context\ApplicationContext;
+use Hyperf\Contract\ConfigInterface;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -14,8 +15,11 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use App\Http\Middleware\RequestLoggingMiddleware;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class RequestLoggingMiddlewareTest extends TestCase
 {
     private TestHandler $logHandler;

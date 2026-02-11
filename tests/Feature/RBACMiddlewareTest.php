@@ -7,18 +7,19 @@ namespace Tests\Feature;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use Hyperf\Context\ApplicationContext;
 use PHPUnit\Framework\TestCase;
 
 /**
- * RBAC (Role-Based Access Control) Middleware Test
- * 
+ * RBAC (Role-Based Access Control) Middleware Test.
+ *
  * Tests RBAC functionality including:
  * - Role assignment and retrieval
  * - Multiple role support
  * - Permission checking
  * - Middleware access control
  * - Unauthorized access prevention
+ * @internal
+ * @coversNothing
  */
 class RBACMiddlewareTest extends TestCase
 {
@@ -35,9 +36,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that roles are created by seeder
+     * Test that roles are created by seeder.
      */
-    public function test_roles_are_seeded(): void
+    public function testRolesAreSeeded(): void
     {
         $roles = Role::all();
 
@@ -49,9 +50,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that permissions are created by seeder
+     * Test that permissions are created by seeder.
      */
-    public function test_permissions_are_seeded(): void
+    public function testPermissionsAreSeeded(): void
     {
         $permissions = Permission::all();
 
@@ -61,9 +62,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that user can be assigned a role
+     * Test that user can be assigned a role.
      */
-    public function test_user_can_be_assigned_role(): void
+    public function testUserCanBeAssignedRole(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -79,9 +80,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that user can have multiple roles
+     * Test that user can have multiple roles.
      */
-    public function test_user_can_have_multiple_roles(): void
+    public function testUserCanHaveMultipleRoles(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -99,9 +100,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that hasRole returns false for non-existent role
+     * Test that hasRole returns false for non-existent role.
      */
-    public function test_hasRole_returns_false_for_non_existent_role(): void
+    public function testHasRoleReturnsFalseForNonExistentRole(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -117,9 +118,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that hasAnyRole returns true when user has at least one of the specified roles
+     * Test that hasAnyRole returns true when user has at least one of the specified roles.
      */
-    public function test_hasAnyRole_returns_true_when_user_has_at_least_one_role(): void
+    public function testHasAnyRoleReturnsTrueWhenUserHasAtLeastOneRole(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -135,9 +136,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that hasAnyRole returns false when user has none of the specified roles
+     * Test that hasAnyRole returns false when user has none of the specified roles.
      */
-    public function test_hasAnyRole_returns_false_when_user_has_no_specified_roles(): void
+    public function testHasAnyRoleReturnsFalseWhenUserHasNoSpecifiedRoles(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -152,9 +153,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that user can get all permissions from their roles
+     * Test that user can get all permissions from their roles.
      */
-    public function test_user_can_get_all_permissions_from_roles(): void
+    public function testUserCanGetAllPermissionsFromRoles(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -175,9 +176,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that hasPermission returns true when user has permission
+     * Test that hasPermission returns true when user has permission.
      */
-    public function test_hasPermission_returns_true_when_user_has_permission(): void
+    public function testHasPermissionReturnsTrueWhenUserHasPermission(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -193,9 +194,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that hasPermission returns false when user does not have permission
+     * Test that hasPermission returns false when user does not have permission.
      */
-    public function test_hasPermission_returns_false_when_user_lacks_permission(): void
+    public function testHasPermissionReturnsFalseWhenUserLacksPermission(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -212,9 +213,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that Super Admin has all permissions
+     * Test that Super Admin has all permissions.
      */
-    public function test_super_admin_has_all_permissions(): void
+    public function testSuperAdminHasAllPermissions(): void
     {
         $user = User::create([
             'name' => 'Super Admin User',
@@ -233,9 +234,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that syncRoles replaces existing roles
+     * Test that syncRoles replaces existing roles.
      */
-    public function test_syncRoles_replaces_existing_roles(): void
+    public function testSyncRolesReplacesExistingRoles(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -259,9 +260,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that user without roles cannot access protected routes
+     * Test that user without roles cannot access protected routes.
      */
-    public function test_user_without_roles_cannot_access_protected_routes(): void
+    public function testUserWithoutRolesCannotAccessProtectedRoutes(): void
     {
         $user = User::create([
             'name' => 'Test User',
@@ -277,9 +278,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that role permissions are correctly assigned via seeder
+     * Test that role permissions are correctly assigned via seeder.
      */
-    public function test_role_permissions_are_correctly_assigned(): void
+    public function testRolePermissionsAreCorrectlyAssigned(): void
     {
         $superAdminRole = Role::where('name', 'Super Admin')->first();
         $guruRole = Role::where('name', 'Guru')->first();
@@ -295,9 +296,9 @@ class RBACMiddlewareTest extends TestCase
     }
 
     /**
-     * Test that user with multiple roles gets permissions from all roles
+     * Test that user with multiple roles gets permissions from all roles.
      */
-    public function test_user_with_multiple_roles_gets_all_permissions(): void
+    public function testUserWithMultipleRolesGetsAllPermissions(): void
     {
         $user = User::create([
             'name' => 'Test User',

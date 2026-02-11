@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use App\Models\Permission;
 use App\Models\Role;
@@ -28,7 +28,7 @@ class PermissionSeeder extends Seeder
     ];
 
     private const ROLE_PERMISSIONS = [
-        'Super Admin'    => [
+        'Super Admin' => [
             'view_dashboard',
             'manage_users',
             'manage_e_learning',
@@ -59,32 +59,32 @@ class PermissionSeeder extends Seeder
             'view_reports',
             'generate_reports',
         ],
-        'Guru'           => [
+        'Guru' => [
             'view_dashboard',
             'manage_e_learning',
             'manage_e_raport',
             'manage_online_exam',
             'view_reports',
         ],
-        'Siswa'          => [
+        'Siswa' => [
             'view_dashboard',
             'manage_e_learning',
             'manage_online_exam',
             'manage_digital_library',
         ],
-        'Orang Tua'      => [
+        'Orang Tua' => [
             'view_dashboard',
             'manage_parent_portal',
             'view_reports',
         ],
-        'Staf TU'        => [
+        'Staf TU' => [
             'view_dashboard',
             'manage_ppdb',
             'manage_school_management',
             'view_reports',
             'generate_reports',
         ],
-        'Konselor'       => [
+        'Konselor' => [
             'view_dashboard',
             'manage_career_development',
             'view_reports',
@@ -107,8 +107,8 @@ class PermissionSeeder extends Seeder
     {
         foreach (self::PERMISSIONS as $permission) {
             Permission::firstOrCreate([
-                'name'       => $permission,
-                'guard_name' => 'web', // ✅ 
+                'name' => $permission,
+                'guard_name' => 'web', // ✅
             ]);
         }
     }
@@ -131,12 +131,11 @@ class PermissionSeeder extends Seeder
                 if ($permission) {
                     // Pastikan untuk menambahkan ke pivot table role_has_permissions
                     \App\Models\RoleHasPermission::firstOrCreate([
-                        'role_id'       => $role->id,
+                        'role_id' => $role->id,
                         'permission_id' => $permission->id,
                     ]);
                 }
             }
         }
     }
-
 }

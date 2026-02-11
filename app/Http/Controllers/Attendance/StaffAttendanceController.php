@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Api\BaseController;
@@ -74,7 +76,7 @@ class StaffAttendanceController extends BaseController
     {
         $attendance = StaffAttendance::with('staff')->find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return $this->notFoundResponse('Attendance record not found');
         }
 
@@ -88,7 +90,7 @@ class StaffAttendanceController extends BaseController
     {
         $attendance = StaffAttendance::find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return $this->notFoundResponse('Attendance record not found');
         }
 
@@ -105,7 +107,7 @@ class StaffAttendanceController extends BaseController
     {
         $attendance = StaffAttendance::find($id);
 
-        if (!$attendance) {
+        if (! $attendance) {
             return $this->notFoundResponse('Attendance record not found');
         }
 
@@ -124,7 +126,7 @@ class StaffAttendanceController extends BaseController
             return $this->errorResponse('Staff ID, attendance date, and action are required', null, null, 400);
         }
 
-        if (!in_array($data['action'], ['check_in', 'check_out'])) {
+        if (! in_array($data['action'], ['check_in', 'check_out'])) {
             return $this->errorResponse('Action must be either check_in or check_out', null, null, 400);
         }
 
@@ -142,12 +144,12 @@ class StaffAttendanceController extends BaseController
             $attendance->update([
                 'check_in_time' => $data['time'],
                 'check_in_method' => 'manual',
-                'status' => 'present'
+                'status' => 'present',
             ]);
         } elseif ($data['action'] === 'check_out') {
             $attendance->update([
                 'check_out_time' => $data['time'],
-                'check_out_method' => 'manual'
+                'check_out_method' => 'manual',
             ]);
         }
 

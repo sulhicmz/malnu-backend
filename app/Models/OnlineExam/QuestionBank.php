@@ -10,9 +10,11 @@ use App\Models\User;
 
 class QuestionBank extends Model
 {
-    protected $primaryKey = 'id';
-    protected $keyType = 'string';
     public $incrementing = false;
+
+    protected $primaryKey = 'id';
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'subject_id',

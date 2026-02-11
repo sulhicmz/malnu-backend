@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Download, MoreHorizontal, User, Edit, Trash2, Phone, Mail } from 'lucide-react';
 import { teacherApi } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
+import type { Teacher } from '../../types/api';
 
 const TeacherData: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -10,23 +11,20 @@ const TeacherData: React.FC = () => {
   const [showActionMenu, setShowActionMenu] = useState<number | null>(null);
 
   // Handle real-time updates via WebSocket
-  const handleWebSocketMessage = (data: any) => {
-    if (data.type === 'teacher_update') {
+  const handleWebSocketMessage = (data: unknown) => {
+    const message = data as { type: string; teacher?: Teacher; teacherId?: string };
+    if (message.type === 'teacher_update' && message.teacher) {
       setTeachers(prev => {
-        // Update or add the teacher based on the action
-        const existingIndex = prev.findIndex(t => t.id === data.teacher.id);
+        const existingIndex = prev.findIndex(t => t.id === message.teacher!.id);
         if (existingIndex !== -1) {
-          // Update existing teacher
           const updated = [...prev];
-          updated[existingIndex] = data.teacher;
+          updated[existingIndex] = message.teacher!;
           return updated;
-        } else {
-          // Add new teacher
-          return [...prev, data.teacher];
         }
+        return [...prev, message.teacher!];
       });
-    } else if (data.type === 'teacher_delete') {
-      setTeachers(prev => prev.filter(t => t.id !== data.teacherId));
+    } else if (message.type === 'teacher_delete' && message.teacherId) {
+      setTeachers(prev => prev.filter(t => t.id !== message.teacherId));
     }
   };
 
@@ -38,9 +36,8 @@ const TeacherData: React.FC = () => {
         setLoading(true);
         const response = await teacherApi.getAll();
         setTeachers(response.data.data.data || response.data.data); // Handle both paginated and non-paginated responses
-      } catch (err) {
+      } catch {
         setError('Failed to fetch teachers');
-        console.error('Error fetching teachers:', err);
       } finally {
         setLoading(false);
       }

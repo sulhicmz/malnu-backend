@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\ParentPortal;
 
@@ -10,13 +10,14 @@ use App\Models\User;
 
 class ParentOrtu extends Model
 {
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      */
-
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',

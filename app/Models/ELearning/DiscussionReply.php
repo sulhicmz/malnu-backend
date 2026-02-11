@@ -1,18 +1,19 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\ELearning;
 
 use App\Models\Model;
 use App\Models\User;
-use App\Models\ELearning\Discussion;
 
 class DiscussionReply extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'discussion_id',

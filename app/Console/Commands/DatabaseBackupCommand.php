@@ -8,6 +8,7 @@ use Hypervel\Console\Command;
 use Hyperf\Contract\ConfigInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class DatabaseBackupCommand extends Command
 {
@@ -93,29 +94,29 @@ class DatabaseBackupCommand extends Command
         $username = $config['username'];
         $password = $config['password'];
 
-        $command = sprintf(
-            'mysqldump --host=%s --port=%s --user=%s --password=%s --single-transaction --routines --triggers %s > %s',
-            escapeshellarg($host),
-            escapeshellarg((string)$port),
-            escapeshellarg($username),
-            escapeshellarg($password),
-            escapeshellarg($database),
-            escapeshellarg("{$backupPath}/{$filename}")
-        );
+        $arguments = [
+            '--host=' . $host,
+            '--port=' . (string) $port,
+            '--user=' . $username,
+            '--password=' . $password,
+            '--single-transaction',
+            '--routines',
+            '--triggers',
+            $database,
+            '>',
+            "{$backupPath}/{$filename}"
+        ];
 
         $this->output->write('Executing mysqldump... ');
-        
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
 
-        if ($exitCode === 0) {
+        $result = ProcessHelper::execute('mysqldump', $arguments);
+
+        if ($result['successful']) {
             $this->output->writeln('<info>OK</info>');
             return true;
-        } else {
-            $this->output->writeln('<error>FAILED</error>');
-            return false;
         }
+        $this->output->writeln('<error>FAILED</error>');
+        return false;
     }
 
     protected function backupSqlite(array $config, string $backupPath, string $filename): bool
@@ -151,21 +152,13 @@ class DatabaseBackupCommand extends Command
     protected function compressBackup(string $backupPath, string $filename): void
     {
         $this->output->write('Compressing backup... ');
-        
+
         $tarFile = $backupPath . '/' . str_replace('.sql', '.tar.gz', $filename);
         $tarFile = str_replace('.db', '.tar.gz', $tarFile);
-        
-        $command = sprintf(
-            'tar -czf %s -C %s %s',
-            escapeshellarg($tarFile),
-            escapeshellarg($backupPath),
-            escapeshellarg($filename)
-        );
 
-        $exitCode = 0;
-        exec($command, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', ['-czf', $tarFile, '-C', $backupPath, $filename]);
 
-        if ($exitCode === 0) {
+        if ($result['successful']) {
             // Remove original file after compression
             unlink("{$backupPath}/{$filename}");
             $this->output->writeln('<info>OK</info>');

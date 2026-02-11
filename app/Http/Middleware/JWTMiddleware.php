@@ -16,26 +16,34 @@ use Psr\Http\Server\RequestHandlerInterface;
 class JWTMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected RequestInterface $request;
+
     protected HttpResponse $response;
+
     protected AuthServiceInterface $authService;
 
-    public function __construct(ContainerInterface $container)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        AuthServiceInterface $authService
+    ) {
         $this->container = $container;
         $this->request = $container->get(RequestInterface::class);
         $this->response = $container->get(HttpResponse::class);
-        $this->authService = new \App\Services\AuthService();
+        $this->authService = $authService;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Authorization token required',
+                'error' => [
+                    'message' => 'Authorization token required',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }
@@ -47,7 +55,10 @@ class JWTMiddleware implements MiddlewareInterface
         if ($user === null) {
             return $this->response->json([
                 'success' => false,
-                'message' => 'Invalid or expired token',
+                'error' => [
+                    'message' => 'Invalid or expired token',
+                    'code' => 'UNAUTHORIZED'
+                ],
                 'timestamp' => date('c')
             ])->withStatus(401);
         }

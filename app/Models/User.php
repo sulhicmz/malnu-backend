@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -29,16 +29,18 @@ use App\Models\PPDB\PpdbTest;
 use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
-use Hyperf\Foundation\Auth\User as Authenticatable;
 use App\Traits\UsesUuid;
+use Hyperf\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
     use UsesUuid;
 
-    protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
-    protected string $keyType = 'string';
     public bool $incrementing = false;
+
+    protected string $primaryKey = 'id'; // ✅ ubah dari ?string ke string
+
+    protected string $keyType = 'string';
 
     protected array $fillable = [
         'name',
@@ -78,6 +80,61 @@ class User extends Authenticatable
         foreach ($roleNames as $roleName) {
             $this->assignRole($roleName);
         }
+    }
+
+    /**
+     * Get user's assigned roles.
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id')
+            ->where('model_has_roles.model_type', self::class);
+    }
+
+    /**
+     * Check if user has specific role.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('roles.name', $roleName)->exists();
+    }
+
+    /**
+     * Check if user has any of the specified roles.
+     */
+    public function hasAnyRole(array $roleNames): bool
+    {
+        return $this->roles()->whereIn('roles.name', $roleNames)->exists();
+    }
+
+    /**
+     * Get all permissions from user's roles.
+     */
+    public function getAllPermissions()
+    {
+        return Permission::select('permissions.*')
+            ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+            ->join('roles', 'role_has_permissions.role_id', '=', 'roles.id')
+            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_id', $this->id)
+            ->where('model_has_roles.model_type', self::class)
+            ->distinct()
+            ->get();
+    }
+
+    /**
+     * Check if user has specific permission.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return Permission::select('permissions.*')
+            ->join('role_has_permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+            ->join('roles', 'role_has_permissions.role_id', '=', 'roles.id')
+            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_id', $this->id)
+            ->where('model_has_roles.model_type', self::class)
+            ->where('permissions.name', $permission)
+            ->exists();
     }
 
     // Relationships

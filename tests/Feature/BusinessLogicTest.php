@@ -7,12 +7,12 @@ namespace Tests\Feature;
 use Tests\TestCase;
 
 /**
- * Business Logic Tests
- * 
+ * Business Logic Tests.
+ *
  * Note: This test suite is designed to work with the Hyperf framework.
  * The framework import issues (Hypervel -> Hyperf) are being fixed in PR #138.
  * Once those changes are merged, these tests will run properly.
- * 
+ *
  * @internal
  * @coversNothing
  */

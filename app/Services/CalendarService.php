@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Calendar\Calendar;
-use App\Models\Calendar\CalendarEvent;
+use App\Contracts\CalendarRepositoryInterface;
 use App\Models\Calendar\CalendarEventRegistration;
 use App\Models\Calendar\CalendarShare;
 use App\Models\Calendar\ResourceBooking;
@@ -15,159 +14,104 @@ use Exception;
 
 class CalendarService
 {
+    private CalendarRepositoryInterface $calendarRepository;
+
+    public function __construct(CalendarRepositoryInterface $calendarRepository)
+    {
+        $this->calendarRepository = $calendarRepository;
+    }
+
     /**
-     * Create a new calendar
+     * Create a new calendar.
      */
     public function createCalendar(array $data): Calendar
     {
-        return Calendar::create($data);
+        return $this->calendarRepository->createCalendar($data);
     }
 
     /**
-     * Get calendar by ID
+     * Get calendar by ID.
      */
     public function getCalendar(string $id): ?Calendar
     {
-        return Calendar::find($id);
+        return $this->calendarRepository->findCalendar($id);
     }
 
     /**
-     * Update calendar
+     * Update calendar.
      */
     public function updateCalendar(string $id, array $data): bool
     {
-        $calendar = Calendar::find($id);
-        if (!$calendar) {
-            return false;
-        }
-        
-        return $calendar->update($data);
+        return $this->calendarRepository->updateCalendar($id, $data);
     }
 
     /**
-     * Delete calendar
+     * Delete calendar.
      */
     public function deleteCalendar(string $id): bool
     {
-        $calendar = Calendar::find($id);
-        if (!$calendar) {
-            return false;
-        }
-        
-        return $calendar->delete();
+        return $this->calendarRepository->deleteCalendar($id);
     }
 
     /**
-     * Create a new calendar event
+     * Create a new calendar event.
      */
     public function createEvent(array $data): CalendarEvent
     {
-        return CalendarEvent::create($data);
+        return $this->calendarRepository->createEvent($data);
     }
 
     /**
-     * Get event by ID
+     * Get event by ID.
      */
     public function getEvent(string $id): ?CalendarEvent
     {
-        return CalendarEvent::find($id);
+        return $this->calendarRepository->findEvent($id);
     }
 
     /**
-     * Update event
+     * Update event.
      */
     public function updateEvent(string $id, array $data): bool
     {
-        $event = CalendarEvent::find($id);
-        if (!$event) {
-            return false;
-        }
-        
-        return $event->update($data);
+        return $this->calendarRepository->updateEvent($id, $data);
     }
 
     /**
-     * Delete event
+     * Delete event.
      */
     public function deleteEvent(string $id): bool
     {
-        $event = CalendarEvent::find($id);
-        if (!$event) {
-            return false;
-        }
-        
-        return $event->delete();
+        return $this->calendarRepository->deleteEvent($id);
     }
 
     /**
-     * Get events for a specific date range
+     * Get events for a specific date range.
      */
     public function getEventsByDateRange(string $calendarId, Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
-        $query = CalendarEvent::where('calendar_id', $calendarId)
-            ->where(function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('start_date', [$startDate, $endDate])
-                  ->orWhereBetween('end_date', [$startDate, $endDate])
-                  ->orWhere(function ($q) use ($startDate, $endDate) {
-                      $q->where('start_date', '<=', $startDate)
-                        ->where('end_date', '>=', $endDate);
-                  });
-            });
-
-        if (!empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        if (!empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
-        }
-
-        return $query->orderBy('start_date', 'asc')->get()->toArray();
+        return $this->calendarRepository->getEventsByDateRange($calendarId, $startDate, $endDate, $filters);
     }
 
     /**
-     * Get events for a specific user based on permissions
+     * Get events for a specific user based on permissions.
      */
     public function getEventsForUser(string $userId, Carbon $startDate, Carbon $endDate, array $filters = []): array
     {
-        $query = CalendarEvent::whereHas('calendar', function ($q) use ($userId) {
-            $q->where('is_public', true)
-              ->orWhereHas('shares', function ($q) use ($userId) {
-                  $q->where('user_id', $userId);
-              });
-        });
-
-        $query->where(function ($q) use ($startDate, $endDate) {
-            $q->whereBetween('start_date', [$startDate, $endDate])
-              ->orWhereBetween('end_date', [$startDate, $endDate])
-              ->orWhere(function ($q) use ($startDate, $endDate) {
-                  $q->where('start_date', '<=', $startDate)
-                    ->where('end_date', '>=', $endDate);
-              });
-        });
-
-        if (!empty($filters['category'])) {
-            $query->where('category', $filters['category']);
-        }
-
-        if (!empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
-        }
-
-        return $query->orderBy('start_date', 'asc')->get()->toArray();
+        return $this->calendarRepository->getEventsForUser($userId, $startDate, $endDate, $filters);
     }
 
     /**
-     * Register user for an event
+     * Register user for an event.
      */
     public function registerForEvent(string $eventId, string $userId, array $additionalData = []): bool
     {
         $event = CalendarEvent::find($eventId);
-        if (!$event) {
+        if (! $event) {
             throw new Exception('Event not found');
         }
 
-        if (!$event->requires_registration) {
+        if (! $event->requires_registration) {
             throw new Exception('Event does not require registration');
         }
 
@@ -193,14 +137,14 @@ class CalendarService
             'user_id' => $userId,
             'status' => 'registered',
             'registration_date' => Carbon::now(),
-            'additional_data' => $additionalData
+            'additional_data' => $additionalData,
         ]);
 
         return true;
     }
 
     /**
-     * Get registration count for an event
+     * Get registration count for an event.
      */
     public function getRegistrationCount(string $eventId): int
     {
@@ -208,7 +152,7 @@ class CalendarService
     }
 
     /**
-     * Get registrations for an event
+     * Get registrations for an event.
      */
     public function getEventRegistrations(string $eventId): array
     {
@@ -216,12 +160,12 @@ class CalendarService
     }
 
     /**
-     * Share calendar with user
+     * Share calendar with user.
      */
-    public function shareCalendar(string $calendarId, string $userId, string $permissionType, Carbon $expiresAt = null): bool
+    public function shareCalendar(string $calendarId, string $userId, string $permissionType, ?Carbon $expiresAt = null): bool
     {
         $calendar = Calendar::find($calendarId);
-        if (!$calendar) {
+        if (! $calendar) {
             throw new Exception('Calendar not found');
         }
 
@@ -233,14 +177,14 @@ class CalendarService
         if ($existingShare) {
             $existingShare->update([
                 'permission_type' => $permissionType,
-                'expires_at' => $expiresAt
+                'expires_at' => $expiresAt,
             ]);
         } else {
             CalendarShare::create([
                 'calendar_id' => $calendarId,
                 'user_id' => $userId,
                 'permission_type' => $permissionType,
-                'expires_at' => $expiresAt
+                'expires_at' => $expiresAt,
             ]);
         }
 
@@ -248,7 +192,7 @@ class CalendarService
     }
 
     /**
-     * Book a resource
+     * Book a resource.
      */
     public function bookResource(array $data): ResourceBooking
     {
@@ -258,11 +202,11 @@ class CalendarService
             ->where('status', 'confirmed')
             ->where(function ($q) use ($data) {
                 $q->whereBetween('start_time', [$data['start_time'], $data['end_time']])
-                  ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']])
-                  ->orWhere(function ($q) use ($data) {
-                      $q->where('start_time', '<=', $data['start_time'])
-                        ->where('end_time', '>=', $data['end_time']);
-                  });
+                    ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']])
+                    ->orWhere(function ($q) use ($data) {
+                        $q->where('start_time', '<=', $data['start_time'])
+                            ->where('end_time', '>=', $data['end_time']);
+                    });
             })
             ->first();
 
@@ -274,7 +218,7 @@ class CalendarService
     }
 
     /**
-     * Get resource bookings by date range
+     * Get resource bookings by date range.
      */
     public function getResourceBookings(string $resourceType, string $resourceId, Carbon $startDate, Carbon $endDate): array
     {
@@ -282,25 +226,15 @@ class CalendarService
             ->where('resource_id', $resourceId)
             ->where(function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('start_time', [$startDate, $endDate])
-                  ->orWhereBetween('end_time', [$startDate, $endDate])
-                  ->orWhere(function ($q) use ($startDate, $endDate) {
-                      $q->where('start_time', '<=', $startDate)
-                        ->where('end_time', '>=', $endDate);
-                  });
+                    ->orWhereBetween('end_time', [$startDate, $endDate])
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('start_time', '<=', $startDate)
+                            ->where('end_time', '>=', $endDate);
+                    });
             })
             ->orderBy('start_time', 'asc')
             ->get()
             ->toArray();
     }
 
-    /**
-     * Get upcoming events for a user
-     */
-    public function getUpcomingEvents(string $userId, int $days = 30): array
-    {
-        $startDate = Carbon::now();
-        $endDate = Carbon::now()->addDays($days);
-
-        return $this->getEventsForUser($userId, $startDate, $endDate);
-    }
 }

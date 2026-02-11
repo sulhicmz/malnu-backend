@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models\Calendar;
 
-use App\Models\User;
 use App\Models\Model;
+use App\Models\User;
 
 class CalendarEventRegistration extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
     protected $table = 'calendar_event_registrations';
 
     protected $fillable = [

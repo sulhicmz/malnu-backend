@@ -1,145 +1,105 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Attendance;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\LeaveType;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Container\ContainerInterface;
 
-class LeaveTypeController extends Controller
+class LeaveTypeController extends BaseController
 {
+    public function __construct(
+        RequestInterface $request,
+        ResponseInterface $response,
+        ContainerInterface $container
+    ) {
+        parent::__construct($request, $response, $container);
+    }
+
     /**
      * Display a listing of the leave types.
      */
-    public function index(Request $request): JsonResponse
+    public function index()
     {
         $query = LeaveType::query();
 
-        // Filter by active status if provided
-        if ($request->has('is_active')) {
-            $query->where('is_active', $request->is_active);
+        if ($this->request->has('is_active')) {
+            $query->where('is_active', $this->request->input('is_active'));
         }
 
-        // Filter by paid status if provided
-        if ($request->has('is_paid')) {
-            $query->where('is_paid', $request->is_paid);
+        if ($this->request->has('is_paid')) {
+            $query->where('is_paid', $this->request->input('is_paid'));
         }
 
         $leaveTypes = $query->orderBy('name')->paginate(15);
-
-        return response()->json([
-            'success' => true,
-            'data' => $leaveTypes
-        ]);
+        return $this->successResponse($leaveTypes);
     }
 
     /**
      * Store a newly created leave type.
      */
-    public function store(Request $request): JsonResponse
+    public function store()
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'code' => 'required|string|max:20|unique:leave_types,code',
-            'description' => 'nullable|string',
-            'max_days_per_year' => 'nullable|integer|min:0',
-            'is_paid' => 'boolean',
-            'requires_approval' => 'boolean',
-            'eligibility_criteria' => 'nullable|json',
-            'is_active' => 'boolean',
-        ]);
+        $data = $this->request->all();
 
-        $leaveType = LeaveType::create($request->all());
+        if (empty($data['name']) || empty($data['code'])) {
+            return $this->errorResponse('Name and code are required', null, null, 400);
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type created successfully',
-            'data' => $leaveType
-        ], 201);
+        $leaveType = LeaveType::create($data);
+        return $this->successResponse($leaveType, 'Leave type created successfully', 201);
     }
 
     /**
      * Display the specified leave type.
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id)
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+        if (! $leaveType) {
+            return $this->notFoundResponse('Leave type not found');
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $leaveType
-        ]);
+        return $this->successResponse($leaveType);
     }
 
     /**
      * Update the specified leave type.
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(string $id)
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+        if (! $leaveType) {
+            return $this->notFoundResponse('Leave type not found');
         }
 
-        $request->validate([
-            'name' => 'string|max:100',
-            'code' => 'string|max:20|unique:leave_types,code,' . $id,
-            'description' => 'nullable|string',
-            'max_days_per_year' => 'nullable|integer|min:0',
-            'is_paid' => 'boolean',
-            'requires_approval' => 'boolean',
-            'eligibility_criteria' => 'nullable|json',
-            'is_active' => 'boolean',
-        ]);
-
-        $leaveType->update($request->all());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type updated successfully',
-            'data' => $leaveType
-        ]);
+        $data = $this->request->all();
+        $leaveType->update($data);
+        return $this->successResponse($leaveType, 'Leave type updated successfully');
     }
 
     /**
      * Remove the specified leave type.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id)
     {
         $leaveType = LeaveType::find($id);
 
-        if (!$leaveType) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Leave type not found'
-            ], 404);
+        if (! $leaveType) {
+            return $this->notFoundResponse('Leave type not found');
         }
 
-        // Check if there are any leave requests associated with this type
         if ($leaveType->leaveRequests()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete leave type with associated leave requests'
-            ], 400);
+            return $this->errorResponse('Cannot delete leave type with associated leave requests', 'LEAVE_TYPE_IN_USE', null, 400);
         }
 
         $leaveType->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Leave type deleted successfully'
-        ]);
+        return $this->successResponse(null, 'Leave type deleted successfully');
     }
 }

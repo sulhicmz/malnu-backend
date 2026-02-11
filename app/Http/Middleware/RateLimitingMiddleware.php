@@ -16,9 +16,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 class RateLimitingMiddleware implements MiddlewareInterface
 {
     protected ContainerInterface $container;
+
     protected RequestInterface $request;
+
     protected HttpResponse $response;
+
     protected Redis $redis;
+
     protected array $config;
 
     public function __construct(ContainerInterface $container)
@@ -93,6 +97,10 @@ class RateLimitingMiddleware implements MiddlewareInterface
             return 'auth.password.reset';
         }
 
+        if ($method === 'POST' && str_ends_with($route, '/auth/password/forgot')) {
+            return 'auth.password.forgot';
+        }
+
         if ($route === '/auth/logout' || $route === '/auth/refresh' || $route === '/auth/me' || $route === '/auth/password/change') {
             return 'protected_api';
         }
@@ -139,8 +147,10 @@ class RateLimitingMiddleware implements MiddlewareInterface
 
         foreach ($headers as $header) {
             if (isset($serverParams[$header])) {
-                $ip = explode(',', $serverParams[$header])[0];
-                return trim($ip);
+                $ipList = explode(',', $serverParams[$header]);
+                if (! empty($ipList)) {
+                    return trim($ipList[0]);
+                }
             }
         }
 

@@ -102,21 +102,6 @@ class CalendarService
     }
 
     /**
-     * Get upcoming events for a user.
-     */
-    public function getUpcomingEvents(string $userId, int $days = 30): array
-    {
-        return $this->calendarRepository->getUpcomingEvents($userId, $days);
-    }
-
-        if (! empty($filters['priority'])) {
-            $query->where('priority', $filters['priority']);
-        }
-
-        return $query->orderBy('start_date', 'asc')->get()->toArray();
-    }
-
-    /**
      * Register user for an event.
      */
     public function registerForEvent(string $eventId, string $userId, array $additionalData = []): bool
@@ -252,14 +237,4 @@ class CalendarService
             ->toArray();
     }
 
-    /**
-     * Get upcoming events for a user.
-     */
-    public function getUpcomingEvents(string $userId, int $days = 30): array
-    {
-        $startDate = Carbon::now();
-        $endDate = Carbon::now()->addDays($days);
-
-        return $this->getEventsForUser($userId, $startDate, $endDate);
-    }
 }

@@ -39,7 +39,6 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
             $this->loggingService->error('Failed to connect to Redis for token blacklist', ['exception' => $e->getMessage()]);
         }
     }
-    }
 
     /**
      * Add token to blacklist.

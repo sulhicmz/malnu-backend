@@ -1,14 +1,13 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -19,7 +18,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 255);
             $table->string('guard_name', 255);
-            
+
             $table->datetimes();
 
             $table->unique(['name', 'guard_name'], 'unique_name_guard');
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(Db::raw('(UUID())'));
             $table->string('name', 255);
             $table->string('guard_name', 255);
-            
+
             $table->datetimes();
 
             $table->unique(['name', 'guard_name'], 'unique_name_guard');

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Rate Limiting Storage Driver
@@ -91,5 +90,4 @@ return [
         'connection' => env('RATE_LIMIT_REDIS_CONNECTION', 'default'),
         'prefix' => env('RATE_LIMIT_PREFIX', 'ratelimit:'),
     ],
-
 ];

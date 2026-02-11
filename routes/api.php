@@ -2,34 +2,48 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\IndexController;
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AttendanceController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\PasswordChangeController;
+use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
+use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\SchoolManagement\StudentController;
+use App\Http\Controllers\Api\SchoolManagement\TeacherController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
-use App\Http\Controllers\Api\SchoolManagement\StudentController;
-use App\Http\Controllers\Api\SchoolManagement\TeacherController;
-use App\Http\Controllers\Api\SchoolManagement\InventoryController;
-use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Calendar\CalendarController;
-use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\IndexController;
+use App\Http\Controllers\Api\LMSController;
+use App\Http\Controllers\Api\Mobile\StudentMobileController;
+use App\Http\Controllers\Api\Mobile\ParentMobileController;
+use App\Http\Controllers\Api\Mobile\TeacherMobileController;
+use App\Http\Controllers\Api\Mobile\AdminMobileController;
+use App\Http\Controllers\Api\Mobile\PushNotificationController;
+use App\Http\Controllers\Api\ParentPortal\ParentPortalController;
+use App\Http\Controllers\Api\FinancialManagement\FeeTypeController;
+use App\Http\Controllers\Api\FinancialManagement\FeeStructureController;
+use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
+use App\Http\Controllers\Api\FinancialManagement\PaymentController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
 Route::group(['middleware' => ['input.sanitization', 'rate.limit']], function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/password/forgot', [AuthController::class, 'requestPasswordReset']);
-    Route::post('/auth/password/reset', [AuthController::class, 'resetPassword']);
+    Route::post('/auth/password/forgot', [PasswordResetController::class, 'requestPasswordReset']);
+    Route::post('/auth/password/reset', [PasswordResetController::class, 'resetPassword']);
 });
 
 // Protected routes (JWT authentication required)
 Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
-    Route::post('/auth/password/change', [AuthController::class, 'changePassword']);
+    Route::get('/auth/me', [ProfileController::class, 'me']);
+    Route::post('/auth/password/change', [PasswordChangeController::class, 'changePassword']);
 });
 
 // Attendance and Leave Management Routes (protected with role check)
@@ -84,8 +98,66 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
+    });
+});
+
+// Mobile API Routes (protected with authentication and mobile middleware)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'mobile']], function () {
+    Route::prefix('mobile/v1')->group(function () {
+        // Student Mobile Routes
+        Route::group(['middleware' => ['role:Siswa']], function () {
+            Route::prefix('student')->group(function () {
+                Route::get('/dashboard', [StudentMobileController::class, 'getDashboard']);
+                Route::get('/grades', [StudentMobileController::class, 'getGrades']);
+                Route::get('/assignments', [StudentMobileController::class, 'getAssignments']);
+                Route::get('/schedule', [StudentMobileController::class, 'getSchedule']);
+                Route::get('/attendance', [StudentMobileController::class, 'getAttendance']);
+            });
+        });
+
+        // Parent Mobile Routes
+        Route::group(['middleware' => ['role:Orang Tua']], function () {
+            Route::prefix('parent')->group(function () {
+                Route::get('/children', [ParentMobileController::class, 'getChildren']);
+                Route::get('/children/{childId}/progress', [ParentMobileController::class, 'getChildProgress']);
+                Route::get('/children/{childId}/attendance', [ParentMobileController::class, 'getChildAttendance']);
+                Route::get('/children/{childId}/grades', [ParentMobileController::class, 'getChildGrades']);
+                Route::get('/children/{childId}/fees', [ParentMobileController::class, 'getChildFees']);
+            });
+        });
+
+        // Teacher Mobile Routes
+        Route::group(['middleware' => ['role:Guru']], function () {
+            Route::prefix('teacher')->group(function () {
+                Route::get('/dashboard', [TeacherMobileController::class, 'getDashboard']);
+                Route::get('/classes', [TeacherMobileController::class, 'getClasses']);
+                Route::get('/classes/{classId}/students', [TeacherMobileController::class, 'getClassStudents']);
+                Route::post('/attendance/mark', [TeacherMobileController::class, 'markAttendance']);
+                Route::get('/schedule', [TeacherMobileController::class, 'getSchedule']);
+            });
+        });
+
+        // Admin Mobile Routes
+        Route::group(['middleware' => ['role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+            Route::prefix('admin')->group(function () {
+                Route::get('/dashboard', [AdminMobileController::class, 'getDashboard']);
+                Route::get('/school-info', [AdminMobileController::class, 'getSchoolInfo']);
+                Route::get('/statistics', [AdminMobileController::class, 'getStatistics']);
+                Route::get('/recent-activities', [AdminMobileController::class, 'getRecentActivities']);
+            });
+        });
+
+        // Push Notification Routes (all authenticated users)
+        Route::prefix('push')->group(function () {
+            Route::post('/register', [PushNotificationController::class, 'registerDevice']);
+            Route::post('/unregister', [PushNotificationController::class, 'unregisterDevice']);
+            Route::put('/preferences', [PushNotificationController::class, 'updatePreferences']);
+            Route::get('/preferences', [PushNotificationController::class, 'getPreferences']);
+            Route::post('/test', [PushNotificationController::class, 'testPush']);
         });
     });
+});
+
 });
 
 // Calendar and Event Management Routes (protected with role check)
@@ -130,5 +202,69 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Learning Management System Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('lms')->group(function () {
+        // Course Management Routes
+        Route::post('courses', [LMSController::class, 'createCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('courses', [LMSController::class, 'getCourses']);
+        Route::get('courses/{id}', [LMSController::class, 'getCourse']);
+        Route::put('courses/{id}', [LMSController::class, 'updateCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Learning Path Management Routes
+        Route::post('learning-paths', [LMSController::class, 'createLearningPath'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('learning-paths', [LMSController::class, 'getLearningPaths']);
+        Route::get('learning-paths/{id}', [LMSController::class, 'getLearningPath']);
+
+        // Enrollment Management Routes
+        Route::post('courses/{courseId}/enroll', [LMSController::class, 'enrollStudent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('enrollments', [LMSController::class, 'getEnrollments']);
+
+        // Progress Tracking Routes
+        Route::get('courses/{courseId}/progress', [LMSController::class, 'getCourseProgress']);
+        Route::put('progress/{enrollmentId}', [LMSController::class, 'updateProgress']);
+        Route::post('progress/{enrollmentId}/complete', [LMSController::class, 'completeCourse']);
+
+        // Certificate Management Routes
+        Route::get('certificates', [LMSController::class, 'getCertificates']);
+    });
+});
+
+// Parent Portal Routes (protected with authentication and parent role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Parent|Ortu']], function () {
+    Route::prefix('parent')->group(function () {
+        Route::get('/dashboard', [ParentPortalController::class, 'dashboard']);
+        Route::prefix('children/{id}')->group(function () {
+            Route::get('/grades', [ParentPortalController::class, 'getChildGrades']);
+            Route::get('/attendance', [ParentPortalController::class, 'getChildAttendance']);
+            Route::get('/assignments', [ParentPortalController::class, 'getChildAssignments']);
+        });
+    });
+});
+
+// Financial Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('financial')->group(function () {
+        // Fee Type Management Routes
+        Route::apiResource('fee-types', FeeTypeController::class);
+
+        // Fee Structure Management Routes
+        Route::apiResource('fee-structures', FeeStructureController::class);
+
+        // Invoice Management Routes
+        Route::get('invoices', [InvoiceController::class, 'index']);
+        Route::get('invoices/{id}', [InvoiceController::class, 'show']);
+        Route::post('invoices', [InvoiceController::class, 'store']);
+        Route::put('invoices/{id}', [InvoiceController::class, 'update']);
+        Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
+
+        // Payment Management Routes
+        Route::get('payments', [PaymentController::class, 'index']);
+        Route::get('payments/{id}', [PaymentController::class, 'show']);
+        Route::post('payments', [PaymentController::class, 'store']);
+        Route::put('payments/{id}', [PaymentController::class, 'update']);
     });
 });

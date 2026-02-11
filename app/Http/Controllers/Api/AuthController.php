@@ -1,9 +1,9 @@
 <?php
- 
+
 declare(strict_types=1);
- 
+
 namespace App\Http\Controllers\Api;
- 
+
 use App\Contracts\AuthServiceInterface;
 use App\Traits\InputValidationTrait;
 
@@ -35,7 +35,7 @@ use App\Traits\InputValidationTrait;
 class AuthController extends BaseController
 {
     use InputValidationTrait;
-    
+
     private AuthServiceInterface $authService;
 
     public function __construct(AuthServiceInterface $authService)
@@ -46,7 +46,7 @@ class AuthController extends BaseController
 
     /**
      * User registration
-     * 
+     *
      * @OA\Post(
      *     path="/auth/register",
      *     tags={"Authentication"},
@@ -93,19 +93,16 @@ class AuthController extends BaseController
     {
         try {
             $data = $this->request->all();
-            
-            // Sanitize input data
+
             $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
+
             $requiredFields = ['name', 'email', 'password'];
             $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
+
             if (isset($data['email']) && !$this->validateEmail($data['email'])) {
                 $errors['email'] = ['The email must be a valid email address.'];
             }
-            
+
             if (isset($data['name']) && !$this->validateStringLength($data['name'], 3)) {
                 $errors['name'] = ['The name must be at least 3 characters.'];
             }
@@ -121,7 +118,6 @@ class AuthController extends BaseController
                 return $this->validationErrorResponse($errors);
             }
 
-            // Register user
             $result = $this->authService->register($data);
 
             return $this->successResponse($result, 'User registered successfully');
@@ -132,7 +128,7 @@ class AuthController extends BaseController
 
     /**
      * User login
-     * 
+     *
      * @OA\Post(
      *     path="/auth/login",
      *     tags={"Authentication"},
@@ -172,15 +168,12 @@ class AuthController extends BaseController
     {
         try {
             $data = $this->request->all();
-            
-            // Sanitize input data
+
             $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
+
             $requiredFields = ['email', 'password'];
             $errors = $this->validateRequired($data, $requiredFields);
-            
-            // Additional validation
+
             if (isset($data['email']) && !$this->validateEmail($data['email'])) {
                 $errors['email'] = ['The email must be a valid email address.'];
             }
@@ -189,7 +182,6 @@ class AuthController extends BaseController
                 return $this->validationErrorResponse($errors);
             }
 
-            // Authenticate user
             $result = $this->authService->login($data['email'], $data['password']);
 
             return $this->successResponse($result, 'Login successful');
@@ -200,7 +192,7 @@ class AuthController extends BaseController
 
     /**
      * User logout
-     * 
+     *
      * @OA\Post(
      *     path="/auth/logout",
      *     tags={"Authentication"},
@@ -228,17 +220,15 @@ class AuthController extends BaseController
     public function logout()
     {
         try {
-            // Get token from authorization header
             $authHeader = $this->request->getHeaderLine('Authorization');
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 return $this->unauthorizedResponse('Token not provided');
             }
-            
-            $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
-            
-            // Add token to blacklist
+
+            $token = substr($authHeader, 7);
+
             $this->authService->logout($token);
-            
+
             return $this->successResponse(null, 'Successfully logged out');
         } catch (\Exception $e) {
             return $this->serverErrorResponse($e->getMessage());
@@ -247,7 +237,7 @@ class AuthController extends BaseController
 
     /**
      * Refresh token
-     * 
+     *
      * @OA\Post(
      *     path="/auth/refresh",
      *     tags={"Authentication"},
@@ -278,303 +268,18 @@ class AuthController extends BaseController
     public function refresh()
     {
         try {
-            // Get token from authorization header
             $authHeader = $this->request->getHeaderLine('Authorization');
             if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
                 return $this->unauthorizedResponse('Token not provided');
             }
-            
-            $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
-            
+
+            $token = substr($authHeader, 7);
+
             $result = $this->authService->refreshToken($token);
-            
+
             return $this->successResponse($result, 'Token refreshed successfully');
         } catch (\Exception $e) {
             return $this->unauthorizedResponse($e->getMessage());
-        }
-    }
-
-    /**
-     * Get authenticated user
-     * 
-     * @OA\Get(
-     *     path="/auth/me",
-     *     tags={"Authentication"},
-     *     summary="Get authenticated user",
-     *     description="Retrieve current authenticated user information",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="User retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="User retrieved successfully"),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="user", type="object")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="User not authenticated")
-     *         )
-     *     )
-     * )
-     */
-    public function me()
-    {
-        try {
-            // Get token from authorization header
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-                return $this->unauthorizedResponse('Token not provided');
-            }
-            
-            $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
-            
-            $user = $this->authService->getUserFromToken($token);
-            
-            if (!$user) {
-                return $this->unauthorizedResponse('User not authenticated');
-            }
-
-            return $this->successResponse([
-                'user' => $user
-            ], 'User retrieved successfully');
-        } catch (\Exception $e) {
-            return $this->unauthorizedResponse($e->getMessage());
-        }
-    }
-
-    /**
-     * Request password reset
-     * 
-     * @OA\Post(
-     *     path="/auth/password-reset/request",
-     *     tags={"Authentication"},
-     *     summary="Request password reset",
-     *     description="Send password reset link to user email",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email"},
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password reset email sent",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Password reset link sent to your email"),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Validation error"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
-     *     )
-     * )
-     */
-    public function requestPasswordReset()
-    {
-        try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $errors = $this->validateRequired($data, ['email']);
-            
-            // Additional validation
-            if (isset($data['email']) && !$this->validateEmail($data['email'])) {
-                $errors['email'] = ['The email must be a valid email address.'];
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            $result = $this->authService->requestPasswordReset($data['email']);
-            
-            return $this->successResponse($result, $result['message']);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage());
-        }
-    }
-
-    /**
-     * Reset password with token
-     * 
-     * @OA\Post(
-     *     path="/auth/password-reset/confirm",
-     *     tags={"Authentication"},
-     *     summary="Reset password",
-     *     description="Reset user password using reset token",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"token","password"},
-     *             @OA\Property(property="token", type="string", example="abc123def456"),
-     *             @OA\Property(property="password", type="string", format="password", example="NewSecurePass123!", minLength=8)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password reset successful",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Password has been reset"),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid or expired token",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Invalid or expired token")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Validation error"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
-     *     )
-     * )
-     */
-    public function resetPassword()
-    {
-        try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['token', 'password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-
-            // Password complexity validation
-            if (isset($data['password'])) {
-                $passwordErrors = $this->validatePasswordComplexity($data['password']);
-                if (!empty($passwordErrors)) {
-                    $errors['password'] = $passwordErrors;
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            $result = $this->authService->resetPassword($data['token'], $data['password']);
-            
-            return $this->successResponse($result, $result['message']);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage());
-        }
-    }
-
-    /**
-     * Change authenticated user's password
-     * 
-     * @OA\Post(
-     *     path="/auth/change-password",
-     *     tags={"Authentication"},
-     *     summary="Change password",
-     *     description="Change authenticated user's password",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"current_password","new_password"},
-     *             @OA\Property(property="current_password", type="string", format="password", example="OldPass123!"),
-     *             @OA\Property(property="new_password", type="string", format="password", example="NewSecurePass123!", minLength=8)
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password changed successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Password has been changed"),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Current password is incorrect")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Validation error"),
-     *             @OA\Property(property="errors", type="object")
-     *         )
-     *     )
-     * )
-     */
-    public function changePassword()
-    {
-        try {
-            $data = $this->request->all();
-            
-            // Sanitize input data
-            $data = $this->sanitizeInput($data);
-            
-            // Validate required fields
-            $requiredFields = ['current_password', 'new_password'];
-            $errors = $this->validateRequired($data, $requiredFields);
-
-            // Password complexity validation
-            if (isset($data['new_password'])) {
-                $passwordErrors = $this->validatePasswordComplexity($data['new_password']);
-                if (!empty($passwordErrors)) {
-                    $errors['new_password'] = $passwordErrors;
-                }
-            }
-
-            if (!empty($errors)) {
-                return $this->validationErrorResponse($errors);
-            }
-
-            // Get user from token
-            $authHeader = $this->request->getHeaderLine('Authorization');
-            if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
-                return $this->unauthorizedResponse('Token not provided');
-            }
-            
-            $token = substr($authHeader, 7); // Remove 'Bearer ' prefix
-            $user = $this->authService->getUserFromToken($token);
-            
-            if (!$user) {
-                return $this->unauthorizedResponse('User not authenticated');
-            }
-
-            $result = $this->authService->changePassword($user['id'], $data['current_password'], $data['new_password']);
-            
-            return $this->successResponse($result, $result['message']);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage());
         }
     }
 }

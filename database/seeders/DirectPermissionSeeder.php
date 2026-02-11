@@ -11,8 +11,6 @@ class DirectPermissionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -29,4 +27,3 @@ class DirectPermissionSeeder extends Seeder
         }
     }
 }
-

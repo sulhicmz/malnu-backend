@@ -16,21 +16,23 @@
         "php": ">=8.2",
         "ext-redis": "*",
         "friendsofhyperf/tinker": "~3.1.0",
-        "hypervel/framework": "^0.1"
+        "hypervel/framework": "^0.3",
+        "symfony/process": "^7.4"
     },
     "require-dev": {
         "fakerphp/faker": "^2.0",
         "filp/whoops": "^2.15",
-        "friendsofphp/php-cs-fixer": "^3.57.2",
+        "friendsofphp/php-cs-fixer": "^3.93.1",
         "hyperf/testing": "~3.1.0",
         "hyperf/watcher": "~3.1.0",
-        "hypervel/devtool": "^0.1",
+        "hypervel/devtool": "^0.3",
         "laravel/envoy": "^2.10",
         "mockery/mockery": "^1.5.1",
         "nunomaduro/collision": "^8.5",
-        "phpstan/phpstan": "^1.11.5",
+        "phpstan/phpstan": "^2.1.38",
         "phpunit/phpunit": "10.5.45",
-        "swoole/ide-helper": "~5.1.0"
+        "swoole/ide-helper": "~6.0.2",
+        "zircote/swagger-php": "^6.0"
     },
     "autoload": {
         "psr-4": {

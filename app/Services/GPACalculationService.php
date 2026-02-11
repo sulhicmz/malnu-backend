@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\Grading\Grade;
 use App\Models\SchoolManagement\Student;
-use Hyperf\DbConnection\Db;
 
 class GPACalculationService
 {
@@ -15,23 +14,6 @@ class GPACalculationService
     public function __construct()
     {
         $this->gradeScale = $this->getDefaultGradeScale();
-    }
-
-    private function getDefaultGradeScale(): array
-    {
-        return [
-            'A' => 4.0,
-            'A-' => 3.7,
-            'B+' => 3.3,
-            'B' => 3.0,
-            'B-' => 2.7,
-            'C+' => 2.3,
-            'C' => 2.0,
-            'C-' => 1.7,
-            'D+' => 1.3,
-            'D' => 1.0,
-            'F' => 0.0,
-        ];
     }
 
     public function setGradeScale(array $scale): void
@@ -110,16 +92,36 @@ class GPACalculationService
 
     public function convertToNumeric(float $grade): float
     {
-        if ($grade >= 90) return 4.0;
-        if ($grade >= 85) return 3.7;
-        if ($grade >= 80) return 3.3;
-        if ($grade >= 75) return 3.0;
-        if ($grade >= 70) return 2.7;
-        if ($grade >= 65) return 2.3;
-        if ($grade >= 60) return 2.0;
-        if ($grade >= 55) return 1.7;
-        if ($grade >= 50) return 1.3;
-        if ($grade >= 45) return 1.0;
+        if ($grade >= 90) {
+            return 4.0;
+        }
+        if ($grade >= 85) {
+            return 3.7;
+        }
+        if ($grade >= 80) {
+            return 3.3;
+        }
+        if ($grade >= 75) {
+            return 3.0;
+        }
+        if ($grade >= 70) {
+            return 2.7;
+        }
+        if ($grade >= 65) {
+            return 2.3;
+        }
+        if ($grade >= 60) {
+            return 2.0;
+        }
+        if ($grade >= 55) {
+            return 1.7;
+        }
+        if ($grade >= 50) {
+            return 1.3;
+        }
+        if ($grade >= 45) {
+            return 1.0;
+        }
 
         return 0.0;
     }
@@ -131,16 +133,36 @@ class GPACalculationService
 
     public function convertNumericToLetter(float $numericGPA): string
     {
-        if ($numericGPA >= 4.0) return 'A';
-        if ($numericGPA >= 3.7) return 'A-';
-        if ($numericGPA >= 3.3) return 'B+';
-        if ($numericGPA >= 3.0) return 'B';
-        if ($numericGPA >= 2.7) return 'B-';
-        if ($numericGPA >= 2.3) return 'C+';
-        if ($numericGPA >= 2.0) return 'C';
-        if ($numericGPA >= 1.7) return 'C-';
-        if ($numericGPA >= 1.3) return 'D+';
-        if ($numericGPA >= 1.0) return 'D';
+        if ($numericGPA >= 4.0) {
+            return 'A';
+        }
+        if ($numericGPA >= 3.7) {
+            return 'A-';
+        }
+        if ($numericGPA >= 3.3) {
+            return 'B+';
+        }
+        if ($numericGPA >= 3.0) {
+            return 'B';
+        }
+        if ($numericGPA >= 2.7) {
+            return 'B-';
+        }
+        if ($numericGPA >= 2.3) {
+            return 'C+';
+        }
+        if ($numericGPA >= 2.0) {
+            return 'C';
+        }
+        if ($numericGPA >= 1.7) {
+            return 'C-';
+        }
+        if ($numericGPA >= 1.3) {
+            return 'D+';
+        }
+        if ($numericGPA >= 1.0) {
+            return 'D';
+        }
 
         return 'F';
     }
@@ -184,7 +206,7 @@ class GPACalculationService
     {
         $student = Student::find($studentId);
 
-        if (!$student) {
+        if (! $student) {
             return [];
         }
 
@@ -208,11 +230,11 @@ class GPACalculationService
         foreach ($grades as $grade) {
             $creditHours = $grade->subject->credit_hours ?? 1;
             $summary['total_credits'] += $creditHours;
-            $summary['subjects_taken']++;
+            ++$summary['subjects_taken'];
 
             $semesterKey = $grade->semester . '-' . ($grade->class->academic_year ?? 'N/A');
 
-            if (!isset($semesterData[$semesterKey])) {
+            if (! isset($semesterData[$semesterKey])) {
                 $semesterData[$semesterKey] = [
                     'semester' => $grade->semester,
                     'academic_year' => $grade->class->academic_year ?? 'N/A',
@@ -224,11 +246,11 @@ class GPACalculationService
 
             $semesterData[$semesterKey]['gpa'] += $this->convertToNumeric($grade->grade) * $creditHours;
             $semesterData[$semesterKey]['credits'] += $creditHours;
-            $semesterData[$semesterKey]['subjects_count']++;
+            ++$semesterData[$semesterKey]['subjects_count'];
 
             $subjectName = $grade->subject->name ?? 'Unknown';
 
-            if (!isset($summary['subject_performance'][$subjectName])) {
+            if (! isset($summary['subject_performance'][$subjectName])) {
                 $summary['subject_performance'][$subjectName] = [
                     'subject_name' => $subjectName,
                     'grades' => [],
@@ -244,7 +266,7 @@ class GPACalculationService
                 'academic_year' => $grade->class->academic_year ?? 'N/A',
             ];
 
-            $summary['subject_performance'][$subjectName]['grade_count']++;
+            ++$summary['subject_performance'][$subjectName]['grade_count'];
             $summary['subject_performance'][$subjectName]['average_grade'] += $grade->grade;
         }
 
@@ -267,5 +289,22 @@ class GPACalculationService
         $summary['subject_performance'] = array_values($summary['subject_performance']);
 
         return $summary;
+    }
+
+    private function getDefaultGradeScale(): array
+    {
+        return [
+            'A' => 4.0,
+            'A-' => 3.7,
+            'B+' => 3.3,
+            'B' => 3.0,
+            'B-' => 2.7,
+            'C+' => 2.3,
+            'C' => 2.0,
+            'C-' => 1.7,
+            'D+' => 1.3,
+            'D' => 1.0,
+            'F' => 0.0,
+        ];
     }
 }

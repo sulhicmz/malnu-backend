@@ -1,5 +1,5 @@
 // Simple browser-compatible EventEmitter implementation
-type EventCallback = (...args: any[]) => void;
+type EventCallback = (...args: unknown[]) => void;
 
 class EventEmitter {
   private listeners: Map<string, EventCallback[]> = new Map();
@@ -11,7 +11,7 @@ class EventEmitter {
     this.listeners.get(event)!.push(callback);
   }
 
-  emit(event: string, ...args: any[]): void {
+  emit(event: string, ...args: unknown[]): void {
     if (this.listeners.has(event)) {
       this.listeners.get(event)!.forEach(callback => callback(...args));
     }
@@ -52,7 +52,6 @@ class WebSocketService extends EventEmitter {
       this.ws = new WebSocket(this.url);
       
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
         this.reconnectAttempts = 0;
         this.emit('connected');
         this.startHeartbeat();
@@ -62,25 +61,21 @@ class WebSocketService extends EventEmitter {
         try {
           const data = JSON.parse(event.data);
           this.emit('message', data);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+        } catch {
           this.emit('message', event.data);
         }
       };
 
       this.ws.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason);
         this.emit('disconnected', event);
         this.stopHeartbeat();
         this.attemptReconnect();
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
         this.emit('error', error);
       };
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
       this.emit('error', error);
       this.attemptReconnect();
     }
@@ -89,13 +84,10 @@ class WebSocketService extends EventEmitter {
   private attemptReconnect(): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-      
       setTimeout(() => {
         this.connect();
       }, this.reconnectInterval);
     } else {
-      console.error('Max reconnection attempts reached');
       this.emit('max_reconnect_attempts');
     }
   }
@@ -107,7 +99,6 @@ class WebSocketService extends EventEmitter {
         
         // Set timeout for pong response
         this.heartbeatTimeout = setTimeout(() => {
-          console.warn('Heartbeat timeout, closing connection');
           this.ws?.close();
         }, this.heartbeatTimeoutDuration);
       }
@@ -126,11 +117,9 @@ class WebSocketService extends EventEmitter {
     }
   }
 
-  send(data: any): void {
+  send(data: unknown): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));
-    } else {
-      console.warn('WebSocket not connected, cannot send data');
     }
   }
 

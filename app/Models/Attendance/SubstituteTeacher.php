@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Models\SchoolManagement\Teacher;
 use App\Traits\UsesUuid;
-use App\Models\Attendance\SubstituteAssignment;
 
 /**
  * @property string $id
  * @property string $teacher_id
  * @property bool $is_active
- * @property array|null $available_subjects
- * @property array|null $available_classes
- * @property string|null $special_notes
- * @property float|null $hourly_rate
+ * @property null|array $available_subjects
+ * @property null|array $available_classes
+ * @property null|string $special_notes
+ * @property null|float $hourly_rate
  */
 class SubstituteTeacher extends Model
 {

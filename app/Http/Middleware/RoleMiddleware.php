@@ -20,8 +20,8 @@ class RoleMiddleware
     public function handle($request, $next, $role)
     {
         $authHeader = $request->getHeaderLine('Authorization');
-        
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return $this->unauthorizedResponse('Authorization token required');
         }
 
@@ -29,18 +29,18 @@ class RoleMiddleware
 
         $user = $this->authService->getUserFromToken($token);
 
-        if (!$user) {
+        if (! $user) {
             return $this->unauthorizedResponse('Invalid or expired token');
         }
 
         $userId = $user['id'] ?? null;
-        if (!$userId) {
+        if (! $userId) {
             return $this->unauthorizedResponse('Invalid user data');
         }
 
         $hasRole = $this->userHasRole($userId, $role);
 
-        if (!$hasRole) {
+        if (! $hasRole) {
             return $this->forbiddenResponse('Insufficient permissions');
         }
 
@@ -61,29 +61,29 @@ class RoleMiddleware
 
     private function unauthorizedResponse($message)
     {
-        $response = new \Hyperf\HttpMessage\Server\Response();
-        return $response->withStatus(401)->withHeader('Content-Type', 'application/json')
-            ->withBody(new \Hyperf\HttpMessage\Stream\SwooleStream(json_encode([
-                'success' => false,
-                'error' => [
-                    'message' => $message,
-                    'code' => 'UNAUTHORIZED'
-                ],
-                'timestamp' => date('c')
-            ])));
+        return $this->createErrorResponse($message, 401, 'UNAUTHORIZED');
     }
 
     private function forbiddenResponse($message)
     {
+        return $this->createErrorResponse($message, 403, 'FORBIDDEN');
+    }
+
+    private function createErrorResponse(string $message, int $statusCode, string $errorCode)
+    {
+        $body = json_encode([
+            'success' => false,
+            'error' => [
+                'message' => $message,
+                'code' => $errorCode,
+            ],
+            'timestamp' => date('c'),
+        ]);
+
         $response = new \Hyperf\HttpMessage\Server\Response();
-        return $response->withStatus(403)->withHeader('Content-Type', 'application/json')
-            ->withBody(new \Hyperf\HttpMessage\Stream\SwooleStream(json_encode([
-                'success' => false,
-                'error' => [
-                    'message' => $message,
-                    'code' => 'FORBIDDEN'
-                ],
-                'timestamp' => date('c')
-            ])));
+        return $response
+            ->withStatus($statusCode)
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody(new \Hyperf\HttpMessage\Stream\SwooleStream($body));
     }
 }

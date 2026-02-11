@@ -11,9 +11,11 @@ class NotificationRecipient extends Model
 {
     use UsesUuid;
 
-    protected string $primaryKey = 'id';
-    protected string $keyType = 'string';
     public bool $incrementing = false;
+
+    protected string $primaryKey = 'id';
+
+    protected string $keyType = 'string';
 
     protected array $fillable = [
         'notification_id',

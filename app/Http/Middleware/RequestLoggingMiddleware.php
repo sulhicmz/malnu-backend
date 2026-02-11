@@ -189,8 +189,9 @@ class RequestLoggingMiddleware implements MiddlewareInterface
             $ip = $request->getHeaderLine($header);
             if ($ip) {
                 $ips = explode(',', $ip);
-
-                return trim($ips[0]);
+                if (! empty($ips)) {
+                    return trim($ips[0]);
+                }
             }
         }
 

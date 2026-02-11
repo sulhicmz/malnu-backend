@@ -75,9 +75,21 @@ cd ..
 #### 4. Configure Environment Variables
 
 ```bash
+# Option 1: Use automated setup script (RECOMMENDED)
+./scripts/setup-env.sh
+
+# Option 2: Manual setup
 cp .env.example .env
 php artisan key:generate
 ```
+
+**Security Note**: The setup script automatically generates secure random values for `APP_KEY` and `JWT_SECRET`. For production deployments, always regenerate these secrets using:
+```bash
+openssl rand -base64 32  # For APP_KEY
+openssl rand -hex 32     # For JWT_SECRET
+```
+
+Never use example secrets in production!
 
 Edit `.env` file with your configuration:
 

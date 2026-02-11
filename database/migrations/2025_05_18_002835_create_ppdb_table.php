@@ -1,23 +1,22 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-       /* Schema::create('ppdb', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->datetimes();
-        });*/
+        /* Schema::create('ppdb', function (Blueprint $table) {
+             $table->bigIncrements('id');
+             $table->datetimes();
+         });*/
 
         // PPDB Registrations
         Schema::create('ppdb_registrations', function (Blueprint $table) {
@@ -34,7 +33,7 @@ return new class extends Migration
             $table->string('intended_class', 50);
             $table->string('status', 20)->default('pending');
             $table->timestamp('registration_date')->useCurrent();
-            
+
             $table->datetimes();
         });
 
@@ -48,7 +47,7 @@ return new class extends Migration
             $table->uuid('verified_by')->nullable();
             $table->timestamp('verified_at')->nullable();
             $table->text('notes')->nullable();
-            
+
             $table->datetimes();
             $table->foreign('registration_id')->references('id')->on('ppdb_registrations')->onDelete('cascade');
             $table->foreign('verified_by')->references('id')->on('users')->onDelete('set null');
@@ -62,7 +61,7 @@ return new class extends Migration
             $table->decimal('score', 5, 2)->nullable();
             $table->timestamp('test_date')->nullable();
             $table->uuid('administrator_id')->nullable();
-            
+
             $table->datetimes();
             $table->foreign('registration_id')->references('id')->on('ppdb_registrations')->onDelete('cascade');
             $table->foreign('administrator_id')->references('id')->on('users')->onDelete('set null');
@@ -76,7 +75,7 @@ return new class extends Migration
             $table->text('content');
             $table->uuid('published_by')->nullable();
             $table->timestamp('published_at')->useCurrent();
-            
+
             $table->datetimes();
             $table->foreign('registration_id')->references('id')->on('ppdb_registrations')->onDelete('cascade');
             $table->foreign('published_by')->references('id')->on('users')->onDelete('set null');

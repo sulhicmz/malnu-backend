@@ -7,7 +7,7 @@ Complete navigation guide for all Malnu Backend School Management System documen
 ### Quick Start
 - **[Developer Guide](DEVELOPER_GUIDE.md)** - Comprehensive onboarding guide with setup, configuration, and development workflow
 - **[Quick Start Guide](DEVELOPER_GUIDE.md#quick-start-new-to-the-project)** - Fast-track onboarding for new developers
-- **[GitHub Projects Setup](GITHUB_PROJECTS_SETUP.md)** - Setting up GitHub projects for issue tracking and project management
+- **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP.md)** - Comprehensive setup guide for GitHub Projects
 
 ### Initial Setup
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Application architecture, folder organization, and code layout
@@ -67,6 +67,8 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Deployment & Configuration
 - **[Deployment](DEPLOYMENT.md)** - Production deployment procedures, environment configuration, and infrastructure setup
+- **[CI/CD Documentation](CI_CD.md)** - **NEW** - GitHub Actions workflows, OpenCode agents, and automation system documentation (Feb 8, 2026) ⭐
+- **[Environment Setup](ENVIRONMENT_SETUP.md)** - Environment variable configuration, security best practices, and troubleshooting
 
 ### Maintenance & Monitoring
 - **[Migration Plan](MIGRATION_PLAN.md)** - Migration strategies, version upgrades, and compatibility notes
@@ -86,19 +88,15 @@ Complete navigation guide for all Malnu Backend School Management System documen
 ## 📈 Analysis & Reports
 
 ### Analysis Documents
-- **[Analysis Report](ANALYSIS_REPORT.md)** - Comprehensive analysis of system architecture and implementation
-- **[Orchestrator Analysis Report v6](ORCHESTRATOR_ANALYSIS_REPORT_v6.md)** - **Latest analysis - current status (Jan 18, 2026)** ⭐
-- **[Orchestrator Analysis Report v5](ORCHESTRATOR_ANALYSIS_REPORT_v5.md)** - Archived - superseded by v6 (Jan 17, 2026)
-- **[Orchestrator Analysis Report v4](archive/ORCHESTRATOR_ANALYSIS_REPORT_v4.md)** - Archived - superseded by v5 (Jan 13, 2026)
-- **[Orchestrator Analysis Report v3](ORCHESTRATOR_ANALYSIS_REPORT_v3.md)** - Archived - superseded by v4 (Jan 11, 2026)
-- **[Orchestrator Analysis Report v2](ORCHESTRATOR_ANALYSIS_REPORT_v2.md)** - Archived - superseded by v3 (Jan 10, 2026)
-- **[Orchestrator Analysis Report v1](ORCHESTRATOR_ANALYSIS_REPORT.md)** - Archived - superseded by v2 (Jan 9, 2026)
+- **[Orchestrator Analysis Report](ORCHESTRATOR_ANALYSIS_REPORT.md)** - Comprehensive orchestrator analysis (Jan 31, 2026)
+- **[Orchestrator Action Plan](ORCHESTRATOR_ACTION_PLAN.md)** - Action plan for issue resolution (Jan 31, 2026)
+- **[Orchestrator Summary](ORCHESTRATOR_SUMMARY.md)** - Summary of orchestrator activities (Jan 31, 2026)
 - **[Complex Issue Breakdown](COMPLEX_ISSUE_BREAKDOWN.md)** - Analysis of complex technical issues and solutions
 - **[Duplicate Issues Analysis](DUPLICATE_ISSUES_ANALYSIS.md)** - Identification and consolidation plan for duplicate issues
-- **[Duplicate Issues Consolidation Plan](DUPLICATE_ISSUES_CONSOLIDATION_PLAN.md)** - **New - Detailed plan for closing duplicate issues (Jan 18, 2026)**
-- **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP_GUIDE.md)** - GitHub Projects structure and configuration guide
-- **[GitHub Projects Setup Guide v2](GITHUB_PROJECTS_SETUP_GUIDE_v2.md)** - **New - Comprehensive setup guide for 7 GitHub Projects (Jan 18, 2026)**
-- **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - **New - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)**
+- **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP.md)** - Comprehensive setup guide for GitHub Projects
+
+> **Note**: Historical versions of orchestrator reports have been archived to [docs/archive/](archive/)
+- **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)
 
 ### Security
 - **[Security Analysis](SECURITY_ANALYSIS.md)** - Security assessment, vulnerabilities, and best practices
@@ -140,5 +138,5 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ---
 
-**Last Updated**: January 17, 2026
+**Last Updated**: January 23, 2026
 **Maintained By**: Malnu Backend Development Team

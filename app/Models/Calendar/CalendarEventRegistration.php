@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models\Calendar;
 
-use App\Models\User;
 use App\Models\Model;
+use App\Models\User;
 
 class CalendarEventRegistration extends Model
 {

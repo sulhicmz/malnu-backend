@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Models\SchoolManagement\Staff;
 use App\Traits\UsesUuid;
-use App\Models\Attendance\LeaveType;
 
 /**
  * @property string $id

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
@@ -9,11 +11,11 @@ use App\Traits\UsesUuid;
  * @property string $id
  * @property string $name
  * @property string $code
- * @property string|null $description
- * @property int|null $max_days_per_year
+ * @property null|string $description
+ * @property null|int $max_days_per_year
  * @property bool $is_paid
  * @property bool $requires_approval
- * @property array|null $eligibility_criteria
+ * @property null|array $eligibility_criteria
  * @property bool $is_active
  */
 class LeaveType extends Model

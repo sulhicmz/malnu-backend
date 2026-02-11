@@ -10,10 +10,10 @@ class Medication extends Model
     protected string $keyType = 'string';
     public bool $incrementing = false;
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_DISCONTINUED = 'discontinued';
-    const STATUS_ON_HOLD = 'on_hold';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_DISCONTINUED = 'discontinued';
+    public const STATUS_ON_HOLD = 'on_hold';
 
     protected $fillable = [
         'student_id',
@@ -79,7 +79,7 @@ class Medication extends Model
 
     public function getIsActiveAttribute(): bool
     {
-        return $this->status === self::STATUS_ACTIVE && 
-               (!$this->end_date || $this->end_date >= now()->format('Y-m-d'));
+        return $this->status === self::STATUS_ACTIVE
+               && (! $this->end_date || $this->end_date >= now()->format('Y-m-d'));
     }
 }

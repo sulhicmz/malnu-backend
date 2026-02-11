@@ -10,9 +10,9 @@ class MedicalIncident extends Model
     protected string $keyType = 'string';
     public bool $incrementing = false;
 
-    const SEVERITY_MILD = 'mild';
-    const SEVERITY_MODERATE = 'moderate';
-    const SEVERITY_SEVERE = 'severe';
+    public const SEVERITY_MILD = 'mild';
+    public const SEVERITY_MODERATE = 'moderate';
+    public const SEVERITY_SEVERE = 'severe';
 
     protected $fillable = [
         'student_id',
@@ -82,6 +82,6 @@ class MedicalIncident extends Model
 
     public function getIsCriticalAttribute(): bool
     {
-        return $this->severity === self::SEVERITY_SEVERE && !$this->parent_notified;
+        return $this->severity === self::SEVERITY_SEVERE && ! $this->parent_notified;
     }
 }

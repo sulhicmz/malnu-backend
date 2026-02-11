@@ -10,15 +10,14 @@ class HealthAlert extends Model
     protected string $keyType = 'string';
     public bool $incrementing = false;
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_SENT = 'sent';
-    const STATUS_ACKNOWLEDGED = 'acknowledged';
-    const STATUS_RESOLVED = 'resolved';
-
-    const PRIORITY_LOW = 'low';
-    const PRIORITY_MEDIUM = 'medium';
-    const PRIORITY_HIGH = 'high';
-    const PRIORITY_CRITICAL = 'critical';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_SENT = 'sent';
+    public const STATUS_ACKNOWLEDGED = 'acknowledged';
+    public const STATUS_RESOLVED = 'resolved';
+    public const PRIORITY_LOW = 'low';
+    public const PRIORITY_MEDIUM = 'medium';
+    public const PRIORITY_HIGH = 'high';
+    public const PRIORITY_CRITICAL = 'critical';
 
     protected $fillable = [
         'student_id',
@@ -89,8 +88,8 @@ class HealthAlert extends Model
     public function scopeOverdue($query)
     {
         return $query->where('status', self::STATUS_PENDING)
-                      ->whereNotNull('due_date')
-                      ->where('due_date', '<', now()->format('Y-m-d'));
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now()->format('Y-m-d'));
     }
 
     public function scopeSent($query)
@@ -110,9 +109,9 @@ class HealthAlert extends Model
 
     public function getIsOverdueAttribute(): bool
     {
-        return $this->status === self::STATUS_PENDING && 
-               $this->due_date !== null && 
-               $this->due_date < now()->format('Y-m-d');
+        return $this->status === self::STATUS_PENDING
+               && $this->due_date !== null
+               && $this->due_date < now()->format('Y-m-d');
     }
 
     public function getIsCriticalAttribute(): bool
@@ -122,17 +121,17 @@ class HealthAlert extends Model
 
     public function getDaysOverdueAttribute(): ?int
     {
-        if (!$this->due_date || $this->status !== self::STATUS_PENDING) {
+        if (! $this->due_date || $this->status !== self::STATUS_PENDING) {
             return null;
         }
-        
+
         $dueDate = strtotime($this->due_date);
         $today = strtotime(now()->format('Y-m-d'));
-        
+
         if ($today > $dueDate) {
             return (int) round(($today - $dueDate) / 86400);
         }
-        
+
         return null;
     }
 

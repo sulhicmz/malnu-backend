@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Services\AttendanceService;
 use App\Models\Attendance\StudentAttendance;
-use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\Student;
+use App\Services\AttendanceService;
+use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class AttendanceTest extends TestCase
 {
     private AttendanceService $attendanceService;
@@ -20,12 +24,12 @@ class AttendanceTest extends TestCase
         $this->attendanceService = $this->app->get(AttendanceService::class);
     }
 
-    public function test_mark_student_attendance(): void
+    public function testMarkStudentAttendance(): void
     {
         $student = Student::first();
         $class = ClassModel::first();
 
-        if (!$student || !$class) {
+        if (! $student || ! $class) {
             $this->markTestSkipped('No student or class data available');
             return;
         }
@@ -49,12 +53,12 @@ class AttendanceTest extends TestCase
         ]);
     }
 
-    public function test_mark_bulk_attendance(): void
+    public function testMarkBulkAttendance(): void
     {
         $students = Student::limit(2)->get();
         $class = ClassModel::first();
 
-        if (!$class || count($students) < 2) {
+        if (! $class || count($students) < 2) {
             $this->markTestSkipped('Insufficient data for bulk attendance test');
             return;
         }
@@ -82,11 +86,11 @@ class AttendanceTest extends TestCase
         $this->assertEquals($records[1]['status'], 'absent');
     }
 
-    public function test_get_student_attendance(): void
+    public function testGetStudentAttendance(): void
     {
         $student = Student::first();
 
-        if (!$student) {
+        if (! $student) {
             $this->markTestSkipped('No student data available');
             return;
         }
@@ -99,11 +103,11 @@ class AttendanceTest extends TestCase
         $this->assertArrayHasKey('present_days', $result->statistics);
     }
 
-    public function test_get_class_attendance(): void
+    public function testGetClassAttendance(): void
     {
         $class = ClassModel::first();
 
-        if (!$class) {
+        if (! $class) {
             $this->markTestSkipped('No class data available');
             return;
         }
@@ -115,11 +119,11 @@ class AttendanceTest extends TestCase
         $this->assertArrayHasKey('students', $result);
     }
 
-    public function test_calculate_attendance_percentage(): void
+    public function testCalculateAttendancePercentage(): void
     {
         $student = Student::first();
 
-        if (!$student) {
+        if (! $student) {
             $this->markTestSkipped('No student data available');
             return;
         }
@@ -134,11 +138,11 @@ class AttendanceTest extends TestCase
         $this->assertLessThanOrEqual(100.0, $statistics['attendance_percentage']);
     }
 
-    public function test_scope_by_student(): void
+    public function testScopeByStudent(): void
     {
         $student = Student::first();
 
-        if (!$student) {
+        if (! $student) {
             $this->markTestSkipped('No student data available');
             return;
         }
@@ -150,11 +154,11 @@ class AttendanceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $filteredQuery);
     }
 
-    public function test_scope_by_class(): void
+    public function testScopeByClass(): void
     {
         $class = ClassModel::first();
 
-        if (!$class) {
+        if (! $class) {
             $this->markTestSkipped('No class data available');
             return;
         }
@@ -166,7 +170,7 @@ class AttendanceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $filteredQuery);
     }
 
-    public function test_scope_by_status(): void
+    public function testScopeByStatus(): void
     {
         $query = StudentAttendance::query();
 
@@ -175,7 +179,7 @@ class AttendanceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $presentQuery);
     }
 
-    public function test_scope_present(): void
+    public function testScopePresent(): void
     {
         $query = StudentAttendance::query();
 
@@ -184,12 +188,114 @@ class AttendanceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $presentQuery);
     }
 
-    public function test_scope_absent(): void
+    public function testScopeAbsent(): void
     {
         $query = StudentAttendance::query();
 
         $absentQuery = $query->absent();
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $absentQuery);
+    }
+
+    public function testDetectChronicAbsenteeismWithNoAbsentees(): void
+    {
+        $student = Student::first();
+
+        if (! $student) {
+            $this->markTestSkipped('No student data available');
+            return;
+        }
+
+        $result = $this->attendanceService->detectChronicAbsenteeism();
+
+        $this->assertIsArray($result);
+        $this->assertContainsOnly('array', $result);
+    }
+
+    public function testDetectChronicAbsenteeismWithOneAbsentee(): void
+    {
+        $student = Student::with('user')->first();
+
+        if (! $student) {
+            $this->markTestSkipped('No student data available');
+            return;
+        }
+
+        $cutoffDate = date('Y-m-d', strtotime('-30 days'));
+
+        $attendanceData = [];
+        for ($i = 0; $i < 5; ++$i) {
+            $attendanceData[] = [
+                'student_id' => $student->id,
+                'class_id' => $student->class_id ?? '1',
+                'teacher_id' => '1',
+                'attendance_date' => date('Y-m-d', strtotime("-{$i} days")),
+                'status' => 'absent',
+                'marked_by' => '1',
+            ];
+        }
+
+        StudentAttendance::insert($attendanceData);
+
+        $result = $this->attendanceService->detectChronicAbsenteeism();
+
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
+        $foundStudent = collect($result)->first(function ($absentee) use ($student) {
+            return $absentee['student_id'] === $student->id;
+        });
+
+        if ($foundStudent) {
+            $this->assertEquals($student->id, $foundStudent['student_id']);
+            $this->assertGreaterThanOrEqual(3, $foundStudent['absent_days']);
+            $this->assertArrayHasKey('attendance_percentage', $foundStudent);
+        }
+
+        StudentAttendance::where('student_id', $student->id)
+            ->where('status', 'absent')
+            ->delete();
+    }
+
+    public function testDetectChronicAbsenteeismWithMultipleAbsentees(): void
+    {
+        $students = Student::with('user')->limit(3)->get();
+
+        if ($students->count() < 3) {
+            $this->markTestSkipped('Insufficient student data for test');
+            return;
+        }
+
+        $attendanceData = [];
+        foreach ($students as $student) {
+            for ($i = 0; $i < 5; ++$i) {
+                $attendanceData[] = [
+                    'student_id' => $student->id,
+                    'class_id' => $student->class_id ?? '1',
+                    'teacher_id' => '1',
+                    'attendance_date' => date('Y-m-d', strtotime("-{$i} days")),
+                    'status' => 'absent',
+                    'marked_by' => '1',
+                ];
+            }
+        }
+
+        StudentAttendance::insert($attendanceData);
+
+        $result = $this->attendanceService->detectChronicAbsenteeism();
+
+        $this->assertIsArray($result);
+        $this->assertGreaterThanOrEqual(3, count($result));
+
+        foreach ($result as $absentee) {
+            $this->assertArrayHasKey('student_id', $absentee);
+            $this->assertArrayHasKey('student_name', $absentee);
+            $this->assertArrayHasKey('absent_days', $absentee);
+            $this->assertArrayHasKey('attendance_percentage', $absentee);
+            $this->assertGreaterThanOrEqual(3, $absentee['absent_days']);
+            $this->assertGreaterThanOrEqual(0, $absentee['attendance_percentage']);
+            $this->assertLessThanOrEqual(100, $absentee['attendance_percentage']);
+        }
+
+        StudentAttendance::whereIn('student_id', $students->pluck('id'))->delete();
     }
 }

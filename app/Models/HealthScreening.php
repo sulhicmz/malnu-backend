@@ -10,9 +10,9 @@ class HealthScreening extends Model
     protected string $keyType = 'string';
     public bool $incrementing = false;
 
-    const STATUS_NORMAL = 'normal';
-    const STATUS_ABNORMAL = 'abnormal';
-    const STATUS_NEEDS_FOLLOW_UP = 'needs_follow_up';
+    public const STATUS_NORMAL = 'normal';
+    public const STATUS_ABNORMAL = 'abnormal';
+    public const STATUS_NEEDS_FOLLOW_UP = 'needs_follow_up';
 
     protected $fillable = [
         'student_id',
@@ -89,13 +89,13 @@ class HealthScreening extends Model
     public function scopeNeedsFollowUp($query)
     {
         return $query->where('status', self::STATUS_NEEDS_FOLLOW_UP)
-                      ->where('follow_up_date', '<=', now()->format('Y-m-d'));
+            ->where('follow_up_date', '<=', now()->format('Y-m-d'));
     }
 
     public function getIsOverdueForFollowUpAttribute(): bool
     {
-        return $this->status === self::STATUS_NEEDS_FOLLOW_UP &&
-               $this->follow_up_date !== null &&
-               $this->follow_up_date < now()->format('Y-m-d');
+        return $this->status === self::STATUS_NEEDS_FOLLOW_UP
+               && $this->follow_up_date !== null
+               && $this->follow_up_date < now()->format('Y-m-d');
     }
 }

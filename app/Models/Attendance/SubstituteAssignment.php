@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Models\SchoolManagement\ClassSubject;
 use App\Traits\UsesUuid;
-use App\Models\Attendance\SubstituteTeacher;
-use App\Models\Attendance\LeaveRequest;
 
 /**
  * @property string $id
  * @property string $leave_request_id
  * @property string $substitute_teacher_id
- * @property string|null $class_subject_id
+ * @property null|string $class_subject_id
  * @property string $assignment_date
  * @property string $status
- * @property string|null $assignment_notes
- * @property float|null $payment_amount
+ * @property null|string $assignment_notes
+ * @property null|float $payment_amount
  */
 class SubstituteAssignment extends Model
 {

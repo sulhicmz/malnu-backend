@@ -10,10 +10,10 @@ class Allergy extends Model
     protected string $keyType = 'string';
     public bool $incrementing = false;
 
-    const SEVERITY_MILD = 'mild';
-    const SEVERITY_MODERATE = 'moderate';
-    const SEVERITY_SEVERE = 'severe';
-    const SEVERITY_LIFE_THREATENING = 'life_threatening';
+    public const SEVERITY_MILD = 'mild';
+    public const SEVERITY_MODERATE = 'moderate';
+    public const SEVERITY_SEVERE = 'severe';
+    public const SEVERITY_LIFE_THREATENING = 'life_threatening';
 
     protected $fillable = [
         'student_id',

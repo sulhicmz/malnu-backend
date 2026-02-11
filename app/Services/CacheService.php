@@ -72,7 +72,7 @@ class CacheService
 
     public function getTTL(string $type): int
     {
-        return match ($type) {
+        return config("cache.ttl.{$type}") ?? match ($type) {
             'short' => 60,
             'medium' => 300,
             'long' => 3600,

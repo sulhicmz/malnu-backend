@@ -24,6 +24,10 @@ use App\Http\Controllers\Api\Mobile\TeacherMobileController;
 use App\Http\Controllers\Api\Mobile\AdminMobileController;
 use App\Http\Controllers\Api\Mobile\PushNotificationController;
 use App\Http\Controllers\Api\ParentPortal\ParentPortalController;
+use App\Http\Controllers\Api\FinancialManagement\FeeTypeController;
+use App\Http\Controllers\Api\FinancialManagement\FeeStructureController;
+use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
+use App\Http\Controllers\Api\FinancialManagement\PaymentController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -238,5 +242,29 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Parent|Ortu']], functi
             Route::get('/attendance', [ParentPortalController::class, 'getChildAttendance']);
             Route::get('/assignments', [ParentPortalController::class, 'getChildAssignments']);
         });
+    });
+});
+
+// Financial Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('financial')->group(function () {
+        // Fee Type Management Routes
+        Route::apiResource('fee-types', FeeTypeController::class);
+
+        // Fee Structure Management Routes
+        Route::apiResource('fee-structures', FeeStructureController::class);
+
+        // Invoice Management Routes
+        Route::get('invoices', [InvoiceController::class, 'index']);
+        Route::get('invoices/{id}', [InvoiceController::class, 'show']);
+        Route::post('invoices', [InvoiceController::class, 'store']);
+        Route::put('invoices/{id}', [InvoiceController::class, 'update']);
+        Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
+
+        // Payment Management Routes
+        Route::get('payments', [PaymentController::class, 'index']);
+        Route::get('payments/{id}', [PaymentController::class, 'show']);
+        Route::post('payments', [PaymentController::class, 'store']);
+        Route::put('payments/{id}', [PaymentController::class, 'update']);
     });
 });

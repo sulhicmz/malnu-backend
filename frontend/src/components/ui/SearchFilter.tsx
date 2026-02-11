@@ -1,5 +1,21 @@
-import React from 'react';
-import { Search, Filter, Download, LucideIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, X } from 'lucide-react';
+
+const useDebounce = (value: string, delay: number): string => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 export interface FilterOption {
   value: string;
@@ -27,6 +43,17 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   onExportClick,
   className = ''
 }) => {
+  const [searchValue, setSearchValue] = useState('');
+  const debouncedSearchValue = useDebounce(searchValue, 300);
+
+  useEffect(() => {
+    onSearchChange?.(debouncedSearchValue);
+  }, [debouncedSearchValue, onSearchChange]);
+
+  const handleClearSearch = () => {
+    setSearchValue('');
+  };
+
   return (
     <div className={`flex flex-col md:flex-row justify-between gap-4 ${className}`}>
       <div className="flex flex-1 max-w-md items-center rounded-md border border-gray-300 px-3 py-2 focus-within:ring-2 focus-within:ring-blue-600 focus-within:border-blue-600 transition-colors">
@@ -35,9 +62,20 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           type="text"
           placeholder={searchPlaceholder}
           className="w-full border-0 focus:outline-none focus:ring-0 text-sm text-gray-600 ml-2 bg-transparent"
-          onChange={(e) => onSearchChange?.(e.target.value)}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
           aria-label="Search"
         />
+        {searchValue && (
+          <button
+            onClick={handleClearSearch}
+            className="ml-2 p-1 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Clear search"
+            type="button"
+          >
+            <X className="h-3 w-3 text-gray-400" />
+          </button>
+        )}
       </div>
       <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <button

@@ -2,9 +2,27 @@
 
 ## 📡 Overview
 
-This document describes the RESTful API endpoints for the Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
+This document describes RESTful API endpoints for Malnu Backend School Management System. The API follows REST conventions and returns JSON responses.
 
 **Implementation Status:** 35 of 54 endpoints implemented (65%)
+
+## 📖 Interactive API Documentation
+
+For interactive API documentation with Swagger UI, see **[OpenAPI/Swagger Documentation](OPENAPI_SWAGGER.md)**.
+
+The OpenAPI specification allows you to:
+- Explore all available endpoints
+- Test API requests directly from the browser
+- View request/response examples
+- Understand authentication requirements
+
+To generate the OpenAPI specification:
+```bash
+# After installing zircote/swagger-php
+vendor/bin/openapi -o public/swagger.json app
+```
+
+Then open `public/swagger.json` in the [Swagger UI Editor](https://editor.swagger.io/).
 
 ## 🔐 Authentication
 
@@ -1027,6 +1045,101 @@ All error responses follow this format:
 - `VALIDATION_ERROR` (422): Input validation failed
 - `SERVER_ERROR` (500): Internal server error
 - `REGISTRATION_ERROR` (400): Registration failed
+- `SERVICE_UNAVAILABLE` (503): External service unavailable (circuit breaker open)
+- `TIMEOUT_ERROR` (504): External service timeout
+- `CONNECTION_ERROR` (502): Failed to connect to external service
+- `MAX_RETRIES_EXCEEDED` (429): Maximum retry attempts exceeded
+
+---
+
+## 🔌 Integration & Resilience
+
+The API includes built-in resilience patterns to handle external service failures gracefully.
+
+### Circuit Breaker Open
+
+When an external service fails repeatedly, circuit breaker opens to prevent cascading failures:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Service unavailable due to circuit breaker",
+    "code": "SERVICE_UNAVAILABLE",
+    "details": {
+      "service": "email",
+      "circuit_breaker_status": "OPEN",
+      "message": "Email service is temporarily unavailable. Please try again later."
+    }
+  },
+  "timestamp": "2025-01-14T10:30:00Z"
+}
+```
+
+### Timeout Error
+
+When an external service request exceeds configured timeout:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Request to external service timed out",
+    "code": "TIMEOUT_ERROR",
+    "details": {
+      "service": "http",
+      "timeout": "30s",
+      "message": "The request to https://api.example.com timed out after 30 seconds"
+    }
+  },
+  "timestamp": "2025-01-14T10:30:00Z"
+}
+```
+
+### Connection Error
+
+When unable to establish connection to external service:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Failed to connect to external service",
+    "code": "CONNECTION_ERROR",
+    "details": {
+      "service": "email",
+      "message": "Unable to connect to SMTP server smtp.mailtrap.io:2525"
+    }
+  },
+  "timestamp": "2025-01-14T10:30:00Z"
+}
+```
+
+### Max Retries Exceeded
+
+When operation fails after maximum retry attempts:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Maximum retry attempts exceeded",
+    "code": "MAX_RETRIES_EXCEEDED",
+    "details": {
+      "service": "email",
+      "attempts": 3,
+      "message": "Operation failed after 3 retry attempts. Please try again later."
+    }
+  },
+  "timestamp": "2025-01-14T10:30:00Z"
+}
+```
+
+### Circuit Breaker States
+
+- **CLOSED**: Normal operation, all requests pass through
+- **OPEN**: Service is failing, requests blocked until recovery timeout
+- **HALF_OPEN**: Testing recovery after timeout, allowing limited requests
 
 ---
 

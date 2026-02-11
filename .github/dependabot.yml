@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "sulhicmz"
+    assignees:
+      - "sulhicmz"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    groups:
+      php-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "laravel/*"
+          - "hyperf/*"
+      laravel-core:
+        patterns:
+          - "laravel/*"
+      hyperf-core:
+        patterns:
+          - "hyperf/*"
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "php"
+        update-types: ["version-update:semver-major"]

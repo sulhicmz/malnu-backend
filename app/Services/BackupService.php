@@ -4,12 +4,30 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Helpers\ProcessHelper;
+use App\Services\LoggingService;
+
 /**
  * Backup Service
  * Provides a centralized service for backup operations and management
  */
 class BackupService
 {
+    /**
+     * @var LoggingService
+     */
+    private LoggingService $loggingService;
+
+    /**
+     * Constructor.
+     *
+     * @param LoggingService $loggingService
+     */
+    public function __construct(LoggingService $loggingService)
+    {
+        $this->loggingService = $loggingService;
+    }
+
     /**
      * Create a backup based on the specified type
      *
@@ -53,7 +71,7 @@ class BackupService
         }
         
         // Log the backup operation
-        error_log('Backup operation completed: ' . json_encode($results));
+        $this->loggingService->logBackupOperation('create', $results);
         
         return $results;
     }
@@ -85,7 +103,7 @@ class BackupService
         ];
         
         // Log the restore operation
-        error_log('Restore operation completed: ' . json_encode($results));
+        $this->loggingService->logRestoreOperation('restore', $results);
         
         return $results;
     }
@@ -116,20 +134,17 @@ class BackupService
         }
         
         // Verify the backup file integrity
-        $command = 'tar -tzf ' . escapeshellarg($backupPath) . ' 2>/dev/null';
-        $exitCode = 0;
-        $output = [];
-        exec($command, $output, $exitCode);
+        $result = ProcessHelper::execute('tar', ['-tzf', $backupPath, '2>/dev/null']);
         
-        $results['verification_results']['file_integrity'] = $exitCode === 0;
+        $results['verification_results']['file_integrity'] = $result['successful'];
         
-        if ($exitCode !== 0) {
+        if (!$result['successful']) {
             $results['success'] = false;
             $results['error'] = 'Backup file is corrupted or invalid';
         }
         
         // Log the verification operation
-        error_log('Backup verification completed: ' . json_encode($results));
+        $this->loggingService->logSystemEvent('backup_verify', $results['success'] ?? null, ['verification_results' => $results['verification_results'] ?? null]);
         
         return $results;
     }

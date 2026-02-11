@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\PPDB;
 
@@ -9,10 +9,11 @@ use App\Models\User;
 
 class PpdbAnnouncement extends Model
 {
+    public $incrementing = false;
 
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'registration_id',
@@ -24,8 +25,8 @@ class PpdbAnnouncement extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships

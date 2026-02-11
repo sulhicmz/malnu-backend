@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Hyperf\Database\Eloquent\Model;
-use Hyperf\Database\Model\Events\Created;
-use Hyperf\Database\Model\Events\Deleted;
-use Hyperf\Database\Model\Events\Updated;
+use Hyperf\Database\Model;
+use Hyperf\Database\Model\Relations\BelongsTo;
+use Hyperf\Database\Model\Relations\HasMany;
 
 class HealthRecord extends Model
 {
@@ -29,73 +28,58 @@ class HealthRecord extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function student()
+    public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
-    public function updatedBy()
+    public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by', 'id');
     }
 
-    public function medications()
-    {
-        return $this->hasMany(Medication::class, 'health_record_id', 'id');
-    }
-
-    public function immunizations()
+    public function immunizations(): HasMany
     {
         return $this->hasMany(Immunization::class, 'health_record_id', 'id');
     }
 
-    public function allergies()
+    public function medications(): HasMany
+    {
+        return $this->hasMany(Medication::class, 'health_record_id', 'id');
+    }
+
+    public function allergies(): HasMany
     {
         return $this->hasMany(Allergy::class, 'health_record_id', 'id');
     }
 
-    public function healthScreenings()
+    public function healthScreenings(): HasMany
     {
         return $this->hasMany(HealthScreening::class, 'health_record_id', 'id');
     }
 
-    public function emergencyContacts()
+    public function emergencyContacts(): HasMany
     {
         return $this->hasMany(EmergencyContact::class, 'health_record_id', 'id');
     }
 
-    public function medicalIncidents()
+    public function medicalIncidents(): HasMany
     {
         return $this->hasMany(MedicalIncident::class, 'health_record_id', 'id');
     }
 
-    public function nurseVisits()
+    public function nurseVisits(): HasMany
     {
         return $this->hasMany(NurseVisit::class, 'health_record_id', 'id');
     }
 
-    public function healthAlerts()
+    public function healthAlerts(): HasMany
     {
         return $this->hasMany(HealthAlert::class, 'health_record_id', 'id');
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->whereNull('deleted_at');
-    }
-
-    public function scopeForStudent($query, string $studentId)
-    {
-        return $query->where('student_id', $studentId);
-    }
-
-    public function getHasSevereAllergiesAttribute(): bool
-    {
-        return $this->allergies()->whereIn('severity', ['severe', 'life_threatening'])->exists();
     }
 }

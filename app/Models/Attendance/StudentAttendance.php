@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Models\Attendance;
 
 use App\Models\Model;
-use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\ClassModel;
+use App\Models\SchoolManagement\Student;
 use App\Models\User;
 use App\Traits\UsesUuid;
 
@@ -41,7 +41,7 @@ class StudentAttendance extends Model
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    public function class ()
+    public function class()
     {
         return $this->belongsTo(ClassModel::class, 'class_id');
     }

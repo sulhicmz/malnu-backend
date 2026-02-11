@@ -7,37 +7,62 @@ namespace App\Services;
 use App\Contracts\AuthServiceInterface;
 use App\Contracts\JWTServiceInterface;
 use App\Contracts\TokenBlacklistServiceInterface;
-use App\Models\User;
+use App\Contracts\UserRepositoryInterface;
+use App\Services\LoggingService;
 use App\Models\PasswordResetToken;
 use App\Services\EmailService;
+use App\Services\PasswordValidator;
+use App\Exceptions\AuthenticationException;
+use App\Exceptions\BusinessLogicException;
+use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
 
 class AuthService implements AuthServiceInterface
 {
     private JWTServiceInterface $jwtService;
+
     private TokenBlacklistServiceInterface $tokenBlacklistService;
+
+    private LoggingService $loggingService;
+
     private EmailService $emailService;
+
+    private PasswordValidator $passwordValidator;
+
+    private UserRepositoryInterface $userRepository;
 
     public function __construct(
         JWTServiceInterface $jwtService,
         TokenBlacklistServiceInterface $tokenBlacklistService,
-        EmailService $emailService
+        LoggingService $loggingService,
+        EmailService $emailService,
+        PasswordValidator $passwordValidator,
+        UserRepositoryInterface $userRepository
     ) {
         $this->jwtService = $jwtService;
         $this->tokenBlacklistService = $tokenBlacklistService;
+        $this->loggingService = $loggingService;
         $this->emailService = $emailService;
+        $this->passwordValidator = $passwordValidator;
+        $this->userRepository = $userRepository;
     }
 
     /**
-     * Register a new user
+     * Register a new user.
      */
     public function register(array $data): array
     {
-        $existingUser = User::where('email', $data['email'])->first();
+        $existingUser = $this->userRepository->findByEmail($data['email']);
         if ($existingUser) {
-            throw new \Exception('User with this email already exists');
+            throw new BusinessLogicException('User with this email already exists');
         }
 
-        $user = User::create([
+        $errors = $this->passwordValidator->validate($data['password']);
+        if (! empty($errors)) {
+            throw new ValidationException(implode(' ', $errors));
+        }
+
+        $user = $this->userRepository->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
@@ -48,42 +73,46 @@ class AuthService implements AuthServiceInterface
     }
 
     /**
-     * Authenticate user and return token
+     * Authenticate user and return token.
      */
     public function login(string $email, string $password): array
     {
-        $users = $this->getAllUsers();
-        $user = null;
-        
-        foreach ($users as $u) {
-            if ($u['email'] === $email && password_verify($password, $u['password'])) {
-                $user = $u;
-                break;
-            }
-        }
-        
-        if (!$user) {
-            throw new \Exception('Invalid credentials');
+        $user = $this->userRepository->findByEmail($email);
+
+        if (! $user) {
+            // Log failed login attempt (user not found)
+            $this->loggingService->logFailedLogin($email);
+
+            throw new AuthenticationException('Invalid credentials');
         }
 
-        // Generate JWT token
+        if (! password_verify($password, $user->password)) {
+            // Log failed login attempt (wrong password)
+            $this->loggingService->logFailedLogin($email);
+
+            throw new AuthenticationException('Invalid credentials');
+        }
+
         $token = $this->jwtService->generateToken([
-            'id' => $user['id'],
-            'email' => $user['email']
+            'id' => $user->id,
+            'email' => $user->email,
         ]);
 
+        // Log successful login
+        $this->loggingService->logSuccessfulLogin($email);
+
         return [
-            'user' => $user,
+            'user' => $user->toArray(),
             'token' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => $this->jwtService->getExpirationTime()
-            ]
+                'expires_in' => $this->jwtService->getExpirationTime(),
+            ],
         ];
     }
 
     /**
-     * Get authenticated user from token
+     * Get authenticated user from token.
      */
     public function getUserFromToken(string $token): ?array
     {
@@ -91,46 +120,41 @@ class AuthService implements AuthServiceInterface
         if ($this->tokenBlacklistService->isTokenBlacklisted($token)) {
             return null;
         }
-        
+
         $payload = $this->jwtService->decodeToken($token);
-        
-        if (!$payload) {
+
+        if (! $payload) {
             return null;
         }
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($user['id'] === $payload['data']['id']) {
-                return $user;
-            }
-        }
-        
-        return null;
+        $user = $this->userRepository->findById($payload['data']['id']);
+
+        return $user ? $user->toArray() : null;
     }
 
     /**
-     * Refresh token
+     * Refresh token.
      */
     public function refreshToken(string $token): array
     {
         // Check if token is blacklisted
         if ($this->tokenBlacklistService->isTokenBlacklisted($token)) {
-            throw new \Exception('Token is blacklisted');
+            throw new AuthenticationException('Token is blacklisted');
         }
-        
+
         $newToken = $this->jwtService->refreshToken($token);
 
         return [
             'token' => [
                 'access_token' => $newToken,
                 'token_type' => 'bearer',
-                'expires_in' => $this->jwtService->getExpirationTime()
-            ]
+                'expires_in' => $this->jwtService->getExpirationTime(),
+            ],
         ];
     }
 
     /**
-     * Logout - add token to blacklist
+     * Logout - add token to blacklist.
      */
     public function logout(string $token): void
     {
@@ -138,13 +162,13 @@ class AuthService implements AuthServiceInterface
     }
 
     /**
-     * Request password reset
+     * Request password reset.
      */
     public function requestPasswordReset(string $email): array
     {
-        $user = User::where('email', $email)->first();
+        $user = $this->userRepository->findByEmail($email);
 
-        if (!$user) {
+        if (! $user) {
             // Don't reveal if email exists to prevent enumeration
             return ['success' => true, 'message' => 'If the email exists, a reset link has been sent'];
         }
@@ -174,36 +198,20 @@ class AuthService implements AuthServiceInterface
     }
 
     /**
-     * Reset password with token
+     * Reset password with token.
      */
     public function resetPassword(string $token, string $newPassword): array
     {
-        // Validate password strength (backend validation as safety net)
-        if (strlen($newPassword) < 8) {
-            throw new \Exception('Password must be at least 8 characters long');
-        }
-
-        if (!preg_match('/[A-Z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 uppercase letter');
-        }
-
-        if (!preg_match('/[a-z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 lowercase letter');
-        }
-
-        if (!preg_match('/[0-9]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 number');
-        }
-
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 special character');
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (! empty($errors)) {
+            throw new ValidationException(implode(' ', $errors));
         }
 
         // Get all valid tokens from database
         $validTokens = PasswordResetToken::valid()->get();
 
         if ($validTokens->isEmpty()) {
-            throw new \Exception('Invalid or expired reset token');
+            throw new AuthenticationException('Invalid or expired reset token');
         }
 
         // Find the matching token by verifying against all valid tokens
@@ -216,21 +224,21 @@ class AuthService implements AuthServiceInterface
         }
 
         // Check if token was found and is valid
-        if (!$resetTokenRecord) {
-            throw new \Exception('Invalid reset token');
+        if (! $resetTokenRecord) {
+            throw new AuthenticationException('Invalid reset token');
         }
 
         // Check if token is expired
         if ($resetTokenRecord->isExpired()) {
             $resetTokenRecord->delete();
-            throw new \Exception('Reset token has expired');
+            throw new AuthenticationException('Reset token has expired');
         }
 
         // Get user
-        $user = User::find($resetTokenRecord->user_id);
+        $user = $this->userRepository->findById($resetTokenRecord->user_id);
 
-        if (!$user) {
-            throw new \Exception('User not found');
+        if (! $user) {
+            throw new NotFoundException('User not found');
         }
 
         // Update user password
@@ -243,46 +251,51 @@ class AuthService implements AuthServiceInterface
 
         return [
             'success' => true,
-            'message' => 'Password has been reset successfully'
+            'message' => 'Password has been reset successfully',
         ];
     }
 
     /**
-     * Change password for authenticated user
+     * Change password for authenticated user.
      */
     public function changePassword(string $userId, string $currentPassword, string $newPassword): array
     {
         // Fetch user from database
-        $user = User::find($userId);
+        $user = $this->userRepository->findById($userId);
 
-        if (!$user) {
-            throw new \Exception('User not found');
+        if (! $user) {
+            throw new NotFoundException('User not found');
         }
 
         // Verify current password
-        if (!password_verify($currentPassword, $user->password)) {
-            throw new \Exception('Current password is incorrect');
+        if (! password_verify($currentPassword, $user->password)) {
+            throw new AuthenticationException('Current password is incorrect');
+        }
+
+        $errors = $this->passwordValidator->validate($newPassword);
+        if (! empty($errors)) {
+            throw new ValidationException('New password: ' . implode(' ', $errors));
         }
 
         // Validate new password strength (backend validation as safety net)
         if (strlen($newPassword) < 8) {
-            throw new \Exception('New password must be at least 8 characters long');
+            throw new ValidationException('New password must be at least 8 characters long');
         }
 
-        if (!preg_match('/[A-Z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 uppercase letter');
+        if (! preg_match('/[A-Z]/', $newPassword)) {
+            throw new ValidationException('Password must contain at least 1 uppercase letter');
         }
 
-        if (!preg_match('/[a-z]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 lowercase letter');
+        if (! preg_match('/[a-z]/', $newPassword)) {
+            throw new ValidationException('Password must contain at least 1 lowercase letter');
         }
 
         if (!preg_match('/[0-9]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 number');
+            throw new ValidationException('Password must contain at least 1 number');
         }
 
-        if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new \Exception('Password must contain at least 1 special character');
+        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
+            throw new ValidationException('Password must contain at least 1 special character');
         }
 
         // Update user password
@@ -292,15 +305,7 @@ class AuthService implements AuthServiceInterface
 
         return [
             'success' => true,
-            'message' => 'Password has been changed successfully'
+            'message' => 'Password has been changed successfully',
         ];
-    }
-
-    /**
-     * Get all users from database
-     */
-    private function getAllUsers(): array
-    {
-        return User::all()->toArray();
     }
 }

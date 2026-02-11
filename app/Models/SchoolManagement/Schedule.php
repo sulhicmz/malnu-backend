@@ -1,17 +1,18 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Models\SchoolManagement;
 
 use App\Models\Model;
-use App\Models\SchoolManagement\ClassSubject;
 
 class Schedule extends Model
 {
+    public $incrementing = false;
+
     protected $primaryKey = 'id';
-    protected $keyType    = 'string';
-    public $incrementing  = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'class_subject_id',
@@ -23,10 +24,10 @@ class Schedule extends Model
 
     protected $casts = [
         'day_of_week' => 'integer',
-        'start_time'  => 'datetime:H:i',
-        'end_time'    => 'datetime:H:i',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships

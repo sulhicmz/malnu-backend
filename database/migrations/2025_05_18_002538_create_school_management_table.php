@@ -1,14 +1,13 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -25,7 +24,7 @@ return new class extends Migration
             $table->uuid('user_id')->unique();
             $table->string('occupation', 100)->nullable();
             $table->text('address')->nullable();
-            
+
             $table->datetimes();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -38,7 +37,7 @@ return new class extends Migration
             $table->string('expertise', 100)->nullable();
             $table->date('join_date');
             $table->string('status', 20)->default('active');
-            
+
             $table->datetimes();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -51,7 +50,7 @@ return new class extends Migration
             $table->uuid('homeroom_teacher_id')->nullable();
             $table->string('academic_year', 9);
             $table->integer('capacity')->nullable();
-            
+
             $table->datetimes();
             $table->foreign('homeroom_teacher_id')->references('id')->on('teachers')->onDelete('set null');
         });
@@ -68,7 +67,7 @@ return new class extends Migration
             $table->uuid('parent_id')->nullable();
             $table->date('enrollment_date');
             $table->string('status', 20)->default('active');
-            
+
             $table->datetimes();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('class_id')->references('id')->on('classes')->onDelete('set null');
@@ -83,7 +82,7 @@ return new class extends Migration
             $table->string('department', 100)->nullable();
             $table->date('join_date');
             $table->string('status', 20)->default('active');
-            
+
             $table->datetimes();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -95,7 +94,7 @@ return new class extends Migration
             $table->string('name', 100);
             $table->text('description')->nullable();
             $table->integer('credit_hours')->nullable();
-            
+
             $table->datetimes();
         });
 
@@ -107,7 +106,7 @@ return new class extends Migration
             $table->uuid('teacher_id')->nullable();
             $table->text('schedule_info')->nullable();
             $table->unique(['class_id', 'subject_id']);
-            
+
             $table->datetimes();
             $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
@@ -122,7 +121,7 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->string('room', 50)->nullable();
-            
+
             $table->datetimes();
             $table->foreign('class_subject_id')->references('id')->on('class_subjects')->onDelete('cascade');
         });
@@ -137,7 +136,7 @@ return new class extends Migration
             $table->string('condition', 50)->nullable();
             $table->date('purchase_date')->nullable();
             $table->date('last_maintenance')->nullable();
-            
+
             $table->datetimes();
         });
     }

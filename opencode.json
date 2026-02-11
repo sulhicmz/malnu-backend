@@ -1,9 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "theme": "opencode",
-  "model": "iflowcn/glm-4.6",
-  "small_model": "iflowcn/qwen3-coder",
+  "model": "opencode/kimi-k2.5-free",
+  "small_model": "opencode/glm-4.7-free",
   "autoupdate": true,
+  "plugin": ["oh-my-opencode@latest"],
   "instructions": [
     "AGENTS.md",
     "CONTRIBUTING.md",
@@ -40,9 +41,45 @@
     "webfetch": "allow"
   },
   "agent": {
+    "cmz": {
+      "mode": "primary",
+      "model": "opencode/kimi-k2.5-free",
+      "description": "CMZ - Self-healing, self-learning, self-evolving automation specialist",
+      "temperature": 0.2,
+      "tools": {
+        "write": true,
+        "edit": true,
+        "bash": true,
+        "read": true,
+        "glob": true,
+        "grep": true,
+        "list": true,
+        "webfetch": true,
+        "websearch": true,
+        "codesearch": true
+      },
+      "permission": {
+        "bash": {
+          "composer *": "allow",
+          "php artisan *": "allow",
+          "git status": "allow",
+          "git log": "allow",
+          "git diff": "allow",
+          "git add": "allow",
+          "git commit": "allow",
+          "git push": "allow",
+          "gh *": "allow",
+          "npm install": "allow",
+          "yarn install": "allow",
+          "pip install": "allow",
+          "opencode *": "allow",
+          "*": "ask"
+        }
+      }
+    },
     "build": {
       "mode": "primary",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/kimi-k2.5-free",
       "description": "Full development agent for HyperVel/Laravel projects",
       "temperature": 0.3,
       "tools": {
@@ -71,7 +108,7 @@
     },
     "plan": {
       "mode": "primary",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/glm-4.7-free",
       "description": "Planning and analysis agent for code review and architecture",
       "temperature": 0.1,
       "tools": {
@@ -92,7 +129,7 @@
     },
     "php-specialist": {
       "mode": "subagent",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/kimi-k2.5-free",
       "description": "PHP/HyperVel specialist for complex PHP tasks and optimization",
       "temperature": 0.2,
       "tools": {
@@ -117,7 +154,7 @@
     },
     "database-specialist": {
       "mode": "subagent",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/glm-4.7-free",
       "description": "Database specialist for migrations, queries, and optimization",
       "temperature": 0.1,
       "tools": {
@@ -141,7 +178,7 @@
     },
     "testing-specialist": {
       "mode": "subagent",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/minimax-m2.1-free",
       "description": "Testing specialist for PHPUnit and feature tests",
       "temperature": 0.2,
       "tools": {
@@ -165,7 +202,7 @@
     },
     "security-auditor": {
       "mode": "subagent",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/kimi-k2.5-free",
       "description": "Security specialist for vulnerability assessment and security best practices",
       "temperature": 0.1,
       "tools": {
@@ -186,7 +223,7 @@
     },
     "performance-optimizer": {
       "mode": "subagent",
-      "model": "iflowcn/glm-4.6",
+      "model": "opencode/glm-4.7-free",
       "description": "Performance optimization specialist for HyperVel/Swoole applications",
       "temperature": 0.2,
       "tools": {

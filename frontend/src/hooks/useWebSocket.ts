@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import wsService from '../services/websocket';
 
-const useWebSocket = (onMessage?: (data: any) => void) => {
+const useWebSocket = (onMessage?: (data: unknown) => void) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -19,13 +19,12 @@ const useWebSocket = (onMessage?: (data: any) => void) => {
       }
     };
 
-    const handleError = (error: Event) => {
+    const handleError = () => {
       setIsConnected(false);
       setConnectionError('Connection error occurred');
-      console.error('WebSocket error:', error);
     };
 
-    const handleMessage = (data: any) => {
+    const handleMessage = (data: unknown) => {
       if (onMessage) {
         onMessage(data);
       }
@@ -49,7 +48,7 @@ const useWebSocket = (onMessage?: (data: any) => void) => {
     };
   }, [onMessage]);
 
-  const sendMessage = (data: any) => {
+  const sendMessage = (data: unknown) => {
     wsService.send(data);
   };
 

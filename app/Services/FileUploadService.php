@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Hyperf\HttpMessage\Upload\UploadedFile;
 use Psr\Http\Message\UploadedFileInterface;
 
 class FileUploadService
@@ -12,12 +11,12 @@ class FileUploadService
     private array $allowedMimeTypes = [
         // Images
         'image/jpeg',
-        'image/png', 
+        'image/png',
         'image/gif',
         'image/webp',
         'image/bmp',
         'image/svg+xml',
-        
+
         // Documents
         'application/pdf',
         'application/msword',
@@ -27,7 +26,7 @@ class FileUploadService
         'text/plain',
         'application/zip',
     ];
-    
+
     private int $maxFileSize = 5242880; // 5MB in bytes
 
     /**
@@ -50,7 +49,7 @@ class FileUploadService
 
         // Check file type
         $mimeType = $file->getClientMediaType();
-        if (!in_array($mimeType, $this->allowedMimeTypes)) {
+        if (! in_array($mimeType, $this->allowedMimeTypes)) {
             $errors[] = 'File type not allowed. Allowed types: ' . implode(', ', $this->getAllowedExtensions());
         }
 
@@ -59,8 +58,8 @@ class FileUploadService
         if ($clientFilename) {
             $extension = strtolower(pathinfo($clientFilename, PATHINFO_EXTENSION));
             $allowedExtensions = $this->getAllowedExtensions();
-            
-            if (!in_array($extension, $allowedExtensions)) {
+
+            if (! in_array($extension, $allowedExtensions)) {
                 $errors[] = 'File extension not allowed. Allowed extensions: ' . implode(', ', $allowedExtensions);
             }
         }
@@ -69,12 +68,60 @@ class FileUploadService
     }
 
     /**
+     * Sanitize filename to prevent directory traversal and other attacks.
+     */
+    public function sanitizeFilename(string $filename): string
+    {
+        // Remove path information to prevent directory traversal
+        $filename = basename($filename);
+
+        // Remove potentially dangerous characters
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
+
+        // Ensure the filename is not empty after sanitization
+        if (empty($filename) || $filename === '.') {
+            $filename = 'unnamed_file';
+        }
+
+        return $filename;
+    }
+
+    /**
+     * Set maximum file size in bytes.
+     */
+    public function setMaxFileSize(int $maxSize): void
+    {
+        $this->maxFileSize = $maxSize;
+    }
+
+    /**
+     * Add allowed MIME type.
+     */
+    public function addAllowedMimeType(string $mimeType): void
+    {
+        if (! in_array($mimeType, $this->allowedMimeTypes)) {
+            $this->allowedMimeTypes[] = $mimeType;
+        }
+    }
+
+    /**
+     * Remove allowed MIME type.
+     */
+    public function removeAllowedMimeType(string $mimeType): void
+    {
+        $key = array_search($mimeType, $this->allowedMimeTypes);
+        if ($key !== false) {
+            unset($this->allowedMimeTypes[$key]);
+        }
+    }
+
+    /**
      * Get allowed file extensions based on MIME types.
      */
     private function getAllowedExtensions(): array
     {
         $extensions = [];
-        
+
         foreach ($this->allowedMimeTypes as $mimeType) {
             switch ($mimeType) {
                 case 'image/jpeg':
@@ -119,7 +166,7 @@ class FileUploadService
                     break;
             }
         }
-        
+
         return array_unique($extensions);
     }
 
@@ -145,54 +192,6 @@ class FileUploadService
                 return 'File upload stopped by extension';
             default:
                 return 'Unknown upload error';
-        }
-    }
-
-    /**
-     * Sanitize filename to prevent directory traversal and other attacks.
-     */
-    public function sanitizeFilename(string $filename): string
-    {
-        // Remove path information to prevent directory traversal
-        $filename = basename($filename);
-        
-        // Remove potentially dangerous characters
-        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
-        
-        // Ensure the filename is not empty after sanitization
-        if (empty($filename) || $filename === '.') {
-            $filename = 'unnamed_file';
-        }
-        
-        return $filename;
-    }
-
-    /**
-     * Set maximum file size in bytes.
-     */
-    public function setMaxFileSize(int $maxSize): void
-    {
-        $this->maxFileSize = $maxSize;
-    }
-
-    /**
-     * Add allowed MIME type.
-     */
-    public function addAllowedMimeType(string $mimeType): void
-    {
-        if (!in_array($mimeType, $this->allowedMimeTypes)) {
-            $this->allowedMimeTypes[] = $mimeType;
-        }
-    }
-
-    /**
-     * Remove allowed MIME type.
-     */
-    public function removeAllowedMimeType(string $mimeType): void
-    {
-        $key = array_search($mimeType, $this->allowedMimeTypes);
-        if ($key !== false) {
-            unset($this->allowedMimeTypes[$key]);
         }
     }
 }

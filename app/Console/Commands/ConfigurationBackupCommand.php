@@ -9,6 +9,7 @@ use Hyperf\Contract\ConfigInterface;
 use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
+use App\Helpers\ProcessHelper;
 
 class ConfigurationBackupCommand extends Command
 {
@@ -98,17 +99,12 @@ class ConfigurationBackupCommand extends Command
             // Create a summary of current configuration
             $this->createConfigSummary($tempDir);
 
-            // Create tar archive
-            $tarCommand = 'tar -czf ' . escapeshellarg($backupPath . '/' . $filename) . ' -C ' . escapeshellarg($tempDir) . ' .';
+             // Create tar archive
+            $result = ProcessHelper::execute('tar', ['-czf', $backupPath . '/' . $filename, '-C', $tempDir, '.']);
 
-            $exitCode = 0;
-            $output = [];
-            exec($tarCommand, $output, $exitCode);
-
-            // Clean up temporary directory
             $this->removeDirectory($tempDir);
 
-            if ($exitCode === 0) {
+            if ($result['successful']) {
                 $this->output->writeln('<info>OK</info>');
                 return true;
             }

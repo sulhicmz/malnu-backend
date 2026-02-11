@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Support\Facades\Schema;
 use Hyperf\DbConnection\Db;
+use Hyperf\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -25,7 +24,7 @@ return new class extends Migration
             $table->boolean('requires_approval')->default(true); // Whether approval is required
             $table->json('eligibility_criteria')->nullable(); // JSON for complex eligibility rules
             $table->boolean('is_active')->default(true);
-            
+
             $table->datetimes();
         });
 
@@ -40,7 +39,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->string('check_in_method', 20)->default('manual'); // manual, biometric, etc.
             $table->string('check_out_method', 20)->default('manual'); // manual, biometric, etc.
-            
+
             $table->datetimes();
             $table->unique(['staff_id', 'attendance_date']);
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
@@ -61,7 +60,7 @@ return new class extends Migration
             $table->timestamp('approved_at')->nullable();
             $table->text('approval_comments')->nullable();
             $table->uuid('substitute_assigned_id')->nullable(); // Assigned substitute teacher
-            
+
             $table->datetimes();
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
             $table->foreign('leave_type_id')->references('id')->on('leave_types')->onDelete('cascade');
@@ -79,7 +78,7 @@ return new class extends Migration
             $table->integer('allocated_days')->default(0); // Total days allocated for the year
             $table->integer('carry_forward_days')->default(0); // Days carried forward from previous year
             $table->year('year'); // For which year the balance applies
-            
+
             $table->datetimes();
             $table->unique(['staff_id', 'leave_type_id', 'year']);
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
@@ -95,7 +94,7 @@ return new class extends Migration
             $table->json('available_classes')->nullable(); // JSON array of classes they can handle
             $table->text('special_notes')->nullable();
             $table->decimal('hourly_rate', 10, 2)->nullable(); // Payment rate
-            
+
             $table->datetimes();
             $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade');
         });
@@ -110,7 +109,7 @@ return new class extends Migration
             $table->enum('status', ['assigned', 'completed', 'cancelled'])->default('assigned');
             $table->text('assignment_notes')->nullable();
             $table->decimal('payment_amount', 10, 2)->nullable(); // Amount to be paid to substitute
-            
+
             $table->datetimes();
             $table->foreign('leave_request_id')->references('id')->on('leave_requests')->onDelete('cascade');
             $table->foreign('substitute_teacher_id')->references('id')->on('substitute_teachers')->onDelete('cascade');

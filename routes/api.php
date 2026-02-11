@@ -17,11 +17,16 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\Api\LMSController;
 use App\Http\Controllers\Api\Mobile\StudentMobileController;
 use App\Http\Controllers\Api\Mobile\ParentMobileController;
 use App\Http\Controllers\Api\Mobile\TeacherMobileController;
 use App\Http\Controllers\Api\Mobile\AdminMobileController;
 use App\Http\Controllers\Api\Mobile\PushNotificationController;
+use App\Http\Controllers\Api\FinancialManagement\FeeTypeController;
+use App\Http\Controllers\Api\FinancialManagement\FeeStructureController;
+use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
+use App\Http\Controllers\Api\FinancialManagement\PaymentController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -196,5 +201,57 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/templates', [NotificationController::class, 'getTemplates']);
         Route::put('/preferences', [NotificationController::class, 'updatePreferences']);
         Route::get('/preferences', [NotificationController::class, 'getPreferences']);
+    });
+});
+
+// Learning Management System Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('lms')->group(function () {
+        // Course Management Routes
+        Route::post('courses', [LMSController::class, 'createCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('courses', [LMSController::class, 'getCourses']);
+        Route::get('courses/{id}', [LMSController::class, 'getCourse']);
+        Route::put('courses/{id}', [LMSController::class, 'updateCourse'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Learning Path Management Routes
+        Route::post('learning-paths', [LMSController::class, 'createLearningPath'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('learning-paths', [LMSController::class, 'getLearningPaths']);
+        Route::get('learning-paths/{id}', [LMSController::class, 'getLearningPath']);
+
+        // Enrollment Management Routes
+        Route::post('courses/{courseId}/enroll', [LMSController::class, 'enrollStudent'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::get('enrollments', [LMSController::class, 'getEnrollments']);
+
+        // Progress Tracking Routes
+        Route::get('courses/{courseId}/progress', [LMSController::class, 'getCourseProgress']);
+        Route::put('progress/{enrollmentId}', [LMSController::class, 'updateProgress']);
+        Route::post('progress/{enrollmentId}/complete', [LMSController::class, 'completeCourse']);
+
+        // Certificate Management Routes
+        Route::get('certificates', [LMSController::class, 'getCertificates']);
+    });
+});
+
+// Financial Management Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU|Guru']], function () {
+    Route::prefix('financial')->group(function () {
+        // Fee Type Management Routes
+        Route::apiResource('fee-types', FeeTypeController::class);
+
+        // Fee Structure Management Routes
+        Route::apiResource('fee-structures', FeeStructureController::class);
+
+        // Invoice Management Routes
+        Route::get('invoices', [InvoiceController::class, 'index']);
+        Route::get('invoices/{id}', [InvoiceController::class, 'show']);
+        Route::post('invoices', [InvoiceController::class, 'store']);
+        Route::put('invoices/{id}', [InvoiceController::class, 'update']);
+        Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
+
+        // Payment Management Routes
+        Route::get('payments', [PaymentController::class, 'index']);
+        Route::get('payments/{id}', [PaymentController::class, 'show']);
+        Route::post('payments', [PaymentController::class, 'store']);
+        Route::put('payments/{id}', [PaymentController::class, 'update']);
     });
 });

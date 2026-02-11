@@ -16,6 +16,7 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected array $middleware = [
+        \App\Http\Middleware\RequestLoggingMiddleware::class,
         \App\Http\Middleware\SecurityHeaders::class,
         // \App\Http\Middleware\TrimStrings::class,
         // \App\Http\Middleware\ConvertEmptyStringsToNull::class
@@ -28,11 +29,10 @@ class Kernel extends HttpKernel
      */
     protected array $middlewareGroups = [
         'web' => [
-            // \Hyperf\Router\Middleware\SubstituteBindings::class,
-            // \Hyperf\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            // \Hyperf\Session\Middleware\StartSession::class,
-            // \Hyperf\View\Middleware\ShareErrorsFromSession::class,
-            // \App\Http\Middleware\VerifyCsrfToken::class,
+            \Hyperf\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Hyperf\Session\Middleware\StartSession::class,
+            \Hyperf\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
         ],
 
         'api' => [
@@ -56,9 +56,13 @@ class Kernel extends HttpKernel
         'bindings' => \Hyperf\Router\Middleware\SubstituteBindings::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
+        'request.logging' => \App\Http\Middleware\RequestLoggingMiddleware::class,
         'jwt' => \App\Http\Middleware\JWTMiddleware::class,
         'input.sanitization' => \App\Http\Middleware\InputSanitizationMiddleware::class,
         'rate.limit' => \App\Http\Middleware\RateLimitingMiddleware::class,
+        'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'mobile' => \App\Http\Middleware\MobileMiddleware::class,
     ];
 
     /**
@@ -69,10 +73,10 @@ class Kernel extends HttpKernel
      * @var string[]
      */
     protected array $middlewarePriority = [
-        // \Hyperf\Router\Middleware\ThrottleRequests::class,
-        // \Hyperf\Router\Middleware\SubstituteBindings::class,
-        // \Hyperf\Session\Middleware\StartSession::class,
-        // \Hyperf\View\Middleware\ShareErrorsFromSession::class,
-        // \App\Http\Middleware\VerifyCsrfToken::class,
+        \Hyperf\Router\Middleware\ThrottleRequests::class,
+        \Hyperf\Router\Middleware\SubstituteBindings::class,
+        \Hyperf\Session\Middleware\StartSession::class,
+        \Hyperf\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
     ];
 }

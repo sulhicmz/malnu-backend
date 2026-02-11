@@ -79,6 +79,21 @@ return [
     ],
 
     /*
+     |--------------------------------------------------------------------------
+     | Security Event Logging
+     |--------------------------------------------------------------------------
+     |
+     | Log levels for security-related events (logins, permissions, etc.)
+     |
+     */
+    'security_event_log_level' => [
+        LogLevel::ALERT,
+        LogLevel::CRITICAL,
+        LogLevel::ERROR,
+        LogLevel::INFO,
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Debug Mode for Command Errors
     |--------------------------------------------------------------------------
@@ -102,6 +117,19 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This URL is used by the backend to generate links to the frontend
+    | application, such as password reset links. Set this to your frontend
+    | application's base URL.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
 
     /*
     |--------------------------------------------------------------------------

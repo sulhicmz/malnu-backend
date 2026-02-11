@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models\Attendance;
 
 use App\Models\Model;
 use App\Models\SchoolManagement\Staff;
 use App\Traits\UsesUuid;
-use App\Models\Attendance\LeaveType;
 
 /**
  * @property string $id
@@ -19,6 +20,10 @@ use App\Models\Attendance\LeaveType;
  */
 class LeaveBalance extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     use UsesUuid;
 
     protected $table = 'leave_balances';

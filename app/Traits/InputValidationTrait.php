@@ -168,4 +168,359 @@ trait InputValidationTrait
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null;
     }
-}
+
+     /**
+      * Validate password complexity.
+      * Requires minimum 8 characters, at least 1 uppercase, 1 lowercase, 1 number, 1 special character,
+      * and not in common passwords list.
+      *
+      * @return array<string, string> Array of error messages (empty if valid)
+      */
+     protected function validatePasswordComplexity(string $password): array
+     {
+         $errors = [];
+
+         if (strlen($password) < 8) {
+             $errors[] = 'Password must be at least 8 characters long.';
+         }
+
+         if (!preg_match('/[A-Z]/', $password)) {
+             $errors[] = 'Password must contain at least 1 uppercase letter.';
+         }
+
+         if (!preg_match('/[a-z]/', $password)) {
+             $errors[] = 'Password must contain at least 1 lowercase letter.';
+         }
+
+         if (!preg_match('/[0-9]/', $password)) {
+             $errors[] = 'Password must contain at least 1 number.';
+         }
+
+         if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $password)) {
+             $errors[] = 'Password must contain at least 1 special character (!@#$%^&*(),.?":{}|<>).';
+         }
+
+         $commonPasswords = [
+             'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', 'master',
+             'dragon', '111111', 'baseball', 'iloveyou', 'trustno1', 'sunshine', 'princess',
+             'admin', 'welcome', 'shadow', 'ashley', 'football', 'jesus', 'michael',
+             'ninja', 'mustang', 'password1', 'password123', 'letmein', 'login', 'starwars'
+         ];
+
+         if (in_array(strtolower($password), $commonPasswords, true)) {
+             $errors[] = 'Password is too common. Please choose a stronger password.';
+         }
+
+         return $errors;
+     }
+
+    /**
+     * Validate URL format.
+     */
+    protected function validateUrl(string $url): bool
+    {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+
+    /**
+     * Validate phone number format.
+     * Supports international formats with country code and various separators.
+     */
+    protected function validatePhoneNumber(string $phone): bool
+    {
+        $phone = preg_replace('/[\s\-\(\)]+/', '', $phone);
+        return preg_match('/^\+?[1-9]\d{6,14}$/', $phone);
+    }
+
+    /**
+     * Validate that a value is one of the allowed values.
+     */
+    protected function validateIn(mixed $value, array $allowedValues): bool
+    {
+        return in_array($value, $allowedValues, true);
+    }
+
+    /**
+     * Sanitize input to prevent SQL injection.
+     * Note: Parameterized queries should be used for database operations.
+     * This is an additional layer of protection.
+     */
+    protected function sanitizeForSql(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return addslashes($value);
+    }
+
+    /**
+     * Validate alphanumeric string.
+     */
+    protected function validateAlphanumeric(string $value): bool
+    {
+        return ctype_alnum($value);
+    }
+
+    /**
+     * Validate JSON string.
+     */
+    protected function validateJson(string $value): bool
+    {
+        json_decode($value);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+     * Sanitize filename to prevent directory traversal.
+     */
+    protected function sanitizeFilename(string $filename): string
+    {
+        $filename = basename($filename);
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+        return $filename;
+    }
+
+    /**
+     * Detect potential SQL injection patterns.
+     */
+    protected function detectSqlInjection(string $value): bool
+    {
+        $patterns = [
+            '/(\s|^)(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE)(\s|$)/i',
+            '/(\s|^)(UNION|JOIN|WHERE|OR|AND)(\s|$)/i',
+            '/[\'";\\]/',
+            '/--/',
+            '/\/\*/',
+            '/\*\//',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Detect potential XSS patterns.
+     */
+    protected function detectXss(string $value): bool
+    {
+        $patterns = [
+            '/<script\b[^>]*>(.*?)<\/script>/is',
+            '/<iframe\b[^>]*>(.*?)<\/iframe>/is',
+            '/<object\b[^>]*>(.*?)<\/object>/is',
+            '/<embed\b[^>]*>(.*?)<\/embed>/is',
+            '/on\w+\s*=\s*["\']?[^"\'\s>]+/i',
+            '/javascript:/i',
+            '/vbscript:/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate UUID format.
+     */
+    protected function validateUuid(string $value): bool
+    {
+        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value);
+    }
+
+    /**
+     * Validate IP address.
+     */
+    protected function validateIp(string $ip): bool
+    {
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false;
+    }
+
+    /**
+     * Validate that value matches regex pattern.
+     */
+    protected function validatePattern(string $value, string $pattern): bool
+    {
+        return preg_match($pattern, $value) === 1;
+    }
+
+    /**
+     * Validate integer range.
+     */
+    protected function validateIntegerRange(int $value, ?int $min = null, ?int $max = null): bool
+    {
+        if ($min !== null && $value < $min) {
+            return false;
+        }
+
+        if ($max !== null && $value > $max) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sanitize input by removing HTML tags.
+     */
+    protected function stripHtml(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return strip_tags($value);
+    }
+
+    /**
+      * Validate that array contains only expected keys.
+      */
+    protected function validateArrayKeys(array $array, array $expectedKeys): bool
+    {
+        $actualKeys = array_keys($array);
+        $unexpectedKeys = array_diff($actualKeys, $expectedKeys);
+
+        return empty($unexpectedKeys);
+    }
+
+    /**
+      * Sanitize input for safe command execution.
+      * Uses escapeshellarg() to properly escape shell arguments.
+      */
+    protected function sanitizeForCommand(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return escapeshellarg($value);
+    }
+
+    /**
+      * Detect potential injection patterns (SQL, XSS, Command, LDAP, Path).
+      * Provides comprehensive injection detection for security.
+      */
+    protected function detectInjectionPatterns(string $value): bool
+    {
+        $patterns = [
+            '/(\s|^)(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE)(\s|$)/i',
+            '/(\s|^)(UNION|JOIN|WHERE|OR|AND)(\s|$)/i',
+            '/[\'";\\]/',
+            '/--/',
+            '/\/\*/',
+            '/\*\//',
+            '/<script\b[^>]*>(.*?)<\/script>/is',
+            '/<iframe\b[^>]*>(.*?)<\/iframe>/is',
+            '/<object\b[^>]*>(.*?)<\/object>/is',
+            '/<embed\b[^>]*>(.*?)<\/embed>/is',
+            '/on\w+\s*=\s*["\']?[^"\'\s>]+/i',
+            '/javascript:/i',
+            '/vbscript:/i',
+            '/\|\||&|;/',
+            '/`/',
+            '/\$\(.*?\)/',
+            '/\.\.\//',
+            '/\\\\/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+      * Validate file upload with enhanced security checks.
+      * Verifies MIME type matches extension and detects malicious file patterns.
+      */
+    protected function validateFileUploadEnhanced(mixed $file, array $allowedTypes = [], ?int $maxSize = null): array
+    {
+        $errors = [];
+
+        if ($file === null) {
+            $errors[] = 'File is required';
+            return $errors;
+        }
+
+        $filePath = $file['tmp_name'] ?? '';
+        $fileName = $file['name'] ?? '';
+        $fileType = $file['type'] ?? '';
+
+        if (!is_uploaded_file($filePath)) {
+            $errors[] = 'Invalid file upload';
+            return $errors;
+        }
+
+        if ($maxSize && ($file['size'] ?? 0) > $maxSize) {
+            $errors[] = 'File size exceeds maximum allowed size';
+        }
+
+        if (!empty($allowedTypes) && !in_array($fileType, $allowedTypes, true)) {
+            $errors[] = 'File type not allowed';
+        }
+
+        $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $detectedType = finfo_file($finfo, $filePath);
+            finfo_close($finfo);
+
+            if ($detectedType && $fileType !== $detectedType) {
+                $typeByExtension = [
+                    'jpg' => 'image/jpeg',
+                    'jpeg' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'gif' => 'image/gif',
+                    'pdf' => 'application/pdf',
+                    'doc' => 'application/msword',
+                    'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'xls' => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ];
+
+                if (isset($typeByExtension[$extension]) && $detectedType !== $typeByExtension[$extension]) {
+                    $errors[] = 'File extension does not match actual file type';
+                }
+            }
+        }
+
+        $maliciousPatterns = [
+            '/<\?php/i',
+            '/<script/i',
+            '/<iframe/i',
+            '/<object/i',
+            '/<embed/i',
+            '/document\.write/i',
+            '/eval\s*\(/i',
+            '/exec\s*\(/i',
+            '/system\s*\(/i',
+            '/passthru\s*\(/i',
+            '/shell_exec\s*\(/i',
+        ];
+
+        if (filesize($filePath) < 1048576) {
+            $fileContent = file_get_contents($filePath);
+            if ($fileContent) {
+                foreach ($maliciousPatterns as $pattern) {
+                    if (preg_match($pattern, $fileContent)) {
+                        $errors[] = 'File contains potentially malicious content';
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $errors;
+    }
+ }

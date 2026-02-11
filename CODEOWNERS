@@ -1,0 +1,176 @@
+# Code Owners
+
+This file defines the code owners for different parts of the codebase. Changes to these areas require approval from the listed owners.
+
+## Global Owners
+* All files: @sulhicmz
+
+## Core Application
+# Main application configuration and entry points
+/ @sulhicmz
+composer.json @sulhicmz
+composer.lock @sulhicmz
+phpstan.neon @sulhicmz
+phpunit.xml* @sulhicmz
+
+## Security-Critical Areas
+# Authentication, authorization, and security middleware
+app/Http/Middleware/Authenticate.php @sulhicmz
+app/Http/Middleware/JWTMiddleware.php @sulhicmz
+app/Http/Middleware/RoleMiddleware.php @sulhicmz
+app/Http/Middleware/VerifyCsrfToken.php @sulhicmz
+app/Http/Middleware/SecurityHeaders.php @sulhicmz
+app/Http/Middleware/RateLimitingMiddleware.php @sulhicmz
+
+app/Http/Controllers/Api/AuthController.php @sulhicmz
+
+app/Services/AuthService.php @sulhicmz
+app/Services/JwtService.php @sulhicmz
+app/Services/TokenBlacklistService.php @sulhicmz
+
+app/Contracts/AuthServiceInterface.php @sulhicmz
+
+config/jwt.php @sulhicmz
+config/auth.php @sulhicmz
+
+## Business Domains
+# School Management
+app/Http/Controllers/Api/SchoolManagement/ @sulhicmz
+app/Models/Student.php @sulhicmz
+app/Models/Teacher.php @sulhicmz
+app/Models/ClassRoom.php @sulhicmz
+app/Models/Subject.php @sulhicmz
+app/Models/Department.php @sulhicmz
+
+# Academic Records
+app/Http/Controllers/Api/AcademicRecords/ @sulhicmz
+app/Models/Grade.php @sulhicmz
+app/Models/Exam.php @sulhicmz
+app/Models/Assignment.php @sulhicmz
+
+# Attendance
+app/Http/Controllers/Attendance/ @sulhicmz
+app/Http/Controllers/Api/Attendance/ @sulhicmz
+app/Models/Attendance.php @sulhicmz
+app/Models/LeaveRequest.php @sulhicmz
+app/Models/LeaveType.php @sulhicmz
+
+# Calendar & Events
+app/Http/Controllers/Calendar/ @sulhicmz
+app/Http/Controllers/Api/Calendar/ @sulhicmz
+app/Models/Event.php @sulhicmz
+app/Models/Calendar.php @sulhicmz
+
+# Assessment
+app/Http/Controllers/Api/Assessment/ @sulhicmz
+app/Models/Assessment.php @sulhicmz
+
+# Fee Management
+app/Http/Controllers/Api/FeeManagement/ @sulhicmz
+app/Models/Fee.php @sulhicmz
+app/Models/Payment.php @sulhicmz
+
+# Parent Portal
+app/Http/Controllers/Api/ParentPortal/ @sulhicmz
+
+# E-Learning
+app/Http/Controllers/Api/ELearning/ @sulhicmz
+app/Models/Course.php @sulhicmz
+app/Models/Lesson.php @sulhicmz
+
+# Inventory Management
+app/Http/Controllers/Api/Inventory/ @sulhicmz
+app/Models/Asset.php @sulhicmz
+app/Models/InventoryItem.php @sulhicmz
+
+# Communication
+app/Http/Controllers/Api/Communication/ @sulhicmz
+app/Models/Announcement.php @sulhicmz
+app/Models/Message.php @sulhicmz
+
+# Reports & Analytics
+app/Http/Controllers/Api/Reports/ @sulhicmz
+
+## Database
+# Database migrations, seeders, and schema
+database/ @sulhicmz
+app/Models/ @sulhicmz
+
+## Testing
+# All test files
+tests/ @sulhicmz
+
+## Documentation
+# Documentation and guides
+docs/ @sulhicmz
+*.md @sulhicmz
+README.md @sulhicmz
+CONTRIBUTING.md @sulhicmz
+SECURITY.md @sulhicmz
+
+## Infrastructure & Deployment
+# CI/CD, Docker, deployment configs
+.github/ @sulhicmz
+docker-compose.yml @sulhicmz
+Dockerfile @sulhicmz
+deploy/ @sulhicmz
+
+## Configuration
+# Application configuration files
+config/ @sulhicmz
+.env.example @sulhicmz
+
+## Services
+# Application services
+app/Services/ @sulhicmz
+
+## Middleware
+# HTTP middleware
+app/Http/Middleware/ @sulhicmz
+
+## Exceptions
+# Exception handling
+app/Exceptions/ @sulhicmz
+
+## Console Commands
+app/Console/ @sulhicmz
+
+## Events & Listeners
+app/Events/ @sulhicmz
+app/Listeners/ @sulhicmz
+
+## Providers
+app/Providers/ @sulhicmz
+
+## Contracts & Interfaces
+app/Contracts/ @sulhicmz
+app/Traits/ @sulhicmz
+
+## Notes
+
+### Code Owner Approval Rules
+- **1 owner**: Changes require 1 approval
+- **Multiple owners listed**: Any owner can approve (OR logic)
+- **Global owner**: Can approve any changes
+
+### Security-Sensitive Changes
+Changes to the following require additional security review:
+- Authentication/authorization logic
+- CSRF protection
+- JWT handling
+- Password management
+- Input validation
+- Database queries
+
+### Breaking Changes
+Breaking API changes require:
+- Code owner approval
+- Documentation update
+- Migration guide
+- Announcement in release notes
+
+---
+
+**Last Updated**: January 10, 2026
+
+For questions about code ownership or to request changes to this file, please open an issue with the `documentation` label.

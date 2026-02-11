@@ -90,4 +90,21 @@ return [
     */
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'hypervel'), '_') . '_cache'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache TTL Presets
+    |--------------------------------------------------------------------------
+    |
+    | These values define the default TTL (time-to-live) values for different
+    | cache durations used throughout the application.
+    |
+    */
+
+    'ttl' => [
+        'short' => env('CACHE_TTL_SHORT', 60),      // 1 minute
+        'medium' => env('CACHE_TTL_MEDIUM', 300),   // 5 minutes
+        'long' => env('CACHE_TTL_LONG', 3600),      // 1 hour
+        'day' => env('CACHE_TTL_DAY', 86400),       // 24 hours
+    ],
 ];

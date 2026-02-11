@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use App\Models\User;
+use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class SchoolManagementApiTest extends TestCase
 {
     protected $user;
@@ -15,12 +21,15 @@ class SchoolManagementApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user
         $this->user = User::factory()->create();
+
+        // Assign Super Admin role to bypass RBAC middleware
+        $this->user->assignRole('Super Admin');
     }
 
-    public function test_student_api_endpoints()
+    public function testStudentApiEndpoints()
     {
         // Get JWT token for the test user
         $token = JWTAuth::fromUser($this->user);
@@ -31,18 +40,18 @@ class SchoolManagementApiTest extends TestCase
         ])->getJson('/api/school/students');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'data', // For paginated response
-                         'per_page',
-                         'current_page',
-                         'last_page',
-                         'total'
-                     ],
-                     'message',
-                     'timestamp'
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'data', // For paginated response
+                    'per_page',
+                    'current_page',
+                    'last_page',
+                    'total',
+                ],
+                'message',
+                'timestamp',
+            ]);
 
         // Test POST /api/school/students
         $studentData = [
@@ -59,13 +68,13 @@ class SchoolManagementApiTest extends TestCase
         ])->postJson('/api/school/students', $studentData);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Student created successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Student created successfully',
+            ]);
     }
 
-    public function test_teacher_api_endpoints()
+    public function testTeacherApiEndpoints()
     {
         // Get JWT token for the test user
         $token = JWTAuth::fromUser($this->user);
@@ -76,18 +85,18 @@ class SchoolManagementApiTest extends TestCase
         ])->getJson('/api/school/teachers');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'data' => [
-                         'data', // For paginated response
-                         'per_page',
-                         'current_page',
-                         'last_page',
-                         'total'
-                     ],
-                     'message',
-                     'timestamp'
-                 ]);
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'data', // For paginated response
+                    'per_page',
+                    'current_page',
+                    'last_page',
+                    'total',
+                ],
+                'message',
+                'timestamp',
+            ]);
 
         // Test POST /api/school/teachers
         $teacherData = [
@@ -103,13 +112,13 @@ class SchoolManagementApiTest extends TestCase
         ])->postJson('/api/school/teachers', $teacherData);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'success' => true,
-                     'message' => 'Teacher created successfully'
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'Teacher created successfully',
+            ]);
     }
 
-    public function test_student_show_endpoint()
+    public function testStudentShowEndpoint()
     {
         // Get JWT token for the test user
         $token = JWTAuth::fromUser($this->user);
@@ -128,17 +137,17 @@ class SchoolManagementApiTest extends TestCase
         ])->getJson("/api/school/students/{$student->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'data' => [
-                         'id' => $student->id,
-                         'name' => $student->name,
-                         'nisn' => $student->nisn
-                     ]
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'id' => $student->id,
+                    'name' => $student->name,
+                    'nisn' => $student->nisn,
+                ],
+            ]);
     }
 
-    public function test_teacher_show_endpoint()
+    public function testTeacherShowEndpoint()
     {
         // Get JWT token for the test user
         $token = JWTAuth::fromUser($this->user);
@@ -156,13 +165,13 @@ class SchoolManagementApiTest extends TestCase
         ])->getJson("/api/school/teachers/{$teacher->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'success' => true,
-                     'data' => [
-                         'id' => $teacher->id,
-                         'name' => $teacher->name,
-                         'nip' => $teacher->nip
-                     ]
-                 ]);
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'id' => $teacher->id,
+                    'name' => $teacher->name,
+                    'nip' => $teacher->nip,
+                ],
+            ]);
     }
 }

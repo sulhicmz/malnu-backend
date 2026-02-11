@@ -248,6 +248,19 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | Blacklist Token TTL
+     |--------------------------------------------------------------------------
+     |
+     | Time-to-live (in seconds) for blacklisted tokens stored in Redis.
+     | Default is 24 hours (86400 seconds). This should be at least as long
+     | as the JWT token's lifetime.
+     |
+     */
+
+    'blacklist_ttl' => env('JWT_BLACKLIST_TTL', 86400),
+
+    /*
+     |--------------------------------------------------------------------------
      | Providers
      |--------------------------------------------------------------------------
      |

@@ -35,23 +35,24 @@ class EmailService
         $this->circuitBreaker = $circuitBreaker;
         $this->logger = $logger;
 
-        $this->fromAddress = env('MAIL_FROM_ADDRESS', 'noreply@example.com');
-        $this->fromName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
+        $this->fromAddress = config('mail.from.address', 'noreply@example.com');
+        $this->fromName = config('mail.from.name', config('app.name', 'Malnu'));
         $this->config = config('resilient_email', [
             'timeout' => 30,
             'retry_attempts' => 3,
         ]);
 
         $transport = (new Swift_SmtpTransport(
-            env('MAIL_HOST', 'smtp.mailtrap.io'),
-            (int) env('MAIL_PORT', 2525),
-            env('MAIL_ENCRYPTION', 'tls')
+            config('mail.mailers.smtp.host', 'smtp.mailtrap.io'),
+            (int) config('mail.mailers.smtp.port', 2525),
+            config('mail.mailers.smtp.encryption', 'tls')
         ))
-            ->setUsername(env('MAIL_USERNAME', ''))
-            ->setPassword(env('MAIL_PASSWORD', ''));
+            ->setUsername(config('mail.mailers.smtp.username', ''))
+            ->setPassword(config('mail.mailers.smtp.password', ''));
 
-        if (env('MAIL_TIMEOUT')) {
-            $transport->setTimeout((int) env('MAIL_TIMEOUT', $this->config['timeout']));
+        $mailTimeout = config('mail.mailers.smtp.timeout');
+        if ($mailTimeout !== null) {
+            $transport->setTimeout((int) $mailTimeout);
         }
 
         $this->mailer = new Swift_Mailer($transport);
@@ -62,7 +63,7 @@ class EmailService
         return $this->retryService->executeWithCircuitBreaker(
             'email',
             function () use ($email, $token) {
-                $appName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
+                $appName = config('mail.from.name', config('app.name', 'Malnu'));
                 $resetLink = $this->generateResetLink($token);
 
                 $subject = "Password Reset Request - {$appName}";
@@ -111,13 +112,13 @@ class EmailService
 
     private function generateResetLink(string $token): string
     {
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+        $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
         return "{$frontendUrl}/auth/reset-password?token={$token}";
     }
 
     private function getPasswordResetTemplate(string $resetLink): string
     {
-        $appName = env('MAIL_FROM_NAME', config('app.name', 'Malnu'));
+        $appName = config('mail.from.name', config('app.name', 'Malnu'));
 
         return "<!DOCTYPE html>
 <html>

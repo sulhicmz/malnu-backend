@@ -23,7 +23,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, i
                 {isIncrease ? <ArrowUp className="h-3 w-3 mr-1" aria-hidden="true" /> : <ArrowDown className="h-3 w-3 mr-1" aria-hidden="true" />}
                 {change}
               </span>
-              <span className="text-xs text-gray-500 ml-1">vs bulan lalu</span>
+              <span className="text-xs text-gray-500 ml-1">vs last month</span>
             </div>
           )}
         </div>

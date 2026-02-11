@@ -39,7 +39,6 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
             $this->loggingService->error('Failed to connect to Redis for token blacklist', ['exception' => $e->getMessage()]);
         }
     }
-    }
 
     /**
      * Add token to blacklist.
@@ -51,10 +50,11 @@ class TokenBlacklistService implements TokenBlacklistServiceInterface
         }
 
         $cacheKey = $this->getCacheKey($token);
-        $expiresAt = time() + 86400;
+        $ttl = config('jwt.blacklist_ttl', 86400);
+        $expiresAt = time() + $ttl;
 
         try {
-            $this->redis->setex($cacheKey, 86400, $expiresAt);
+            $this->redis->setex($cacheKey, $ttl, $expiresAt);
         } catch (RedisException $e) {
             $this->loggingService->logTokenBlacklistOperation('blacklist_token_failed', null, ['exception' => $e->getMessage()]);
         }

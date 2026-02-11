@@ -18,6 +18,9 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\ClassController;
 use App\Http\Controllers\Api\SchoolManagement\SubjectController;
 use App\Http\Controllers\Api\Grading\GradeController;
+use App\Http\Controllers\Api\SchoolManagement\AssetCategoryController;
+use App\Http\Controllers\Api\SchoolManagement\AssetAssignmentController;
+use App\Http\Controllers\Api\SchoolManagement\AssetMaintenanceController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\Api\LMSController;
@@ -99,6 +102,12 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
         Route::post('inventory/{id}/maintenance', [InventoryController::class, 'maintenance']);
         Route::get('inventory/{id}/assignments', [InventoryController::class, 'getAssignments']);
         Route::get('inventory/{id}/maintenance', [InventoryController::class, 'getMaintenanceRecords']);
+        Route::get('inventory/valuation', [InventoryController::class, 'getValuation']);
+        Route::get('inventory/depreciation', [InventoryController::class, 'getDepreciation']);
+        Route::get('inventory/usage', [InventoryController::class, 'getUsageStatistics']);
+        Route::apiResource('asset-categories', AssetCategoryController::class);
+        Route::apiResource('asset-assignments', AssetAssignmentController::class);
+        Route::apiResource('asset-maintenance', AssetMaintenanceController::class);
 
         // Academic Records Routes
         Route::prefix('students/{studentId}')->group(function () {

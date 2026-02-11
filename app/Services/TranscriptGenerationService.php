@@ -9,7 +9,6 @@ use App\Models\Grading\Grade;
 use App\Models\Grading\Report;
 use App\Models\Grading\StudentPortfolio;
 use App\Models\SchoolManagement\Student;
-use App\Models\SchoolManagement\Subject;
 use App\Models\System\SystemSetting;
 use Exception;
 
@@ -26,7 +25,7 @@ class TranscriptGenerationService
     {
         $student = Student::find($studentId);
 
-        if (!$student) {
+        if (! $student) {
             throw new Exception('Student not found');
         }
 
@@ -51,6 +50,50 @@ class TranscriptGenerationService
         $this->saveTranscriptRecord($studentId, $transcript);
 
         return $transcript;
+    }
+
+    public function generateReportCard(string $studentId, int $semester, string $academicYear): array
+    {
+        $student = Student::find($studentId);
+
+        if (! $student) {
+            throw new Exception('Student not found');
+        }
+
+        $grades = Grade::where('student_id', $studentId)
+            ->where('semester', $semester)
+            ->whereHas('class', function ($q) use ($academicYear) {
+                $q->where('academic_year', $academicYear);
+            })
+            ->with(['subject', 'class'])
+            ->get();
+
+        if ($grades->isEmpty()) {
+            throw new Exception('No grades found for the specified semester and academic year');
+        }
+
+        $reportCard = [
+            'report_card_info' => [
+                'report_number' => 'RPT-' . date('Ymd') . '-' . substr($studentId, -6),
+                'semester' => $semester,
+                'academic_year' => $academicYear,
+                'issue_date' => date('Y-m-d'),
+            ],
+            'student_info' => $this->getStudentInfo($student),
+            'grades' => $this->formatGrades($grades),
+            'semester_summary' => [
+                'semester_gpa' => $this->gpaService->getSemesterGPA($studentId, $semester, $academicYear),
+                'total_credits' => $grades->sum(function ($grade) {
+                    return $grade->subject->credit_hours ?? 1;
+                }),
+                'total_subjects' => $grades->count(),
+            ],
+            'remarks' => $this->getReportCardRemarks($studentId, $semester, $academicYear),
+            'signatures' => $this->getSignatures(),
+            'generated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        return $reportCard;
     }
 
     private function getGrades(string $studentId, ?string $academicYear = null)
@@ -133,7 +176,7 @@ class TranscriptGenerationService
             $academicYear = $grade->class->academic_year ?? 'N/A';
             $key = "Semester {$semester} - {$academicYear}";
 
-            if (!isset($grouped[$key])) {
+            if (! isset($grouped[$key])) {
                 $grouped[$key] = [
                     'semester' => $semester,
                     'academic_year' => $academicYear,
@@ -256,30 +299,54 @@ class TranscriptGenerationService
 
     private function getGradeRemarks(float $grade): string
     {
-        if ($grade >= 90) return 'Excellent';
-        if ($grade >= 80) return 'Very Good';
-        if ($grade >= 70) return 'Good';
-        if ($grade >= 60) return 'Satisfactory';
-        if ($grade >= 50) return 'Fair';
+        if ($grade >= 90) {
+            return 'Excellent';
+        }
+        if ($grade >= 80) {
+            return 'Very Good';
+        }
+        if ($grade >= 70) {
+            return 'Good';
+        }
+        if ($grade >= 60) {
+            return 'Satisfactory';
+        }
+        if ($grade >= 50) {
+            return 'Fair';
+        }
 
         return 'Needs Improvement';
     }
 
     private function getAcademicStanding(float $gpa): string
     {
-        if ($gpa >= 3.5) return 'High Distinction';
-        if ($gpa >= 3.0) return 'Distinction';
-        if ($gpa >= 2.5) return 'Credit';
-        if ($gpa >= 2.0) return 'Pass';
+        if ($gpa >= 3.5) {
+            return 'High Distinction';
+        }
+        if ($gpa >= 3.0) {
+            return 'Distinction';
+        }
+        if ($gpa >= 2.5) {
+            return 'Credit';
+        }
+        if ($gpa >= 2.0) {
+            return 'Pass';
+        }
 
         return 'Probation';
     }
 
     private function saveTranscriptRecord(string $studentId, array $transcriptData): void
     {
-        $academicYear = $transcriptData['grades_by_semester'][0]['academic_year'] ?? '2024/2025';
-        $semester = $transcriptData['grades_by_semester'][0]['semester'] ?? 1;
-        $gpa = $transcriptData['academic_summary']['cumulative_gpa'];
+        $academicYear = '2024/2025';
+        $semester = 1;
+
+        if (! empty($transcriptData['grades_by_semester'])) {
+            $academicYear = $transcriptData['grades_by_semester'][0]['academic_year'] ?? '2024/2025';
+            $semester = $transcriptData['grades_by_semester'][0]['semester'] ?? 1;
+        }
+
+        $gpa = $transcriptData['academic_summary']['cumulative_gpa'] ?? 0.0;
 
         Report::updateOrCreate(
             [
@@ -293,50 +360,6 @@ class TranscriptGenerationService
                 'published_at' => now(),
             ]
         );
-    }
-
-    public function generateReportCard(string $studentId, int $semester, string $academicYear): array
-    {
-        $student = Student::find($studentId);
-
-        if (!$student) {
-            throw new Exception('Student not found');
-        }
-
-        $grades = Grade::where('student_id', $studentId)
-            ->where('semester', $semester)
-            ->whereHas('class', function ($q) use ($academicYear) {
-                $q->where('academic_year', $academicYear);
-            })
-            ->with(['subject', 'class'])
-            ->get();
-
-        if ($grades->isEmpty()) {
-            throw new Exception('No grades found for the specified semester and academic year');
-        }
-
-        $reportCard = [
-            'report_card_info' => [
-                'report_number' => 'RPT-' . date('Ymd') . '-' . substr($studentId, -6),
-                'semester' => $semester,
-                'academic_year' => $academicYear,
-                'issue_date' => date('Y-m-d'),
-            ],
-            'student_info' => $this->getStudentInfo($student),
-            'grades' => $this->formatGrades($grades),
-            'semester_summary' => [
-                'semester_gpa' => $this->gpaService->getSemesterGPA($studentId, $semester, $academicYear),
-                'total_credits' => $grades->sum(function ($grade) {
-                    return $grade->subject->credit_hours ?? 1;
-                }),
-                'total_subjects' => $grades->count(),
-            ],
-            'remarks' => $this->getReportCardRemarks($studentId, $semester, $academicYear),
-            'signatures' => $this->getSignatures(),
-            'generated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        return $reportCard;
     }
 
     private function formatGrades($grades): array

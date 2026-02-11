@@ -1,19 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
-use App\Models\Attendance\LeaveType;
 use App\Models\Attendance\LeaveRequest;
+use App\Models\Attendance\LeaveType;
 use App\Models\SchoolManagement\Staff;
 use App\Models\User;
 use Tests\TestCase;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class AttendanceLeaveManagementTest extends TestCase
 {
     /**
      * Test that leave types can be created and retrieved.
      */
-    public function test_leave_types_can_be_managed(): void
+    public function testLeaveTypesCanBeManaged(): void
     {
         // Create a leave type
         $leaveType = LeaveType::create([
@@ -40,7 +46,7 @@ class AttendanceLeaveManagementTest extends TestCase
     /**
      * Test that leave requests can be created and managed.
      */
-    public function test_leave_requests_can_be_managed(): void
+    public function testLeaveRequestsCanBeManaged(): void
     {
         // Create a staff member (using existing user)
         $user = User::factory()->create();
@@ -90,7 +96,7 @@ class AttendanceLeaveManagementTest extends TestCase
     /**
      * Test the leave management service functionality.
      */
-    public function test_leave_management_service(): void
+    public function testLeaveManagementService(): void
     {
         // Create a staff member
         $user = User::factory()->create();
@@ -114,7 +120,7 @@ class AttendanceLeaveManagementTest extends TestCase
 
         // Test the leave management service
         $service = new \App\Services\LeaveManagementService();
-        
+
         // Allocate some leave
         $allocationResult = $service->allocateAnnualLeave($staff->id, $leaveType->id, 5);
         $this->assertTrue($allocationResult);

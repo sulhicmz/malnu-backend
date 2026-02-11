@@ -46,7 +46,47 @@ npm audit --audit-level=moderate
 
 ### 🟡 Security Gaps
 
-#### 2. JWT Authentication Incomplete
+#### 2. Workflow Security - Admin Merge Bypass (CRITICAL)
+**Severity**: HIGH
+**Status**: Documented but requires mitigation
+**Related Issues**: [#629](https://github.com/sulhicmz/malnu-backend/issues/629), [#611](https://github.com/sulhicmz/malnu-backend/issues/611), [#710](https://github.com/sulhicmz/malnu-backend/issues/710)
+
+**Problem**:
+The `on-pull.yml` workflow contains a critical security vulnerability where it uses `gh pr merge --admin` to bypass branch protection rules. This allows:
+- Pull requests to be merged without proper review
+- Automated quality checks to be skipped
+- Security-sensitive changes to bypass approval processes
+
+**Affected Workflows**:
+| Workflow | Excessive Permissions | Admin Bypass |
+|-----------|---------------------|---------------|
+| `on-pull.yml` | contents: write, pull-requests: write | **YES** (line 241) |
+| `oc-issue-solver.yml` | actions: write, deployments: write, id-token: write | No |
+| `oc-maintainer.yml` | actions: write, deployments: write, id-token: write | No |
+| `oc-pr-handler.yml` | actions: write, deployments: write, id-token: write | No |
+| `oc-researcher.yml` | actions: write, deployments: write, id-token: write | No |
+| `oc-cf-supabase.yml` | deployments: write, id-token: write | No (deployments needed) |
+| `oc-problem-finder.yml` | actions: write | No |
+
+**Attack Surface Analysis**:
+- **Current**: ~58-72 total permission grants across 10 workflows
+- **Minimum Required**: ~20-25 total permission grants
+- **Excessive Percentage**: ~60% larger than necessary
+
+**Mitigation Required**:
+1. Remove `gh pr merge --admin` from `on-pull.yml`
+2. Remove excessive `id-token: write` from workflows that don't need OIDC
+3. Remove `actions: write` from workflows that only need read access
+4. Remove `deployments: write` from non-deployment workflows
+5. Consolidate workflows to reduce attack surface (see [#632](https://github.com/sulhicmz/malnu-backend/issues/632))
+
+**References**:
+- [SECURITY.md - Workflow Security Section](../SECURITY.md#workflow-security)
+- [Issue #629](https://github.com/sulhicmz/malnu-backend/issues/629) - Original vulnerability report
+- [Issue #611](https://github.com/sulhicmz/malnu-backend/issues/611) - Permission hardening effort
+- [PR #707](https://github.com/sulhicmz/malnu-backend/pull/707) - Consolidated hardening solution
+
+#### 3. JWT Authentication Incomplete
 **Configuration**: ✅ Present in `config/jwt.php`  
 **Implementation**: ❌ Incomplete middleware and controllers  
 **Risk**: Authentication bypass possible

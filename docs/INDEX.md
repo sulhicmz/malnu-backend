@@ -67,6 +67,7 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Deployment & Configuration
 - **[Deployment](DEPLOYMENT.md)** - Production deployment procedures, environment configuration, and infrastructure setup
+- **[CI/CD Documentation](CI_CD.md)** - **NEW** - GitHub Actions workflows, OpenCode agents, and automation system documentation (Feb 8, 2026) ⭐
 
 ### Maintenance & Monitoring
 - **[Migration Plan](MIGRATION_PLAN.md)** - Migration strategies, version upgrades, and compatibility notes

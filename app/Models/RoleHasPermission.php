@@ -6,8 +6,10 @@ namespace App\Models;
 
 class RoleHasPermission extends Model
 {
-    public bool $timestamps = false; // ✅
-
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+    public bool $timestamps = false;
     protected array $fillable = [
         'permission_id',
         'role_id',

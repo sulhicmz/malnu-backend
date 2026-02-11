@@ -6,12 +6,13 @@ namespace App\Models;
 
 class Allergy extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     public const SEVERITY_MILD = 'mild';
-
     public const SEVERITY_MODERATE = 'moderate';
-
     public const SEVERITY_SEVERE = 'severe';
-
     public const SEVERITY_LIFE_THREATENING = 'life_threatening';
 
     protected $fillable = [

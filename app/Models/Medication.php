@@ -6,12 +6,13 @@ namespace App\Models;
 
 class Medication extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     public const STATUS_ACTIVE = 'active';
-
     public const STATUS_COMPLETED = 'completed';
-
     public const STATUS_DISCONTINUED = 'discontinued';
-
     public const STATUS_ON_HOLD = 'on_hold';
 
     protected $fillable = [

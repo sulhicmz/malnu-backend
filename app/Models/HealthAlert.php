@@ -6,20 +6,17 @@ namespace App\Models;
 
 class HealthAlert extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     public const STATUS_PENDING = 'pending';
-
     public const STATUS_SENT = 'sent';
-
     public const STATUS_ACKNOWLEDGED = 'acknowledged';
-
     public const STATUS_RESOLVED = 'resolved';
-
     public const PRIORITY_LOW = 'low';
-
     public const PRIORITY_MEDIUM = 'medium';
-
     public const PRIORITY_HIGH = 'high';
-
     public const PRIORITY_CRITICAL = 'critical';
 
     protected $fillable = [

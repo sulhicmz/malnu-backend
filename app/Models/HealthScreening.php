@@ -6,10 +6,12 @@ namespace App\Models;
 
 class HealthScreening extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     public const STATUS_NORMAL = 'normal';
-
     public const STATUS_ABNORMAL = 'abnormal';
-
     public const STATUS_NEEDS_FOLLOW_UP = 'needs_follow_up';
 
     protected $fillable = [

@@ -9,6 +9,10 @@ use App\Models\User;
 
 class CalendarShare extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $table = 'calendar_shares';
 
     protected $fillable = [

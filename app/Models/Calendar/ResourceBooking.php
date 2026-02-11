@@ -9,6 +9,10 @@ use App\Models\User;
 
 class ResourceBooking extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     protected $table = 'resource_bookings';
 
     protected $fillable = [

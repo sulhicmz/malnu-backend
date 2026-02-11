@@ -6,6 +6,9 @@ namespace App\Models;
 
 class ModelHasRole extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
     protected array $fillable = [
         'role_id',
         'model_type',

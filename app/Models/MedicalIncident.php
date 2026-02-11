@@ -6,10 +6,12 @@ namespace App\Models;
 
 class MedicalIncident extends Model
 {
+    protected string $primaryKey = 'id';
+    protected string $keyType = 'string';
+    public bool $incrementing = false;
+
     public const SEVERITY_MILD = 'mild';
-
     public const SEVERITY_MODERATE = 'moderate';
-
     public const SEVERITY_SEVERE = 'severe';
 
     protected $fillable = [

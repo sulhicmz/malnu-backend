@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\Mobile\ParentMobileController;
 use App\Http\Controllers\Api\Mobile\TeacherMobileController;
 use App\Http\Controllers\Api\Mobile\AdminMobileController;
 use App\Http\Controllers\Api\Mobile\PushNotificationController;
+use App\Http\Controllers\Api\ParentPortal\ParentPortalController;
 use App\Http\Controllers\Api\FinancialManagement\FeeTypeController;
 use App\Http\Controllers\Api\FinancialManagement\FeeStructureController;
 use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
@@ -229,6 +230,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
 
         // Certificate Management Routes
         Route::get('certificates', [LMSController::class, 'getCertificates']);
+    });
+});
+
+// Parent Portal Routes (protected with authentication and parent role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Parent|Ortu']], function () {
+    Route::prefix('parent')->group(function () {
+        Route::get('/dashboard', [ParentPortalController::class, 'dashboard']);
+        Route::prefix('children/{id}')->group(function () {
+            Route::get('/grades', [ParentPortalController::class, 'getChildGrades']);
+            Route::get('/attendance', [ParentPortalController::class, 'getChildAttendance']);
+            Route::get('/assignments', [ParentPortalController::class, 'getChildAssignments']);
+        });
     });
 });
 

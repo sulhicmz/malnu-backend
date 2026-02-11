@@ -27,14 +27,20 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button 
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            aria-label="Notifications"
+          >
             <Bell className="h-5 w-5" />
           </button>
-          <button className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button 
+            className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            aria-label="Settings"
+          >
             <Settings className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center" aria-hidden="true">
               <User className="h-5 w-5 text-white" />
             </div>
             <span className="hidden md:inline-block text-sm font-medium text-gray-700">Admin User</span>

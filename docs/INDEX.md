@@ -7,7 +7,7 @@ Complete navigation guide for all Malnu Backend School Management System documen
 ### Quick Start
 - **[Developer Guide](DEVELOPER_GUIDE.md)** - Comprehensive onboarding guide with setup, configuration, and development workflow
 - **[Quick Start Guide](DEVELOPER_GUIDE.md#quick-start-new-to-the-project)** - Fast-track onboarding for new developers
-- **[GitHub Projects Setup](GITHUB_PROJECTS_SETUP.md)** - Setting up GitHub projects for issue tracking and project management
+- **[GitHub Projects Setup Guide v4](GITHUB_PROJECTS_SETUP_v4.md)** - **NEW: Comprehensive setup guide for 7 GitHub Projects (Jan 23, 2026)** ⭐
 
 ### Initial Setup
 - **[Project Structure](PROJECT_STRUCTURE.md)** - Application architecture, folder organization, and code layout
@@ -67,6 +67,7 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Deployment & Configuration
 - **[Deployment](DEPLOYMENT.md)** - Production deployment procedures, environment configuration, and infrastructure setup
+- **[CI/CD Documentation](CI_CD.md)** - **NEW** - GitHub Actions workflows, OpenCode agents, and automation system documentation (Feb 8, 2026) ⭐
 
 ### Maintenance & Monitoring
 - **[Migration Plan](MIGRATION_PLAN.md)** - Migration strategies, version upgrades, and compatibility notes
@@ -87,7 +88,9 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ### Analysis Documents
 - **[Analysis Report](ANALYSIS_REPORT.md)** - Comprehensive analysis of system architecture and implementation
-- **[Orchestrator Analysis Report v8](ORCHESTRATOR_ANALYSIS_REPORT_v8.md)** - **Latest analysis - current status (Jan 21, 2026)** ⭐
+- **[Orchestrator Analysis Report v10](ORCHESTRATOR_ANALYSIS_REPORT_v10.md)** - **Latest analysis - current status (Jan 23, 2026)** ⭐
+- **[Orchestrator Analysis Report v9](ORCHESTRATOR_ANALYSIS_REPORT_v9.md)** - Archived - superseded by v10 (Jan 22, 2026)
+- **[Orchestrator Analysis Report v8](ORCHESTRATOR_ANALYSIS_REPORT_v8.md)** - Archived - superseded by v9 (Jan 21, 2026)
 - **[Orchestrator Analysis Report v7](ORCHESTRATOR_ANALYSIS_REPORT_v7.md)** - Archived - superseded by v8 (Jan 19, 2026)
 - **[Orchestrator Analysis Report v6](ORCHESTRATOR_ANALYSIS_REPORT_v6.md)** - Archived - superseded by v7 (Jan 18, 2026)
 - **[Orchestrator Analysis Report v5](ORCHESTRATOR_ANALYSIS_REPORT_v5.md)** - Archived - superseded by v6 (Jan 17, 2026)
@@ -98,10 +101,8 @@ Complete navigation guide for all Malnu Backend School Management System documen
 - **[Complex Issue Breakdown](COMPLEX_ISSUE_BREAKDOWN.md)** - Analysis of complex technical issues and solutions
 - **[Duplicate Issues Analysis](DUPLICATE_ISSUES_ANALYSIS.md)** - Identification and consolidation plan for duplicate issues
 - **[Duplicate Issues Consolidation Plan](DUPLICATE_ISSUES_CONSOLIDATION_PLAN.md)** - Detailed plan for closing duplicate issues (Jan 18, 2026)
-- **[New Issues Summary](ORCHESTRATOR_NEW_ISSUES_SUMMARY.md)** - Summary of 7 new issues created by orchestrator (Jan 19, 2026)
-- **[PR Consolidation Action Plan](PR_CONSOLIDATION_ACTION_PLAN.md)** - **NEW: Action plan for consolidating 20+ duplicate PRs (Jan 21, 2026)** ⭐
-- **[GitHub Projects Setup Guide](GITHUB_PROJECTS_SETUP_GUIDE.md)** - GitHub Projects structure and configuration guide
-- **[GitHub Projects Setup Guide v2](GITHUB_PROJECTS_SETUP_GUIDE_v2.md)** - Comprehensive setup guide for 7 GitHub Projects (Jan 18, 2026)
+- **[PR Consolidation Action Plan v2](PR_CONSOLIDATION_ACTION_PLAN_v2.md)** - **NEW: Action plan for consolidating 21+ duplicate PRs (Jan 23, 2026)** ⭐
+- **[GitHub Projects Setup Guide v4](GITHUB_PROJECTS_SETUP_v4.md)** - **NEW: Comprehensive setup guide for 7 GitHub Projects (Jan 23, 2026)** ⭐
 - **[Workflows Consolidation Plan](WORKFLOWS_CONSOLIDATION_PLAN.md)** - Plan to consolidate 10 GitHub Actions workflows to 3-4 (Jan 18, 2026)
 
 ### Security
@@ -144,5 +145,5 @@ Complete navigation guide for all Malnu Backend School Management System documen
 
 ---
 
-**Last Updated**: January 21, 2026
+**Last Updated**: January 23, 2026
 **Maintained By**: Malnu Backend Development Team

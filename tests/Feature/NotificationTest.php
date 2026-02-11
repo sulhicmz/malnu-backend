@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Hyperf\DbConnection\Db;
-use App\Services\NotificationService;
-use App\Models\Notification\Notification;
 use App\Models\Notification\NotificationTemplate;
-use App\Models\Notification\NotificationUserPreference;
+use App\Services\NotificationService;
+use Hyperf\DbConnection\Db;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class NotificationTest extends \Codeception\Test\Unit
 {
     public function _before()

@@ -17,6 +17,11 @@ use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Calendar\CalendarController;
 use App\Http\Controllers\IndexController;
+use App\Http\Controllers\Api\Mobile\StudentMobileController;
+use App\Http\Controllers\Api\Mobile\ParentMobileController;
+use App\Http\Controllers\Api\Mobile\TeacherMobileController;
+use App\Http\Controllers\Api\Mobile\AdminMobileController;
+use App\Http\Controllers\Api\Mobile\PushNotificationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -87,8 +92,66 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
             Route::get('report-card/{semester}/{academicYear}', [AcademicRecordsController::class, 'generateReportCard']);
             Route::get('subject-grades/{subjectId}', [AcademicRecordsController::class, 'getSubjectGrades']);
             Route::get('grades-history', [AcademicRecordsController::class, 'getGradesHistory']);
+    });
+});
+
+// Mobile API Routes (protected with authentication and mobile middleware)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'mobile']], function () {
+    Route::prefix('mobile/v1')->group(function () {
+        // Student Mobile Routes
+        Route::group(['middleware' => ['role:Siswa']], function () {
+            Route::prefix('student')->group(function () {
+                Route::get('/dashboard', [StudentMobileController::class, 'getDashboard']);
+                Route::get('/grades', [StudentMobileController::class, 'getGrades']);
+                Route::get('/assignments', [StudentMobileController::class, 'getAssignments']);
+                Route::get('/schedule', [StudentMobileController::class, 'getSchedule']);
+                Route::get('/attendance', [StudentMobileController::class, 'getAttendance']);
+            });
+        });
+
+        // Parent Mobile Routes
+        Route::group(['middleware' => ['role:Orang Tua']], function () {
+            Route::prefix('parent')->group(function () {
+                Route::get('/children', [ParentMobileController::class, 'getChildren']);
+                Route::get('/children/{childId}/progress', [ParentMobileController::class, 'getChildProgress']);
+                Route::get('/children/{childId}/attendance', [ParentMobileController::class, 'getChildAttendance']);
+                Route::get('/children/{childId}/grades', [ParentMobileController::class, 'getChildGrades']);
+                Route::get('/children/{childId}/fees', [ParentMobileController::class, 'getChildFees']);
+            });
+        });
+
+        // Teacher Mobile Routes
+        Route::group(['middleware' => ['role:Guru']], function () {
+            Route::prefix('teacher')->group(function () {
+                Route::get('/dashboard', [TeacherMobileController::class, 'getDashboard']);
+                Route::get('/classes', [TeacherMobileController::class, 'getClasses']);
+                Route::get('/classes/{classId}/students', [TeacherMobileController::class, 'getClassStudents']);
+                Route::post('/attendance/mark', [TeacherMobileController::class, 'markAttendance']);
+                Route::get('/schedule', [TeacherMobileController::class, 'getSchedule']);
+            });
+        });
+
+        // Admin Mobile Routes
+        Route::group(['middleware' => ['role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+            Route::prefix('admin')->group(function () {
+                Route::get('/dashboard', [AdminMobileController::class, 'getDashboard']);
+                Route::get('/school-info', [AdminMobileController::class, 'getSchoolInfo']);
+                Route::get('/statistics', [AdminMobileController::class, 'getStatistics']);
+                Route::get('/recent-activities', [AdminMobileController::class, 'getRecentActivities']);
+            });
+        });
+
+        // Push Notification Routes (all authenticated users)
+        Route::prefix('push')->group(function () {
+            Route::post('/register', [PushNotificationController::class, 'registerDevice']);
+            Route::post('/unregister', [PushNotificationController::class, 'unregisterDevice']);
+            Route::put('/preferences', [PushNotificationController::class, 'updatePreferences']);
+            Route::get('/preferences', [PushNotificationController::class, 'getPreferences']);
+            Route::post('/test', [PushNotificationController::class, 'testPush']);
         });
     });
+});
+
 });
 
 // Calendar and Event Management Routes (protected with role check)

@@ -13,7 +13,6 @@ permissions:
   actions: write
   repository-projects: write
   id-token: write
-  deployment: write
 
 concurrency:
   group: oc-agent

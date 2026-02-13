@@ -26,6 +26,9 @@ class Report extends Model
         'rank_in_class',
         'homeroom_notes',
         'principal_notes',
+        'file_path',
+        'file_type',
+        'template_id',
         'is_published',
         'published_at',
         'created_by',
@@ -54,5 +57,31 @@ class Report extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function template()
+    {
+        return $this->belongsTo(ReportTemplate::class);
+    }
+
+    public function signatures()
+    {
+        return $this->hasMany(ReportSignature::class);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeForStudent($query, string $studentId)
+    {
+        return $query->where('student_id', $studentId);
+    }
+
+    public function scopeForSemester($query, int $semester, string $academicYear)
+    {
+        return $query->where('semester', $semester)
+                     ->where('academic_year', $academicYear);
     }
 }

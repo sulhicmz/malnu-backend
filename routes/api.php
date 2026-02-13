@@ -18,6 +18,7 @@ use App\Http\Controllers\Attendance\StaffAttendanceController;
 use App\Http\Controllers\Api\SchoolManagement\ClassController;
 use App\Http\Controllers\Api\SchoolManagement\SubjectController;
 use App\Http\Controllers\Api\Grading\GradeController;
+use App\Http\Controllers\Api\Grading\ReportController;
 use App\Http\Controllers\Api\SchoolManagement\AssetCategoryController;
 use App\Http\Controllers\Api\SchoolManagement\AssetAssignmentController;
 use App\Http\Controllers\Api\SchoolManagement\AssetMaintenanceController;
@@ -345,6 +346,34 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
     Route::prefix('grades')->group(function () {
         // Grade Management Routes
         Route::apiResource('/', GradeController::class);
+    });
+});
+
+// Report Generation Routes (protected with role check)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('reports')->group(function () {
+        // Report Generation - Write operations require specific roles
+        Route::post('report-cards', [ReportController::class, 'generateReportCard'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('transcripts', [ReportController::class, 'generateTranscript'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('progress-reports', [ReportController::class, 'generateProgressReport'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+        Route::post('batch-report-cards', [ReportController::class, 'batchGenerateReportCards'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+
+        // Report Retrieval - All authenticated users with appropriate roles
+        Route::get('student/{studentId}', [ReportController::class, 'getStudentReports'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru|Wali Kelas']);
+        Route::get('class/{classId}', [ReportController::class, 'getClassReports'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru|Wali Kelas']);
+        Route::get('{id}', [ReportController::class, 'getReport']);
+
+        // Report Publishing
+        Route::post('{id}/publish', [ReportController::class, 'publishReport'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
+
+        // Digital Signatures
+        Route::post('{id}/signatures', [ReportController::class, 'addSignature'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU|Guru']);
+    });
+
+    // Report Templates - Admin/Staff management
+    Route::prefix('report-templates')->group(function () {
+        Route::get('/', [ReportController::class, 'getTemplates']);
+        Route::post('/', [ReportController::class, 'createTemplate'])->middleware(['role:Super Admin|Kepala Sekolah|Staf TU']);
     });
 });
 });

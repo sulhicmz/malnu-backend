@@ -65,7 +65,7 @@ class CacheService
     {
         ksort($params);
 
-        $hash = md5(json_encode($params));
+        $hash = hash('sha256', json_encode($params));
 
         return $prefix . ':' . $hash;
     }

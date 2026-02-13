@@ -163,7 +163,7 @@ class ErrorMonitoringService
         $file = $exception->getFile();
         $line = $exception->getLine();
 
-        return md5("{$class}:{$file}:{$line}");
+        return hash('sha256', "{$class}:{$file}:{$line}");
     }
 
     /**

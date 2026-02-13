@@ -10,8 +10,10 @@ use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SchoolManagement\AcademicRecordsController;
 use App\Http\Controllers\Api\SchoolManagement\InventoryController;
+use App\Http\Controllers\Api\SchoolManagement\ScheduleController;
 use App\Http\Controllers\Api\SchoolManagement\StudentController;
 use App\Http\Controllers\Api\SchoolManagement\TeacherController;
+use App\Http\Controllers\Api\SchoolManagement\TeacherWorkloadController;
 use App\Http\Controllers\Attendance\LeaveRequestController;
 use App\Http\Controllers\Attendance\LeaveTypeController;
 use App\Http\Controllers\Attendance\StaffAttendanceController;
@@ -116,6 +118,17 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
 
         // Subject Management Routes
         Route::apiResource('subjects', SubjectController::class);
+
+        // Schedule Management Routes
+        Route::apiResource('schedules', ScheduleController::class);
+
+        // Teacher Workload Management Routes
+        Route::apiResource('teacher-workloads', TeacherWorkloadController::class);
+        Route::get('teachers/{teacherId}/workloads', [TeacherWorkloadController::class, 'getByTeacher']);
+        Route::post('teachers/{teacherId}/workloads/calculate', [TeacherWorkloadController::class, 'calculateFromSchedule']);
+        Route::get('teacher-workloads/summary/overview', [TeacherWorkloadController::class, 'getWorkloadSummary']);
+        Route::get('teacher-workloads/status/overloaded', [TeacherWorkloadController::class, 'getOverloadedTeachers']);
+        Route::get('teacher-workloads/status/underloaded', [TeacherWorkloadController::class, 'getUnderloadedTeachers']);
 
         // Inventory Management Routes
         Route::apiResource('inventory', InventoryController::class);

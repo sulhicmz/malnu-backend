@@ -12,7 +12,7 @@ use Throwable;
  * Provides:
  * - Error frequency tracking
  * - Error categorization and metrics
-n * - Alert threshold management
+ * - Alert threshold management
  * - Error trend analysis
  */
 class ErrorMonitoringService

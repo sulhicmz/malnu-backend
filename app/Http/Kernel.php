@@ -63,6 +63,7 @@ class Kernel extends HttpKernel
         'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'mobile' => \App\Http\Middleware\MobileMiddleware::class,
+        'cache.response' => \App\Http\Middleware\CacheResponse::class,
     ];
 
     /**

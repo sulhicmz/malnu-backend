@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Hypervel\Foundation\ClassLoader;
-use Hypervel\Foundation\ClassLoader;
 
 ini_set('display_errors', 'on');
 ini_set('display_startup_errors', 'on');

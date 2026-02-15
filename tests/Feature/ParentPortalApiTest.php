@@ -5,27 +5,29 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Attendance\StudentAttendance;
+use App\Models\ELearning\Assignment;
 use App\Models\Grading\Grade;
 use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Subject;
-use App\Models\ELearning\Assignment;
 use App\Models\User;
 use Tests\TestCase;
 
 /**
- * Parent Portal API Tests
+ * Parent Portal API Tests.
  *
  * Tests for parent portal endpoints including dashboard, grades, attendance, and assignments.
  * Addresses testing requirements from Issue #685 and #22.
+ * @internal
+ * @coversNothing
  */
 class ParentPortalApiTest extends TestCase
 {
     /**
      * Test parent dashboard returns children overview.
      */
-    public function test_dashboard_returns_parent_dashboard()
+    public function testDashboardReturnsParentDashboard()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -49,7 +51,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent dashboard requires authentication.
      */
-    public function test_dashboard_requires_authentication()
+    public function testDashboardRequiresAuthentication()
     {
         $response = $this->get('/api/parent/dashboard');
 
@@ -59,7 +61,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test dashboard returns empty children array for parent without students.
      */
-    public function test_dashboard_returns_empty_for_parent_without_children()
+    public function testDashboardReturnsEmptyForParentWithoutChildren()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -76,7 +78,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent can get grades for their child.
      */
-    public function test_get_child_grades_returns_grades()
+    public function testGetChildGradesReturnsGrades()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -106,11 +108,11 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent cannot access grades of unrelated student.
      */
-    public function test_get_child_grades_denies_access_to_unrelated_student()
+    public function testGetChildGradesDeniesAccessToUnrelatedStudent()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
-        
+
         // Create another parent and student
         $otherUser = User::factory()->create(['role' => 'parent']);
         $otherParent = ParentOrtu::factory()->create(['user_id' => $otherUser->id]);
@@ -132,7 +134,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test get grades requires authentication.
      */
-    public function test_get_child_grades_requires_authentication()
+    public function testGetChildGradesRequiresAuthentication()
     {
         $response = $this->get('/api/parent/children/123/grades');
 
@@ -142,7 +144,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent can get attendance for their child.
      */
-    public function test_get_child_attendance_returns_attendance()
+    public function testGetChildAttendanceReturnsAttendance()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -185,7 +187,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test attendance with date range filtering.
      */
-    public function test_get_child_attendance_with_date_range()
+    public function testGetChildAttendanceWithDateRange()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -225,11 +227,11 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent cannot access attendance of unrelated student.
      */
-    public function test_get_child_attendance_denies_access_to_unrelated_student()
+    public function testGetChildAttendanceDeniesAccessToUnrelatedStudent()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
-        
+
         // Create another parent and student
         $otherUser = User::factory()->create(['role' => 'parent']);
         $otherParent = ParentOrtu::factory()->create(['user_id' => $otherUser->id]);
@@ -248,7 +250,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent can get assignments for their child.
      */
-    public function test_get_child_assignments_returns_assignments()
+    public function testGetChildAssignmentsReturnsAssignments()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -286,11 +288,11 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test parent cannot access assignments of unrelated student.
      */
-    public function test_get_child_assignments_denies_access_to_unrelated_student()
+    public function testGetChildAssignmentsDeniesAccessToUnrelatedStudent()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
-        
+
         // Create another parent and student
         $otherUser = User::factory()->create(['role' => 'parent']);
         $otherParent = ParentOrtu::factory()->create(['user_id' => $otherUser->id]);
@@ -309,12 +311,12 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test multiple children per parent.
      */
-    public function test_dashboard_shows_all_children_for_parent()
+    public function testDashboardShowsAllChildrenForParent()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
         $class = ClassModel::factory()->create();
-        
+
         // Create multiple students for the same parent
         Student::factory()->create([
             'class_id' => $class->id,
@@ -341,7 +343,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test attendance summary calculations.
      */
-    public function test_attendance_summary_calculates_correctly()
+    public function testAttendanceSummaryCalculatesCorrectly()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -388,7 +390,7 @@ class ParentPortalApiTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true);
         $summary = $data['data']['summary'];
-        
+
         $this->assertEquals(10, $summary['total']);
         $this->assertEquals(5, $summary['present']);
         $this->assertEquals(2, $summary['absent']);
@@ -401,7 +403,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test unpublished assignments are not included.
      */
-    public function test_assignments_excludes_unpublished()
+    public function testAssignmentsExcludesUnpublished()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -418,7 +420,7 @@ class ParentPortalApiTest extends TestCase
             'is_published' => true,
             'publish_date' => now()->subDay(),
         ]);
-        
+
         // Create unpublished assignment (should not appear)
         Assignment::factory()->create([
             'virtual_class_id' => $class->id,
@@ -439,7 +441,7 @@ class ParentPortalApiTest extends TestCase
     /**
      * Test future published assignments are not shown until publish date.
      */
-    public function test_assignments_excludes_future_publish_date()
+    public function testAssignmentsExcludesFuturePublishDate()
     {
         $user = User::factory()->create(['role' => 'parent']);
         $parent = ParentOrtu::factory()->create(['user_id' => $user->id]);
@@ -456,7 +458,7 @@ class ParentPortalApiTest extends TestCase
             'is_published' => true,
             'publish_date' => now()->subDay(),
         ]);
-        
+
         // Create future assignment (should appear in upcoming)
         Assignment::factory()->create([
             'virtual_class_id' => $class->id,

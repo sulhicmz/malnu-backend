@@ -9,7 +9,7 @@ use App\Models\SchoolManagement\ClassSubject;
 use App\Models\SchoolManagement\Schedule;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
-use Hyperf\Testing\Client;
+use Hypervel\Testing\TestClient;
 
 /**
  * @internal

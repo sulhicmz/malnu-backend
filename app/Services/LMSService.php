@@ -11,7 +11,7 @@ use App\Models\LMS\Enrollment;
 use App\Models\LMS\CourseProgress;
 use App\Models\LMS\Certificate;
 use App\Models\SchoolManagement\Student;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 class LMSService
 {

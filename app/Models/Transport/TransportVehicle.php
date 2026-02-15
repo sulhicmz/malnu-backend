@@ -6,7 +6,7 @@ namespace App\Models\Transport;
 
 use App\Models\User;
 use App\Traits\UsesUuid;
-use Hyperf\DbConnection\Model\Model;
+use Hypervel\Database\Model\Model;
 
 class TransportVehicle extends Model
 {

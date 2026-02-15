@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Hyperf\Database\Model\Model;
+use Hypervel\Database\Model\Model;
 
 class ModelHasPermission extends Model
 {

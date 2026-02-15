@@ -7,9 +7,9 @@ namespace App\Http\Controllers\Api\FinancialManagement;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\FinancialManagement\Invoice;
 use App\Models\FinancialManagement\Payment;
-use Hyperf\DbConnection\Db;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Support\Facades\DB;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 use OpenApi\Annotations as OA;
 

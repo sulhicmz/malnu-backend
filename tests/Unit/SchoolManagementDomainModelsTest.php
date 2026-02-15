@@ -13,7 +13,7 @@ use App\Models\SchoolManagement\AssetCategory;
 use App\Models\SchoolManagement\AssetAssignment;
 use App\Models\SchoolManagement\AssetMaintenance;
 use App\Models\User;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

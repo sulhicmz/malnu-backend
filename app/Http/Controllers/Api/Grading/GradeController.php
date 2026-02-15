@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\Grading;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Grading\Grade;
 use App\Traits\CrudOperationsTrait;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 use OpenApi\Annotations as OA;
 

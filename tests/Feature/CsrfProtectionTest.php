@@ -22,9 +22,9 @@ class CsrfProtectionTest extends TestCase
     {
         $middleware = new \App\Http\Middleware\VerifyCsrfToken(
             $this->getContainer(),
-            $this->getContainer()->get(\Hyperf\Contract\ConfigInterface::class),
+            $this->getContainer()->get(\Hypervel\Contracts\Config\Repository::class),
             $this->getContainer()->get(\Hypervel\Encryption\Contracts\Encrypter::class),
-            $this->getContainer()->get(\Hyperf\HttpServer\Request::class)
+            $this->getContainer()->get(\Hypervel\Http\Request::class)
         );
 
         $excluded = $middleware->getExcludedPaths();

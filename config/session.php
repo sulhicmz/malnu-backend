@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hyperf\Support\Str;
+use Hypervel\Support\Str;
 
 return [
     /*

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Attendance;
 
-use Hyperf\Foundation\Http\FormRequest;
+use Hypervel\Foundation\Http\FormRequest;
 
 class StoreLeaveRequest extends FormRequest
 {

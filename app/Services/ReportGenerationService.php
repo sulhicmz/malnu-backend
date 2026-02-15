@@ -13,7 +13,7 @@ use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Student;
 use Carbon\Carbon;
 use Exception;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 class ReportGenerationService
 {

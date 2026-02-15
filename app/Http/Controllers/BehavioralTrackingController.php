@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Hyperf\Http\Request;
+use Hypervel\Http\Request;
 use App\Services\BehavioralTrackingService;
 
 class BehavioralTrackingController extends AbstractController

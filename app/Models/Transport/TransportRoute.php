@@ -5,7 +5,7 @@ declare (strict_types = 1);
 namespace App\Models\Transport;
 
 use App\Traits\UsesUuid;
-use Hyperf\DbConnection\Model\Model;
+use Hypervel\Database\Model\Model;
 
 class TransportRoute extends Model
 {

@@ -10,7 +10,7 @@ use App\Models\Grading\Grade;
 use App\Models\ParentPortal\ParentOrtu;
 use App\Models\SchoolManagement\Student;
 use App\Models\User;
-use Hyperf\Database\Model\ModelNotFoundException;
+use Hypervel\Database\Model\ModelNotFoundException;
 
 class ParentPortalService
 {

@@ -16,7 +16,7 @@ use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Subject;
 use App\Models\SchoolManagement\Teacher;
 use Carbon\Carbon;
-use Hyperf\Database\Model\Collection;
+use Hypervel\Support\Collection;
 
 class LearningAnalyticsService
 {

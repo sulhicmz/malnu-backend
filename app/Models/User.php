@@ -30,7 +30,7 @@ use App\Models\SchoolManagement\Staff;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use App\Traits\UsesUuid;
-use Hyperf\Foundation\Auth\User as Authenticatable;
+use Hypervel\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {

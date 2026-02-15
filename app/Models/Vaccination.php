@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Hyperf\Database\Model as BaseModel;
-use Hyperf\Database\Model\Relations\BelongsTo;
+use Hypervel\Database\Model\Model as BaseModel;
+use Hypervel\Database\Model\Relations\BelongsTo;
 
 class Vaccination extends BaseModel
 {

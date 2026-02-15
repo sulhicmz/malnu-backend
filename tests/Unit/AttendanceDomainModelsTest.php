@@ -7,7 +7,7 @@ namespace Tests\Unit;
 use App\Models\Attendance\LeaveRequest;
 use App\Models\Attendance\LeaveType;
 use App\Models\User;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

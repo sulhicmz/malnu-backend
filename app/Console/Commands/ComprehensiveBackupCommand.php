@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Exception;
-use Hyperf\Contract\ConfigInterface;
+use Hypervel\Contracts\Config\Repository;
 use Hypervel\Console\Command;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;

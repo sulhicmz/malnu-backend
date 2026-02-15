@@ -6,7 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Notification\NotificationTemplate;
 use App\Services\NotificationService;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 /**
  * @internal

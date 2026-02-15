@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
-use Hyperf\Redis\Redis;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response as HttpResponse;
+use Hypervel\Support\Facades\Redis;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

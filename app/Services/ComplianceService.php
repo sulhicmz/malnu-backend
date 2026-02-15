@@ -14,7 +14,7 @@ use App\Models\Compliance\ComplianceTrainingCompletion;
 use App\Models\Compliance\DataBreachIncident;
 use App\Models\User;
 use Exception;
-use Hyperf\Context\ApplicationContext;
+use Hypervel\Foundation\Application;
 use Ramsey\Uuid\Uuid;
 
 /**

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Services\CacheService;
-use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
+use Swoole\Http\Response;
+use Hypervel\Http\Response as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -113,7 +113,7 @@ class CacheResponse implements MiddlewareInterface
 
     private function buildCachedResponse(array $cachedData): ResponseInterface
     {
-        $response = \Hyperf\Context\ApplicationContext::getContainer()
+        $response = \Hypervel\Foundation\Application::getContainer()
             ->get(HttpResponse::class);
 
         $response = $response->withStatus($cachedData['status']);

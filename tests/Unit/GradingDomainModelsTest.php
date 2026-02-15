@@ -10,7 +10,7 @@ use App\Models\Grading\Competency;
 use App\Models\Grading\StudentPortfolio;
 use App\Models\SchoolManagement\Student;
 use App\Models\User;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

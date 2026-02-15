@@ -10,7 +10,7 @@ use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\ClassSubject;
 use App\Models\ELearning\VirtualClass;
 use App\Models\CareerDevelopment\CounselingSession;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Contracts\MfaServiceInterface;
-use Hyperf\HttpServer\Contract\RequestInterface;
+use Hypervel\Http\Request;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

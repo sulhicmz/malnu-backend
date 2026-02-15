@@ -11,7 +11,7 @@ use App\Models\SchoolManagement\ClassModel;
 use App\Models\Grading\Grade;
 use App\Models\Attendance\StudentAttendance;
 use App\Models\User;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 class AnalyticsService
 {

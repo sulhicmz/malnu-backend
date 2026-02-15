@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Exceptions;
 
 use App\Services\LoggingService;
-use Hyperf\Foundation\Exceptions\Handler as ExceptionHandler;
-use Hyperf\Http\Request;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Foundation\Exceptions\Handler as ExceptionHandler;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 use Throwable;
 

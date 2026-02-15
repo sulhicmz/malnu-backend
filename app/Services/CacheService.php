@@ -13,7 +13,7 @@ class CacheService
 
     public function __construct()
     {
-        $this->cache = \Hyperf\Context\ApplicationContext::getContainer()
+        $this->cache = \Hypervel\Foundation\Application::getContainer()
             ->get(CacheInterface::class);
     }
 
@@ -110,8 +110,8 @@ class CacheService
     private function getRedisConnection(): mixed
     {
         try {
-            return \Hyperf\Context\ApplicationContext::getContainer()
-                ->get(\Hyperf\Redis\RedisFactory::class)
+            return \Hypervel\Foundation\Application::getContainer()
+                ->get(\Hypervel\Support\Facades\RedisFactory::class)
                 ->get('default');
         } catch (Throwable $e) {
             return null;

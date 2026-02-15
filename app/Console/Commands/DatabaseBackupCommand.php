@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Hypervel\Console\Command;
-use Hyperf\Contract\ConfigInterface;
+use Hypervel\Contracts\Config\Repository;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputOption;
 use App\Helpers\ProcessHelper;

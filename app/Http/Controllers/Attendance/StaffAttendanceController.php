@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Attendance;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Attendance\StaffAttendance;
 use App\Models\SchoolManagement\Staff;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class StaffAttendanceController extends BaseController

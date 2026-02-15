@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Hyperf\Testing\Client;
+use Hypervel\Testing\TestClient;
 use PHPUnit\Framework\TestCase;
 
 /**

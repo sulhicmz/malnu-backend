@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
 use App\Services\GPACalculationService;
 use Exception;
-use Hyperf\Di\Annotation\Inject;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Support\Annotation\Inject;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class StudentMobileController extends BaseController

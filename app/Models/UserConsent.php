@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Model;
-use Hyperf\Database\Model\Relations\BelongsTo;
+use Hypervel\Database\Model\Relations\BelongsTo;
 
 /**
  * UserConsent Model

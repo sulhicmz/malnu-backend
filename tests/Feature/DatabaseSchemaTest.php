@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

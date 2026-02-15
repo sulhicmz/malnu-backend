@@ -6,7 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Model;
 use App\Models\User;
-use Hyperf\Database\Model\Model as BaseModel;
+use Hypervel\Database\Model\Model as BaseModel;
 use Tests\TestCase;
 
 class SoftDeletesTest extends TestCase

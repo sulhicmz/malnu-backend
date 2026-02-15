@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Hyperf\Http\Request;
+use Hypervel\Http\Request;
 
 class IndexController extends AbstractController
 {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\admin;
 
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 
 class HomeController
 {

@@ -80,10 +80,10 @@ class RoleMiddleware
             'timestamp' => date('c'),
         ]);
 
-        $response = new \Hyperf\HttpMessage\Server\Response();
+        $response = new \Hypervel\Http\Response();
         return $response
             ->withStatus($statusCode)
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(new \Hyperf\HttpMessage\Stream\SwooleStream($body));
+            ->withBody(new \Swoole\Http\Response($body));
     }
 }

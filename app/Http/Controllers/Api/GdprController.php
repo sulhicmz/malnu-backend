@@ -9,8 +9,8 @@ use App\Models\User;
 use App\Models\UserConsent;
 use App\Services\Gdpr\DataExportService;
 use App\Services\Gdpr\AccountDeletionService;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class GdprController extends Controller
@@ -169,7 +169,7 @@ class GdprController extends Controller
                 return $response
                     ->withHeader('Content-Type', 'application/json')
                     ->withHeader('Content-Disposition', 'attachment; filename="gdpr-export-' . $user->id . '.json"')
-                    ->withBody(new \Hyperf\Utils\Stream\SwooleStream($data));
+                    ->withBody(new \Hypervel\Http\SwooleStream($data));
             }
 
             if ($format === 'csv') {
@@ -178,7 +178,7 @@ class GdprController extends Controller
                 return $response
                     ->withHeader('Content-Type', 'text/csv')
                     ->withHeader('Content-Disposition', 'attachment; filename="gdpr-export-' . $user->id . '.csv"')
-                    ->withBody(new \Hyperf\Utils\Stream\SwooleStream($data));
+                    ->withBody(new \Hypervel\Http\SwooleStream($data));
             }
 
             return $response->json([

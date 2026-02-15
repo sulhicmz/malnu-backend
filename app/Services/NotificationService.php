@@ -13,7 +13,7 @@ use App\Models\Notification\NotificationUserPreference;
 use App\Models\User;
 use DateTime;
 use Exception;
-use Hyperf\Di\Annotation\Inject;
+use Hypervel\Support\Annotation\Inject;
 
 class NotificationService implements NotificationServiceInterface
 {

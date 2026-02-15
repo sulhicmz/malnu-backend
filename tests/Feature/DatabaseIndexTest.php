@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Exception;
-use Hyperf\DbConnection\Db;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Support\Facades\DB;
+use Hypervel\Foundation\Testing\TestCase;
 use PHPUnit\Framework\Attributes\CoversNothing;
 
 /**

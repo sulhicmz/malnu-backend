@@ -8,8 +8,8 @@ use App\Models\Assessment\Assessment;
 use App\Models\Assessment\Submission;
 use App\Models\SchoolManagement\Student;
 use App\Models\User;
-use Hyperf\DbConnection\Db;
-use Hyperf\Testing\Client;
+use Hypervel\Support\Facades\DB;
+use Hypervel\Testing\TestClient;
 
 class AssessmentTest extends AbstractTestCase
 {

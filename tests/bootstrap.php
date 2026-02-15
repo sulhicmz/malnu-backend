@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Hyperf\Di\ScanHandler\PcntlScanHandler;
+use Hypervel\Foundation\ClassLoader;
 use Hypervel\Foundation\ClassLoader;
 
 ini_set('display_errors', 'on');
@@ -36,4 +36,4 @@ ClassLoader::init(null, null, new PcntlScanHandler());
 
 $app = require BASE_PATH . '/bootstrap/app.php';
 
-$app->get(Hyperf\Contract\ApplicationInterface::class);
+$app->get(Hypervel\Contracts\Foundation\Application::class);

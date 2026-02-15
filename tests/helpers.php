@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Hyperf\Context\ApplicationContext;
-use Hyperf\Testing\ModelFactory;
+use Hypervel\Foundation\Application;
+use Hypervel\Database\Model\Factories\Factory;
 
 if (! function_exists('factory')) {
     function factory(string $class)

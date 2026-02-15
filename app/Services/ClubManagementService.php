@@ -11,7 +11,7 @@ use App\Models\ClubManagement\ActivityAttendance;
 use App\Models\ClubManagement\ClubAdvisor;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 class ClubManagementService
 {

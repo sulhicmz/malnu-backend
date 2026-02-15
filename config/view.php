@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Hyperf\View\Mode;
-use Hyperf\ViewEngine\HyperfViewEngine;
+use Hypervel\View\Mode;
+use Hypervel\View\Engines\PhpEngine;
 
 return [
     'engine' => HyperfViewEngine::class,

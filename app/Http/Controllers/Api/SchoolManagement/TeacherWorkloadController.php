@@ -8,8 +8,8 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\TeacherWorkload;
 use App\Services\SchoolManagement\TeacherWorkloadService;
 use Exception;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class TeacherWorkloadController extends BaseController

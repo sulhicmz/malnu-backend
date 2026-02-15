@@ -12,7 +12,7 @@ use App\Models\SchoolManagement\ClassModel;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Subject;
 use App\Models\User;
-use Hyperf\Test\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 class LearningAnalyticsTest extends TestCase
 {

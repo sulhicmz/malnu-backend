@@ -13,7 +13,7 @@ use App\Models\ClubManagement\ClubAdvisor;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 use App\Services\ClubManagementService;
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 class ClubManagementTest extends TestCase
 {

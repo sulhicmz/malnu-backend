@@ -7,7 +7,7 @@ namespace Tests\Unit;
 use App\Models\DigitalLibrary\BookLoan;
 use App\Models\DigitalLibrary\BookReview;
 use App\Models\User;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

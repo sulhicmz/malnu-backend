@@ -15,7 +15,7 @@ use App\Models\Grading\StudentPortfolio;
 use App\Models\OnlineExam\ExamResult;
 use App\Models\CareerDevelopment\CareerAssessment;
 use App\Models\CareerDevelopment\CounselingSession;
-use Hyperf\Foundation\Testing\TestCase;
+use Hypervel\Foundation\Testing\TestCase;
 
 /**
  * @internal

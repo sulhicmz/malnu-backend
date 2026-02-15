@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
 use App\Services\ComplianceService;
-use Hyperf\Di\Annotation\Inject;
+use Hypervel\Support\Annotation\Inject;
 
 /**
  * ComplianceController.

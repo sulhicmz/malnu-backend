@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Hyperf\Contract\ConfigInterface;
+use Hypervel\Contracts\Config\Repository;
 use Hypervel\Console\Command;
 use Hypervel\Support\Facades\Log;
 use Psr\Container\ContainerInterface;

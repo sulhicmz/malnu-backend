@@ -6,7 +6,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Traits\UsesUuid;
-use Hyperf\Database\Model\Model;
+use Hypervel\Database\Model\Model;
 
 class MfaVerificationAttempt extends Model
 {

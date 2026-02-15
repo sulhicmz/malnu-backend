@@ -17,8 +17,8 @@ use Exception;
 class LeaveRequestController extends BaseController
 {
     public function __construct(
-        \Hyperf\HttpServer\Contract\RequestInterface $request,
-        \Hyperf\HttpServer\Contract\ResponseInterface $response,
+        \Hypervel\Http\Request $request,
+        \Hypervel\Http\Response $response,
         \Psr\Container\ContainerInterface $container
     ) {
         parent::__construct($request, $response, $container);

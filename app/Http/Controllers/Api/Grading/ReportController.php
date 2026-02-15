@@ -9,8 +9,8 @@ use App\Models\Grading\Report;
 use App\Models\Grading\ReportTemplate;
 use App\Services\ReportGenerationService;
 use Exception;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 use OpenApi\Annotations as OA;
 

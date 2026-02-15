@@ -6,12 +6,12 @@ namespace App\Http\Controllers\Transport;
 
 use App\Http\Controllers\AbstractController;
 use App\Services\TransportationService;
-use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\GetMapping;
-use Hyperf\HttpServer\Annotation\PostMapping;
-use Hyperf\HttpServer\Annotation\PutMapping;
-use Hyperf\HttpServer\Annotation\DeleteMapping;
-use Hyperf\HttpServer\Annotation\Middleware;
+use Hypervel\Router\Annotation\Controller;
+use Hypervel\Router\Annotation\GetMapping;
+use Hypervel\Router\Annotation\PostMapping;
+use Hypervel\Router\Annotation\PutMapping;
+use Hypervel\Router\Annotation\DeleteMapping;
+use Hypervel\Router\Annotation\Middleware;
 use App\Http\Middleware\JWTMiddleware;
 use Psr\Http\Message\ResponseInterface;
 

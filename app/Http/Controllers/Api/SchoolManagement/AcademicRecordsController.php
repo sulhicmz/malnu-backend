@@ -9,8 +9,8 @@ use App\Models\SchoolManagement\Student;
 use App\Services\GPACalculationService;
 use App\Services\TranscriptGenerationService;
 use Exception;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class AcademicRecordsController extends BaseController

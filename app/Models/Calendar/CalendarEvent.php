@@ -6,7 +6,7 @@ namespace App\Models\Calendar;
 
 use App\Models\Model;
 use App\Models\User;
-use Hyperf\Database\Model\SoftDeletes;
+use Hypervel\Database\Model\SoftDeletes;
 
 class CalendarEvent extends Model
 {

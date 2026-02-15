@@ -17,8 +17,8 @@ use App\Models\OnlineExam\QuestionBank;
 use App\Models\SchoolManagement\Student;
 use App\Models\User;
 use Carbon\Carbon;
-use Hyperf\DbConnection\Db;
-use Hyperf\Di\Annotation\Inject;
+use Hypervel\Support\Facades\DB;
+use Hypervel\Support\Annotation\Inject;
 
 class AssessmentService
 {
@@ -41,7 +41,7 @@ class AssessmentService
         return $assessment->fresh();
     }
 
-    public function getStudentAssessments(Student $student): \Hyperf\Database\Model\Collection
+    public function getStudentAssessments(Student $student): \Hypervel\Support\Collection
     {
         return Assessment::where('class_id', $student->class_id)
             ->active()

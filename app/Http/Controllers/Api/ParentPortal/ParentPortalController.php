@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\ParentPortal;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Services\ParentPortalService;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use OpenApi\Annotations as OA;
 use Psr\Container\ContainerInterface;
 

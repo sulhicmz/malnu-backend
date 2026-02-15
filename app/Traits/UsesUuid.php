@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use Hyperf\DbConnection\Db;
+use Hypervel\Support\Facades\DB;
 
 trait UsesUuid
 {

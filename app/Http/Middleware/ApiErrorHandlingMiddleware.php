@@ -9,7 +9,7 @@ use App\Exceptions\BusinessLogicException;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

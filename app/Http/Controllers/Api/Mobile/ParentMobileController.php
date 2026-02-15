@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Api\Mobile;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\Student;
 use Exception;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class ParentMobileController extends BaseController

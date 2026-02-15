@@ -7,8 +7,8 @@ namespace App\Http\Controllers\Api\SchoolManagement;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SchoolManagement\AssetCategory;
 use Exception;
-use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hypervel\Http\Request;
+use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
 
 class AssetCategoryController extends BaseController

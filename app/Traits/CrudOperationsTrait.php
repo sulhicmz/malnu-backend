@@ -6,7 +6,7 @@ namespace App\Traits;
 
 use App\Services\CacheService;
 use Exception;
-use Hyperf\Database\Model\Model;
+use Hypervel\Database\Model\Model;
 use Throwable;
 
 trait CrudOperationsTrait
@@ -210,7 +210,7 @@ trait CrudOperationsTrait
 
         if ($this->cache === null) {
             try {
-                $this->cache = \Hyperf\Context\ApplicationContext::getContainer()
+                $this->cache = \Hypervel\Foundation\Application::getContainer()
                     ->get(CacheService::class);
             } catch (Throwable $e) {
                 return null;

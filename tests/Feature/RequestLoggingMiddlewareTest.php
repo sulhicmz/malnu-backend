@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Http\Middleware\RequestLoggingMiddleware;
-use Hyperf\Config\Config;
-use Hyperf\Context\ApplicationContext;
-use Hyperf\Contract\ConfigInterface;
+use Hypervel\Contracts\Config\Repository;
+use Hypervel\Foundation\Application;
+use Hypervel\Contracts\Config\Repository;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;

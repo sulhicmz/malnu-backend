@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Contracts\AuthServiceInterface;
-use Hyperf\Di\Container;
+use Hypervel\Container\Container;
 use HyperfTestFramework\TestCase;
 use ReflectionClass;
 

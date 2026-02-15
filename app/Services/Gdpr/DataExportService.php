@@ -7,7 +7,7 @@ namespace App\Services\Gdpr;
 use App\Models\User;
 use App\Models\UserConsent;
 use App\Models\Logs\AuditLog;
-use Hyperf\Contract\StdoutLoggerInterface;
+use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
 
 /**

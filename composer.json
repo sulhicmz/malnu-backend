@@ -15,8 +15,10 @@
     "require": {
         "php": ">=8.2",
         "ext-redis": "*",
+        "bacon/bacon-qr-code": "^3.0",
         "friendsofhyperf/tinker": "~3.1.0",
         "hypervel/framework": "^0.3",
+        "pragmarx/google2fa": "^9.0",
         "symfony/process": "^7.4"
     },
     "require-dev": {

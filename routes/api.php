@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MfaController;
 use App\Http\Controllers\Api\Notification\NotificationController;
+use App\Http\Controllers\Api\ParentPortal\ParentPortalController;
 use App\Http\Controllers\Api\PasswordChangeController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
@@ -58,6 +60,16 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
     Route::get('/auth/me', [ProfileController::class, 'me']);
     Route::post('/auth/password/change', [PasswordChangeController::class, 'changePassword']);
+
+    // MFA Routes
+    Route::prefix('mfa')->group(function () {
+        Route::post('/setup', [MfaController::class, 'setup']);
+        Route::post('/enable', [MfaController::class, 'enable']);
+        Route::post('/disable', [MfaController::class, 'disable']);
+        Route::get('/status', [MfaController::class, 'status']);
+        Route::post('/verify', [MfaController::class, 'verify']);
+        Route::post('/backup-codes/regenerate', [MfaController::class, 'regenerateBackupCodes']);
+    });
 });
 
 // Attendance and Leave Management Routes (protected with role check)

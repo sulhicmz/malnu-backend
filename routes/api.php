@@ -522,3 +522,26 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::post('/metrics', [AnalyticsController::class, 'recordMetric']);
     });
 });
+
+// GDPR and Privacy Routes (protected with authentication)
+Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
+    Route::prefix('gdpr')->group(function () {
+        // Consent Management
+        Route::get('/consents', [\App\Http\Controllers\Api\GdprController::class, 'getConsentStatus']);
+        Route::post('/consents', [\App\Http\Controllers\Api\GdprController::class, 'recordConsent']);
+        Route::post('/consents/withdraw', [\App\Http\Controllers\Api\GdprController::class, 'withdrawConsent']);
+
+        // Data Portability (GDPR Article 20)
+        Route::get('/export', [\App\Http\Controllers\Api\GdprController::class, 'exportData']);
+
+        // Right to Erasure (GDPR Article 17)
+        Route::get('/deletion/validate', [\App\Http\Controllers\Api\GdprController::class, 'validateDeletion']);
+        Route::post('/deletion/request', [\App\Http\Controllers\Api\GdprController::class, 'deleteAccount']);
+        Route::post('/deletion/cancel', [\App\Http\Controllers\Api\GdprController::class, 'cancelDeletion']);
+    });
+
+    Route::prefix('privacy')->group(function () {
+        Route::get('/policy', [\App\Http\Controllers\Api\GdprController::class, 'getPrivacyPolicy']);
+        Route::get('/terms', [\App\Http\Controllers\Api\GdprController::class, 'getTermsOfService']);
+    });
+});

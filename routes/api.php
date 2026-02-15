@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\FinancialManagement\InvoiceController;
 use App\Http\Controllers\Api\FinancialManagement\PaymentController;
 use App\Http\Controllers\BehavioralTrackingController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Analytics\LearningAnalyticsController;
 use App\Http\Controllers\Alumni\AlumniController;
 use App\Http\Controllers\Api\ComplianceController;
 use Hyperf\Support\Facades\Route;
@@ -520,6 +521,18 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
         Route::get('/classes/{id}/metrics', [AnalyticsController::class, 'classMetrics']);
         Route::post('/reports/generate', [AnalyticsController::class, 'generateReport']);
         Route::post('/metrics', [AnalyticsController::class, 'recordMetric']);
+
+        // Learning Analytics Routes
+        Route::prefix('learning')->group(function () {
+            Route::get('/students/{id}/performance', [LearningAnalyticsController::class, 'studentPerformance']);
+            Route::get('/classes/{id}/performance', [LearningAnalyticsController::class, 'classPerformance']);
+            Route::get('/at-risk-students', [LearningAnalyticsController::class, 'atRiskStudents']);
+            Route::get('/students/{id}/knowledge-gaps', [LearningAnalyticsController::class, 'knowledgeGaps']);
+            Route::post('/activities', [LearningAnalyticsController::class, 'recordActivity']);
+            Route::post('/students/{id}/calculate-metrics', [LearningAnalyticsController::class, 'calculateMetrics']);
+            Route::post('/warnings/{id}/acknowledge', [LearningAnalyticsController::class, 'acknowledgeWarning']);
+            Route::post('/warnings/{id}/resolve', [LearningAnalyticsController::class, 'resolveWarning']);
+        });
     });
 });
 

@@ -17,7 +17,10 @@
         "ext-redis": "*",
         "bacon/bacon-qr-code": "^3.0",
         "friendsofhyperf/tinker": "~3.1.0",
+        "guzzlehttp/guzzle": "^7.9",
         "hypervel/framework": "^0.3",
+        "league/oauth2-server": "^9.1",
+        "onelogin/php-saml": "^4.2",
         "pragmarx/google2fa": "^9.0",
         "symfony/process": "^7.4"
     },

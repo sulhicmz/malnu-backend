@@ -45,6 +45,8 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Analytics\LearningAnalyticsController;
 use App\Http\Controllers\Alumni\AlumniController;
 use App\Http\Controllers\Api\ComplianceController;
+use App\Http\Controllers\Api\Integration\WebhookController;
+use App\Http\Controllers\Api\Integration\IntegrationController;
 use Hyperf\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -556,5 +558,36 @@ Route::group(['middleware' => ['jwt', 'rate.limit']], function () {
     Route::prefix('privacy')->group(function () {
         Route::get('/policy', [\App\Http\Controllers\Api\GdprController::class, 'getPrivacyPolicy']);
         Route::get('/terms', [\App\Http\Controllers\Api\GdprController::class, 'getTermsOfService']);
+    });
+});
+
+// Integration Management Routes (protected with admin role check)
+Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sekolah|Staf TU']], function () {
+    // Webhook Management Routes
+    Route::prefix('webhooks')->group(function () {
+        Route::get('/', [WebhookController::class, 'index']);
+        Route::post('/', [WebhookController::class, 'store']);
+        Route::get('/{id}', [WebhookController::class, 'show']);
+        Route::put('/{id}', [WebhookController::class, 'update']);
+        Route::delete('/{id}', [WebhookController::class, 'destroy']);
+        Route::get('/{id}/deliveries', [WebhookController::class, 'getDeliveries']);
+        Route::get('/{id}/stats', [WebhookController::class, 'getStats']);
+        Route::post('/{id}/test', [WebhookController::class, 'test']);
+        Route::post('/deliveries/{deliveryId}/retry', [WebhookController::class, 'retryDelivery']);
+    });
+
+    // Third-Party Integration Routes
+    Route::prefix('integrations')->group(function () {
+        Route::get('/', [IntegrationController::class, 'index']);
+        Route::post('/', [IntegrationController::class, 'store']);
+        Route::get('/{id}', [IntegrationController::class, 'show']);
+        Route::put('/{id}', [IntegrationController::class, 'update']);
+        Route::delete('/{id}', [IntegrationController::class, 'destroy']);
+        Route::post('/{id}/activate', [IntegrationController::class, 'activate']);
+        Route::post('/{id}/deactivate', [IntegrationController::class, 'deactivate']);
+        Route::post('/{id}/test', [IntegrationController::class, 'test']);
+        Route::post('/{id}/sync', [IntegrationController::class, 'sync']);
+        Route::get('/{id}/sync-logs', [IntegrationController::class, 'getSyncLogs']);
+        Route::get('/{id}/stats', [IntegrationController::class, 'getStats']);
     });
 });

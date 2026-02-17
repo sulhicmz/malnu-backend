@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlignJustify, Bell, Search, Settings, User } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -27,13 +28,14 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
+          <PWAInstallButton variant="minimal" />
+          <button
             className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             aria-label="Notifications"
           >
             <Bell className="h-5 w-5" />
           </button>
-          <button 
+          <button
             className="p-1 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             aria-label="Settings"
           >

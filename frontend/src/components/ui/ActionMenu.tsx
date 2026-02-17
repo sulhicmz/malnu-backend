@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { MoreHorizontal, Edit, User, Trash2, LucideIcon } from 'lucide-react';
+import { MoreHorizontal, LucideIcon } from 'lucide-react';
 
 export interface ActionItem {
   label: string;

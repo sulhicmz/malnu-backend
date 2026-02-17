@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, User } from 'lucide-react';
+import { UserPlus, User, Edit, Trash2 } from 'lucide-react';
 import { studentApi } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
 import SearchFilter from '../../components/ui/SearchFilter';
-import ActionMenu, { ActionItem } from '../../components/ui/ActionMenu';
+import ActionMenu from '../../components/ui/ActionMenu';
 import Pagination from '../../components/ui/Pagination';
 import type { Student } from '../../types/api';
 
@@ -12,7 +12,6 @@ const StudentData: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle real-time updates via WebSocket
   const handleWebSocketMessage = (data: unknown) => {
     const message = data as { type: string; student?: Student; studentId?: string };
     if (message.type === 'student_update' && message.student) {
@@ -30,14 +29,14 @@ const StudentData: React.FC = () => {
     }
   };
 
-  const { isConnected, connectionError } = useWebSocket(handleWebSocketMessage);
+  useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
         const response = await studentApi.getAll();
-        setStudents(response.data.data.data || response.data.data); // Handle both paginated and non-paginated responses
+        setStudents(response.data.data.data || response.data.data);
       } catch {
         setError('Failed to fetch students');
       } finally {
@@ -58,7 +57,6 @@ const StudentData: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter and Search */}
       <SearchFilter
         searchPlaceholder="Cari siswa..."
         filterOptions={[
@@ -74,7 +72,6 @@ const StudentData: React.FC = () => {
         className="mb-6"
       />
 
-      {/* Loading and Error States */}
       {loading && (
         <div className="flex justify-center items-center py-10">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -88,7 +85,6 @@ const StudentData: React.FC = () => {
         </div>
       )}
 
-      {/* Students Table */}
       {!loading && !error && (
         <div className="overflow-x-auto shadow-sm rounded-lg">
           <div className="inline-block min-w-full align-middle">
@@ -116,67 +112,67 @@ const StudentData: React.FC = () => {
                   </th>
                 </tr>
               </thead>
-            <tbody className="bg-white divide-y divide-gray-200" role="rowgroup">
-              {students.map((student, index) => (
-                <tr key={student.id} className="hover:bg-gray-50" role="row">
-                  <td className="px-6 py-4 whitespace-nowrap" role="gridcell">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10" aria-hidden="true">
-                        {student.avatar ? (
-                          <img className="h-10 w-10 rounded-full" src={student.avatar} alt={`Avatar of ${student.name}`} />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <User className="h-5 w-5 text-gray-500" />
-                          </div>
-                        )}
+              <tbody className="bg-white divide-y divide-gray-200" role="rowgroup">
+                {students.map((student) => (
+                  <tr key={student.id} className="hover:bg-gray-50" role="row">
+                    <td className="px-6 py-4 whitespace-nowrap" role="gridcell">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10" aria-hidden="true">
+                          {student.avatar ? (
+                            <img className="h-10 w-10 rounded-full" src={student.avatar} alt={`Avatar of ${student.name}`} />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                              <User className="h-5 w-5 text-gray-500" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                          <div className="text-sm text-gray-500">{student.email}</div>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">{student.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
-                    {student.nisn}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
-                    {student.class}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
-                    {student.enrollmentYear}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap" role="gridcell">
-                    <span 
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        student.status === 'active' ? 'bg-green-100 text-green-800' : 
-                        student.status === 'inactive' ? 'bg-red-100 text-red-800' : 
-                        'bg-yellow-100 text-yellow-800'
-                      }`}
-                      aria-label={`Student status: ${student.status === 'active' ? 'Active' : student.status === 'inactive' ? 'Inactive' : 'On leave'}`}
-                    >
-                      {student.status === 'active' ? 'Aktif' : 
-                       student.status === 'inactive' ? 'Non-Aktif' : 
-                       'Cuti'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" role="gridcell">
-                    <ActionMenu
-                      label={`Actions for ${student.name}`}
-                      actions={[
-                        { label: 'Edit Siswa', icon: Edit, onClick: () => console.log('Edit', student.id) },
-                        { label: 'Lihat Detail', icon: User, onClick: () => console.log('View', student.id) },
-                        { label: 'Hapus Siswa', icon: Trash2, onClick: () => console.log('Delete', student.id), variant: 'danger' },
-                      ]}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
+                      {student.nisn}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
+                      {student.class}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
+                      {student.enrollmentYear}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap" role="gridcell">
+                      <span 
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          student.status === 'active' ? 'bg-green-100 text-green-800' : 
+                          student.status === 'inactive' ? 'bg-red-100 text-red-800' : 
+                          'bg-yellow-100 text-yellow-800'
+                        }`}
+                        aria-label={`Status: ${student.status}`}
+                      >
+                        {student.status === 'active' ? 'Aktif' : 
+                         student.status === 'inactive' ? 'Non-Aktif' : 
+                         'Cuti'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" role="gridcell">
+                      <ActionMenu
+                        label={`Actions for ${student.name}`}
+                        actions={[
+                          { label: 'Edit Siswa', icon: Edit, onClick: () => console.log('Edit', student.id) },
+                          { label: 'Lihat Detail', icon: User, onClick: () => console.log('View', student.id) },
+                          { label: 'Hapus Siswa', icon: Trash2, onClick: () => console.log('Delete', student.id), variant: 'danger' },
+                        ]}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Pagination - will be updated when we have actual pagination data */}
       {!loading && !error && students.length > 0 && (
         <Pagination
           currentPage={1}

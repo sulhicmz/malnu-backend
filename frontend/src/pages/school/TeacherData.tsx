@@ -28,7 +28,7 @@ const TeacherData: React.FC = () => {
     }
   };
 
-  const { isConnected, connectionError } = useWebSocket(handleWebSocketMessage);
+  useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     const fetchTeachers = async () => {

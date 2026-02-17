@@ -125,7 +125,7 @@ const TeachingSchedule: React.FC = () => {
                       {timeSlot}
                     </div>
                   </td>
-                  {days.map((day, dayIndex) => {
+                  {days.map((day) => {
                     // Determine if there's a class scheduled for this slot
                     const hasClass = Math.random() > 0.5; // Mock data logic
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp, ArrowDown, LucideIcon } from 'lucide-react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 
 interface StatCardProps {
   title: string;

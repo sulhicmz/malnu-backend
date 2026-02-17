@@ -29,7 +29,7 @@ const StudentData: React.FC = () => {
     }
   };
 
-  const { isConnected, connectionError } = useWebSocket(handleWebSocketMessage);
+  useWebSocket(handleWebSocketMessage);
 
   useEffect(() => {
     const fetchStudents = async () => {

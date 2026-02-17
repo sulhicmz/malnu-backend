@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, School, Users, BookOpen, AlignCenterVertical as Certificate, PenTool, Library, Bot, Briefcase, UserCheck, ShoppingCart, BarChart, Settings, User, X } from 'lucide-react';
+import { LayoutDashboard, School, Users, BookOpen, Bot, Settings, User, X } from 'lucide-react';
 
 interface SidebarProps {
   closeSidebar?: () => void;

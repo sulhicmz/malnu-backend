@@ -9,7 +9,7 @@ use App\Models\Attendance\StudentAttendance;
 use App\Models\SchoolManagement\Student;
 use App\Models\SchoolManagement\Teacher;
 
-class AttendanceService
+class AttendanceService implements \App\Contracts\AttendanceServiceInterface
 {
     private int $chronicAbsenceThreshold;
 

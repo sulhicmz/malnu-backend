@@ -31,6 +31,38 @@ php artisan migrate
 php artisan start
 ```
 
+### Using Make (Recommended)
+
+This project includes a `Makefile` with unified developer commands. Run `make help` to see all available commands:
+
+```bash
+# View all available commands
+make help
+
+# Quick setup (install, env, migrate)
+make setup
+
+# Start Docker services
+make up
+
+# Run tests
+make test
+
+# Run all checks (lint, analyse, test)
+make check
+```
+
+**Common commands:**
+| Command | Description |
+|---------|-------------|
+| `make setup` | Complete project setup |
+| `make up` / `make down` | Start/stop Docker services |
+| `make test` | Run PHPUnit tests |
+| `make lint` | Check code style |
+| `make analyse` | Run PHPStan |
+| `make check` | Run all quality checks |
+| `make db-reset` | Reset and reseed database |
+
 **Note**: The `setup-env.sh` script automatically generates secure random values for `APP_KEY` and `JWT_SECRET`. For production, always regenerate these secrets using:
 ```bash
 openssl rand -base64 32  # For APP_KEY

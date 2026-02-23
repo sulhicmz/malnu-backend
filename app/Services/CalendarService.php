@@ -9,6 +9,8 @@ use App\Contracts\CalendarServiceInterface;
 use App\Models\Calendar\CalendarEventRegistration;
 use App\Models\Calendar\CalendarShare;
 use App\Models\Calendar\ResourceBooking;
+use App\Models\Calendar\Calendar;
+use App\Models\Calendar\CalendarEvent;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;

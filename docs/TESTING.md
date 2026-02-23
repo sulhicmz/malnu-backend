@@ -377,6 +377,28 @@ Aim for:
 - Test both success and failure paths
 - Test edge cases and error conditions
 
+## Known Test Quality Issues
+
+The following test files have skipped tests that need attention:
+
+| Test File | Skipped Tests | Reason | Priority |
+|-----------|--------------|--------|----------|
+| `tests/Feature/JwtSecretValidationTest.php` | 5 | Requires full framework bootstrap | High |
+| `tests/Feature/SoftDeletesTest.php` | 6 | Requires database connection | Medium |
+| `tests/Feature/LMSTest.php` | 7+ | No course/data available | Medium |
+| `tests/Feature/AttendanceTest.php` | 10+ | No student/class data available | Medium |
+| `tests/Feature/BehavioralTrackingTest.php` | 9+ | No student/user data available | Medium |
+| `tests/Feature/AlumniManagementTest.php` | 12+ | No alumni profile data available | Medium |
+
+### Action Items
+
+1. **JwtSecretValidationTest**: Refactor to work without full framework bootstrap, or create integration test variant
+2. **SoftDeletesTest**: Implement tests using in-memory SQLite database
+3. **Data-dependent tests**: Use test factories to ensure required data exists before running tests
+
+### Tracking
+
+Track progress on resolving skipped tests via GitHub issues labeled `quality-assurance`.
 ## Resources
 
 - [PHPUnit Documentation](https://phpunit.de/documentation.html)

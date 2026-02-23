@@ -7,8 +7,14 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: true
     checkGenericClassInNonGenericObjectType: true
+    # Treat PHPDoc types as uncertain to catch type mismatches
+    treatPhpDocTypesAsCertain: false
+    # Report incorrect PHPDoc types for better documentation accuracy
+    reportWrongPhpDocType: true
     excludePaths:
         - tests/TestCase.php
         - tests/bootstrap.php
     ignoreErrors: []
     tipsOfTheDay: false
+    # Uncomment to use baseline for gradual improvement of legacy code:
+    # baselinePath: phpstan-baseline.neon

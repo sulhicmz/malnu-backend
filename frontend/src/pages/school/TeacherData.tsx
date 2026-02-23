@@ -10,6 +10,7 @@ const TeacherData: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showActionMenu, setShowActionMenu] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Handle real-time updates via WebSocket
   const handleWebSocketMessage = (data: unknown) => {
@@ -53,6 +54,11 @@ const TeacherData: React.FC = () => {
     } else {
       setShowActionMenu(index);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Future: Fetch paginated data from API
   };
 
   return (
@@ -200,12 +206,12 @@ const TeacherData: React.FC = () => {
         </div>
       )}
 
-      {/* Pagination - will be updated when we have actual pagination data */}
+      {/* Pagination */}
       {!loading && !error && teachers.length > 0 && (
         <Pagination
-          currentPage={1}
+          currentPage={currentPage}
           totalPages={3}
-          onPageChange={(page) => console.log('Page changed to', page)}
+          onPageChange={handlePageChange}
           totalItems={teachers.length}
           itemsPerPage={teachers.length}
         />

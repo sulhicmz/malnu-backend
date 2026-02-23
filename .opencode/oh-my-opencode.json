@@ -10,6 +10,14 @@
       "model": "opencode/glm-4.7-free",
       "temperature": 0.1
     },
+    "metis": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.1
+    },
+    "momus": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.1
+    },
     "frontend-ui-ux-engineer": {
       "model": "opencode/minimax-m2.1-free",
       "temperature": 0.3
@@ -24,6 +32,58 @@
     },
     "cmz": {
       "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.2
+    },
+    "system-architect": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.1
+    },
+    "RnD": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.3
+    },
+    "Product-Architect": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.2
+    },
+    "ai-agent-engineer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.2
+    },
+    "backend-engineer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.2
+    },
+    "frontend-engineer": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.3
+    },
+    "ui-ux-engineer": {
+      "model": "opencode/minimax-m2.1-free",
+      "temperature": 0.3
+    },
+    "platform-engineer": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.2
+    },
+    "security-engineer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.1
+    },
+    "quality-assurance": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.2
+    },
+    "DX-engineer": {
+      "model": "opencode/glm-4.7-free",
+      "temperature": 0.3
+    },
+    "technical-writer": {
+      "model": "opencode/kimi-k2.5-free",
+      "temperature": 0.3
+    },
+    "user-story-engineer": {
+      "model": "opencode/glm-4.7-free",
       "temperature": 0.2
     }
   },
@@ -45,7 +105,7 @@
   },
   "background_tasks": {
     "enabled": true,
-    "concurrency": 3
+    "concurrency": 10
   },
   "hooks": {
     "todo_enforcer": true,

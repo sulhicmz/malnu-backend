@@ -7,7 +7,8 @@
         db-migrate db-reset db-seed db-fresh \
         docker-build docker-logs docker-shell docker-mysql docker-redis \
         clean cache-clear config-clear optimize \
-        start stop watch
+        start stop watch \
+        dev dev-bg dev-stop dev-logs dev-reset dev-status
 
 # Default target
 .DEFAULT_GOAL := help
@@ -16,6 +17,7 @@
 BLUE := \033[0;34m
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
+RED := \033[0;31m
 NC := \033[0m
 
 # ==============================================================================
@@ -181,3 +183,48 @@ clean: ## Clean generated files and cache
 	rm -rf coverage
 	php artisan cache:clear
 	php artisan config:clear
+
+
+# ==============================================================================
+## Development (One-Command Startup)
+## ==============================================================================
+
+dev: ## Start full dev environment (app + frontend + db) in foreground
+	@echo "$(BLUE)Starting development environment...$(NC)"
+	@echo "$(YELLOW)Press Ctrl+C to stop all services$(NC)"
+	@echo ""
+	docker-compose up app frontend
+
+dev-bg: ## Start full dev environment in background (detached)
+	@echo "$(BLUE)Starting development environment in background...$(NC)"
+	docker-compose up -d app frontend
+	@echo "$(GREEN)✓ Services started$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Useful commands:$(NC)"
+	@echo "  make dev-logs     - View logs from all services"
+	@echo "  make dev-status   - Check service health"
+	@echo "  make dev-stop     - Stop all services"
+	@echo ""
+
+dev-stop: ## Stop all development services
+	@echo "$(YELLOW)Stopping development environment...$(NC)"
+	docker-compose down
+	@echo "$(GREEN)✓ All services stopped$(NC)"
+
+dev-logs: ## View logs from all development services
+	docker-compose logs -f --tail=100 app frontend mysql redis
+
+dev-status: ## Check development environment status
+	@echo "$(BLUE)Development Environment Status$(NC)"
+	@echo "================================"
+	@docker-compose ps app frontend mysql redis 2>/dev/null || echo "$(YELLOW)No services running$(NC)"
+
+dev-reset: ## Full reset: stop, clean volumes, restart fresh
+	@echo "$(RED)⚠ This will delete all database data!$(NC)"
+	@read -p "Continue? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
+	@echo "$(YELLOW)Stopping services...$(NC)"
+	docker-compose down -v
+	@echo "$(YELLOW)Starting fresh environment...$(NC)"
+	docker-compose up -d app frontend
+	@echo "$(GREEN)✓ Fresh environment started$(NC)"
+	@echo "$(YELLOW)Run 'make db-migrate' to set up the database$(NC)"

@@ -55,6 +55,9 @@ make check
 **Common commands:**
 | Command | Description |
 |---------|-------------|
+| `make dev` | **Start full dev environment (one command)** |
+| `make dev-bg` | Start dev environment in background |
+| `make dev-stop` | Stop all development services |
 | `make setup` | Complete project setup |
 | `make up` / `make down` | Start/stop Docker services |
 | `make test` | Run PHPUnit tests |

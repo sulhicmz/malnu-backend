@@ -426,7 +426,7 @@ This repository uses an AI-driven automation system built on **OpenCode CLI** an
 
 ---
 
-### 10. oc- researcher.yml
+### 10. oc-researcher.yml
 
 **Purpose**: OpenCode research agent for exploring and analyzing codebase patterns, documentation, and implementations.
 

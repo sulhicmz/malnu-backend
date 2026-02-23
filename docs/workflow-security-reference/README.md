@@ -61,7 +61,7 @@ git push
 
 | File | Purpose | Permissions After | Removed |
 |-------|---------|-------------------|----------|
-| `oc- researcher.yml` | Research and issue creation | contents:read, pull-requests:write, issues:write | id-token, actions, deployments, packages, pages, security-events |
+| `oc-researcher.yml` | Research and issue creation | contents:read, pull-requests:write, issues:write | id-token, actions, deployments, packages, pages, security-events |
 | `oc-maintainer.yml` | Repository maintenance | contents:write, pull-requests:write, issues:write | actions, duplicate job-level |
 | `oc-cf-supabase.yml` | DevOps & Cloudflare deployment | contents:write, deployments:write | packages, id-token, duplicate job-level |
 | `oc-issue-solver.yml` | Issue resolution | contents:write, pull-requests:write, issues:write | actions, duplicate job-level |

@@ -21,7 +21,7 @@ NC='\033[0m' # No Color
 # Workflow files to update
 WORKFLOW_DIR=".github/workflows"
 declare -A WORKFLOWS=(
-  ["oc- researcher.yml"]="contents:read, pull-requests:write, issues:write"
+  ["oc-researcher.yml"]="contents:read, pull-requests:write, issues:write"
   ["oc-maintainer.yml"]="contents:write, pull-requests:write, issues:write"
   ["oc-cf-supabase.yml"]="contents:write, deployments:write"
   ["oc-issue-solver.yml"]="contents:write, pull-requests:write, issues:write"
@@ -76,7 +76,7 @@ for file in "${!WORKFLOWS[@]}"; do
 
   # For files with comment pattern
   case "$file" in
-    "oc- researcher.yml"|"oc-maintainer.yml"|"oc-issue-solver.yml"|"oc-pr-handler.yml"|"oc-problem-finder.yml")
+    "oc-researcher.yml"|"oc-maintainer.yml"|"oc-issue-solver.yml"|"oc-pr-handler.yml"|"oc-problem-finder.yml")
       # Remove id-token, actions, deployments, packages, pages, security-events permissions
       # These are not needed for issue/PR management workflows
       sed -i \

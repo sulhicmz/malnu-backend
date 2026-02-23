@@ -131,9 +131,9 @@ The repository uses 6 OpenCode AI agent workflows to automate development, maint
 
 ---
 
-### 4. oc- researcher
+### 4. oc-researcher
 
-**File:** `.github/workflows/oc- researcher.yml` (note: filename contains a space)
+**File:** `.github/workflows/oc-researcher.yml`
 
 **Schedule:** Daily at 1AM UTC (`0 1 * * *`)
 
@@ -463,7 +463,7 @@ Different agents use different AI models:
 | oc-issue-solver | opencode/glm-4.7-free | Issue solving |
 | oc-problem-finder | iflowcn/qwen3-coder-plus | Problem identification |
 | oc-maintainer | opencode/glm-4.7-free | Maintenance |
-| oc- researcher | iflowcn/glm-4.6 | Research |
+| oc-researcher | iflowcn/glm-4.6 | Research |
 | oc-pr-handler | opencode/glm-4.7-free | PR handling |
 | oc-cf-supabase | iflowcn/glm-4.6 | DevOps |
 
@@ -504,6 +504,6 @@ Different agents use different AI models:
 | oc-issue-solver | Every 30 min | Solve issues | glm-4.7-free |
 | oc-problem-finder | Daily (00:00 UTC) | Find problems | qwen3-coder-plus |
 | oc-maintainer | Daily (03:00 UTC) | Repository maintenance | glm-4.7-free |
-| oc- researcher | Daily (01:00 UTC) | Research features | glm-4.6 |
+| oc-researcher | Daily (01:00 UTC) | Research features | glm-4.6 |
 | oc-pr-handler | 3x daily (09:00, 15:00, 21:00 UTC) | Handle PRs | glm-4.7-free |
 | oc-cf-supabase | Manual only | DevOps (Cloudflare/Supabase) | glm-4.6 |

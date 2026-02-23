@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 
 use Hypervel\Http\Request;
 use Hypervel\Http\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 
 abstract class Controller
 {

@@ -13,8 +13,8 @@
 ### Architecture Pattern
 - **Domain-Driven Design**: Models organized by business domains
 - **MVC Pattern**: Model-View-Controller architecture
-- **Repository Pattern**: Data access abstraction (planned)
-- **Service Layer**: Business logic separation (planned)
+- **Repository Pattern**: Data access abstraction (implemented)
+- **Service Layer**: Business logic separation (implemented)
 
 ## 📁 Directory Structure
 
@@ -39,6 +39,9 @@ malnu-backend/
 │   │   ├── ParentPortal/         # Parent access
 │   │   ├── PPDB/                 # Student registration
 │   │   └── SchoolManagement/     # Core school operations
+│   ├── Services/                 # Business logic services
+│   ├── Repositories/             # Data access layer
+│   ├── Contracts/                # Service interfaces
 │   ├── Providers/                # Service providers
 │   └── Traits/                   # Reusable traits
 ├── config/                       # Configuration files

@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Hypervel\Http\Request;
 use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;
 
 class BaseController extends Controller

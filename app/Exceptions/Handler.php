@@ -9,6 +9,7 @@ use Hypervel\Foundation\Exceptions\Handler as ExceptionHandler;
 use Hypervel\Http\Request;
 use Hypervel\Http\Response;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 /**

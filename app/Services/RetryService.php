@@ -25,7 +25,7 @@ class RetryService
         ]);
     }
 
-    public function execute(callable $operation, array $options = [])
+    public function execute(callable $operation, array $options = []): mixed
     {
         $maxAttempts = $options['max_attempts'] ?? $this->config['max_attempts'];
         $initialDelay = $options['initial_delay'] ?? $this->config['initial_delay'];
@@ -92,7 +92,7 @@ class RetryService
         CircuitBreakerService $circuitBreaker,
         ?callable $fallback = null,
         array $retryOptions = []
-    ) {
+    ): mixed {
         return $circuitBreaker->call(
             $service,
             function () use ($operation, $retryOptions) {

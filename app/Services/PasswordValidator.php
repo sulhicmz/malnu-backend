@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+/**
+ * Validates user passwords against security requirements.
+ *
+ * This service enforces password complexity rules including:
+ * - Minimum length of 8 characters
+ * - At least one uppercase letter
+ * - At least one lowercase letter
+ * - At least one number
+ * - At least one special character
+ * - Not a common/weak password
+ */
 class PasswordValidator
 {
     private array $commonPasswords;
@@ -34,6 +45,12 @@ class PasswordValidator
         ];
     }
 
+    /**
+     * Validates a password against security requirements.
+     *
+     * @param string $password The password to validate
+     * @return array<int, string> Array of validation error messages (empty if valid)
+     */
     public function validate(string $password): array
     {
         $errors = [];
@@ -65,6 +82,12 @@ class PasswordValidator
         return $errors;
     }
 
+    /**
+     * Checks if a password meets all security requirements.
+     *
+     * @param string $password The password to check
+     * @return bool True if password is valid, false otherwise
+     */
     public function isValid(string $password): bool
     {
         return empty($this->validate($password));

@@ -47,7 +47,7 @@ Use milestones to track phases:
 
 ### M3: Additional Domains
 - **Target:** March 31, 2026
-- **Issues:** TBD
+- **Issues:** [To be determined - depends on M1/M2 completion]
 - **Status:** Not Started
 
 ### M4: Frontend Development

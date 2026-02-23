@@ -9,18 +9,18 @@ This directory contains versioned and outdated documentation files that have bee
 The following versioned Orchestrator analysis reports have been superseded by newer versions:
 
 - `ORCHESTRATOR_ANALYSIS_REPORT_v7.md` through `ORCHESTRATOR_ANALYSIS_REPORT_v11.md` - Historical analysis reports
-- **Current version**: `ORCHESTRATOR_ANALYSIS_REPORT_v12.md` (in main docs/ directory)
+- **Current version**: `ORCHESTRATOR_ANALYSIS_REPORT.md` (in main docs/ directory)
 
 ### Orchestrator Action Plans
 
 - `ORCHESTRATOR_ACTION_PLAN_v11.md` - Historical action plan
-- **Current version**: `ORCHESTRATOR_ACTION_PLAN_v12.md` (in main docs/ directory)
+- **Current version**: `ORCHESTRATOR_ACTION_PLAN.md` (in main docs/ directory)
 
 ### Orchestrator Summaries
 
 - `ORCHESTRATOR_v11_SUMMARY.md` - Historical summary
 - `ORCHESTRATOR_v12_SUMMARY.md` - Historical summary
-- **Current version**: These have been consolidated into `ORCHESTRATOR_ANALYSIS_REPORT_v12.md`
+- **Current version**: `ORCHESTRATOR_SUMMARY.md` (in main docs/ directory)
 
 ### GitHub Projects Setup
 

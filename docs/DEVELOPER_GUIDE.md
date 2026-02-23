@@ -454,7 +454,17 @@ class AuthControllerTest extends TestCase
 
 #### Frontend Tests
 
-Create tests for React components (TBD).
+Create tests for React components using Vitest and React Testing Library:
+
+```bash
+# Run frontend tests
+cd frontend && npm test
+
+# Run with coverage
+npm test -- --coverage
+```
+
+Follow existing patterns in `frontend/src/__tests__/` or create test files alongside components.
 
 ### Running Tests
 

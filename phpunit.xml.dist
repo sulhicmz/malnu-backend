@@ -42,5 +42,6 @@
          <env name="DB_CONNECTION" value="sqlite_testing" force="true"/>
          <env name="CACHE_DRIVER" value="array" force="true"/>
          <env name="QUEUE_CONNECTION" value="sync"/>
+         <env name="JWT_SECRET" value="test_jwt_secret_for_testing_only_not_for_production" force="true"/>
      </php>
  </phpunit>

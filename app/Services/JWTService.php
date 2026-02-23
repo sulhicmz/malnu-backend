@@ -21,15 +21,10 @@ class JWTService implements JWTServiceInterface
         $this->ttl = config('jwt.ttl', 120); // in minutes
         $this->refreshTtl = config('jwt.refresh_ttl', 20160); // in minutes
 
-        // Validate that JWT_SECRET is properly set in production environments
-        $appEnv = config('app.env', 'production');
-        if (empty($this->secret) && $appEnv !== 'testing') {
+        // Validate that JWT_SECRET is properly set in ALL environments
+        // This prevents accidental use of weak/predictable secrets
+        if (empty($this->secret)) {
             throw new Exception('JWT_SECRET is not configured. Please set JWT_SECRET in your environment variables.');
-        }
-
-        // For testing environments, use a default secret if not set
-        if (empty($this->secret) && $appEnv === 'testing') {
-            $this->secret = 'test_secret_key_for_testing_purposes_only';
         }
     }
 

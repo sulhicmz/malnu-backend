@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Services\ClubManagementService;
 use Psr\Http\Message\ServerRequestInterface;
 
-class MembershipController extends BaseController
+class ClubMembershipController extends BaseController
 {
     private ClubManagementService $clubManagementService;
 

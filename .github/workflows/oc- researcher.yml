@@ -24,7 +24,7 @@ concurrency:
 jobs:
   opencode:
     name: OC
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
     permissions:
       id-token: write
@@ -54,7 +54,7 @@ jobs:
         id: run_agent1
         timeout-minutes: 20
         run: |
-          opencode run "$(cat <<'PROMPT'
+          opencode run ulw: "$(cat <<'PROMPT'
             You are an AI GitHub Repository Researcher working inside a single GitHub repository.
             
             Your primary goals are:
@@ -287,5 +287,5 @@ jobs:
 
           PROMPT
           )" \
-            --model iflowcn/glm-4.6 \
+            --model opencode/glm-5-free \
             --share false \

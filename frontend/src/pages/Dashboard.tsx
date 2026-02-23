@@ -3,6 +3,18 @@ import { Users, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import StatCard from '../components/ui/StatCard';
 
+// Color mapping for Tailwind CSS - required because Tailwind performs
+// static analysis at build time and cannot detect dynamic class names
+const activityColorClasses: Record<string, string> = {
+  blue: 'bg-blue-100',
+  purple: 'bg-purple-100',
+  green: 'bg-green-100',
+  orange: 'bg-orange-100',
+  red: 'bg-red-100',
+  yellow: 'bg-yellow-100',
+  pink: 'bg-pink-100',
+};
+
 const Dashboard: React.FC = () => {
   // Mock data for charts
   const attendanceData = [
@@ -130,9 +142,9 @@ const Dashboard: React.FC = () => {
         <div className="lg:col-span-2 bg-white p-5 rounded-lg shadow-sm">
           <h2 className="text-lg font-medium text-gray-800 mb-4">Aktivitas Terbaru</h2>
           <div className="space-y-4">
-            {activities.map((activity, index) => (
-              <div key={index} className="flex items-start">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-${activity.color}-100`} aria-hidden="true">
+            {activities.map((activity) => (
+              <div key={activity.id} className="flex items-start">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${activityColorClasses[activity.color] || 'bg-gray-100'}`} aria-hidden="true">
                   {activity.icon}
                 </div>
                 <div className="flex-1">
@@ -179,24 +191,28 @@ const Dashboard: React.FC = () => {
 // Mock data for recent activities
 const activities = [
   {
+    id: 'activity-1',
     icon: <Users className="h-5 w-5 text-blue-600" />,
     title: 'Siswa baru ditambahkan ke kelas X-A',
     time: '35 menit yang lalu',
     color: 'blue'
   },
   {
+    id: 'activity-2',
     icon: <GraduationCap className="h-5 w-5 text-purple-600" />,
     title: 'Ibu Siti mengunggah nilai UTS Matematika',
     time: '1 jam yang lalu',
     color: 'purple'
   },
   {
+    id: 'activity-3',
     icon: <BookOpen className="h-5 w-5 text-green-600" />,
     title: 'Materi pembelajaran baru ditambahkan untuk Fisika',
     time: '3 jam yang lalu',
     color: 'green'
   },
   {
+    id: 'activity-4',
     icon: <Calendar className="h-5 w-5 text-orange-600" />,
     title: 'Jadwal UAS semester ganjil diperbarui',
     time: '5 jam yang lalu',

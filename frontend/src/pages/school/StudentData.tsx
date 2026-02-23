@@ -186,15 +186,4 @@ const StudentData: React.FC = () => {
   );
 };
 
-interface Student {
-  id: string;
-  name: string;
-  nisn: string;
-  class: string;
-  enrollmentYear: string;
-  status: 'active' | 'inactive' | 'leave';
-  email: string;
-  avatar?: string;
-}
-
 export default StudentData;

@@ -10,6 +10,19 @@ interface StatCardProps {
   color: string;
 }
 
+// Color mapping for Tailwind CSS - required because Tailwind performs
+// static analysis at build time and cannot detect dynamic class names
+const colorClasses: Record<string, string> = {
+  blue: 'bg-blue-100',
+  purple: 'bg-purple-100',
+  green: 'bg-green-100',
+  orange: 'bg-orange-100',
+  red: 'bg-red-100',
+  yellow: 'bg-yellow-100',
+  pink: 'bg-pink-100',
+  indigo: 'bg-indigo-100',
+};
+
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, icon, color }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
@@ -27,7 +40,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, i
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-full bg-${color}-100`} aria-hidden="true">
+        <div className={`p-3 rounded-full ${colorClasses[color] || 'bg-gray-100'}`} aria-hidden="true">
           {icon}
         </div>
       </div>

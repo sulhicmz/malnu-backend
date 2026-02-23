@@ -107,26 +107,29 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
           <div>
             <button
               onClick={() => toggleMenu('school')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.school}
+              aria-controls="school-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <School className="h-5 w-5 text-gray-500" />
+                <School className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Manajemen Sekolah</span>
               </div>
               <svg
-                className={`${openMenus.school ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`}
+                className={`${openMenus.school ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.school && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="school-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="School management submenu">
                 <Link
                   to="/school/students"
                   className={`${isActive('/school/students') ? 'bg-blue-50 text-blue-700' : 'text-gray-600'} group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700`}
@@ -171,27 +174,30 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
           <div>
             <button
               onClick={() => toggleMenu('ppdb')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.ppdb}
+              aria-controls="ppdb-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <Users className="h-5 w-5 text-gray-500" />
+                <Users className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">PPDB Online</span>
                 <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">New</span>
               </div>
               <svg
-                className={`${openMenus.ppdb ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`}
+                className={`${openMenus.ppdb ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.ppdb && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="ppdb-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="PPDB submenu">
                 <Link
                   to="/ppdb/registration"
                   className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700"
@@ -226,22 +232,33 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
             )}
           </div>
 
-          {/* Other sections follow the same pattern */}
+          {/* E-Learning Section */}
           <div>
             <button
               onClick={() => toggleMenu('elearning')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.elearning}
+              aria-controls="elearning-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <BookOpen className="h-5 w-5 text-gray-500" />
+                <BookOpen className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">E-Learning</span>
               </div>
-              <svg className={`${openMenus.elearning ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg 
+                className={`${openMenus.elearning ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.elearning && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="elearning-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="E-Learning submenu">
                 <Link to="/elearning/classes" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Kelas Virtual</Link>
                 <Link to="/elearning/materials" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Materi Pembelajaran</Link>
                 <Link to="/elearning/assignments" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Tugas & Quiz</Link>
@@ -261,19 +278,30 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
           <div>
             <button
               onClick={() => toggleMenu('ai')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.ai}
+              aria-controls="ai-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <Bot className="h-5 w-5 text-gray-500" />
+                <Bot className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">AI Learning Assistant</span>
                 <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">PRO</span>
               </div>
-              <svg className={`${openMenus.ai ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg 
+                className={`${openMenus.ai ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.ai && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="ai-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="AI Learning Assistant submenu">
                 <Link to="/ai/tutor" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Tutor Virtual</Link>
                 <Link to="/ai/content" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Pembuatan Materi Otomatis</Link>
                 <Link to="/ai/assessment" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Penilaian Esai AI</Link>
@@ -286,18 +314,29 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar }) => {
           <div>
             <button
               onClick={() => toggleMenu('admin')}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100"
+              aria-expanded={openMenus.admin}
+              aria-controls="admin-menu"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
             >
               <div className="flex items-center">
-                <Settings className="h-5 w-5 text-gray-500" />
+                <Settings className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 <span className="ml-3">Administrasi</span>
               </div>
-              <svg className={`${openMenus.admin ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg 
+                className={`${openMenus.admin ? 'transform rotate-90' : ''} h-4 w-4 text-gray-500 transition-transform`} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
             {openMenus.admin && (
-              <div className="mt-1 pl-8 space-y-1">
+              <div id="admin-menu" className="mt-1 pl-8 space-y-1" role="group" aria-label="Administration submenu">
                 <Link to="/admin/settings" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Pengaturan Sistem</Link>
                 <Link to="/admin/users" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Manajemen User</Link>
                 <Link to="/admin/landing" className="text-gray-600 group flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-blue-50 hover:text-blue-700">Template Landing Page</Link>

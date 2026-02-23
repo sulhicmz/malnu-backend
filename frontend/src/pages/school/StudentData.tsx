@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UserPlus, User, Edit, Trash2 } from 'lucide-react';
 import { studentApi } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
 import SearchFilter from '../../components/ui/SearchFilter';
 import ActionMenu from '../../components/ui/ActionMenu';
 import Pagination from '../../components/ui/Pagination';
+
 import type { Student } from '../../types/api';
 
 const StudentData: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
 
   const handleWebSocketMessage = (data: unknown) => {
     const message = data as { type: string; student?: Student; studentId?: string };
@@ -46,6 +48,84 @@ const StudentData: React.FC = () => {
 
     fetchStudents();
   }, []);
+
+
+  const handleDeleteStudent = useCallback(async (student: Student) => {
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin menghapus siswa "${student.name}"?\n\nTindakan ini tidak dapat dibatalkan.`
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeleteLoading(student.id);
+      await studentApi.delete(student.id);
+      setStudents(prev => prev.filter(s => s.id !== student.id));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Gagal menghapus siswa';
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      setDeleteLoading(null);
+    }
+  }, []);
+
+
+  const handleViewStudent = useCallback((student: Student) => {
+    const statusLabel = student.status === 'active' ? 'Aktif' :
+                       student.status === 'inactive' ? 'Non-Aktif' :
+                       student.status === 'graduated' ? 'Lulus' :
+                       student.status === 'dropped_out' ? 'Keluar' : 'Cuti';
+    const details = [
+      `Nama: ${student.name}`,
+      `NISN: ${student.nisn}`,
+      `Status: ${statusLabel}`,
+      student.class ? `Kelas: ${student.class}` : '',
+      student.email ? `Email: ${student.email}` : '',
+      student.birth_date ? `Tanggal Lahir: ${new Date(student.birth_date).toLocaleDateString('id-ID')}` : '',
+      student.enrollment_date ? `Tanggal Daftar: ${new Date(student.enrollment_date).toLocaleDateString('id-ID')}` : '',
+      student.enrollmentYear ? `Tahun Masuk: ${student.enrollmentYear}` : '',
+    ].filter(Boolean).join('\n');
+    
+    alert(`Detail Siswa\n\n${details}`);
+  }, []);
+
+
+  const handleEditStudent = useCallback((student: Student) => {
+    // TODO: Implement edit functionality with modal or navigation
+
+    alert(`Fitur edit untuk "${student.name}" belum tersedia.\nSilakan hubungi administrator untuk perubahan data.`);
+  }, []);
+
+
+  const getStatusStyles = (status: Student['status']) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-red-100 text-red-800';
+      case 'graduated':
+        return 'bg-blue-100 text-blue-800';
+      case 'dropped_out':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+
+
+  const getStatusLabel = (status: Student['status']) => {
+    switch (status) {
+      case 'active':
+        return 'Aktif';
+      case 'inactive':
+        return 'Non-Aktif';
+      case 'graduated':
+        return 'Lulus';
+      case 'dropped_out':
+        return 'Keluar';
+      default:
+        return 'Cuti';
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -128,7 +208,7 @@ const StudentData: React.FC = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">{student.email}</div>
+                          <div className="text-sm text-gray-500">{student.email || '-'}</div>
                         </div>
                       </div>
                     </td>
@@ -136,32 +216,42 @@ const StudentData: React.FC = () => {
                       {student.nisn}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
-                      {student.class}
+                      {student.class || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" role="gridcell">
-                      {student.enrollmentYear}
+                      {student.enrollmentYear || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap" role="gridcell">
                       <span 
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          student.status === 'active' ? 'bg-green-100 text-green-800' : 
-                          student.status === 'inactive' ? 'bg-red-100 text-red-800' : 
-                          'bg-yellow-100 text-yellow-800'
-                        }`}
-                        aria-label={`Status: ${student.status}`}
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusStyles(student.status)}`}
+                        aria-label={`Status: ${getStatusLabel(student.status)}`}
                       >
-                        {student.status === 'active' ? 'Aktif' : 
-                         student.status === 'inactive' ? 'Non-Aktif' : 
-                         'Cuti'}
+                        {getStatusLabel(student.status)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative" role="gridcell">
                       <ActionMenu
                         label={`Actions for ${student.name}`}
                         actions={[
-                          { label: 'Edit Siswa', icon: Edit, onClick: () => console.log('Edit', student.id) },
-                          { label: 'Lihat Detail', icon: User, onClick: () => console.log('View', student.id) },
-                          { label: 'Hapus Siswa', icon: Trash2, onClick: () => console.log('Delete', student.id), variant: 'danger' },
+                          { 
+                            label: deleteLoading === student.id ? 'Menghapus...' : 'Edit Siswa', 
+                            icon: Edit, 
+                            onClick: () => handleEditStudent(student),
+                            disabled: deleteLoading === student.id
+                          },
+                          { 
+                            label: 'Lihat Detail', 
+                            icon: User, 
+                            onClick: () => handleViewStudent(student),
+                            disabled: deleteLoading === student.id
+                          },
+                          { 
+                            label: deleteLoading === student.id ? 'Menghapus...' : 'Hapus Siswa', 
+                            icon: Trash2, 
+                            onClick: () => handleDeleteStudent(student), 
+                            variant: 'danger',
+                            disabled: deleteLoading === student.id
+                          },
                         ]}
                       />
                     </td>
@@ -176,25 +266,17 @@ const StudentData: React.FC = () => {
       {!loading && !error && students.length > 0 && (
         <Pagination
           currentPage={1}
-          totalPages={3}
-          onPageChange={(page) => console.log('Page changed to', page)}
+          totalPages={Math.ceil(students.length / 10)}
+          onPageChange={(page) => {
+            // TODO: Implement real pagination with API call
+            console.info('Page change requested:', page);
+          }}
           totalItems={students.length}
-          itemsPerPage={students.length}
+          itemsPerPage={10}
         />
       )}
     </div>
   );
 };
-
-interface Student {
-  id: string;
-  name: string;
-  nisn: string;
-  class: string;
-  enrollmentYear: string;
-  status: 'active' | 'inactive' | 'leave';
-  email: string;
-  avatar?: string;
-}
 
 export default StudentData;

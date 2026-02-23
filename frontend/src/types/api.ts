@@ -38,8 +38,12 @@ export interface Student {
   enrollment_date?: string
   status: 'active' | 'inactive' | 'graduated' | 'dropped_out'
   class_id?: string
+  class?: string
   parent_id?: string
   user_id?: string
+  email?: string
+  avatar?: string
+  enrollmentYear?: string
   created_at?: string
   updated_at?: string
 }

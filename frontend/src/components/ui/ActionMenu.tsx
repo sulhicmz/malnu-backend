@@ -6,6 +6,7 @@ export interface ActionItem {
   icon: LucideIcon;
   onClick: () => void;
   variant?: 'default' | 'danger';
+  disabled?: boolean;
 }
 
 interface ActionMenuProps {
@@ -79,11 +80,18 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ label, actions, triggerClassNam
               <button
                 key={index}
                 onClick={() => {
-                  action.onClick();
-                  closeMenu();
+                  if (!action.disabled) {
+                    action.onClick();
+                    closeMenu();
+                  }
                 }}
-                className={`w-full text-left block px-4 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors ${
-                  action.variant === 'danger' ? 'text-red-600 focus:ring-2 focus:ring-red-500 focus:ring-inset' : 'text-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-inset'
+                disabled={action.disabled}
+                className={`w-full text-left block px-4 py-2 text-sm transition-colors ${
+                  action.disabled 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : action.variant === 'danger' 
+                      ? 'text-red-600 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-inset' 
+                      : 'text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset'
                 }`}
                 role="menuitem"
                 tabIndex={index === 0 ? 0 : -1}

@@ -361,7 +361,7 @@ Route::group(['middleware' => ['jwt', 'rate.limit', 'role:Super Admin|Kepala Sek
     });
 
     Route::prefix('club-memberships')->group(function () {
-        Route::apiResource('club-memberships', \App\Http\Controllers\Api\ClubManagement\MembershipController::class);
+        Route::apiResource('club-memberships', \App\Http\Controllers\Api\ClubManagement\ClubMembershipController::class);
     });
 
     Route::prefix('club-advisors')->group(function () {

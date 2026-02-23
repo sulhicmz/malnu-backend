@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\EmailServiceInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;
 
-class EmailService
+class EmailService implements EmailServiceInterface
 {
     private Swift_Mailer $mailer;
 
@@ -93,6 +94,48 @@ class EmailService
                 'jitter' => true,
                 'retry_on' => [Exception::class],
                 'operation_name' => 'send_password_reset_email',
+            ]
+        );
+    }
+
+    /**
+     * Send an email.
+     *
+     * @param string $to Recipient email address
+     * @param string $subject Email subject
+     * @param string $body Email body content (HTML or plain text)
+     * @return bool True if email sent successfully, false otherwise
+     */
+    public function send(string $to, string $subject, string $body): bool
+    {
+        return $this->retryService->executeWithCircuitBreaker(
+            'email',
+            function () use ($to, $subject, $body) {
+                $message = (new Swift_Message($subject))
+                    ->setFrom([$this->fromAddress => $this->fromName])
+                    ->setTo([$to])
+                    ->setBody($body, 'text/html');
+
+                $result = $this->mailer->send($message);
+
+                $this->logger->info('Email sent', [
+                    'to' => $to,
+                    'subject' => $subject,
+                    'result' => $result,
+                ]);
+
+                return $result > 0;
+            },
+            $this->circuitBreaker,
+            $this->getFallback('send', $to),
+            [
+                'max_attempts' => $this->config['retry_attempts'],
+                'initial_delay' => 2000,
+                'max_delay' => 30000,
+                'multiplier' => 2,
+                'jitter' => true,
+                'retry_on' => [Exception::class],
+                'operation_name' => 'send_email',
             ]
         );
     }

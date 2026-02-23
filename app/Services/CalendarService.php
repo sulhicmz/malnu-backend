@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\CalendarRepositoryInterface;
+use App\Contracts\CalendarServiceInterface;
 use App\Models\Calendar\CalendarEventRegistration;
 use App\Models\Calendar\CalendarShare;
 use App\Models\Calendar\ResourceBooking;
@@ -12,7 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 
-class CalendarService
+class CalendarService implements CalendarServiceInterface
 {
     private CalendarRepositoryInterface $calendarRepository;
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, UserPlus, Download, MoreHorizontal, User, Edit, Trash2, Phone, Mail } from 'lucide-react';
 import { teacherApi } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
+import Pagination from '../../components/ui/Pagination';
 import type { Teacher } from '../../types/api';
 
 const TeacherData: React.FC = () => {
@@ -102,9 +103,20 @@ const TeacherData: React.FC = () => {
       )}
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Error! </strong>
-          <span className="block sm:inline">{error}</span>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center justify-between" role="alert" aria-live="assertive">
+          <div>
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="ml-4 p-1 rounded-full hover:bg-red-200 transition-colors"
+            aria-label="Dismiss error"
+          >
+            <svg className="h-4 w-4 text-red-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
         </div>
       )}
 
@@ -190,25 +202,27 @@ const TeacherData: React.FC = () => {
 
       {/* Pagination - will be updated when we have actual pagination data */}
       {!loading && !error && teachers.length > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            Menampilkan {teachers.length} dari {teachers.length} guru
-          </div>
-          <div className="flex space-x-2">
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-              Sebelumnya
-            </button>
-            <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-              1
-            </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
-              2
-            </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
-              3
-            </button>
-            <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 text-sm hover:bg-gray-50">
-              Selanjutnya
+        <Pagination
+          currentPage={1}
+          totalPages={3}
+          onPageChange={(page) => console.log('Page changed to', page)}
+          totalItems={teachers.length}
+          itemsPerPage={teachers.length}
+        />
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && teachers.length === 0 && (
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <User className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Tidak ada data guru</h3>
+            <p className="text-sm text-gray-500 mb-4">Belum ada data guru yang terdaftar. Tambahkan guru pertama untuk memulai.</p>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Tambah Guru
             </button>
           </div>
         </div>

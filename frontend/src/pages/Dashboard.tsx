@@ -3,6 +3,16 @@ import { Users, GraduationCap, BookOpen, Calendar } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import StatCard from '../components/ui/StatCard';
 
+// Color mapping for dynamic backgrounds (Tailwind can't process dynamic classes)
+const colorMap: Record<string, string> = {
+  blue: '#dbeafe',
+  purple: '#f3e8ff',
+  green: '#dcfce7',
+  orange: '#ffedd5',
+  red: '#fee2e2',
+  yellow: '#fef9c3',
+};
+
 const Dashboard: React.FC = () => {
   // Mock data for charts
   const attendanceData = [
@@ -132,7 +142,11 @@ const Dashboard: React.FC = () => {
           <div className="space-y-4">
             {activities.map((activity, index) => (
               <div key={index} className="flex items-start">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 bg-${activity.color}-100`} aria-hidden="true">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center mr-4"
+                  style={{ backgroundColor: colorMap[activity.color] || colorMap.blue }}
+                  aria-hidden="true"
+                >
                   {activity.icon}
                 </div>
                 <div className="flex-1">

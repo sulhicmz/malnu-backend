@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\CacheServiceInterface;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
 
-class CacheService
+class CacheService implements CacheServiceInterface
 {
     private CacheInterface $cache;
 

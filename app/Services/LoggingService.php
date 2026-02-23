@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\LoggingServiceInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
 
@@ -16,7 +17,7 @@ use Psr\Container\ContainerInterface;
  * - Security event logging
  * - Request correlation ID tracking
  */
-class LoggingService
+class LoggingService implements LoggingServiceInterface
 {
     /**
      * @var LoggerInterface

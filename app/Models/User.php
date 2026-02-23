@@ -60,6 +60,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected array $hidden = [
+        'password',
+        'remember_token',
+        'last_login_ip',
+    ];
+
+    /**
      * Assign a role to the user.
      */
     public function assignRole(string $roleName): void

@@ -20,14 +20,16 @@
              <directory>tests/Feature</directory>
          </testsuite>
      </testsuites>
-     <coverage processUncoveredFiles="true">
+     <coverage processUncoveredFiles="true"
+                cacheDirectory=".phpunit.cache/code-coverage"
+                ignoreDeprecatedCode="true">
          <include>
              <directory suffix=".php">app</directory>
          </include>
          <report>
              <html outputDirectory="build/coverage/html"/>
              <clover outputFile="build/coverage/clover.xml"/>
-             <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="true"/>
+             <text outputFile="build/coverage/coverage.txt" showUncoveredFiles="true" showOnlySummary="false"/>
          </report>
      </coverage>
      <source>

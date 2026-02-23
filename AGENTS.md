@@ -210,6 +210,174 @@ This repository uses **OpenCode CLI** as the primary AI agent framework with mul
 | Temperature | 0.1 |
 
 **Role:** Codebase exploration and pattern discovery
+---
+
+### metis - Pre-Planning Consultant
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.1 |
+
+**Role:** Pre-planning consultant that analyzes requests to identify hidden intentions, ambiguities, and AI failure points
+
+---
+
+### momus - Review Specialist
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.1 |
+
+**Role:** Expert reviewer for evaluating work plans against rigorous clarity, verifiability, and completeness standards
+
+---
+
+## Parallel Specialist Agents (oh-my-opencode.json)
+
+These agents support the parallel.yml workflow for specialized domain work:
+
+### system-architect
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.1 |
+
+**Role:** System design and architecture
+
+---
+
+### RnD
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/kimi-k2.5-free` |
+| Temperature | 0.3 |
+
+**Role:** Research and development
+
+---
+
+### Product-Architect
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.2 |
+
+**Role:** Product strategy and features
+
+---
+
+### ai-agent-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/kimi-k2.5-free` |
+| Temperature | 0.2 |
+
+**Role:** AI/ML engineering and agent improvements
+
+---
+
+### backend-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/kimi-k2.5-free` |
+| Temperature | 0.2 |
+
+**Role:** Backend development
+
+---
+
+### frontend-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/minimax-m2.1-free` |
+| Temperature | 0.3 |
+
+**Role:** Frontend development
+
+---
+
+### ui-ux-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/minimax-m2.1-free` |
+| Temperature | 0.3 |
+
+**Role:** UI/UX design
+
+---
+
+### platform-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.2 |
+
+**Role:** Platform infrastructure
+
+---
+
+### security-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/kimi-k2.5-free` |
+| Temperature | 0.1 |
+
+**Role:** Security engineering
+
+---
+
+### quality-assurance
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.2 |
+
+**Role:** QA and testing
+
+---
+
+### DX-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.3 |
+
+**Role:** Developer experience
+
+---
+
+### technical-writer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/kimi-k2.5-free` |
+| Temperature | 0.3 |
+
+**Role:** Documentation
+
+---
+
+### user-story-engineer
+
+| Property | Value |
+|----------|-------|
+| Model | `opencode/glm-4.7-free` |
+| Temperature | 0.2 |
+
+**Role:** User story implementation
 
 ---
 

@@ -27,10 +27,14 @@ return [
     | passwords are hashed using the Bcrypt algorithm. This will allow you
     | to control the amount of time it takes to hash the given password.
     |
+    | Security Note: OWASP recommends a minimum of 12 rounds (work factor) for
+    | bcrypt to provide adequate protection against brute-force attacks.
+    | Higher rounds increase security but also increase hashing time.
+    |
     */
 
     'bcrypt' => [
-        'rounds' => env('BCRYPT_ROUNDS', 10),
+        'rounds' => env('BCRYPT_ROUNDS', 12),
     ],
 
     /*

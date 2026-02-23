@@ -152,7 +152,7 @@ class JWTServiceTest extends TestCase
         ]);
         $base64Header = rtrim(strtr(base64_encode($header), '+/', '-_'), '=');
         $base64Claims = rtrim(strtr(base64_encode($claims), '+/', '-_'), '=');
-        $signature = hash_hmac('sha256', $base64Header . '.' . $base64Claims, 'test_secret_key_for_testing_purposes_only', true);
+        $signature = hash_hmac('sha256', $base64Header . '.' . $base64Claims, config('jwt.secret'), true);
         $base64Signature = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
         $expiredToken = $base64Header . '.' . $base64Claims . '.' . $base64Signature;
 

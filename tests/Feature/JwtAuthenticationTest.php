@@ -35,8 +35,12 @@ class JwtAuthenticationTest extends TestCase
     {
         // Create a JWT service with a short TTL for testing
         $jwtService = new class {
-            private string $secret = 'test_secret';
+            private string $secret;
 
+            public function __construct()
+            {
+                $this->secret = config('jwt.secret');
+            }
             public function generateExpiredToken(): string
             {
                 $issuedAt = time() - 3600; // 1 hour ago

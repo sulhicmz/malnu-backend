@@ -176,7 +176,7 @@ The repository has a **critical duplicate PR problem** with 30+ open PRs address
 4. `oc-issue-solver.yml` - OpenCode issue solver agent
 5. `oc-problem-finder.yml` - OpenCode problem finder agent
 6. `oc-pr-handler.yml` - OpenCode PR handler agent
-7. `oc- researcher.yml` - OpenCode researcher agent
+7. `oc-researcher.yml` - OpenCode researcher agent
 8. `oc-cf-supabase.yml` - OpenCode Supabase integration
 9. `openhands.yml` - OpenHands integration
 10. `workflow-monitor.yml` - Workflow monitoring

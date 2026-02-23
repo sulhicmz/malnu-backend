@@ -1,5 +1,16 @@
 import React from 'react';
 import { ArrowUp, ArrowDown } from 'lucide-react';
+// Color mapping for dynamic backgrounds (Tailwind can't process dynamic classes)
+const colorMap: Record<string, string> = {
+  blue: '#dbeafe',
+  purple: '#f3e8ff',
+  green: '#dcfce7',
+  orange: '#ffedd5',
+  red: '#fee2e2',
+  yellow: '#fef9c3',
+  indigo: '#e0e7ff',
+  pink: '#fce7f3',
+};
 
 interface StatCardProps {
   title: string;
@@ -27,7 +38,11 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, isIncrease, i
             </div>
           )}
         </div>
-        <div className={`p-3 rounded-full bg-${color}-100`} aria-hidden="true">
+        <div
+          className="p-3 rounded-full"
+          style={{ backgroundColor: colorMap[color] || colorMap.blue }}
+          aria-hidden="true"
+        >
           {icon}
         </div>
       </div>

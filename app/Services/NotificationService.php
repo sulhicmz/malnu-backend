@@ -130,7 +130,7 @@ class NotificationService implements NotificationServiceInterface
 
     public function getUserNotifications(string $userId, ?int $limit = 20, ?int $offset = 0): array
     {
-        $query = $this->notificationRecipient::with('notification')
+        $query = $this->notificationRecipientModel::with('notification')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc');
 

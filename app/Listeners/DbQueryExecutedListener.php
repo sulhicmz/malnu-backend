@@ -7,17 +7,16 @@ namespace App\Listeners;
 use Hypervel\Support\Arr;
 use Hypervel\Database\Events\QueryExecuted;
 use Hypervel\Event\Contracts\Listener;
-use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
-class DbQueryExecutedListener implements ListenerInterface
+class DbQueryExecutedListener implements Listener
 {
     private LoggerInterface $logger;
 
     public function __construct(ContainerInterface $container)
     {
-        $this->logger = $container->get(StdoutLogger::class);
+        $this->logger = $container->get(LoggerInterface::class);
     }
 
     public function listen(): array

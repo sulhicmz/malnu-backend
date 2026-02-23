@@ -767,4 +767,4 @@ sudo systemctl start malnu-backend
 
 ---
 
-*Last Updated: January 8, 2026*
+*Last Updated: February 23, 2026*

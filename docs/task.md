@@ -810,5 +810,5 @@ These fixes address critical vulnerabilities that could allow:
 
 ---
 
-*Last Updated: January 7, 2026*
+*Last Updated: February 23, 2026*
 *Owner: Principal Product Strategist*

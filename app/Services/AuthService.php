@@ -277,26 +277,6 @@ class AuthService implements AuthServiceInterface
             throw new ValidationException('New password: ' . implode(' ', $errors));
         }
 
-        // Validate new password strength (backend validation as safety net)
-        if (strlen($newPassword) < 8) {
-            throw new ValidationException('New password must be at least 8 characters long');
-        }
-
-        if (! preg_match('/[A-Z]/', $newPassword)) {
-            throw new ValidationException('Password must contain at least 1 uppercase letter');
-        }
-
-        if (! preg_match('/[a-z]/', $newPassword)) {
-            throw new ValidationException('Password must contain at least 1 lowercase letter');
-        }
-
-        if (!preg_match('/[0-9]/', $newPassword)) {
-            throw new ValidationException('Password must contain at least 1 number');
-        }
-
-        if (! preg_match('/[!@#$%^&*(),.?":{}|<>]/', $newPassword)) {
-            throw new ValidationException('Password must contain at least 1 special character');
-        }
 
         // Update user password
         $user->update([
